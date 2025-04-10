@@ -1,17 +1,14 @@
 ---
-title: Spring Kafka 消息头反序列化漏洞（CVE-2023-34040）
+title: JAVA生态常见架构介绍、配置与逻辑定位方法
 date: 2025-04-10 17:56:11
 tags:
-- Spring Kafka
-- CVE-2023-34040
-- RCE
-- 反序列化
+- Java
+- jetty
+- axis2
+- struts2
 - 网络安全
-- 漏洞分析
-- 漏洞
 categories:
 - 安全技术
-- 漏洞分析
 ---
 
 不知道你在挖洞过程中是否碰到过这样一个问题，资源下载到了，调试环境也搞定了却迟迟找不到合适的地方下断点进行调试，这时候你会选择怎么办？是去寻找启动类一行一行代码查看直到找到URI的处理函数，还是快准狠地定位到关键点马上出洞？我想不会有人想要选择第一种方法，但按照第一种方法不断地熟悉不同的框架的过程却是一个挖洞小白向大佬进化的过程，我们往往需要在这个过程中不断地积累足够的经验来熟悉常见的技术与框架，这几乎是每一个大佬成长路上必须要走的路。毫无疑问，这种曲折的过程最能增长人们的能力，不过这个过程往往是痛苦且枯燥的，在挖洞过程中，时间紧任务重的情况下，我们往往在这个过程中浪费了大量的时间与精力，所以我给大家简单总结了一下我们应该如何去找到一些常见框架进行资源处理与存放、配置存放与解析规则的方法。
@@ -29,7 +26,7 @@ struts2的配置文件名为struts.xml，在实践中struts往往作为一个入
 struts2 action是被package管理的，每个package标签下往往有多个action标签，每个action标签可以处理一个或多个请求，具体通过对标签属性name使用通配符的方式进行，标签属性class指定action的处理类。action标签下的子标签result能够根据请求处理方法返回的字符串加载不同的资源进行视图渲染来进行响应。
 
 如：
-
+```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE struts PUBLIC
 "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
@@ -41,6 +38,7 @@ struts2 action是被package管理的，每个package标签下往往有多个acti
 </action>
 </package>
 </struts>
+```
 上例注册的action将会匹配所有以loginAction结尾的请求，并将请求交到LoginAction类进行处理，调用的方法是被name属性通配符匹配到的字符串同名的方法。方法调用成功后返回success将加载index.jsp渲染响应给客户端。
 
 spring boot
@@ -49,8 +47,7 @@ spring boot可能实在没有什么值得多说的，因为大家都太熟了，
 首先，我们还是程序性得确定一下spring boot打包的jar包的结构，其与其他标准jar包略有差异，除了标准的meta-inf文件夹存放一些元信息以外，还多了一个boot-inf的文件夹，这个boot-inf文件夹下的内容才是我们真正的启动类，在meta-inf文件夹下有个MANIFEST.MF文件，我们在这个文件中找到两个属性Main-Class 与 Start-Class，其中Main-Class指定的就是spring boot的启动类，而Start-Class指定的就是我们编写的启动类。
 
 言归正传，我们重点是在庞杂的jar包中找到真正存放请求处理类的jar包，那么如何快速定位呢？我们知道Spring Web是通过前端控制器DispatcherServlet来进行请求的分发的，在DispatcherServlet中方法doDispatch负责具体的分发逻辑，其中DispatcherServlet this对象的handlerMappings 属性存放的就是所有的注册的所有请求的处理对象，当用户请求到来时将从这个map中取得对应的handlerMapping调用对应的方法对请求进行处理，故我们只需要遍历handlerMappings就可以找到controlle所在的位置了。具体的操作可能不太方便描述，我们只需要逐级展开该对象获取器属性，然后找到带controller字样的属性然后鼠标右键选择jump to type source就可以跳转到类型的定义为止。当然我讲的这些都是在调试环境下进行的。
-
-图片
+![](640.webp)
 
 
 axis2
