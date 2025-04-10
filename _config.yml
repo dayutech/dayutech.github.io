@@ -3,17 +3,17 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
-subtitle: ''
+title: Dayu Technology Co., LTD
+subtitle: '大禹科技股份有限公司'
 description: ''
 keywords:
-author: John Doe
-language: en
+author: Arliya
+language: zh-CN
 timezone: ''
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: http://example.com
+url: https://dayutech.github.io/
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
@@ -96,7 +96,7 @@ ignore:
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+theme: next
 
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
@@ -104,3 +104,9 @@ deploy:
   type: 'git'
   repo: https://github.com/dayutech/dayutech.github.io.git
   branch: deploy
+
+search:
+  path: search.xml
+  field: post
+  format: html
+  limit: 10000
