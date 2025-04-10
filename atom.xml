@@ -61,36 +61,6 @@
   </entry>
   
   <entry>
-    <title>Blog-Test</title>
-    <link href="https://dayutech.github.io/2025/04/10/Blog-Test/"/>
-    <id>https://dayutech.github.io/2025/04/10/Blog-Test/</id>
-    <published>2025-04-10T08:16:11.000Z</published>
-    <updated>2025-04-10T08:19:02.412Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Hello-World"><a href="#Hello-World" class="headerlink" title="Hello World"></a>Hello World</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.dayutech.hello</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, String[] argv)</span>&#123;</span><br><span class="line">        System.out.pringln(<span class="string">&quot;Hello World!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
-    
-    
-      
-      
-    <summary type="html">&lt;h1 id=&quot;Hello-World&quot;&gt;&lt;a href=&quot;#Hello-World&quot; class=&quot;headerlink&quot; title=&quot;Hello World&quot;&gt;&lt;/a&gt;Hello World&lt;/h1&gt;&lt;figure class=&quot;highlight java&quot;&gt;&lt;table</summary>
-      
-    
-    
-    
-    <category term="随笔" scheme="https://dayutech.github.io/categories/%E9%9A%8F%E7%AC%94/"/>
-    
-    
-    <category term="Java" scheme="https://dayutech.github.io/tags/Java/"/>
-    
-    <category term="Windows" scheme="https://dayutech.github.io/tags/Windows/"/>
-    
-    <category term="逆向" scheme="https://dayutech.github.io/tags/%E9%80%86%E5%90%91/"/>
-    
-    <category term="网络安全" scheme="https://dayutech.github.io/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
-    
-  </entry>
-  
-  <entry>
     <title>Hello World</title>
     <link href="https://dayutech.github.io/2025/04/10/hello-world/"/>
     <id>https://dayutech.github.io/2025/04/10/hello-world/</id>

@@ -19,21 +19,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>Blog-Test</title>
-    <url>/2025/04/10/Blog-Test/</url>
-    <content><![CDATA[<h1 id="Hello-World"><a href="#Hello-World" class="headerlink" title="Hello World"></a>Hello World</h1><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.dayutech.hello</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, String[] argv)</span>&#123;</span><br><span class="line">        System.out.pringln(<span class="string">&quot;Hello World!&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>随笔</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>Windows</tag>
-        <tag>逆向</tag>
-        <tag>网络安全</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>SSO解决方案简介</title>
     <url>/2025/04/10/SSO%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E7%AE%80%E4%BB%8B/</url>
     <content><![CDATA[<h1 id="什么是SSO，为什么需要SSO"><a href="#什么是SSO，为什么需要SSO" class="headerlink" title="什么是SSO，为什么需要SSO"></a>什么是SSO，为什么需要SSO</h1><p>如果单从字面意思来理解，SSO表达了一种什么样的含义？我们知道，SSO的中文翻译为单点登录，顾名思义，即为单点，则表示在一个地方登录，登录的结果便是可以在多个地方被使用。在生活中常见的B&#x2F;S场景下，我们有时需要通过用户名密码来声明我们对某个网站的某些资源具有访问权限，如果存在多个这样的网站，出于安全考虑我们可能就需要每一个网站均通过不同的用户名密码来声明对这些资源的访问权限，这就导致我们需要记录大量的密码以及反复完成登录操作，这个过程是繁琐且容易出错的。SSO的出现便能在一定程度上对这个缺陷进行弥补。</p>
