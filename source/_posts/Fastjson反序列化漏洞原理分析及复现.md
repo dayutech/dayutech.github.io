@@ -1,13 +1,14 @@
 ---
 title: Fastjson反序列化漏洞原理分析及复现
-date: 2025-04-10 20:56:11
 tags:
-- FashJSON
-- 反序列化
-- 网络安全
+  - FashJSON
+  - 反序列化
+  - 网络安全
 categories:
-- 安全技术
-- 漏洞分析
+  - 安全技术
+  - 漏洞分析
+abbrlink: 38dceb78
+date: 2025-04-10 20:56:11
 ---
 # Fastjson反序列化漏洞原理分析及复现
 

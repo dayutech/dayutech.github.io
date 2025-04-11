@@ -1,15 +1,16 @@
 ---
 title: SSO解决方案简介
-date: 2025-04-10 16:37:11
 tags:
-- 单点登录
-- SSO
-- OAuth
-- CAS
-- OIDC
-- SAML2
+  - 单点登录
+  - SSO
+  - OAuth
+  - CAS
+  - OIDC
+  - SAML2
 categories:
-- 安全技术
+  - 安全技术
+abbrlink: ad6b67bf
+date: 2025-04-10 16:37:11
 ---
 # 什么是SSO，为什么需要SSO
 
