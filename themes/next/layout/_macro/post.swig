@@ -246,6 +246,7 @@
               <a href="{{ url_for(tag.path) }}" rel="tag">{{ tag_indicate }} {{ tag.name }}</a>
             {%- endfor %}
           </div>
+		  {% include 'tag-color.swig' %}
         {%- endif %}
 
         {{ partial('_partials/post/post-footer.swig', {}, {cache: theme.cache.enable}) }}

@@ -52,9 +52,9 @@
 		  </div>
 		  <ul class="links-of-blogroll-list">
 		<!-- 文章排序规格,-updated 按照文章更新时间倒排 -->
-			{% set posts = site.posts.sort('-updated').toArray() %}
+			{% set posts = site.posts.sort('updated').toArray() %}
 		<!-- 显示20数目的文章 -->
-			{% for post in posts.slice('0','20') %}
+			{% for post in posts.slice('0','10') %}
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
 				<a href="{{ url_for(post.path) }}" title="{{ post.title }}" target="_blank">{{ post.title }}</a>
 			  </li>
