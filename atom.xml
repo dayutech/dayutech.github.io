@@ -82,11 +82,11 @@
     <category term="漏洞原理" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
     
     
-    <category term="漏洞原理" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
-    
     <category term="PHP" scheme="https://dayutech.github.io/tags/PHP/"/>
     
     <category term="代码执行" scheme="https://dayutech.github.io/tags/%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/"/>
+    
+    <category term="漏洞原理" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
     
   </entry>
   
@@ -105,9 +105,9 @@
     <category term="漏洞原理" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
     
     
-    <category term="漏洞原理" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
-    
     <category term="PHP" scheme="https://dayutech.github.io/tags/PHP/"/>
+    
+    <category term="漏洞原理" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
     
     <category term="命令执行" scheme="https://dayutech.github.io/tags/%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/"/>
     
@@ -199,9 +199,9 @@
     
     <category term="网络安全" scheme="https://dayutech.github.io/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
     
-    <category term="ldap" scheme="https://dayutech.github.io/tags/ldap/"/>
-    
     <category term="漏洞原理" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
+    
+    <category term="ldap" scheme="https://dayutech.github.io/tags/ldap/"/>
     
   </entry>
   
@@ -268,6 +268,42 @@
   </entry>
   
   <entry>
+    <title>Apache RocketMQ 远程代码执行（CVE-2023-37582）</title>
+    <link href="https://dayutech.github.io/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-37582/"/>
+    <id>https://dayutech.github.io/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-37582/</id>
+    <published>2025-04-10T09:56:11.000Z</published>
+    <updated>2025-04-11T06:35:46.241Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;CVE-2023-37582&quot;&gt;&lt;a href=&quot;#CVE-2023-37582&quot; class=&quot;headerlink&quot; title=&quot;CVE-2023-37582&quot;&gt;&lt;/a&gt;CVE-2023-37582&lt;/h1&gt;&lt;h2 id=&quot;产品介绍&quot;&gt;&lt;a href=&quot;#产品介绍&quot; class=&quot;headerlink&quot; title=&quot;产品介绍&quot;&gt;&lt;/a&gt;产品介绍&lt;/h2&gt;&lt;p&gt;RocketMQ是阿里巴巴在2012年开发的分布式消息中间件，后捐献给Apache软件基金会并成为Apache的顶级项目。RocketMQ专为万亿级超大规模的消息处理而设计，具有高吞吐量、低延迟、海量堆积、顺序收发等特点。&lt;/p&gt;
+&lt;h2 id=&quot;漏洞概述&quot;&gt;&lt;a href=&quot;#漏洞概述&quot; class=&quot;headerlink&quot; title=&quot;漏洞概述&quot;&gt;&lt;/a&gt;漏洞概述&lt;/h2&gt;&lt;p&gt;当RocketMQ的NameServer组件暴露在外网，并且缺乏有效的身份认证机制时，攻击者可以利用nameServer更新配置功能，以RocketMQ运行的系统用户身份进行任意文件上传，甚至实现远程代码执行。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="漏洞分析" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    
+    
+    <category term="Apache RocketMQ" scheme="https://dayutech.github.io/tags/Apache-RocketMQ/"/>
+    
+    <category term="RCE" scheme="https://dayutech.github.io/tags/RCE/"/>
+    
+    <category term="远程代码执行" scheme="https://dayutech.github.io/tags/%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/"/>
+    
+    <category term="反序列化" scheme="https://dayutech.github.io/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"/>
+    
+    <category term="网络安全" scheme="https://dayutech.github.io/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
+    
+    <category term="漏洞分析" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    
+    <category term="漏洞" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E/"/>
+    
+    <category term="CVE-2023-37582" scheme="https://dayutech.github.io/tags/CVE-2023-37582/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</title>
     <link href="https://dayutech.github.io/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/"/>
     <id>https://dayutech.github.io/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/</id>
@@ -301,42 +337,6 @@
     <category term="CVE-2022-45689" scheme="https://dayutech.github.io/tags/CVE-2022-45689/"/>
     
     <category term="DoS" scheme="https://dayutech.github.io/tags/DoS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Apache RocketMQ 远程代码执行（CVE-2023-37582）</title>
-    <link href="https://dayutech.github.io/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-37582/"/>
-    <id>https://dayutech.github.io/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-37582/</id>
-    <published>2025-04-10T09:56:11.000Z</published>
-    <updated>2025-04-11T06:35:46.241Z</updated>
-    
-    
-    <summary type="html">&lt;h1 id=&quot;CVE-2023-37582&quot;&gt;&lt;a href=&quot;#CVE-2023-37582&quot; class=&quot;headerlink&quot; title=&quot;CVE-2023-37582&quot;&gt;&lt;/a&gt;CVE-2023-37582&lt;/h1&gt;&lt;h2 id=&quot;产品介绍&quot;&gt;&lt;a href=&quot;#产品介绍&quot; class=&quot;headerlink&quot; title=&quot;产品介绍&quot;&gt;&lt;/a&gt;产品介绍&lt;/h2&gt;&lt;p&gt;RocketMQ是阿里巴巴在2012年开发的分布式消息中间件，后捐献给Apache软件基金会并成为Apache的顶级项目。RocketMQ专为万亿级超大规模的消息处理而设计，具有高吞吐量、低延迟、海量堆积、顺序收发等特点。&lt;/p&gt;
-&lt;h2 id=&quot;漏洞概述&quot;&gt;&lt;a href=&quot;#漏洞概述&quot; class=&quot;headerlink&quot; title=&quot;漏洞概述&quot;&gt;&lt;/a&gt;漏洞概述&lt;/h2&gt;&lt;p&gt;当RocketMQ的NameServer组件暴露在外网，并且缺乏有效的身份认证机制时，攻击者可以利用nameServer更新配置功能，以RocketMQ运行的系统用户身份进行任意文件上传，甚至实现远程代码执行。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="漏洞分析" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
-    
-    
-    <category term="Apache RocketMQ" scheme="https://dayutech.github.io/tags/Apache-RocketMQ/"/>
-    
-    <category term="RCE" scheme="https://dayutech.github.io/tags/RCE/"/>
-    
-    <category term="远程代码执行" scheme="https://dayutech.github.io/tags/%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/"/>
-    
-    <category term="反序列化" scheme="https://dayutech.github.io/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"/>
-    
-    <category term="网络安全" scheme="https://dayutech.github.io/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
-    
-    <category term="漏洞分析" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
-    
-    <category term="漏洞" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E/"/>
-    
-    <category term="CVE-2023-37582" scheme="https://dayutech.github.io/tags/CVE-2023-37582/"/>
     
   </entry>
   
@@ -405,6 +405,38 @@
   </entry>
   
   <entry>
+    <title>WebFlux Security 认证绕过（CVE-2023-34034）</title>
+    <link href="https://dayutech.github.io/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/"/>
+    <id>https://dayutech.github.io/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/</id>
+    <published>2025-04-10T09:56:11.000Z</published>
+    <updated>2025-04-11T06:33:16.821Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;WebFlux-Security-认证绕过（CVE-2023-34034）&quot;&gt;&lt;a href=&quot;#WebFlux-Security-认证绕过（CVE-2023-34034）&quot; class=&quot;headerlink&quot; title=&quot;WebFlux Security 认证绕过（CVE-2023-34034）&quot;&gt;&lt;/a&gt;WebFlux Security 认证绕过（CVE-2023-34034）&lt;/h1&gt;&lt;h2 id=&quot;产品介绍&quot;&gt;&lt;a href=&quot;#产品介绍&quot; class=&quot;headerlink&quot; title=&quot;产品介绍&quot;&gt;&lt;/a&gt;产品介绍&lt;/h2&gt;&lt;p&gt;Spring WebFlux 是 Spring Framework 5.0 中引入的新的响应式Web框架。与Spring MVC不同，它不需要Servlet API，是完全异步且非阻塞的，并且通过Reactor项目实现了Reactive Streams规范。Spring WebFlux 可用于创建基于事件循环执行模型的完全异步且非阻塞的应用程序。&lt;/p&gt;
+&lt;h2 id=&quot;漏洞概述&quot;&gt;&lt;a href=&quot;#漏洞概述&quot; class=&quot;headerlink&quot; title=&quot;漏洞概述&quot;&gt;&lt;/a&gt;漏洞概述&lt;/h2&gt;&lt;p&gt;当WebFlux使用了Spring Security进行用户认证与鉴权时，若错误地使用了无前导”&amp;#x2F;“的路径通配符”**“，程序将因为WebFlux与Spring Security对其不同的解析模式差异导致可能的认证绕过。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="漏洞分析" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    
+    
+    <category term="网络安全" scheme="https://dayutech.github.io/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
+    
+    <category term="漏洞分析" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    
+    <category term="漏洞" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E/"/>
+    
+    <category term="WebFlux Security" scheme="https://dayutech.github.io/tags/WebFlux-Security/"/>
+    
+    <category term="CVE-2023-34034" scheme="https://dayutech.github.io/tags/CVE-2023-34034/"/>
+    
+    <category term="认证绕过" scheme="https://dayutech.github.io/tags/%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Spring Kafka 消息头反序列化漏洞（CVE-2023-34040）</title>
     <link href="https://dayutech.github.io/2025/04/10/Spring-Kafka%E6%B6%88%E6%81%AF%E5%A4%B4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2023-34040/"/>
     <id>https://dayutech.github.io/2025/04/10/Spring-Kafka%E6%B6%88%E6%81%AF%E5%A4%B4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2023-34040/</id>
@@ -435,38 +467,6 @@
     <category term="Spring Kafka" scheme="https://dayutech.github.io/tags/Spring-Kafka/"/>
     
     <category term="CVE-2023-34040" scheme="https://dayutech.github.io/tags/CVE-2023-34040/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>WebFlux Security 认证绕过（CVE-2023-34034）</title>
-    <link href="https://dayutech.github.io/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/"/>
-    <id>https://dayutech.github.io/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/</id>
-    <published>2025-04-10T09:56:11.000Z</published>
-    <updated>2025-04-11T06:33:16.821Z</updated>
-    
-    
-    <summary type="html">&lt;h1 id=&quot;WebFlux-Security-认证绕过（CVE-2023-34034）&quot;&gt;&lt;a href=&quot;#WebFlux-Security-认证绕过（CVE-2023-34034）&quot; class=&quot;headerlink&quot; title=&quot;WebFlux Security 认证绕过（CVE-2023-34034）&quot;&gt;&lt;/a&gt;WebFlux Security 认证绕过（CVE-2023-34034）&lt;/h1&gt;&lt;h2 id=&quot;产品介绍&quot;&gt;&lt;a href=&quot;#产品介绍&quot; class=&quot;headerlink&quot; title=&quot;产品介绍&quot;&gt;&lt;/a&gt;产品介绍&lt;/h2&gt;&lt;p&gt;Spring WebFlux 是 Spring Framework 5.0 中引入的新的响应式Web框架。与Spring MVC不同，它不需要Servlet API，是完全异步且非阻塞的，并且通过Reactor项目实现了Reactive Streams规范。Spring WebFlux 可用于创建基于事件循环执行模型的完全异步且非阻塞的应用程序。&lt;/p&gt;
-&lt;h2 id=&quot;漏洞概述&quot;&gt;&lt;a href=&quot;#漏洞概述&quot; class=&quot;headerlink&quot; title=&quot;漏洞概述&quot;&gt;&lt;/a&gt;漏洞概述&lt;/h2&gt;&lt;p&gt;当WebFlux使用了Spring Security进行用户认证与鉴权时，若错误地使用了无前导”&amp;#x2F;“的路径通配符”**“，程序将因为WebFlux与Spring Security对其不同的解析模式差异导致可能的认证绕过。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="漏洞分析" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
-    
-    
-    <category term="网络安全" scheme="https://dayutech.github.io/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
-    
-    <category term="漏洞分析" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
-    
-    <category term="漏洞" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E/"/>
-    
-    <category term="WebFlux Security" scheme="https://dayutech.github.io/tags/WebFlux-Security/"/>
-    
-    <category term="CVE-2023-34034" scheme="https://dayutech.github.io/tags/CVE-2023-34034/"/>
-    
-    <category term="认证绕过" scheme="https://dayutech.github.io/tags/%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87/"/>
     
   </entry>
   
