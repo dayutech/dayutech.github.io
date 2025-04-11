@@ -45,3 +45,25 @@ for $inject_mixin in hexo-config('injects.mixin')
 // --------------------------------------------------
 for $inject_style in hexo-config('injects.style')
   @import $inject_style;
+
+//侧边栏计数伪类
+body {
+counter-reset: postsSidebarNumbsection; 
+}
+
+.postsSidebarNumb::before {
+  counter-increment: postsSidebarNumbsection;
+  content: counter(postsSidebarNumbsection) ": ";
+}
+.scroll{
+	height:400px;
+	overflow:hidden;
+}
+
+.scroll:hover {
+    overflow-y: auto;
+}
+.sidebar-right{
+	position: fixed;
+	right: 0;
+}

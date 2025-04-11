@@ -256,7 +256,7 @@ symbols_count_time:
   item_text_total: true
 
 # Use icon instead of the symbol # to indicate the tag at the bottom of the post
-tag_icon: false
+tag_icon: true
 
 # Reward (Donate)
 # Front-matter variable (unsupport animation).
@@ -996,3 +996,10 @@ vendors:
 css: css
 js: js
 images: images
+
+# 近期文章配置  
+recent_posts:
+  enable: true
+  icon: fab fa-markdown
+  description: 文章列表
+
