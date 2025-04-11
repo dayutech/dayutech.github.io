@@ -1,0 +1,231 @@
+﻿Name,Tags
+chown root:root a.txt,更改文件所有这
+chgrp bin a.txt,更改文件所属组，凡是文件所属组的所有用户均可使用改命令
+chattr -i a.txt,"更改文件属性 -i 使文件不能被轻易更改
+-a 只能以追加模式添加内容"
+lsattr a.txt,列出文件属性
+chmod 777 a.txt,"更改文件权限 -c 只有文件权限确实被更改之后才显示提示信息
+-R 递归地更改
+-v 显示更改过程
+-f 忽略错误信息"
+cksum a.txt,计算文件的crc校验码。返回格式为 校验码 字节数 文件名
+cmp a.txt b.txt,"比较两个文件，如果不同则会返回第一个不同之处的字符以及所在列数 
+-l 列出所有不一样之处
+-s 忽略错误信息
+-v 显示版本信息"
+"file ","辨识文件类型
+-i 显示mime类型
+-b 不显示文件名称
+-c 显示执行过程
+-v 显示版本信息"
+find path option,"-name 文件名
+-type c 文件 d 目录 l 符号连接 f 一般文件
+-atime n 被读取时间
+-ctime -n 访问时间
+-size n 大小
+-empty 空文件
+-mtime +n 修改时间
+-perm 777 权限
+-user"
+cut  option start-end a.txt,"按行截取从start 到end 的字符
+-b 字节
+-c 字符
+"
+cut -d : -f 2 a.txt,以：为分隔符 获取第二个截取的字段
+,
+"ln ",
+paste file file1 file2,"合并文件的列
+-s 将文件的隔行合并到一行显示
+-d - 合并的分隔符delimiter"
+rcp -pr root@ip add:file-path file-path,"远程复制，将远程主机某个用户root某个文件路径下的文件复制到当前主机的某个路径下面
+-p 保留文件的权限、创建时间等信息
+-r 递归地复制
+不加密"
+split -number a.txt armand,"将一个大文件切割成多个小文件 armndhe 表示新生成的文件前缀
+-b 按字节分割
+-C 在分割时尽量保持每行的完整性"
+tee filename,"从标准输入读取用户的输入并将其写入文件
+-a 以追加模式写入而不是覆盖"
+tmpwatch 24 /tmp/,"删除/tmp目中超过24小时没有被使用过的文件
+-a 删除任意类型的文件
+-f 强制删除文件过目录
+-v 显示相依执行过程
+-q 不显示执行过程"
+umask,"获取当前的权限掩码
+755=777-权限掩码"
+whereis mkdir,查询文件的信息，返回文件的文职，命令帮助手册的位置
+rhmask a.txt b.txt,将a.txt加密后得到b.txt
+scp localfile username@ip add:romte_file_path,"从本地复制文件到远程
+加密得复制"
+scp username@ip add:romte_file_path local_file_path,"从远程复制文件到本地
+-P 指定端口号"
+"read -p ""请输入值"" var
+echo $var","读取键盘输入到变量var
+-t 5 5秒后没有输入将退出"
+uname -r,内核版本号
+uname -m,内核架构特性
+uname,系统类型
+init 0,关闭系统
+telinit,关闭系统
+ls -a,
+mkdir -p,创建目录树
+"mv ",兼具重命名的功能
+netstat -an,显示所有端口
+yum list,显示所有已经安装的rpm包
+rpm -ivh package_path,"安装rpm包
+h 显示进度条
+v verbose 显示详细过程"
+rpm -uvh package_path,更新包
+rpm -e package_name,删除rpm包
+rpm -ivh package_path —replacepkgs,重新安装包
+rpm -qf /usr/bin/ls,查看某个命令的安装包
+rpm -f,更新一个已经确定更新的rpm包
+rpm -qa,显示所有已经安装的rpm包
+rpm -ql package_name,软件包生成的所有文件
+rpm -qi packagename,软件包相关信息
+rpm -qc package_name,软件包产生的配置文件
+rpm -qp,查找所有为安装的软件包
+ifup ens33,启动网卡
+ifdown ens33,停止网卡
+ifconfig ens33 192.168.11.2 netmask 255.255.255.0,配置静态IP
+route -n,显示路由比表
+host www.baidu.com,解析域名
+nslookup www.baidu.com,解析域名
+ip link,显示网卡状态
+route add -net 192.168.1.0 netmask 255.255.255.0 gw 192.168.1.1,添加静态路由
+route add -net 0/0 gw getway_ip,添加默认路由
+mount -t fuse.vmhgfs-fuse .host:/共享文件夹名 /mnt/share -o allow_other,挂在共享文件夹，需先在虚拟机管理器中添加共享文件夹路径
+"vi /etc/fstab
+.host:/共享文件夹名 /mnt/share fuse.vmhgfs-fuse allow_other 0 0 ","//在文件中添加这一行
+默认挂载在/mnt/hgfs"
+netmask -c 192.168.2.4,解析子网掩码
+netmask -s 192.134.45.4,解析子网掩码
+esc .,调用上一个命令的参数
+ls -lh a.txt,人类可读 -h
+ls -d,仅列出文件本身
+文件类型,"-：普通文件
+d：目录
+c：字符设备文件 终端，键盘 有顺序的
+b：块设备文件 磁盘文件光盘 随机的
+l：符号链接文件
+p：管道文件
+s：套接字文件 进程之间通信的文件"
+cat -e a.txt,显示特殊字符，显示行结尾标志
+tac,反向显示
+nl a.txt,显示行号查看文件内容
+less,"p 上翻
+/ 查找 N上翻 n下翻"
+"head -n a.txt
+head -3 a.txt",读头n行
+cat -n a.txt | head -3 | tail -1,读取第三行
+tail -f  a.txt,实时显示当前文档的内容
+type 命令,查看命令的类型，内部命令或者外部命令
+help 内部命令,
+外部命令 —help,
+"文件的元数据 ",权限数据 时间数据等
+stat a.txt,查看文件的时间元数据
+"mkdir g/{a,b,c,d} -pv",在g目录创建多个子目录
+ip addr add/delete 192.168.12.23/prefix dev ens33,
+ifconfig ens33 192.168.12.45 netmask 255.255.255.0,
+ls | wc -l,"计量行数
+wc -m //计算字符数
+wc -c //计算字节数"
+traceroute ipadd(http://www.baidu.com/),跟踪路由表
+nmap -sP 192.168.10.2-45,探测主机是否在线，范围探测
+nmap -sP 192.168.10.0/24,探测主机是否在线 ，探测网段
+nmap -sP 192.168.10.2 192.168.23.45,探测主机是否在线，探测多个
+netdiscover -r 192.168.10.0/24,探测主机是否在线
+netdiscover -p,通过被动模式探测主机是否在线
+namp --script broadcast-dhcp-discover,探测dhcp服务器
+whois http://baidu.com/,域名解析
+dmitry -w http://baidu.com/,域名解析
+dmitry -s http://baidu.com/ -o filename,子域名解析，输出到文件
+jobs,显示所有正在运行的程序
+fg,将后台程序掉到前台
+bg,
+ctrl+z,将进程暂停并切换到后台
+"api ",应用程序编程接口，用户调用某个功能的接口，如函数等
+abi,应用程序二进制接口，应用程序使用系统调用的接口
+"history "," 历史命令"
+"history -c ",清空历史命令
+!1,调用第一条历史命令
+!his,调用！后面字符匹配的命令
+date +%F %H-%M-%S,
+a=$(ls /tmp),将命令的执行结果保存到变量
+,
+"clock ",获取当前硬件时间
+[[:lower:]],所有小写字母
+[[:upper:]],所有大写字母
+[[:alpha:]],
+[[:alnum:]],
+[[:digit:]],
+nmap -sV ipaddr,服务发现
+changeme -a ipdddr,弱密码发现
+"pwd -P ",如果当前目录是一个连结档，则返回被连接的文件所在目录
+mkdir -m 771 a,创建目录并赋予权限
+who,
+w,
+whoami,
+"useradd armandhe -u 1010 -g 1010  -c ""描述信息""  -s /usr/bin/zsh -d /home/armandhe","使用组id需确保组存在
+-s 指定用户使用shell类型
+-d 指定用户家目录"
+"useradd -u 24 -r hjx -s /sbin/nologin -M ","创建系统用户
+不创建家目录"
+"uid 1-1000 系统用户
+1000及以上登录用户",
+"userdel -r ",删除家目录
+usermod,-G 指定附加组
+groups,显示当前用户所属组-基本组与附加组
+newgrp groupname,切换组
+$RANDOM,生成随机数
+用户密码文件格式,：用户名、密码（MD5）、最后一次修改密码的时间（从1970.1.1开始的天数）、密码修改最小间隔天数、必须修改密码天数、提醒修改密码天数、密码过期天数、账户过期天数（从1970.1.1开始的天数）
+"passwd ","-l 锁定用户
+-u 解锁
+—standin"
+gpasswd  option groupname,修改组密码
+apachectl configtest,"测试配置文件语法
+graceful //不中断服务重启
+restart
+status
+start
+stop"
+nohup ls $,使命令脱离当前shell到后台继续执行
+fg %1,%后面跟job号
+ssh-keygen -t rsa,"-t 指定加密方式
+-f 指定私钥文件名
+-n 指定生成的私钥密码
+-p 修改私钥的密码
+-b 指定密钥的二进制位数
+-c 指定密钥文件的注释
+"
+ssh-copy-id -i id_rsa.pub username@ipadd,将公钥拷贝到要登陆的目标主机的authorized_key文件中
+eval,"该命令用于重新扫描计算参数的运行结果
+如
+ls >> a.txt
+l=""cat a.txt""
+eval $l
+显示结果与cat a.txt的结果一致"
+,
+nmap -iL,
+nmap -iR,
+nmap -exclude,排除的ip
+nmap -excludefile,从文件中读排除的ip
+nmap -sP,ping扫描i
+nmap -sL,列表扫描，不晓得啥意思
+nmap -P0,跳过主机发现，对每一个ip进行完整扫描
+nmap -PS,发送syn报文扫描
+nmap -PA,"发送ack报文ping,尝试i建立连接，但连接未建立，目标主机会回一个rst报文"
+nmap -PU,udpping
+nmap -n,不进行反向域名解析
+namp -R,进行反向域名解析
+"nmap -sS ",syn端口扫描
+nmap -sU,udp端口扫描
+nmap -sT,
+namp -sN,null扫描
+nmap -sP,
+nmap -sV,版本探测
+nmap -sA,ack扫描
+nmap -sW,tcp窗口扫描
+-p,指定端口
+-r,顺序扫描端口
+,

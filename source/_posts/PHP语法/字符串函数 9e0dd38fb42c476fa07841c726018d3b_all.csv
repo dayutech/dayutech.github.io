@@ -1,0 +1,17 @@
+﻿Name,Tags
+"ltrim(str,charlist)",
+"rtrim(str,charlist)",
+"trim(str,charlist)",
+strtoupper,
+strtolower,
+"substr_count(str,'abc'，offset)",搜索字符串出现的次数，第三个参数为开始的位置
+"strpos(str,'abc'，offset)",字符串首次出现的位置
+"strstr（str,haystack）",返回从haystack开始到str结尾部分的字符串
+"str_replace(search,replace,str)",
+htmlspecialchars(),转移字符串中的特殊字符串以能够再html中正确输出
+strip_tags(),去除字符串中的html、php标记
+"substr(str,start,length)",截取字符串
+explode(),分割字符串
+"str_split(str,num)","将字符串转换为数组,第二个参数为一个键值对中的值得长度"
+,
+,

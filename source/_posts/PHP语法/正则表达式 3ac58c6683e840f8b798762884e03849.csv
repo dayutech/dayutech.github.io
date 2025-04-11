@@ -1,0 +1,25 @@
+﻿Name,Tags
+"preg_match_all(patern,str,array)",第三个参数为匹配到得结果
+preg_match(),
+"preg_replace(patern,replace,str)",
+.,
+,
+*,
+?,
++,
+\d,
+\D,
+\s,
+\S,
+\w,
+\W,
+^ \A,
+& \Z,
+[],
+{},
+[^],
+.*?,贪婪匹配
+.*,非贪婪匹配
+|,
+,
+,

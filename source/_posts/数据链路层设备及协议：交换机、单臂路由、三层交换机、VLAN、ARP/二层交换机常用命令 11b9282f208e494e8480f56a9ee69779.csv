@@ -1,0 +1,53 @@
+﻿命令,解释
+enable,进入特权模式：可查看交换机信息
+"config terminal ",进入全局配置模式
+interface f0/1,进入某一个端口
+interface f0/0.1,起虚接口
+vlan 10,创建ID为10的vlan
+switch access vlan 10,进入端口后将端口加入vlan 10
+hostname hejixiong,修改交换机名称
+enable password 123,设置进入特权模式明文密码
+enable secrect 456,设置进入特权模式MD5密码
+line console 0,进入控制台模式
+no vlan 2,删除vlan 2
+vlan 2 \n name v2,为vlan 2 命名
+interface range f0/1-5，g0/1-4,批量配置端口
+switchport access vlan 2,将某个端口加入vlan 2
+switchport mode trunk,将端口配置为中继、汇聚端口
+"switchport trunk allowed 10,20,30",只允许指定的vlan通过该端口
+switchport trunk encapsulation dot1q,设置trunk的标签封装协议位dot1q
+vtp domain hjx,设置vtp域名
+vtp mode server,设置当前路由器为vtp服务器
+vtp mode client,设置当前路由器为vtp客户端
+"vtp password 123 ",设置vtp密码
+ip address 192.168.0.1,配置交换机IP
+ip default-gateway 30.0.0.1,配置默认网关
+dir flash,查看闪存
+show vtp,
+show running-config,
+show vlan,
+show interface,
+show int f0/1,
+show mac-address-table,查看mac地址转发表
+erase startup-configure,擦除启动配置
+"reload ",重载
+远程telnet登录,
+en,
+config t,
+en password 1234,
+int vlan 1,将vlan 1设置为远程登录接口
+ip address 10.0.0.1 255.255.255.0,配置该端口ip
+no shut,
+exit,
+lin vty 0 4,设置5个用户可远程登录
+password 12345,
+login,
+SSH远程登录,
+config t,
+ho name hjx,
+ip domain-name armand.com,配置域名
+line vty 0 4,
+transport input ssh,登录方式设置为ssh
+exit,
+crypto key generate rsa,设置秘钥
+,

@@ -1,0 +1,6 @@
+﻿Name,Tags
+vlan id,
+int f0/1,
+sw mode acc,配置为接口模式
+sw acc vlan id,
+,
