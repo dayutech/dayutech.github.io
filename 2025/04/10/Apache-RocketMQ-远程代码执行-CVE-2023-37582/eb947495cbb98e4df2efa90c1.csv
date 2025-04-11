@@ -1,0 +1,10 @@
+﻿Name,Tags
+command-命令字段,8位 有请求 响应 启用跟踪标记 关闭跟踪标记 保留五种
+version-版本号,16位
+address family identifier-地址组标识符字段,24位，该入口的协议地址类型。用于分厘内部和外部路由线路
+route-tag 路由标记字段,32位
+ip address,32位
+netmask,32位
+next hop,32位
+metric,8位
+,

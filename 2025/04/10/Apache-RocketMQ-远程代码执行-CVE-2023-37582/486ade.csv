@@ -1,0 +1,13 @@
+﻿Name,Tags
+"""__FILE__""",返回当前文件绝对路径
+"""__LINE__""",返回当前代码行
+"""__CLASS__""",返回当前类名
+"""__METHOD__""",范围当前方法名
+"""__DIR__""",
+"""__FUNCTION__""",
+,
+_GET,
+_POST,
+_REQUESTS,
+_SERVER,
+,
