@@ -5,8 +5,8 @@ tags:
   - hexo-pdf
 description: 本文介绍了如何解决hexo-pdf插件不生效的问题
 categories:
-  - - bug修复
-  - - tips
+  - [bug修复]
+  - [tips]
 abbrlink: e9ccef3c
 date: 2025-04-11 10:40:10
 ---

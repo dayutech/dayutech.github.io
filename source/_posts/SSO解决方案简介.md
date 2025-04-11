@@ -8,7 +8,7 @@ tags:
   - OIDC
   - SAML2
 categories:
-  - 安全技术
+  - [安全技术]
 abbrlink: ad6b67bf
 date: 2025-04-10 16:37:11
 ---

@@ -6,8 +6,8 @@ tags:
   - 图床
   - 防盗链
 categories:
-  - - bug修复
-  - - tips
+  - [bug修复]
+  - [tips]
 abbrlink: '53e2963'
 date: 2025-04-11 10:47:48
 ---
