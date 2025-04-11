@@ -304,6 +304,33 @@
   </entry>
   
   <entry>
+    <title>JAVA生态常见架构介绍、配置与逻辑定位方法</title>
+    <link href="https://dayutech.github.io/2025/04/10/JAVA%E7%94%9F%E6%80%81%E5%B8%B8%E8%A7%81%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D%E3%80%81%E9%85%8D%E7%BD%AE%E4%B8%8E%E9%80%BB%E8%BE%91%E5%AE%9A%E4%BD%8D%E6%96%B9%E6%B3%95/"/>
+    <id>https://dayutech.github.io/2025/04/10/JAVA%E7%94%9F%E6%80%81%E5%B8%B8%E8%A7%81%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D%E3%80%81%E9%85%8D%E7%BD%AE%E4%B8%8E%E9%80%BB%E8%BE%91%E5%AE%9A%E4%BD%8D%E6%96%B9%E6%B3%95/</id>
+    <published>2025-04-10T09:56:11.000Z</published>
+    <updated>2025-04-11T04:28:30.186Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;不知道你在挖洞过程中是否碰到过这样一个问题，资源下载到了，调试环境也搞定了却迟迟找不到合适的地方下断点进行调试，这时候你会选择怎么办？&lt;br&gt;是去寻找启动类一行一行代码查看直到找到URI的处理函数，还是快准狠地定位到关键点马上出洞？我想不会有人想要选择第一种方法，&lt;br&gt;但按照第一种方法不断地熟悉不同的框架的过程却是一个挖洞小白向大佬进化的过程，我们往往需要在这个过程中不断地积累足够的经验来熟悉常见的技术与框架，&lt;br&gt;这几乎是每一个大佬成长路上必须要走的路。毫无疑问，这种曲折的过程最能增长人们的能力，不过这个过程往往是痛苦且枯燥的，在挖洞过程中，时间紧任务重的情况下，&lt;br&gt;我们往往在这个过程中浪费了大量的时间与精力，所以我给大家简单总结了一下我们应该如何去找到一些常见框架进行资源处理与存放、配置存放与解析规则的方法。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
+    
+    
+    <category term="网络安全" scheme="https://dayutech.github.io/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
+    
+    <category term="Java" scheme="https://dayutech.github.io/tags/Java/"/>
+    
+    <category term="jetty" scheme="https://dayutech.github.io/tags/jetty/"/>
+    
+    <category term="axis2" scheme="https://dayutech.github.io/tags/axis2/"/>
+    
+    <category term="struts2" scheme="https://dayutech.github.io/tags/struts2/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</title>
     <link href="https://dayutech.github.io/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/"/>
     <id>https://dayutech.github.io/2025/04/10/Hutool-JSONUtil%E6%8B%92%E7%BB%9D%E6%9C%8D%E5%8A%A1%E6%BC%8F%E6%B4%9E-CVE-2022-45690-CVE-2022-45689/</id>
@@ -337,33 +364,6 @@
     <category term="CVE-2022-45689" scheme="https://dayutech.github.io/tags/CVE-2022-45689/"/>
     
     <category term="DoS" scheme="https://dayutech.github.io/tags/DoS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>JAVA生态常见架构介绍、配置与逻辑定位方法</title>
-    <link href="https://dayutech.github.io/2025/04/10/JAVA%E7%94%9F%E6%80%81%E5%B8%B8%E8%A7%81%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D%E3%80%81%E9%85%8D%E7%BD%AE%E4%B8%8E%E9%80%BB%E8%BE%91%E5%AE%9A%E4%BD%8D%E6%96%B9%E6%B3%95/"/>
-    <id>https://dayutech.github.io/2025/04/10/JAVA%E7%94%9F%E6%80%81%E5%B8%B8%E8%A7%81%E6%9E%B6%E6%9E%84%E4%BB%8B%E7%BB%8D%E3%80%81%E9%85%8D%E7%BD%AE%E4%B8%8E%E9%80%BB%E8%BE%91%E5%AE%9A%E4%BD%8D%E6%96%B9%E6%B3%95/</id>
-    <published>2025-04-10T09:56:11.000Z</published>
-    <updated>2025-04-11T04:28:30.186Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;不知道你在挖洞过程中是否碰到过这样一个问题，资源下载到了，调试环境也搞定了却迟迟找不到合适的地方下断点进行调试，这时候你会选择怎么办？&lt;br&gt;是去寻找启动类一行一行代码查看直到找到URI的处理函数，还是快准狠地定位到关键点马上出洞？我想不会有人想要选择第一种方法，&lt;br&gt;但按照第一种方法不断地熟悉不同的框架的过程却是一个挖洞小白向大佬进化的过程，我们往往需要在这个过程中不断地积累足够的经验来熟悉常见的技术与框架，&lt;br&gt;这几乎是每一个大佬成长路上必须要走的路。毫无疑问，这种曲折的过程最能增长人们的能力，不过这个过程往往是痛苦且枯燥的，在挖洞过程中，时间紧任务重的情况下，&lt;br&gt;我们往往在这个过程中浪费了大量的时间与精力，所以我给大家简单总结了一下我们应该如何去找到一些常见框架进行资源处理与存放、配置存放与解析规则的方法。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
-    
-    
-    <category term="网络安全" scheme="https://dayutech.github.io/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
-    
-    <category term="Java" scheme="https://dayutech.github.io/tags/Java/"/>
-    
-    <category term="jetty" scheme="https://dayutech.github.io/tags/jetty/"/>
-    
-    <category term="axis2" scheme="https://dayutech.github.io/tags/axis2/"/>
-    
-    <category term="struts2" scheme="https://dayutech.github.io/tags/struts2/"/>
     
   </entry>
   
@@ -437,6 +437,27 @@
   </entry>
   
   <entry>
+    <title>如何快速在设备中查找程序启动脚本</title>
+    <link href="https://dayutech.github.io/2025/04/10/%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E5%9C%A8%E8%AE%BE%E5%A4%87%E4%B8%AD%E6%9F%A5%E6%89%BE%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E8%84%9A%E6%9C%AC/"/>
+    <id>https://dayutech.github.io/2025/04/10/%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E5%9C%A8%E8%AE%BE%E5%A4%87%E4%B8%AD%E6%9F%A5%E6%89%BE%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E8%84%9A%E6%9C%AC/</id>
+    <published>2025-04-10T09:56:11.000Z</published>
+    <updated>2025-04-11T04:28:30.201Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;在拿到设备固件或者镜像文件后，若要进行更进一步的漏洞挖掘，我们便需要找到与当前设备功能相关联的软件的位置与启动方式等信息。&lt;br&gt;一般来讲如果只知道软件的位置便进行分析可能措施很多关键的信息，如：程序运行时设置的环境变量以及一些配置信息的设置。  &lt;/p&gt;</summary>
+    
+    
+    
+    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
+    
+    
+    <category term="网络安全" scheme="https://dayutech.github.io/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
+    
+    <category term="漏挖技巧" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%8C%96%E6%8A%80%E5%B7%A7/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Spring Kafka 消息头反序列化漏洞（CVE-2023-34040）</title>
     <link href="https://dayutech.github.io/2025/04/10/Spring-Kafka%E6%B6%88%E6%81%AF%E5%A4%B4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2023-34040/"/>
     <id>https://dayutech.github.io/2025/04/10/Spring-Kafka%E6%B6%88%E6%81%AF%E5%A4%B4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2023-34040/</id>
@@ -467,27 +488,6 @@
     <category term="Spring Kafka" scheme="https://dayutech.github.io/tags/Spring-Kafka/"/>
     
     <category term="CVE-2023-34040" scheme="https://dayutech.github.io/tags/CVE-2023-34040/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>如何快速在设备中查找程序启动脚本</title>
-    <link href="https://dayutech.github.io/2025/04/10/%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E5%9C%A8%E8%AE%BE%E5%A4%87%E4%B8%AD%E6%9F%A5%E6%89%BE%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E8%84%9A%E6%9C%AC/"/>
-    <id>https://dayutech.github.io/2025/04/10/%E5%A6%82%E4%BD%95%E5%BF%AB%E9%80%9F%E5%9C%A8%E8%AE%BE%E5%A4%87%E4%B8%AD%E6%9F%A5%E6%89%BE%E7%A8%8B%E5%BA%8F%E5%90%AF%E5%8A%A8%E8%84%9A%E6%9C%AC/</id>
-    <published>2025-04-10T09:56:11.000Z</published>
-    <updated>2025-04-11T04:28:30.201Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;在拿到设备固件或者镜像文件后，若要进行更进一步的漏洞挖掘，我们便需要找到与当前设备功能相关联的软件的位置与启动方式等信息。&lt;br&gt;一般来讲如果只知道软件的位置便进行分析可能措施很多关键的信息，如：程序运行时设置的环境变量以及一些配置信息的设置。  &lt;/p&gt;</summary>
-    
-    
-    
-    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
-    
-    
-    <category term="网络安全" scheme="https://dayutech.github.io/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
-    
-    <category term="漏挖技巧" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%8C%96%E6%8A%80%E5%B7%A7/"/>
     
   </entry>
   
