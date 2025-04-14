@@ -12,6 +12,7 @@
     "version": "7.3.0"
   },
   "dependencies": {
+    "abbrlink": "^1.0.1",
     "hexo": "^7.3.0",
     "hexo-deployer-git": "^4.0.0",
     "hexo-filter-nofollow": "^2.0.2",
