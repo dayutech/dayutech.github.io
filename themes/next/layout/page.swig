@@ -44,7 +44,8 @@
               }}
             </div>
           </div>
-		 {% include 'tag-color.swig' %}
+		 {##彩色标签##}
+		{% include 'tag-color.swig' %}
         {% elif page.type === 'categories' %}
           <div class="category-all-page">
             <div class="category-all-title">
