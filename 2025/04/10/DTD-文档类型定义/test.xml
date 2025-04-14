@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE note [
+	<!ELEMENT note (to,from,heading,body)>
+	<!ELEMENT to (#PCDATA)>
+	<!ELEMENT from (#PCDATA)>
+	<!ELEMENT heading (#PCDATA)>
+	<!ELEMENT body (#PCDATA)>
+]>
+<note>
+	<to>armandhe</to>
+	<from>hjx</from>
+	<heading>message</heading>
+	<body>hello,world</body>
+
+</note>

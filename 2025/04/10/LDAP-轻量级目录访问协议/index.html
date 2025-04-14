@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
@@ -360,60 +363,62 @@
               <a href="/tags/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/" rel="tag"><i class="fa fa-tag"></i> 漏洞原理</a>
               <a href="/tags/ldap/" rel="tag"><i class="fa fa-tag"></i> ldap</a>
           </div>
-		  <script type="text/javascript">
-            var tagsall=document.getElementsByClassName("post-tags")
-            for (var i = tagsall.length - 1; i >= 0; i--){
-                var tags=tagsall[i].getElementsByTagName("a");
-                for (var j = tags.length - 1; j >= 0; j--) {
-                    var golden_ratio = 0.618033988749895;
-                    var s = 0.5;
-                    var v = 0.999;
-                    var h = golden_ratio + Math.random()*0.8 - 0.5;
-                    var h_i = parseInt(h * 6);
-                    var f = h * 6 - h_i;
-                    var p = v * (1 - s);
-                    var q = v * (1 - f * s);
-                    var t = v * (1 - (1 - f) * s);
-                    var r, g, b;
-                    switch (h_i) {
-                        case 0:
-                            r = v;
-                            g = t;
-                            b = p;
-                            break;
-                        case 1:
-                            r = q;
-                            g = v;
-                            b = p;
-                            break;
-                        case 2:
-                            r = p;
-                            g = v;
-                            b = t;
-                            break;
-                        case 3 :
-                            r = p;
-                            g = q;
-                            b = v;
-                            break;
-                        case 4:
-                            r = t;
-                            g = p;
-                            b = v;
-                            break;
-                        case 5:
-                            r = v;
-                            g = p;
-                            b = q;
-                            break;
-                        default:
-                            r = 1;
-                            g = 1;
-                            b = 1;
-                      }
-                    tags[j].style.background = "rgba("+parseInt(r*255)+","+parseInt(g*255)+","+parseInt(b*255)+","+0.5+")";
-                }
-            }                        
+		  
+          <script data-pjax>
+	var tagsall=document.getElementsByClassName("post-tags")
+	for (var i = tagsall.length - 1; i >= 0; i--){
+		var tags=tagsall[i].getElementsByTagName("a");
+		for (var j = tags.length - 1; j >= 0; j--) {
+			var golden_ratio = 0.618033988749895;
+			var s = 0.5;
+			var v = 0.999;
+			var h = golden_ratio + Math.random()*0.8 - 0.5;
+			var h_i = parseInt(h * 6);
+			var f = h * 6 - h_i;
+			var p = v * (1 - s);
+			var q = v * (1 - f * s);
+			var t = v * (1 - (1 - f) * s);
+			var r, g, b;
+			switch (h_i) {
+				case 0:
+					r = v;
+					g = t;
+					b = p;
+					break;
+				case 1:
+					r = q;
+					g = v;
+					b = p;
+					break;
+				case 2:
+					r = p;
+					g = v;
+					b = t;
+					break;
+				case 3 :
+					r = p;
+					g = q;
+					b = v;
+					break;
+				case 4:
+					r = t;
+					g = p;
+					b = v;
+					break;
+				case 5:
+					r = v;
+					g = p;
+					b = q;
+					break;
+				default:
+					r = 1;
+					g = 1;
+					b = 1;
+			  }
+			tags[j].style.background = "rgba("+parseInt(r*255)+","+parseInt(g*255)+","+parseInt(b*255)+","+0.5+")";
+		}
+	}          
+                         
             </script>
 
         
@@ -422,8 +427,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2025/04/10/Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%8D%E7%8E%B0/" rel="prev" title="Fastjson反序列化漏洞原理分析及复现">
-      <i class="fa fa-chevron-left"></i> Fastjson反序列化漏洞原理分析及复现
+    <a href="/2025/04/10/DNS-LLMNR-MDNS-NBNS%E5%8E%9F%E7%90%86/" rel="prev" title="DNS-LLMNR-MDNS-NBNS原理">
+      <i class="fa fa-chevron-left"></i> DNS-LLMNR-MDNS-NBNS原理
     </a></div>
       <div class="post-nav-item">
     <a href="/2025/04/11/%E8%A7%A3%E5%86%B3hexo-pdf%E6%97%A0%E6%B3%95%E4%BD%BF%E7%94%A8%E7%9A%84%E9%97%AE%E9%A2%98/" rel="next" title="解决hexo-pdf无法使用的问题">
@@ -503,20 +508,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">17</span>
+          <span class="site-state-item-count">47</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">48</span>
+        <span class="site-state-item-count">101</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -596,8 +601,7 @@
 		  </ul>
 		</div>
 	  
-	  
-	<iframe  frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=3&id=2499243966&auto=1&height=66"></iframe>
+	 
     </div>
 	
   </aside>
@@ -627,13 +631,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">42k</span>
+    <span title="站点总字数">118k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">2:34</span>
+    <span title="站点阅读时长">7:08</span>
 </div>
   <div class="powered-by">由 <a href="https://github.com/dayutech" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">DayuTech</a> 强力驱动
   </div>
