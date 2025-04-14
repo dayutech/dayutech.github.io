@@ -32,8 +32,8 @@
 <meta property="article:modified_time" content="2025-04-11T06:34:12.122Z">
 <meta property="article:author" content="Arliya">
 <meta property="article:tag" content="网络安全">
-<meta property="article:tag" content="漏洞原理">
 <meta property="article:tag" content="ldap">
+<meta property="article:tag" content="漏洞原理">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://dayutech.github.io/2025/04/10/LDAP-%E8%BD%BB%E9%87%8F%E7%BA%A7%E7%9B%AE%E5%BD%95%E8%AE%BF%E9%97%AE%E5%8D%8F%E8%AE%AE/">
@@ -48,7 +48,33 @@
     lang   : 'zh-CN'
   };
 </script>
-
+<link rel="stylesheet" href="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.css"><style>
+#needsharebutton-postbottom {
+  cursor: pointer;
+  height: 26px;
+  margin-top: 10px;
+  position: relative;
+}
+#needsharebutton-postbottom .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 3px;
+  display: initial;
+  padding: 1px 4px;
+}
+</style><style>
+#needsharebutton-float {
+  bottom: 88px;
+  cursor: pointer;
+  left: -8px;
+  position: fixed;
+  z-index: 9999;
+}
+#needsharebutton-float .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 4px;
+  padding: 0 10px 0 14px;
+}
+</style>
   <title>LDAP-轻量级目录访问协议 | Dayu Technology Co., LTD</title>
   
 
@@ -298,7 +324,13 @@
 
     
     
-    
+    <div class="post-widgets">
+      <div id="needsharebutton-postbottom">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    </div>
         <div class="reward-container">
   <div>Buy me a coffee.</div>
   <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
@@ -360,8 +392,8 @@
           
           <div class="post-tags">
               <a href="/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" rel="tag"><i class="fa fa-tag"></i> 网络安全</a>
-              <a href="/tags/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/" rel="tag"><i class="fa fa-tag"></i> 漏洞原理</a>
               <a href="/tags/ldap/" rel="tag"><i class="fa fa-tag"></i> ldap</a>
+              <a href="/tags/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/" rel="tag"><i class="fa fa-tag"></i> 漏洞原理</a>
           </div>
 		  
           <script data-pjax>
@@ -427,8 +459,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2025/04/10/DNS-LLMNR-MDNS-NBNS%E5%8E%9F%E7%90%86/" rel="prev" title="DNS-LLMNR-MDNS-NBNS原理">
-      <i class="fa fa-chevron-left"></i> DNS-LLMNR-MDNS-NBNS原理
+    <a href="/2025/04/10/DTD-%E6%96%87%E6%A1%A3%E7%B1%BB%E5%9E%8B%E5%AE%9A%E4%B9%89/" rel="prev" title="DTD-文档类型定义">
+      <i class="fa fa-chevron-left"></i> DTD-文档类型定义
     </a></div>
       <div class="post-nav-item">
     <a href="/2025/04/11/%E8%A7%A3%E5%86%B3hexo-pdf%E6%97%A0%E6%B3%95%E4%BD%BF%E7%94%A8%E7%9A%84%E9%97%AE%E9%A2%98/" rel="next" title="解决hexo-pdf无法使用的问题">
@@ -438,6 +470,10 @@
       </footer>
     
   </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
   
   
   
@@ -508,7 +544,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">83</span>
+          <span class="site-state-item-count">82</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -779,7 +815,26 @@ window.addEventListener('pjax:success', () => {
   
 
   
-
+<div id="needsharebutton-float">
+      <span class="btn">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </span>
+    </div>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.js"></script>
+  <script>
+      pbOptions = {};
+        pbOptions.iconStyle = "box";
+        pbOptions.boxForm = "horizontal";
+        pbOptions.position = "bottomCenter";
+        pbOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-postbottom', pbOptions);
+      flOptions = {};
+        flOptions.iconStyle = "box";
+        flOptions.boxForm = "horizontal";
+        flOptions.position = "middleRight";
+        flOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-float', flOptions);
+  </script>
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
 
 <script>

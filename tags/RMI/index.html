@@ -46,7 +46,33 @@
     lang   : 'zh-CN'
   };
 </script>
-
+<link rel="stylesheet" href="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.css"><style>
+#needsharebutton-postbottom {
+  cursor: pointer;
+  height: 26px;
+  margin-top: 10px;
+  position: relative;
+}
+#needsharebutton-postbottom .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 3px;
+  display: initial;
+  padding: 1px 4px;
+}
+</style><style>
+#needsharebutton-float {
+  bottom: 88px;
+  cursor: pointer;
+  left: -8px;
+  position: fixed;
+  z-index: 9999;
+}
+#needsharebutton-float .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 4px;
+  padding: 0 10px 0 14px;
+}
+</style>
   <title>标签: RMI | Dayu Technology Co., LTD</title>
   
 
@@ -245,6 +271,26 @@
       </div>
 
       <div class="post-title">
+          <a class="post-title-link" href="/2025/04/14/%E4%BB%8E%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E7%9C%8BRMI%E8%A7%84%E8%8C%83%E7%9A%84%E5%AE%9E%E7%8E%B0%E4%B8%8E%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89/" itemprop="url">
+            <span itemprop="name">从代码层面看RMI规范的实现与攻击原理（一）</span>
+          </a>
+      </div>
+
+    </header>
+  </article>
+
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <div class="post-meta">
+        <time itemprop="dateCreated"
+              datetime="2025-04-14T10:33:52+08:00"
+              content="2025-04-14">
+          04-14
+        </time>
+      </div>
+
+      <div class="post-title">
           <a class="post-title-link" href="/2025/04/14/%E4%BB%8E%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E7%9C%8BRMI%E8%A7%84%E8%8C%83%E7%9A%84%E5%AE%9E%E7%8E%B0%E4%B8%8E%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86%EF%BC%88%E4%B8%89%EF%BC%89/" itemprop="url">
             <span itemprop="name">从代码层面看RMI规范的实现与攻击原理（三）</span>
           </a>
@@ -267,26 +313,6 @@
       <div class="post-title">
           <a class="post-title-link" href="/2025/04/14/%E4%BB%8E%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E7%9C%8BRMI%E8%A7%84%E8%8C%83%E7%9A%84%E5%AE%9E%E7%8E%B0%E4%B8%8E%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86%EF%BC%88%E4%BA%8C%EF%BC%89/" itemprop="url">
             <span itemprop="name">从代码层面看RMI规范的实现与攻击原理（二）</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-04-14T10:33:52+08:00"
-              content="2025-04-14">
-          04-14
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/2025/04/14/%E4%BB%8E%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E7%9C%8BRMI%E8%A7%84%E8%8C%83%E7%9A%84%E5%AE%9E%E7%8E%B0%E4%B8%8E%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86%EF%BC%88%E4%B8%80%EF%BC%89/" itemprop="url">
-            <span itemprop="name">从代码层面看RMI规范的实现与攻击原理（一）</span>
           </a>
       </div>
 
@@ -366,7 +392,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">83</span>
+          <span class="site-state-item-count">82</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -637,7 +663,26 @@ window.addEventListener('pjax:success', () => {
   
 
   
-
+<div id="needsharebutton-float">
+      <span class="btn">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </span>
+    </div>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.js"></script>
+  <script>
+      pbOptions = {};
+        pbOptions.iconStyle = "box";
+        pbOptions.boxForm = "horizontal";
+        pbOptions.position = "bottomCenter";
+        pbOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-postbottom', pbOptions);
+      flOptions = {};
+        flOptions.iconStyle = "box";
+        flOptions.boxForm = "horizontal";
+        flOptions.position = "middleRight";
+        flOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-float', flOptions);
+  </script>
 
     </div>
 <script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
