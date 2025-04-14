@@ -12,6 +12,7 @@ categories:
 # 问题描述
 Regeorg是只提供了对python2的支持，使用python3来运行爆了一大串错我，今天咱就一个问题一个问题得搞定，手把手教你怎么把Regeorg改造成python3版本。看了下这个项目8年前年就停止更新了
 ![在这里插入图片描述](https://i-blog.csdnimg.cn/blog_migrate/97ecb5ee4338329ab06c0b030df7da84.png)
+<!--more-->
 # 解决过程
 ## 环境准备
 |平台| ip地址 |
