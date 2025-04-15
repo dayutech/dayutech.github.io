@@ -33,7 +33,6 @@
         </div>
         {%- if theme.sidebar.display !== 'remove' %}
           {% block sidebar %}{% endblock %}
-          {% block sidebar_right %}{% endblock %}
         {%- endif %}
       </div>
     </main>
