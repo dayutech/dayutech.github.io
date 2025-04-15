@@ -32,7 +32,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://dayutech.github.io/archives/6eecc4bb/9bc82c060f205c9654462f96a831bb4.jpg">
 <meta property="article:published_time" content="2025-04-10T12:56:11.000Z">
-<meta property="article:modified_time" content="2025-04-15T01:39:43.991Z">
+<meta property="article:modified_time" content="2025-04-15T02:15:45.376Z">
 <meta property="article:author" content="Arliya">
 <meta property="article:tag" content="Web">
 <meta property="article:tag" content="前端">
@@ -263,7 +263,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-04-15 09:39:43" itemprop="dateModified" datetime="2025-04-15T09:39:43+08:00">2025-04-15</time>
+                <time title="修改时间：2025-04-15 10:15:45" itemprop="dateModified" datetime="2025-04-15T10:15:45+08:00">2025-04-15</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -315,9 +315,8 @@
         <h1 id="读书笔记-WEB前端黑客技术揭秘"><a href="#读书笔记-WEB前端黑客技术揭秘" class="headerlink" title="读书笔记-WEB前端黑客技术揭秘"></a>读书笔记-WEB前端黑客技术揭秘</h1><p>资源：同源策略里面的资源指的是web客户端的资源，包括http消息头，dom树，浏览器存储（cookie\localStorage）</p>
 <p>DOM：文档对象模型，就是将html&#x2F;xml这样的文档抽象成一个树形结构，树上的每一个节点都是html&#x2F;xml的标签、标签内容、标签属性</p>
 <blockquote>
-<p>安全问题很大程度上其实是信任关系</p>
+<p>安全问题很大程度上其实是信任关系<br>iframe中嵌套的网页不能读写父页中的数据，但是可以对父页的<code>location</code> 进行操作，不过只有写权限却没有读权限</p>
 </blockquote>
-<p>iframe中嵌套的网页不能读写父页中的数据，但是可以对父页的<code>location</code> 进行操作，不过只有写权限却没有读权限</p>
 <p>javascript 脚本可以外来引入，也可以在<code>&lt;script&gt;</code> 标签中，也可以在src、href的伪协议中。</p>
 <p>通过设置set-cookie的path不能限制cookie被盗用，可以在页面中嵌入一个iframe来获取当前页面的cookie.</p>
 <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">xc = <span class="keyword">function</span>(<span class="params">src</span>)&#123;</span><br><span class="line">	<span class="keyword">var</span> o=<span class="variable language_">document</span>.<span class="title function_">createElement</span>(<span class="string">&quot;iframe&quot;</span>);</span><br><span class="line">	o.<span class="property">src</span>=src;</span><br><span class="line">	<span class="variable language_">document</span>.<span class="title function_">getElementByTagName</span>(<span class="string">&quot;body&quot;</span>)[<span class="number">0</span>].<span class="title function_">appendChild</span>(o);</span><br><span class="line">	o.<span class="property">onload</span>=<span class="keyword">function</span>&#123;</span><br><span class="line">	d=o.<span class="property">contentDocument</span> || o.<span class="property">contentWindow</span>.<span class="title function_">document</span>();</span><br><span class="line">	<span class="title function_">alert</span>(d.<span class="property">cookie</span>);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&#125;(<span class="string">&quot;http://a.foo.com/admin/index.php&quot;</span>);</span><br></pre></td></tr></table></figure>
@@ -415,8 +414,8 @@
 <p><code>CRLF,即回车换行符</code>，在windows表示新的一行，回车，即在同一行但回到行首，换行，上移一行但水平位置不变。</p>
 <p>如果网页存在CRLF注入，在HTTP协议中注入回车换行符（%0d%0a）就可以注入头部，因为url只有第一行是头部，换行回车后的内容会被当成响应内容响应回来。可以通过这种方式注入<code>X-XSS-Protection:0</code> 来关闭XSS Filter</p>
 <p>同域白名单</p>
-<p>iE浏览器通过referer判断是否来自同域，如果是则xss filter不生效。可通过嵌入<a>标签或者<iframe>标签来达到同域的目的</p>
-<p>chrome浏览器如果是通过<script>嵌入的同域内的js文件，XSS Filter则完全不会工作。</p>
+<p>iE浏览器通过referer判断是否来自同域，如果是则xss filter不生效。可通过嵌入<code>&lt;a&gt;</code>标签或者<code>&lt;iframe&gt;</code>标签来达到同域的目的</p>
+<p>chrome浏览器如果是通过<code>&lt;script&gt;</code>嵌入的同域内的<code>js</code>文件，<code>XSS</code> Filter则完全不会工作。</p>
 <p>场景依赖性高的绕过</p>
 <p>如果输入内容直接出现在js代码中，这样XSSfilter就无法防御。</p>
 <p>如果php开启了GPC功能，那么可以给通过在payload中插入%00来在IE中实现绕过。因为%00会被转换为\0</p>
@@ -438,7 +437,7 @@
 <ol>
 <li><p>HTML代码不区分大小写，可以通过大小写来实现混淆</p>
 </li>
-<li><p>HTML标签存在优先级的问题，甚至有的优先级高的标签可以截断其他的标签，从而瞒过过滤器。如<style><title>标签</p>
+<li><p>HTML标签存在优先级的问题，甚至有的优先级高的标签可以截断其他的标签，从而瞒过过滤器。如<code>&lt;style&gt;&lt;title&gt;</code>标签</p>
 <ol>
 <li><p><code>&lt;title&gt;&lt;a href=&quot;&lt;title&gt;&lt;img src=x onerror=alert(1111)&gt;//&quot;&gt;</code> #过滤器认为是一个title标签加一个a标签，浏览器认为是一对title标签加一个img标签。</p>
 </li>
@@ -448,7 +447,7 @@
 </li>
 <li><p>可以再HTML代码中插入xml代码、svg代码、和未知标签来瞒过过滤器</p>
 <ol>
-<li><xss style="xss:expression(alert(1111))"> #通过该方式再IE中执行插入的代码，可以瞒过过滤器</li>
+<li><code>&lt;xss style=&quot;xss:expression(alert(1111))&quot;&gt;</code> #通过该方式再IE中执行插入的代码，可以瞒过过滤器</li>
 </ol>
 </li>
 <li><p>使用少见的标签绕过过滤器</p>
@@ -466,7 +465,7 @@
 </ol>
 <p><strong>属性中的注入</strong></p>
 <ol>
-<li><p>属性值大小写不敏感、引号不敏感，IE中可以给使用`</p>
+<li><p>属性值大小写不敏感、引号不敏感，IE中可以给使用&#96;</p>
 </li>
 <li><p>标签与属性、属性名与等号、等号与属性值之间可以用空格、换行符、回车符、过着tab等替代</p>
 </li>
@@ -475,11 +474,11 @@
 <li><p>js中一个函数可以在另一个函数中执行</p>
  <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">&quot;#&quot;</span> <span class="attr">onclick</span>=<span class="string">&quot;do_some_func(&#x27;&#x27;,alert(111),&#x27;&#x27;)&quot;</span>&gt;</span></span><br><span class="line">2. <span class="tag">&lt;<span class="name">a</span> <span class="attr">href</span>=<span class="string">#</span> <span class="attr">onclick</span>=<span class="string">&quot;do_some_func(&#x27;&#x27;,functiong()&#123;alert(11);alert(22)&#125;,&#x27;&#x27;)&quot;</span>&gt;</span> #执行多条语句应定义匿名函数</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>资源类属性后面可以添加伪协议，当然该功能现如今已经被屏蔽了，不过IE6是支持的，不过<iframe>中的伪协议并没有被屏蔽</p>
+<li><p>资源类属性后面可以添加伪协议，当然该功能现如今已经被屏蔽了，不过IE6是支持的，不过<code>&lt;iframe&gt;</code>中的伪协议并没有被屏蔽</p>
 </li>
 <li><p>可以利用url的@属性绕过</p>
-<p> 如要求输入url地址如下，src=<a target="_blank" rel="noopener external nofollow noreferrer" href="http://www.baidu.com,其中rul部分是我们需要构造payload的地方,如果该处的特殊字符被过滤掉了,我们则可以通过外部引入js代码的形式绕过,如/">http://www.baidu.com，其中rul部分是我们需要构造payload的地方，如果该处的特殊字符被过滤掉了，我们则可以通过外部引入js代码的形式绕过，如</a></p>
-<p> src=<a target="_blank" rel="noopener external nofollow noreferrer" href="http://www.baidu.com@www.hack.com/inject.js">http://www.baidu.com@www.hack.com/inject.js</a> 这样@前面的内容就被当作了用户名。</p>
+<p> 如要求输入url地址如下，src&#x3D;<a target="_blank" rel="noopener external nofollow noreferrer" href="http://www.baidu.com,其中rul部分是我们需要构造payload的地方,如果该处的特殊字符被过滤掉了,我们则可以通过外部引入js代码的形式绕过,如/">http://www.baidu.com，其中rul部分是我们需要构造payload的地方，如果该处的特殊字符被过滤掉了，我们则可以通过外部引入js代码的形式绕过，如</a></p>
+<p> src&#x3D;<a target="_blank" rel="noopener external nofollow noreferrer" href="http://www.baidu.com@www.hack.com/inject.js">http://www.baidu.com@www.hack.com/inject.js</a> 这样@前面的内容就被当作了用户名。</p>
 </li>
 <li><p>支持伪协议的不常见标签属性</p>
  <figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">img</span> <span class="attr">dybsrc</span>=<span class="string">&quot;javascript:alert(&#x27;xss&#x27;)&quot;</span>&gt;</span>(IE6)</span><br><span class="line"><span class="tag">&lt;<span class="name">img</span> <span class="attr">lowsrc</span>=<span class="string">&quot;javascript:alert(&#x27;xss&#x27;)&quot;</span>&gt;</span>(IE6)</span><br><span class="line"><span class="tag">&lt;<span class="name">isindex</span> <span class="attr">action</span>=<span class="string">&quot;javascript:alert(&#x27;xss&#x27;)&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">&quot;img&quot;</span> <span class="attr">src</span>=<span class="string">&quot;javascript:alert(&#x27;xss&#x27;);&quot;</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
@@ -489,8 +488,8 @@
 <p>css分为选择符、属性名、属性值、规则（@charset）、声明（!import）</p>
 <p>css代码中我们可以插入代码的部分只有资源类属性值和@import规则</p>
 <p>css属性名的任何地方都可以插入反斜线\一家反斜线加0的各种组合</p>
-<p>@im\po\rt &quot;url&quot; //引入一段css代码</p>
-<p>@im\po\0000000rt &quot;url&quot;</p>
+<p>@im\po\rt “url” &#x2F;&#x2F;引入一段css代码</p>
+<p>@im\po\0000000rt “url”</p>
 <p>声明总包含!import故，该针对该方法的过滤效果并不好，给了我们可乘之机</p>
 <p>使用expression方法在IE中执行js代码，不过直接插入该方法会导致，插入的数据在页面中一致循环，我们需要用语句限制这种循环</p>
 <figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">expression</span>(<span class="keyword">if</span>(<span class="variable language_">window</span>.<span class="property">x</span>!=<span class="number">1</span>)(<span class="title function_">alert</span>(<span class="number">1</span>);<span class="variable language_">window</span>.<span class="property">x</span>=<span class="number">1</span>;));</span><br></pre></td></tr></table></figure>
@@ -709,7 +708,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-WEB%E5%89%8D%E7%AB%AF%E9%BB%91%E5%AE%A2%E6%8A%80%E6%9C%AF%E6%8F%AD%E7%A7%98"><span class="nav-number">1.</span> <span class="nav-text">读书笔记-WEB前端黑客技术揭秘</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%8E%E5%AD%97%E7%AC%A6%E9%9B%86%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.1.</span> <span class="nav-text">字符与字符集导致的安全问题</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0-WEB%E5%89%8D%E7%AB%AF%E9%BB%91%E5%AE%A2%E6%8A%80%E6%9C%AF%E6%8F%AD%E7%A7%98"><span class="nav-number">1.</span> <span class="nav-text">读书笔记-WEB前端黑客技术揭秘</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%8E%E5%AD%97%E7%AC%A6%E9%9B%86%E5%AF%BC%E8%87%B4%E7%9A%84%E5%AE%89%E5%85%A8%E9%97%AE%E9%A2%98"><span class="nav-number">1.0.1.</span> <span class="nav-text">字符与字符集导致的安全问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E6%B7%B7%E6%B7%86"><span class="nav-number">1.0.2.</span> <span class="nav-text">代码混淆</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -776,6 +775,10 @@
 		<!-- 显示10数目的文章 -->
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/6eecc4bb.html" title="读书笔记-WEB前端黑客技术揭秘" target="_blank">读书笔记-WEB前端黑客技术揭秘</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
 				<a href="/archives/b7f3ad9b.html" title="面试题整理" target="_blank">面试题整理</a>
 			  </li>
 			
@@ -785,10 +788,6 @@
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
 				<a href="/archives/9c75190f.html" title="防火墙" target="_blank">防火墙</a>
-			  </li>
-			
-			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/6eecc4bb.html" title="读书笔记-WEB前端黑客技术揭秘" target="_blank">读书笔记-WEB前端黑客技术揭秘</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
