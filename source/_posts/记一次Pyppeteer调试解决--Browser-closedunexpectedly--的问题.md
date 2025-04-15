@@ -1,11 +1,12 @@
-﻿---
+---
 title: 记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题
-date: 2025-04-14 10:33:52
 tags:
-- pyppeteer
+  - pyppeteer
 categories:
-  - [bug修复]
-  - [tips]
+  - - bug修复
+  - - tips
+abbrlink: ef2b93c5
+date: 2025-04-14 10:33:52
 ---
 
 事情是酱婶儿的：

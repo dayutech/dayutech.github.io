@@ -1,13 +1,14 @@
-﻿---
+---
 title: ThinkPHP6.x反序列化POC
-date: 2025-04-14 10:33:52
 tags:
-- thinkphp
-- 反序列化
-- PoC
+  - thinkphp
+  - 反序列化
+  - PoC
 categories:
-  - [漏洞分析]
+  - - 漏洞分析
 description: 本文提供了ThinkPHP6.x反序列化POC
+abbrlink: 6bc452e1
+date: 2025-04-14 10:33:52
 ---
 ```php
 <?php

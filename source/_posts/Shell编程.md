@@ -4,10 +4,11 @@ tags:
   - Shell编程
   - Shell
 categories:
-  - [安全技术]
-  - [编程语言]
-date: 2025-04-10 20:56:11
+  - - 安全技术
+  - - 编程语言
 description: 本文介绍了Linux Shell的基本语法
+abbrlink: 6309c3f8
+date: 2025-04-10 20:56:11
 ---
 # Shell编程
 

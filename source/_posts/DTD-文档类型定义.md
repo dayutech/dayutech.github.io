@@ -5,10 +5,11 @@ tags:
   - XML
   - XXE
 categories:
-  - [安全技术]
-  - [协议规范]
-date: 2025-04-10 20:56:11
+  - - 安全技术
+  - - 协议规范
 description: 本文介绍了DTD的基本规范
+abbrlink: 67b9bed
+date: 2025-04-10 20:56:11
 ---
 # DTD-文档类型定义
 

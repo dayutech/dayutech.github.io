@@ -1,12 +1,13 @@
 ---
 title: 解决hexo内嵌js无法加载问题
-date: 2025-04-14 10:33:52
 tags:
-- hexo
-- pjax
+  - hexo
+  - pjax
 categories:
-  - [bug修复]
-  - [tips]
+  - - bug修复
+  - - tips
+abbrlink: 7f771bb5
+date: 2025-04-14 10:33:52
 ---
 检查网站是否开启了`pjax`  
 查看主题配置文件，搜索关键字`pjax`   

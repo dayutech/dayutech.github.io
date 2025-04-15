@@ -1,12 +1,13 @@
-﻿---
+---
 title: Fastjson反序列化漏洞原理分析及复现
-date: 2025-04-14 10:33:52
 tags:
-- fastjson
-- 反序列化
+  - fastjson
+  - 反序列化
 categories:
-  - [漏洞分析]
+  - - 漏洞分析
 description: 本文介绍了 Fastjson反序列化漏洞原理分析及复现
+abbrlink: 38dceb78
+date: 2025-04-14 10:33:52
 ---
 @[TOC](Fastjson反序列化漏洞原理分析及复现)
 # Fastjson序列化与反序列化

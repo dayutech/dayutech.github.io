@@ -4,10 +4,11 @@ tags:
   - HTTP
   - HTTPS
 categories:
-  - [安全技术]
-  - [协议规范]
-date: 2025-04-10 20:56:11
+  - - 安全技术
+  - - 协议规范
 description: 本文介绍了HTTP/HTTPS的基本格式
+abbrlink: ac8f02b1
+date: 2025-04-10 20:56:11
 ---
 # HTTP/HTTPS协议
 

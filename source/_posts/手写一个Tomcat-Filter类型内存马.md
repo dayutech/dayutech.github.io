@@ -1,13 +1,14 @@
-﻿---
+---
 title: 手写一个Tomcat Filter类型内存马
-date: 2025-04-14 10:33:52
 tags:
-- 内存马
-- tomcat
-- filter
+  - 内存马
+  - tomcat
+  - filter
 categories:
-  - [漏洞利用]
+  - - 漏洞利用
 description: 本文编写了一个常见的Filter内存马
+abbrlink: f0f0aa4f
+date: 2025-04-14 10:33:52
 ---
 ```java
  try {

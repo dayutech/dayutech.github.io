@@ -4,10 +4,11 @@ tags:
   - Web
   - 前端
 categories:
-  - [安全技术]
-  - [读书笔记]
-date: 2025-04-10 20:56:11
+  - - 安全技术
+  - - 读书笔记
 description: 《WEB前端黑客技术揭秘》 读书笔记
+abbrlink: 6eecc4bb
+date: 2025-04-10 20:56:11
 ---
 # 读书笔记-WEB前端黑客技术揭秘
 

@@ -1,12 +1,13 @@
-﻿---
+---
 title: 冒泡排序调优 go语言
-date: 2025-04-14 10:33:52
 tags:
-- 冒泡排序
-- Golang
+  - 冒泡排序
+  - Golang
 categories:
-  - [算法]
+  - - 算法
 description: 本文简要介绍了 冒泡排序 的Go语言实现方案
+abbrlink: 7473afbd
+date: 2025-04-14 10:33:52
 ---
 
 # 常规做法

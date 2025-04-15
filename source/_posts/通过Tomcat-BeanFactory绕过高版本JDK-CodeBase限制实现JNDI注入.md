@@ -1,14 +1,15 @@
-﻿---
+---
 title: 通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入
-date: 2025-04-14 10:33:52
 tags:
-- codebase
-- tomcat
-- JDK
-- JNDI注入
+  - codebase
+  - tomcat
+  - JDK
+  - JNDI注入
 categories:
-  - [漏洞利用]
+  - - 漏洞利用
 description: 本文介绍了一种绕过高版本JDK CodeBase限制的方案
+abbrlink: '42623881'
+date: 2025-04-14 10:33:52
 ---
 
 上一篇文章我们讨论了通过Reference方法实现远程恶意类的自动加载，最终提供了一种使用本地类绕过truseURLCodeBase的方法，今天我们就来找到这样一个类，我们知道我们的远程恶意类要满足的两个条件是，首先要实现ObjectFactory接口，这是充分必要条件，还有一个充分不必要条件就是要重写javax.naming.spi.ObjectFactory方法。因为本地类的内容是我们不可控的，也就是不能去自己写静态代码块、实例代码块与无参构造方法，那么我们今天要找的本地类也就必须要实现getObjectInstance方法且有可利用的点，我们在Tomcat的源码中找到了这样一个方法，这里提供一个寻找某一个类实现类的快捷键，我们在IDEA中安Ctrl+H就可以看到所有实现了这个接口的类了。

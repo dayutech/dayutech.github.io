@@ -4,10 +4,11 @@ tags:
   - Linux
   - 安全基线
 categories:
-  - [安全技术]
-  - [Linux]
-date: 2025-04-10 20:56:11
+  - - 安全技术
+  - - Linux
 description: 本文介绍了 Linux安全配置基线 的相关知识点
+abbrlink: 7cd2fa35
+date: 2025-04-10 20:56:11
 ---
 # linux安全配置基线
 

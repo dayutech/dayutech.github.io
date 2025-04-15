@@ -6,10 +6,11 @@ tags:
   - 漏洞原理
   - PHP
 categories:
-  - [安全技术]
-  - [漏洞原理]
-date: 2025-04-10 20:56:11
+  - - 安全技术
+  - - 漏洞原理
 description: 本文介绍了XXE以及SSRF漏洞的基本原理
+abbrlink: 4e6e7714
+date: 2025-04-10 20:56:11
 ---
 
 

@@ -3,10 +3,11 @@ title: PHP语法
 tags:
   - PHP语法
 categories:
-  - [安全技术]
-  - [编程语言]
-date: 2025-04-10 20:56:11
+  - - 安全技术
+  - - 编程语言
 description: 本文介绍了PHP的基本语法
+abbrlink: '187503e5'
+date: 2025-04-10 20:56:11
 ---
 # php
 

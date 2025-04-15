@@ -3,10 +3,11 @@ title: Java语法
 tags:
   - Java语法
 categories:
-  - [安全技术]
-  - [编程语言]
-date: 2025-04-10 20:56:11
+  - - 安全技术
+  - - 编程语言
 description: 本文介绍了JAVA的基本语法
+abbrlink: 3377d36c
+date: 2025-04-10 20:56:11
 ---
 # JAVA
 

@@ -4,10 +4,11 @@ tags:
   - HASH表
   - 一致性HASH
 categories:
-  - [安全技术]
-  - [Hash]
-date: 2025-04-10 20:56:11
+  - - 安全技术
+  - - Hash
 description: 本文介绍了 HASH表与一致性HASH 的相关知识点
+abbrlink: 810d7b26
+date: 2025-04-10 20:56:11
 ---
 
 # HASH表与一致性HASH

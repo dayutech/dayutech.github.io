@@ -1,13 +1,14 @@
 ---
 title: 解决hexo-next主题上游仓库改变告警
-date: 2025-04-14 15:01:23
 tags:
-- hexo
-- hexo-next
-- The upstream repository of theme NexT has been changed
+  - hexo
+  - hexo-next
+  - The upstream repository of theme NexT has been changed
 categories:
-- [bug修复]
-- tips
+  - - bug修复
+  - tips
+abbrlink: cf1ba47f
+date: 2025-04-14 15:01:23
 ---
 
 找到安装的`hexo-next-title hexo-next-share hexo-next-exif hexo-next-utteranc`等插件的安装目录 在其目录下找到`node_modules`目录  

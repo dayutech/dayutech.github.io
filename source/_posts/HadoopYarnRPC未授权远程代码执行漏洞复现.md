@@ -1,14 +1,15 @@
-﻿---
+---
 title: Hadoop Yarn RPC 未授权远程代码执行漏洞复现
-date: 2025-04-14 10:33:52
 tags:
-- Hadoop
-- Yarn
-- RPC
-- 远程代码执行
+  - Hadoop
+  - Yarn
+  - RPC
+  - 远程代码执行
 categories:
-  - [漏洞分析]
+  - - 漏洞分析
 description: 本文介绍了 Hadoop Yarn RPC 未授权远程代码执行漏洞
+abbrlink: fe9d893
+date: 2025-04-14 10:33:52
 ---
 @[TOC](Hadoop Yarn RPC未授权远程代码执行漏洞复现)
 

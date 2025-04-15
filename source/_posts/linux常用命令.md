@@ -3,10 +3,11 @@ title: Linux常用命令
 tags:
   - Linux
 categories:
-  - [安全技术]
-  - [Linux]
-date: 2025-04-10 20:56:11
+  - - 安全技术
+  - - Linux
 description: 本文介绍了 数据库 的相关知识点
+abbrlink: d0edc1ed
+date: 2025-04-10 20:56:11
 ---
 # linux常用命令
 

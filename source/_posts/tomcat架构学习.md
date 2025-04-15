@@ -1,11 +1,12 @@
-﻿---
+---
 title: tomcat架构学习
-date: 2025-04-14 10:33:52
 tags:
-- tomcat
+  - tomcat
 categories:
-  - [Tomcat]
+  - - Tomcat
 description: 本文介绍了Tomcat的架构
+abbrlink: 53313e1c
+date: 2025-04-14 10:33:52
 ---
 tomcat重要的概念有Server Service Connector Container Engine Host Context Wrapper
 |组件|说明|

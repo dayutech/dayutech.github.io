@@ -1,13 +1,14 @@
-﻿---
+---
 title: Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析
-date: 2025-04-14 10:33:52
 tags:
-- fastjson
-- 反序列化
-- gadgets
-- templateImpl
+  - fastjson
+  - 反序列化
+  - gadgets
+  - templateImpl
 categories:
-  - [漏洞分析]
+  - - 漏洞分析
+abbrlink: 4187a059
+date: 2025-04-14 10:33:52
 ---
 @[TOC](Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析)
 

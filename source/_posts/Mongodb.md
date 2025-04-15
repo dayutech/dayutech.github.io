@@ -4,10 +4,11 @@ tags:
   - Mongodb
   - 数据库
 categories:
-  - [安全技术]
-  - [数据库]
-date: 2025-04-10 20:56:11
+  - - 安全技术
+  - - 数据库
 description: 本文介绍了 数据库 的相关知识点
+abbrlink: '20475214'
+date: 2025-04-10 20:56:11
 ---
 # Mongodb
 

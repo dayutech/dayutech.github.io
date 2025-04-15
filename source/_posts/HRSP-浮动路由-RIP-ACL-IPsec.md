@@ -6,10 +6,11 @@ tags:
   - ACL
   - IPSec
 categories:
-  - [安全技术]
-  - [协议规范]
-date: 2025-04-10 20:56:11
+  - - 安全技术
+  - - 协议规范
 description: 本文介绍了HRSP RIP ACL IPSec 的相关知识点
+abbrlink: db738475
+date: 2025-04-10 20:56:11
 ---
 
 # 配置HSRP
