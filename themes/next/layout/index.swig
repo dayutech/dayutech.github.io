@@ -18,3 +18,7 @@
 {% block sidebar %}
   {{ sidebar_template.render(false) }}
 {% endblock %}
+
+{% block sidebar2 %}
+  {{ sidebar_template.render(false) }}
+{% endblock %}
