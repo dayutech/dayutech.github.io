@@ -226,7 +226,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/2025/04/11/Java-Gadgets%E6%90%9C%E7%B4%A2%E5%B7%A5%E5%85%B7%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84-Gadget%20Inspector/">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/a580d790.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/dayu/avatar.png">
@@ -240,7 +240,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2025/04/11/Java-Gadgets%E6%90%9C%E7%B4%A2%E5%B7%A5%E5%85%B7%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84-Gadget%20Inspector/" class="post-title-link" itemprop="url">Java-Gadgets搜索工具是如何工作的-Gadget Inspector</a>
+            <a href="/archives/a580d790.html" class="post-title-link" itemprop="url">Java-Gadgets搜索工具是如何工作的-Gadget Inspector</a>
         </h2>
 
         <div class="post-meta">
@@ -297,7 +297,7 @@
 <h3 id="检测原理"><a href="#检测原理" class="headerlink" title="检测原理"></a>检测原理</h3><p>Gadget Inspector 的核心逻辑包含5个步骤，分别是类信息分析、数据传播分析、调用图构造、入口探测以及Gadgets串联。<br>在第一步中 Gadget Inspector 利用 MethodDiscovery 类对 当前环境中所有类的方法、成员、继承结构进行解析并集中存储在特定的数据结构中以便后续进行<br>数据传播分析以及调用图构造。<br>在第二步中 Gadget Inspector 利用 PassthroughDiscovery 类运用 深度优先算法、逆拓扑排序等方式进行数据流分析从而确认方法入参与返回值的关系，<br>即入参是否能够污染到返回值，其根本目的在于确认关键参数是否可以被攻击者控制。<br>在第三步中 Gadget Inspector 通过 Java ASM 技术构造方法调用图，其目的在于确认主调方法与被调用方法参数之间的关系。<br>第四步中 Gadget Inspector 通过 SourceDiscovery 针对不同的夫序列化类型进行分发，通过对比第一步中形成的methodMap中存储的方法信息与预定义<br>的反序列化 Gadget Source点进行比较，从而确定当前项目中可被使用的反序列化入口方法。<br>在第五步中 Gadget  Inspector 开始从Source点开始遍历调用图，直到找到一个方法与预定义的sink点相匹配则说明Gadget Inspector 找到了一条可以<br>使用的反序列化调用链。  </p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2025/04/11/Java-Gadgets%E6%90%9C%E7%B4%A2%E5%B7%A5%E5%85%B7%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84-Gadget%20Inspector/#more" rel="contents">
+              <a class="btn" href="/archives/a580d790.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -325,7 +325,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/2025/04/11/Scala%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9D%9F/">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/2a377379.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/dayu/avatar.png">
@@ -339,7 +339,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2025/04/11/Scala%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9D%9F/" class="post-title-link" itemprop="url">Scala代码审计从入门到入坟</a>
+            <a href="/archives/2a377379.html" class="post-title-link" itemprop="url">Scala代码审计从入门到入坟</a>
         </h2>
 
         <div class="post-meta">
@@ -399,7 +399,7 @@
           <h1 id="Scala代码审计从入门到入坟"><a href="#Scala代码审计从入门到入坟" class="headerlink" title="Scala代码审计从入门到入坟"></a>Scala代码审计从入门到入坟</h1><h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>Scala 是一门多范式的编程语言，集成了面向对象编程和函数式编程的多种特性。函数式编程抽象的理论基础也让这门语言变得抽象起来，初学者需要花更多的时间去理解其特有概念以及众多的语法糖。<code>Scala</code>是一门运行在JVM平台上的语言，其源码编译结果符合<code>Java</code>字节码规范，所以可以被反编译为<code>Java</code>代码。在进行<code>Scala</code>代码审计的过程中，审计者很少有机会直面其源码，大多数时候都是被反编译为<code>Java</code>的代码所支配。<code>Scala</code>与<code>Java</code>毕竟是两门语言，反编译成<code>Java</code>代码的后果便是丧失了动态调试的能力（这为审计者带来了不小的麻烦），反编译后产生的中间代码、临时变量等辅助结构更是极大得降低了代码的可读性。本文将带领诸位抽丝剥茧逐步梳理出<code>Scala</code>各语法结构与<code>Java</code>语法结构对应关系，然后以两个漏洞的分析结尾。  </p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2025/04/11/Scala%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9D%9F/#more" rel="contents">
+              <a class="btn" href="/archives/2a377379.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -427,7 +427,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/2025/04/10/Spring-Kafka%E6%B6%88%E6%81%AF%E5%A4%B4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2023-34040/">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/6725ab5c.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/dayu/avatar.png">
@@ -441,7 +441,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2025/04/10/Spring-Kafka%E6%B6%88%E6%81%AF%E5%A4%B4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2023-34040/" class="post-title-link" itemprop="url">Spring Kafka 消息头反序列化漏洞（CVE-2023-34040）</a>
+            <a href="/archives/6725ab5c.html" class="post-title-link" itemprop="url">Spring Kafka 消息头反序列化漏洞（CVE-2023-34040）</a>
         </h2>
 
         <div class="post-meta">
@@ -508,7 +508,7 @@
 <h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>当Kafka应用服务器允许一个不受信任的源的生产消息的时候，若其能够控制消息的headers，则可能导致一个反序列化漏洞的发生。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2025/04/10/Spring-Kafka%E6%B6%88%E6%81%AF%E5%A4%B4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2023-34040/#more" rel="contents">
+              <a class="btn" href="/archives/6725ab5c.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -536,7 +536,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/2025/04/14/%E8%A7%A3%E5%86%B3hexo-next%E4%B8%BB%E9%A2%98%E4%B8%8A%E6%B8%B8%E4%BB%93%E5%BA%93%E6%94%B9%E5%8F%98%E5%91%8A%E8%AD%A6/">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/cf1ba47f.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/dayu/avatar.png">
@@ -550,7 +550,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2025/04/14/%E8%A7%A3%E5%86%B3hexo-next%E4%B8%BB%E9%A2%98%E4%B8%8A%E6%B8%B8%E4%BB%93%E5%BA%93%E6%94%B9%E5%8F%98%E5%91%8A%E8%AD%A6/" class="post-title-link" itemprop="url">解决hexo-next主题上游仓库改变告警</a>
+            <a href="/archives/cf1ba47f.html" class="post-title-link" itemprop="url">解决hexo-next主题上游仓库改变告警</a>
         </h2>
 
         <div class="post-meta">
@@ -560,10 +560,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2025-04-14 15:01:23 / 修改时间：15:04:30" itemprop="dateCreated datePublished" datetime="2025-04-14T15:01:23+08:00">2025-04-14</time>
+              <time title="创建时间：2025-04-14 15:01:23" itemprop="dateCreated datePublished" datetime="2025-04-14T15:01:23+08:00">2025-04-14</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-04-15 09:39:43" itemprop="dateModified" datetime="2025-04-15T09:39:43+08:00">2025-04-15</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -628,7 +634,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/2025/04/14/7-zip%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87%E6%BC%8F%E6%B4%9E%E3%80%90CVE-2022-29072%E3%80%91/">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/e8630e46.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/dayu/avatar.png">
@@ -642,7 +648,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2025/04/14/7-zip%E6%9D%83%E9%99%90%E6%8F%90%E5%8D%87%E6%BC%8F%E6%B4%9E%E3%80%90CVE-2022-29072%E3%80%91/" class="post-title-link" itemprop="url">7-zip权限提升漏洞【CVE-2022-29072】</a>
+            <a href="/archives/e8630e46.html" class="post-title-link" itemprop="url">7-zip权限提升漏洞【CVE-2022-29072】</a>
         </h2>
 
         <div class="post-meta">
@@ -652,10 +658,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2025-04-14 10:33:52 / 修改时间：11:25:05" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
+              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-04-15 09:39:43" itemprop="dateModified" datetime="2025-04-15T09:39:43+08:00">2025-04-15</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -717,7 +729,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/2025/04/14/Apache-Shiro-RegExPatternMatcher-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87%E3%80%90CVE-2022-32532%E3%80%91/">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/9f1a1388.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/dayu/avatar.png">
@@ -731,7 +743,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2025/04/14/Apache-Shiro-RegExPatternMatcher-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87%E3%80%90CVE-2022-32532%E3%80%91/" class="post-title-link" itemprop="url">Apache Shiro RegExPatternMatcher 认证绕过【CVE-2022-32532】</a>
+            <a href="/archives/9f1a1388.html" class="post-title-link" itemprop="url">Apache Shiro RegExPatternMatcher 认证绕过【CVE-2022-32532】</a>
         </h2>
 
         <div class="post-meta">
@@ -741,10 +753,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2025-04-14 10:33:52 / 修改时间：11:11:16" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
+              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-04-15 09:39:43" itemprop="dateModified" datetime="2025-04-15T09:39:43+08:00">2025-04-15</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -783,7 +801,7 @@
           <p>本文简要介绍了 CVE-2022-32532 的漏洞成因</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2025/04/14/Apache-Shiro-RegExPatternMatcher-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87%E3%80%90CVE-2022-32532%E3%80%91/">
+              <a class="btn" href="/archives/9f1a1388.html">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -811,7 +829,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/2025/04/14/Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9ETemplateImpl%E5%88%A9%E7%94%A8%E9%93%BE%E6%9D%A1%E8%B7%9F%E8%B8%AA%E4%B8%8E%E5%88%86%E6%9E%90/">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/4187a059.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/dayu/avatar.png">
@@ -825,7 +843,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2025/04/14/Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9ETemplateImpl%E5%88%A9%E7%94%A8%E9%93%BE%E6%9D%A1%E8%B7%9F%E8%B8%AA%E4%B8%8E%E5%88%86%E6%9E%90/" class="post-title-link" itemprop="url">Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析</a>
+            <a href="/archives/4187a059.html" class="post-title-link" itemprop="url">Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析</a>
         </h2>
 
         <div class="post-meta">
@@ -835,10 +853,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2025-04-14 10:33:52 / 修改时间：11:38:44" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
+              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-04-15 09:39:43" itemprop="dateModified" datetime="2025-04-15T09:39:43+08:00">2025-04-15</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -879,7 +903,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.serializer.SerializerFeature;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FastjsonTest</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">FastjsonUnserilizeTest</span> <span class="variable">fastjsonUnserilizeTest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FastjsonUnserilizeTest</span>();</span><br><span class="line"><span class="comment">//        fastjsonUnserilizeTest.setAge(20);</span></span><br><span class="line"><span class="comment">//        fastjsonUnserilizeTest.setName(&quot;armandhenewpy&quot;);</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> JSON.toJSONString(fastjsonUnserilizeTest, SerializerFeature.WriteClassName);</span><br><span class="line">        System.out.println(s);</span><br><span class="line"><span class="comment">//        String s1 = &quot;&#123;\&quot;@type\&quot;:\&quot;com.armandhe.javabase.FastjsonUnserilizeTest\&quot;,\&quot;age\&quot;:20,\&quot;name\&quot;:\&quot;armandhenewpy\&quot;&#125;&quot;;</span></span><br><span class="line"><span class="comment">//        JSONObject jsonObject = JSON.parseObject(s1);</span></span><br><span class="line"><span class="comment">//        System.out.println(jsonObject);</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2025/04/14/Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9ETemplateImpl%E5%88%A9%E7%94%A8%E9%93%BE%E6%9D%A1%E8%B7%9F%E8%B8%AA%E4%B8%8E%E5%88%86%E6%9E%90/#more" rel="contents">
+              <a class="btn" href="/archives/4187a059.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -907,7 +931,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/2025/04/14/Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%8D%E7%8E%B0/">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/9d7d8426.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/dayu/avatar.png">
@@ -921,7 +945,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2025/04/14/Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%8D%E7%8E%B0/" class="post-title-link" itemprop="url">Fastjson反序列化漏洞原理分析及复现</a>
+            <a href="/archives/9d7d8426.html" class="post-title-link" itemprop="url">Gerapy clone 后台远程命令执行漏洞【CVE-2021-32849】</a>
         </h2>
 
         <div class="post-meta">
@@ -931,104 +955,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2025-04-14 10:33:52 / 修改时间：11:39:36" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
+              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
             </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
                 </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-04-15 09:39:43" itemprop="dateModified" datetime="2025-04-15T09:39:43+08:00">2025-04-15</time>
               </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.5k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>9 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>本文介绍了 Fastjson反序列化漏洞原理分析及复现</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2025/04/14/Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%8D%E7%8E%B0/">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  <!-- needsharebutton Javascript file -->
-<script src="js/needsharebutton.min.js"></script>
-<!-- needsharebutton CSS file -->
-<link href="css/needsharebutton.min.css" rel="stylesheet" />
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/2025/04/14/Gerapy-clone%E5%90%8E%E5%8F%B0%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E3%80%90CVE-2021-32849%E3%80%91/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/dayu/avatar.png">
-      <meta itemprop="name" content="Arliya">
-      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dayu Technology Co., LTD">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2025/04/14/Gerapy-clone%E5%90%8E%E5%8F%B0%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E3%80%90CVE-2021-32849%E3%80%91/" class="post-title-link" itemprop="url">Gerapy clone 后台远程命令执行漏洞【CVE-2021-32849】</a>
-        </h2>
-
-        <div class="post-meta">
-		  
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2025-04-14 10:33:52 / 修改时间：11:37:09" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
-            </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -1068,7 +1004,7 @@
 <p>该漏洞的利用需要授权，虽然危害较大，但是感觉还是比较鸡肋的。<br>项目地址：<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/Gerapy/Gerapy">Gerapy</a><br>该漏洞出现在项目的<code>gerapy/server/core/views.py</code>中的<code>project_clone</code>函数中：</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2025/04/14/Gerapy-clone%E5%90%8E%E5%8F%B0%E8%BF%9C%E7%A8%8B%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E3%80%90CVE-2021-32849%E3%80%91/#more" rel="contents">
+              <a class="btn" href="/archives/9d7d8426.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1096,7 +1032,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/2025/04/14/HadoopYarnRPC%E6%9C%AA%E6%8E%88%E6%9D%83%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/38dceb78.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/dayu/avatar.png">
@@ -1110,7 +1046,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2025/04/14/HadoopYarnRPC%E6%9C%AA%E6%8E%88%E6%9D%83%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" class="post-title-link" itemprop="url">Hadoop Yarn RPC 未授权远程代码执行漏洞复现</a>
+            <a href="/archives/38dceb78.html" class="post-title-link" itemprop="url">Fastjson反序列化漏洞原理分析及复现</a>
         </h2>
 
         <div class="post-meta">
@@ -1120,10 +1056,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2025-04-14 10:33:52 / 修改时间：11:37:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
+              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-04-15 09:39:43" itemprop="dateModified" datetime="2025-04-15T09:39:43+08:00">2025-04-15</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -1140,14 +1082,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>19</span>
+              <span>2.5k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
+              <span>9 分钟</span>
             </span>
 
         </div>
@@ -1159,10 +1101,114 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>本文介绍了 Hadoop Yarn RPC 未授权远程代码执行漏洞</p>
+          <p>本文介绍了 Fastjson反序列化漏洞原理分析及复现</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2025/04/14/HadoopYarnRPC%E6%9C%AA%E6%8E%88%E6%9D%83%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/">
+              <a class="btn" href="/archives/38dceb78.html">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/faaa9881.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/archives/faaa9881.html" class="post-title-link" itemprop="url">Hadoop 任意文件写入【CVE-2022-26612】</a>
+        </h2>
+
+        <div class="post-meta">
+		  
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-04-15 09:39:43" itemprop="dateModified" datetime="2025-04-15T09:39:43+08:00">2025-04-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>974</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>来源</p>
+<blockquote>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://securitylab.github.com/advisories/GHSL-2022-012_Apache_Hadoop/">https://securitylab.github.com/advisories/GHSL-2022-012_Apache_Hadoop&#x2F;</a></p>
+</blockquote>
+<p>这个洞吧，你以为很厉害吧其实在我目前掌握的情况来看啥也不是，说要有<code>hadoop</code>环境吧，后来发现根本不需要，还浪费我好多时间在<code>windows</code>上安装<code>hadoop</code>踩坑。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/archives/faaa9881.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1305,46 +1351,46 @@
 		  <ul class="links-of-blogroll-list">
 		<!-- 文章排序规格,-updated 按照文章更新时间倒排 -->
 			
-		<!-- 显示20数目的文章 -->
+		<!-- 显示10数目的文章 -->
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/2025/04/11/PHP%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/" title="PHP代码执行" target="_blank">PHP代码执行</a>
+				<a href="/archives/b7f3ad9b.html" title="面试题整理" target="_blank">面试题整理</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/2025/04/11/PHP%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/" title="PHP命令执行" target="_blank">PHP命令执行</a>
+				<a href="/archives/42623881.html" title="通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入" target="_blank">通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/2025/04/11/Java-Gadgets%E6%90%9C%E7%B4%A2%E5%B7%A5%E5%85%B7%E6%98%AF%E5%A6%82%E4%BD%95%E5%B7%A5%E4%BD%9C%E7%9A%84-Gadget%20Inspector/" title="Java-Gadgets搜索工具是如何工作的-Gadget Inspector" target="_blank">Java-Gadgets搜索工具是如何工作的-Gadget Inspector</a>
+				<a href="/archives/9c75190f.html" title="防火墙" target="_blank">防火墙</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/2025/04/11/Scala%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9D%9F/" title="Scala代码审计从入门到入坟" target="_blank">Scala代码审计从入门到入坟</a>
+				<a href="/archives/6eecc4bb.html" title="读书笔记-WEB前端黑客技术揭秘" target="_blank">读书笔记-WEB前端黑客技术揭秘</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/2025/04/11/%E8%A7%A3%E5%86%B3hexo%E5%9B%BE%E7%89%87%E8%AE%BF%E9%97%AE%E9%81%87%E5%88%B0%E5%9B%BE%E5%BA%8A%E9%98%B2%E7%9B%97%E9%93%BE%E6%97%A0%E6%B3%95%E8%AE%BF%E9%97%AE%E7%9A%84%E9%97%AE%E9%A2%98/" title="解决hexo图片访问遇到图床防盗链无法访问的问题" target="_blank">解决hexo图片访问遇到图床防盗链无法访问的问题</a>
+				<a href="/archives/ef2b93c5.html" title="记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题" target="_blank">记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/2025/04/11/%E8%A7%A3%E5%86%B3hexo-pdf%E6%97%A0%E6%B3%95%E4%BD%BF%E7%94%A8%E7%9A%84%E9%97%AE%E9%A2%98/" title="解决hexo-pdf无法使用的问题" target="_blank">解决hexo-pdf无法使用的问题</a>
+				<a href="/archives/7f771bb5.html" title="解决hexo内嵌js无法加载问题" target="_blank">解决hexo内嵌js无法加载问题</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/2025/04/10/WebFluxSecurity-%E8%AE%A4%E8%AF%81%E7%BB%95%E8%BF%87-CVE-2023-34034/" title="WebFlux Security 认证绕过（CVE-2023-34034）" target="_blank">WebFlux Security 认证绕过（CVE-2023-34034）</a>
+				<a href="/archives/cf1ba47f.html" title="解决hexo-next主题上游仓库改变告警" target="_blank">解决hexo-next主题上游仓库改变告警</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/2025/04/10/SSO%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E7%AE%80%E4%BB%8B/" title="SSO解决方案简介" target="_blank">SSO解决方案简介</a>
+				<a href="/archives/4d872363.html" title="网站架构发展" target="_blank">网站架构发展</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/2025/04/10/Spring-Kafka%E6%B6%88%E6%81%AF%E5%A4%B4%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E-CVE-2023-34040/" title="Spring Kafka 消息头反序列化漏洞（CVE-2023-34040）" target="_blank">Spring Kafka 消息头反序列化漏洞（CVE-2023-34040）</a>
+				<a href="/archives/b4c5d320.html" title="深入理解计算机系统读书笔记（二）" target="_blank">深入理解计算机系统读书笔记（二）</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/2025/04/10/LDAP-%E8%BD%BB%E9%87%8F%E7%BA%A7%E7%9B%AE%E5%BD%95%E8%AE%BF%E9%97%AE%E5%8D%8F%E8%AE%AE/" title="LDAP-轻量级目录访问协议" target="_blank">LDAP-轻量级目录访问协议</a>
+				<a href="/archives/4ef66917.html" title="深入理解计算机系统读书笔记（四）" target="_blank">深入理解计算机系统读书笔记（四）</a>
 			  </li>
 			
 		  </ul>
