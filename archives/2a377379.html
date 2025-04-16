@@ -371,7 +371,7 @@
 <h3 id="隐式转换"><a href="#隐式转换" class="headerlink" title="隐式转换"></a>隐式转换</h3><p>在<code>Java</code>中，如果开发者需要实现类功能的增强，一般采用继承、代理甚至于使用动态插桩技术来实现，使用这些技术都需要显示地新增或者修改代码，从而提高了代码的耦合性。那么有没有一种更简洁且不具备侵入性的解决方案来实现这些要求呢？<code>Scala</code>为开发者提供了一种解决方案。<br>隐式转换允许开发者在不改变原有代码的情况下，对现有类型进行扩展或者提供额外的功能。隐式转换通常用于增强现有类的功能、为现有类提供类型转换或者为函数提供额外的参数等。</p>
 <h4 id="隐式函数"><a href="#隐式函数" class="headerlink" title="隐式函数"></a>隐式函数</h4><p>看下面的例子</p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> scala.language.implicitConversions</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ImplicitTransform</span> </span>&#123;</span><br><span class="line">  <span class="keyword">implicit</span> <span class="function"><span class="keyword">def</span> <span class="title">H2D</span></span>(h: <span class="type">Human</span>): <span class="type">Dog</span> = <span class="keyword">new</span> <span class="type">Dog</span>(h);</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="keyword">var</span> h = <span class="keyword">new</span> <span class="type">Human</span>()</span><br><span class="line">    h.bark()</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">Human</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="class"><span class="keyword">class</span> <span class="title">Dog</span>(<span class="params">h: <span class="type">Human</span></span>)</span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">bark</span></span>(): <span class="type">Unit</span> = &#123;</span><br><span class="line">      println(<span class="string">&quot;你在狗叫什么&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在<code>main</code>方法中，首先创建了<code>Human</code>的实例对象，然后调用其<code>bark</code>方法，而在<code>Human</code>类中却没有定义有<code>bark</code>方法，按照其他编程语言的逻辑此时将发生编译异常，而在Scala中却别有洞天，代码将成功执行。<br><img src="/archives/2a377379/image-2.png" referrerpolicy="no-referrer" alt="alt text"><br>这便是<code>Scala</code>隐式转换的魅力，在伴生对象<code>ImplicitTransform</code>中额外定义了一个隐式方法<code>H2D</code>,其负责将<code>Human</code>类型转换为<code>Dog</code>类型，这个过程是开发者不可见的，是隐藏着由编译器帮开发者完成的。在<code>Human</code>对象实例尝试调用不存在的<code>bark</code>方法时，会首先尝试寻找当前上下文中是否存在隐式转换函数而不是直接报错退出，若存在则判断转换后的结果是否存在<code>bark</code>方法，若存在则调用该<code>bark</code>方法。<br>将<code>Scala</code>代码反编译成<code>Java</code>后观察发现隐式调用变成了显式调用。  </p>
+<p>在<code>main</code>方法中，首先创建了<code>Human</code>的实例对象，然后调用其<code>bark</code>方法，而在<code>Human</code>类中却没有定义有<code>bark</code>方法，按照其他编程语言的逻辑此时将发生编译异常，而在Scala中却别有洞天，代码将成功执行。<br><img src="/archives/2a377379/image-2.png" referrerpolicy="no-referrer" alt="alt text" referrerpolicy="no-referrer"><br>这便是<code>Scala</code>隐式转换的魅力，在伴生对象<code>ImplicitTransform</code>中额外定义了一个隐式方法<code>H2D</code>,其负责将<code>Human</code>类型转换为<code>Dog</code>类型，这个过程是开发者不可见的，是隐藏着由编译器帮开发者完成的。在<code>Human</code>对象实例尝试调用不存在的<code>bark</code>方法时，会首先尝试寻找当前上下文中是否存在隐式转换函数而不是直接报错退出，若存在则判断转换后的结果是否存在<code>bark</code>方法，若存在则调用该<code>bark</code>方法。<br>将<code>Scala</code>代码反编译成<code>Java</code>后观察发现隐式调用变成了显式调用。  </p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//decompiled from ImplicitTransform.class</span></span><br><span class="line"><span class="meta">@ScalaSignature(</span></span><br><span class="line"><span class="meta">   bytes = &quot;ignored&quot;</span></span><br><span class="line"><span class="meta">)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">ImplicitTransform</span> &#123;</span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(<span class="keyword">final</span> String[] args)</span> &#123;</span><br><span class="line">      ImplicitTransform$.MODULE$.main(args);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> Dog <span class="title function_">H2D</span><span class="params">(<span class="keyword">final</span> Human h)</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> ImplicitTransform$.MODULE$.H2D(h);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Dog</span> &#123;</span><br><span class="line">      <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">bark</span><span class="params">()</span> &#123;</span><br><span class="line">         .MODULE$.println(<span class="string">&quot;你在狗叫什么&quot;</span>);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">public</span> <span class="title function_">Dog</span><span class="params">(<span class="keyword">final</span> Human h)</span> &#123;</span><br><span class="line">      &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Human</span> &#123;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//decompiled from ImplicitTransform$.class</span></span><br><span class="line"><span class="keyword">package</span> org.example;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">class</span> <span class="title class_">ImplicitTransform$</span> &#123;</span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> ImplicitTransform$ MODULE$;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">static</span> &#123;</span><br><span class="line">      <span class="keyword">new</span> <span class="title class_">ImplicitTransform$</span>();</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> ImplicitTransform.Dog <span class="title function_">H2D</span><span class="params">(<span class="keyword">final</span> ImplicitTransform.Human h)</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">ImplicitTransform</span>.Dog(h);</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(<span class="keyword">final</span> String[] args)</span> &#123;</span><br><span class="line">      ImplicitTransform.<span class="type">Human</span> <span class="variable">h</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ImplicitTransform</span>.Human();</span><br><span class="line">      <span class="built_in">this</span>.H2D(h).bark();</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">private</span> ImplicitTransform$() &#123;</span><br><span class="line">      MODULE$ = <span class="built_in">this</span>;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>在上面提供的代码中，观察发现<code>main</code>方法首先调用了<code>H2D</code>方法显式得将<code>Human</code>对象转换为<code>Dog</code>对象，之后再调用<code>Dog</code>对象的<code>bark</code>方法，这个过程在<code>Java</code>代码中是显式的。  </p>
 <h4 id="隐式参数"><a href="#隐式参数" class="headerlink" title="隐式参数"></a>隐式参数</h4><p>看下面的代码  </p>
@@ -406,7 +406,7 @@
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">LazyListTest</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="keyword">val</span> ll:<span class="type">LazyList</span>[<span class="type">Int</span>] =  <span class="type">LazyList</span>(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>)</span><br><span class="line">    ll.map(_ * <span class="number">2</span>).take(<span class="number">2</span>).foreach(println)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>上面代码首先创建<code>LazyList</code>对象，然后将每个元素都乘以<code>2</code>，然后取出前两个元素输出到标准输出设备中。<br><code>LazyList</code>除了可以处理有限数据外，还可以处理无限数据，下面的代码创建了一个从<code>1</code>开始步长为<code>2</code>的<code>LazyList</code>对象   </p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">LazyListTest</span> </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]): <span class="type">Unit</span> = &#123;</span><br><span class="line">    <span class="keyword">val</span> ll:<span class="type">LazyList</span>[<span class="type">Int</span>] =  <span class="type">LazyList</span>.from(<span class="number">1</span>,<span class="number">2</span>)</span><br><span class="line">    ll.map(_ * <span class="number">2</span>).take(<span class="number">10</span>).foreach(println)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>执行结果如下<br><img src="/archives/2a377379/image-6.png" referrerpolicy="no-referrer" alt="alt text"><br>那么<code>LazyList</code>时如何实现无限数据的存储的呢？我们将从<code>form</code>方法开始进行解释   </p>
+<p>执行结果如下<br><img src="/archives/2a377379/image-6.png" referrerpolicy="no-referrer" alt="alt text" referrerpolicy="no-referrer"><br>那么<code>LazyList</code>时如何实现无限数据的存储的呢？我们将从<code>form</code>方法开始进行解释   </p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">from</span></span>(start: <span class="type">Int</span>, step: <span class="type">Int</span>): <span class="type">LazyList</span>[<span class="type">Int</span>] =</span><br><span class="line">   newLL(sCons(start, from(start + step, step)))</span><br></pre></td></tr></table></figure>
 <p>上面代码中，<code>start</code>参数为起始值，<code>step</code>为步长。方法体中首先调用了<code>sCons</code>方法，再将其调用结果传入到<code>newLL</code>方法中。<code>sCons</code>的第二个参数递归地调用了<code>from</code>方法，且将<code>from</code>的第一个参数设置为前一次计算的<code>start</code>的值<code>+</code>步长。<code>sCons</code>方法创建了一个<code>Cons</code>对象，其主构造方法第一个参数称为<code>head</code>，表示序列的第一个值，第二个参数称为<code>tail</code>，表示剩余值的计算方法，即LazyList存储地不是所有的序列值，而是存储着序列的计算方法。  </p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Cons是State的子类</span></span><br><span class="line"><span class="meta">@inline</span> <span class="keyword">private</span> <span class="function"><span class="keyword">def</span> <span class="title">sCons</span></span>[<span class="type">A</span>](hd: <span class="type">A</span>, tl: <span class="type">LazyList</span>[<span class="type">A</span>]): <span class="type">State</span>[<span class="type">A</span>] = <span class="keyword">new</span> <span class="type">State</span>.<span class="type">Cons</span>[<span class="type">A</span>](hd, tl)</span><br></pre></td></tr></table></figure>
@@ -462,7 +462,7 @@
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span>[process] <span class="class"><span class="keyword">class</span> <span class="title">IStreamBuilder</span>(<span class="params"></span></span></span><br><span class="line"><span class="params"><span class="class">  stream: =&gt; <span class="type">InputStream</span>, <span class="comment">// =&gt; 标识了传名调用</span></span></span></span><br><span class="line"><span class="params"><span class="class">  label: <span class="type">String</span></span></span></span><br><span class="line"><span class="params"><span class="class"></span>) <span class="keyword">extends</span> <span class="title">ThreadBuilder</span>(<span class="params">label, _ processOutput protect(stream</span>)) </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">hasExitValue</span> </span>= <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>通过模拟上述形式得到以下代码  </p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Parent</span>(<span class="params">i: =&gt; <span class="type">Int</span></span>) </span>&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Son</span>(<span class="params">s: <span class="type">String</span></span>) <span class="keyword">extends</span> <span class="title">Parent</span>(<span class="params">s.length(</span>))</span></span><br></pre></td></tr></table></figure>
-<p>通过<code>IDEA</code>进行编译后查看生成的类发现确实生成了<code>Son$$anonfun$$lessinit$greater$1</code><br><img src="/archives/2a377379/image-7.png" referrerpolicy="no-referrer" alt="alt text"><br>通过<code>javap</code>命令查看该类的字节码  </p>
+<p>通过<code>IDEA</code>进行编译后查看生成的类发现确实生成了<code>Son$$anonfun$$lessinit$greater$1</code><br><img src="/archives/2a377379/image-7.png" referrerpolicy="no-referrer" alt="alt text" referrerpolicy="no-referrer"><br>通过<code>javap</code>命令查看该类的字节码  </p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 前文提到的，匿名函数入口在apply方法</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="type">int</span> <span class="title function_">apply</span><span class="params">()</span>;</span><br><span class="line">    descriptor: ()I</span><br><span class="line">    flags: ACC_PUBLIC, ACC_FINAL</span><br><span class="line">    Code:</span><br><span class="line">      stack=<span class="number">1</span>, locals=<span class="number">1</span>, args_size=<span class="number">1</span></span><br><span class="line">         <span class="number">0</span>: aload_0</span><br><span class="line">         <span class="comment">// 调用常量值中 23号索引指向的MethodRef 即apply$mcI$sp:()I</span></span><br><span class="line">         <span class="number">1</span>: invokevirtual #<span class="number">23</span>                 <span class="comment">// Method apply$mcI$sp:()I</span></span><br><span class="line">         <span class="number">4</span>: ireturn</span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line <span class="number">7</span>: <span class="number">0</span></span><br><span class="line">      LocalVariableTable:</span><br><span class="line">        Start  Length  Slot  Name   Signature</span><br><span class="line">            <span class="number">0</span>       <span class="number">5</span>     <span class="number">0</span>  <span class="built_in">this</span>   Lorg/example/Son$$anonfun$$lessinit$greater$<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="type">int</span> apply$mcI$sp();</span><br><span class="line">    descriptor: ()I</span><br><span class="line">    flags: ACC_PUBLIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=<span class="number">1</span>, locals=<span class="number">1</span>, args_size=<span class="number">1</span></span><br><span class="line">         <span class="comment">// 将当前方法的第一个参数放到操作数栈顶，即this</span></span><br><span class="line">         <span class="number">0</span>: aload_0</span><br><span class="line">         <span class="comment">// 用以获取常量池中 27号索引所指向的FieldRef的值，并放入操作数栈顶</span></span><br><span class="line">         <span class="number">1</span>: getfield      #<span class="number">27</span>                 <span class="comment">// Field s$1:Ljava/lang/String;</span></span><br><span class="line">         <span class="comment">// 调用常量池中 32号索引指向的Methodref 即 java/lang/String.length:()I</span></span><br><span class="line">         <span class="number">4</span>: invokevirtual #<span class="number">32</span>                 <span class="comment">// Method java/lang/String.length:()I</span></span><br><span class="line">         <span class="comment">// 返回执行的结果</span></span><br><span class="line">         <span class="number">7</span>: ireturn</span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line <span class="number">7</span>: <span class="number">0</span></span><br><span class="line">      LocalVariableTable:</span><br><span class="line">        Start  Length  Slot  Name   Signature</span><br><span class="line">            <span class="number">0</span>       <span class="number">8</span>     <span class="number">0</span>  <span class="built_in">this</span>   Lorg/example/Son$$anonfun$$lessinit$greater$<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
 <p>通过分析发现，<code>Son$$anonfun$$lessinit$greater$1</code>即是<code>Parent</code>类的第一个参数<code>s.length()</code>的引用，同理可知在<code>FileOutput</code> 中 <code>scala.sys.process.ProcessBuilderImpl$FileOutput$$anonfun$$lessinit$greater$3</code> 即<code>new FileOutputStream(file, append)</code>的引用。故POC中在创建<code>scala.sys.process.ProcessBuilderImpl$FileOutput$$anonfun$$lessinit$greater$3</code>对象时传入了两个参数<code>new File(fileToTruncate), append</code></p>
 <h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
@@ -1009,6 +1009,199 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
     gitalk.render('gitalk-container');
   }, window.Gitalk);
 });
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
 </script>
 
     </div>

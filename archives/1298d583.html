@@ -313,9 +313,9 @@
 <p>其实很久以前就了解过jndi，但那时候感觉积累不够深，所有一直对他的原理没有搞清楚，看的各种文章也是云里雾里的，直到最近在反复研磨了网络上的文章之后，终于有了一点点心得，特此在这里记录一下。</p>
 <span id="more"></span>
 <p>参考文章：<br><a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.cnblogs.com/nice0e3/p/14280278.html">Java安全之RMI协议分析</a><br><a target="_blank" rel="noopener external nofollow noreferrer" href="https://blog.csdn.net/he_and/article/details/105532007?spm=1001.2014.3001.5501">【入坑JAVA安全】RMI基础看这一篇就足够了</a></p>
-<p>RMI，顾名思义，远程方法调用。就是通过网络调用远程的对象方法实现特定功能的一种协议，java中RMI协议的实现依赖于java的反序列化机制以及JRMP协议或者IIOP协议，至于这两种协议是什么，暂时还没有研究，以后有机会了再研究研究。<br>这里先甩出来RMI的通信模型：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8b70ec8c0be1edfe10c5c3e2c928721c.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>首先我们需要一个注册中心、一个客户端、一个服务器。注册中心注册了服务器上的方法，客户端通过访问注册中心获得对应方法的代理对象，我们称之为stub，然后通过这个代理对象去访问目标服务器的代理，我们称之为skeleton,，目标服务器通过客户端传过来的方法名以及参数执行对应的方法，让后将结果返回个客户端代理对象，客户端代理对象再将结果返回给客户端。<br>这里需要明确的一点就是，客户端的代理对象，也就是存根并不是客户端自己生成的，而是由注册中心生成并返回的，因为服务器生成的代理，即骨架是随机导出到某一个端口的，这个端口只有注册了该方法的注册中兴知道，而客户端并不知道，而客户端要获取这个ip以及端口的话只能向注册中心查询。</p>
-<p>代码层面的理解：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/23f14a6c729231de63bb294151a6234b.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>上图是向注册中心注册对象的简单的操作步骤，11行首先获取了一个超市对象实例，12行创建了一个注册中心，13行将对象实例绑定到了注册中心里，当rebind被执行的时候会对第二个参数调用getClass方法获得一个类名，然后加上后缀_stub，加载到内存中，让后获取一个remoteRef对象，该对象就存放着服务器的信息，然后将该对象传递到注册中兴进行绑定就获得获得了一个stub对象。客户端通过访问注册中心的1099端口，来获得某一个对象的stub代理。注册中心实际上维护了一个hash表，表示了名称到对象的映射关系，当客户端携带对应的market来查找时，注册中心就会返回对应的stub代理。<br>为了验证我们的理论，我花了一点时间住了一下RMI协议通行过程中的数据包。</p>
-<p>【兄弟们，这张图我画错了，这所有的请求都是在执行lookup方法时才会发送的，欲知详情请参考我的下一篇文章：<a target="_blank" rel="noopener external nofollow noreferrer" href="https://blog.csdn.net/qq_32731075/article/details/122280860?spm=1001.2014.3001.5501">从代码层面看RMI规范的实现与攻击原理（一）</a>】<br><img src="https://i-blog.csdnimg.cn/blog_migrate/c8351e449a79ae9ec586828d3097b1f4.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>感兴趣的同学可以自己抓一下看看。</p>
+<p>RMI，顾名思义，远程方法调用。就是通过网络调用远程的对象方法实现特定功能的一种协议，java中RMI协议的实现依赖于java的反序列化机制以及JRMP协议或者IIOP协议，至于这两种协议是什么，暂时还没有研究，以后有机会了再研究研究。<br>这里先甩出来RMI的通信模型：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8b70ec8c0be1edfe10c5c3e2c928721c.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>首先我们需要一个注册中心、一个客户端、一个服务器。注册中心注册了服务器上的方法，客户端通过访问注册中心获得对应方法的代理对象，我们称之为stub，然后通过这个代理对象去访问目标服务器的代理，我们称之为skeleton,，目标服务器通过客户端传过来的方法名以及参数执行对应的方法，让后将结果返回个客户端代理对象，客户端代理对象再将结果返回给客户端。<br>这里需要明确的一点就是，客户端的代理对象，也就是存根并不是客户端自己生成的，而是由注册中心生成并返回的，因为服务器生成的代理，即骨架是随机导出到某一个端口的，这个端口只有注册了该方法的注册中兴知道，而客户端并不知道，而客户端要获取这个ip以及端口的话只能向注册中心查询。</p>
+<p>代码层面的理解：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/23f14a6c729231de63bb294151a6234b.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>上图是向注册中心注册对象的简单的操作步骤，11行首先获取了一个超市对象实例，12行创建了一个注册中心，13行将对象实例绑定到了注册中心里，当rebind被执行的时候会对第二个参数调用getClass方法获得一个类名，然后加上后缀_stub，加载到内存中，让后获取一个remoteRef对象，该对象就存放着服务器的信息，然后将该对象传递到注册中兴进行绑定就获得获得了一个stub对象。客户端通过访问注册中心的1099端口，来获得某一个对象的stub代理。注册中心实际上维护了一个hash表，表示了名称到对象的映射关系，当客户端携带对应的market来查找时，注册中心就会返回对应的stub代理。<br>为了验证我们的理论，我花了一点时间住了一下RMI协议通行过程中的数据包。</p>
+<p>【兄弟们，这张图我画错了，这所有的请求都是在执行lookup方法时才会发送的，欲知详情请参考我的下一篇文章：<a target="_blank" rel="noopener external nofollow noreferrer" href="https://blog.csdn.net/qq_32731075/article/details/122280860?spm=1001.2014.3001.5501">从代码层面看RMI规范的实现与攻击原理（一）</a>】<br><img src="https://i-blog.csdnimg.cn/blog_migrate/c8351e449a79ae9ec586828d3097b1f4.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>感兴趣的同学可以自己抓一下看看。</p>
 <p>我们需要注意到的是，客户端与注册中心，客户端与服务器之间的对象传递是通过java的序列化与反序列化来实现的，那么就衍生出了java的反序列化攻击。需要注意的是调用方法的执行是在服务器上面，但因为服务器往往与注册中兴是在同一个JVM上，所以反序列化攻击的对象往往是注册中心所在的设备，而不是客户端。</p>
 <p>而 在攻击的时候通常有三种方式</p>
 <p>第一种方式：</p>
@@ -463,8 +463,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/archives/6bc452e1.html" rel="prev" title="ThinkPHP6.x反序列化POC">
-      <i class="fa fa-chevron-left"></i> ThinkPHP6.x反序列化POC
+    <a href="/archives/5ce634cf.html" rel="prev" title="ThinkPHP5.0.24反序列化POC">
+      <i class="fa fa-chevron-left"></i> ThinkPHP5.0.24反序列化POC
     </a></div>
       <div class="post-nav-item">
     <a href="/archives/97967489.html" rel="next" title="Regeorg 从python2改造为python3-从实战中学习socks5协议">
@@ -857,6 +857,199 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
     gitalk.render('gitalk-container');
   }, window.Gitalk);
 });
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
 </script>
 
     </div>

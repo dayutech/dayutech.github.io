@@ -324,11 +324,11 @@
 <blockquote>
 <p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/drago-96/CVE-2022-0778">https://github.com/drago-96/CVE-2022-0778</a></p>
 </blockquote>
-<p><img src="https://i-blog.csdnimg.cn/blog_migrate/9f6d04198c4c9adbc441822eae0020f4.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>整个文件对应了函数BN_mod_sqrt，该函数接受4个参数，按照顺序我们称为ret,a,p,ctx，函数最终的实现效果是利用Tonelli&#x2F;Shanks算法计算ret，Tonelli&#x2F;Shanks算法是用来结算二次剩余的一种算法，关于二次剩余解释为存在一个数X的平方与n mod p同余，则称n为模p的二次剩余。<br>这个洞太考验数学了，对我这种半路出家的渣渣来说后面的数学推导过程真的是不要太难受。<br>关键的修改发生在这一部分<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ad2eaaabb25b582db330640d8d146f5b.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>这一部分代码被包裹在一个大的循环里面，这里贴出来完整的代码：</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/9f6d04198c4c9adbc441822eae0020f4.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>整个文件对应了函数BN_mod_sqrt，该函数接受4个参数，按照顺序我们称为ret,a,p,ctx，函数最终的实现效果是利用Tonelli&#x2F;Shanks算法计算ret，Tonelli&#x2F;Shanks算法是用来结算二次剩余的一种算法，关于二次剩余解释为存在一个数X的平方与n mod p同余，则称n为模p的二次剩余。<br>这个洞太考验数学了，对我这种半路出家的渣渣来说后面的数学推导过程真的是不要太难受。<br>关键的修改发生在这一部分<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ad2eaaabb25b582db330640d8d146f5b.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>这一部分代码被包裹在一个大的循环里面，这里贴出来完整的代码：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="comment">/*-</span></span><br><span class="line"><span class="comment">         * Now  b  is  a^q * y^k  for some even  k  (0 &lt;= k &lt; 2^E</span></span><br><span class="line"><span class="comment">         * where  E  refers to the original value of  e,  which we</span></span><br><span class="line"><span class="comment">         * don&#x27;t keep in a variable),  and  x  is  a^((q+1)/2) * y^(k/2).</span></span><br><span class="line"><span class="comment">         *</span></span><br><span class="line"><span class="comment">         * We have  a*b = x^2,</span></span><br><span class="line"><span class="comment">         *    y^2^(e-1) = -1,</span></span><br><span class="line"><span class="comment">         *    b^2^(e-1) = 1.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">if</span> (BN_is_one(b)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!BN_copy(ret, x))</span><br><span class="line">                <span class="keyword">goto</span> end;</span><br><span class="line">            err = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">goto</span> vrfy;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* find smallest  i  such that  b^(2^i) = 1 */</span></span><br><span class="line">        <span class="comment">/***********修改前的代码***********/</span></span><br><span class="line">        i = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span> (!BN_mod_sqr(t, b, p, ctx))</span><br><span class="line">            <span class="keyword">goto</span> end;</span><br><span class="line">        <span class="keyword">while</span> (!BN_is_one(t)) &#123;</span><br><span class="line">            i++;</span><br><span class="line">            <span class="keyword">if</span> (i == e) &#123;</span><br><span class="line">                ERR_raise(ERR_LIB_BN, BN_R_NOT_A_SQUARE);</span><br><span class="line">                <span class="keyword">goto</span> end;</span><br><span class="line">         <span class="comment">/***********修改前的代码***********/</span></span><br><span class="line">        <span class="comment">/* Find the smallest i, 0 &lt; i &lt; e, such that b^(2^i) = 1. */</span></span><br><span class="line">        <span class="comment">/***********修改后的代码***********/</span></span><br><span class="line">        <span class="keyword">for</span> (i = <span class="number">1</span>; i &lt; e; i++) &#123;</span><br><span class="line">            <span class="keyword">if</span> (i == <span class="number">1</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!BN_mod_sqr(t, b, p, ctx))</span><br><span class="line">                    <span class="keyword">goto</span> end;</span><br><span class="line"></span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (!BN_mod_mul(t, t, t, p, ctx))</span><br><span class="line">                    <span class="keyword">goto</span> end;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (!BN_mod_mul(t, t, t, p, ctx))</span><br><span class="line">                <span class="keyword">goto</span> end;</span><br><span class="line">            <span class="keyword">if</span> (BN_is_one(t))</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/***********修改后的代码***********/</span></span><br><span class="line">        <span class="comment">/* If not found, a is not a square or p is not prime. */</span></span><br><span class="line">        <span class="keyword">if</span> (i &gt;= e) &#123;</span><br><span class="line">            ERR_raise(ERR_LIB_BN, BN_R_NOT_A_SQUARE);</span><br><span class="line">            <span class="keyword">goto</span> end;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* t := y^2^(e - i - 1) */</span></span><br><span class="line">        <span class="keyword">if</span> (!BN_copy(t, y))</span><br><span class="line">            <span class="keyword">goto</span> end;</span><br><span class="line">        <span class="keyword">for</span> (j = e - i - <span class="number">1</span>; j &gt; <span class="number">0</span>; j--) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!BN_mod_sqr(t, t, p, ctx))</span><br><span class="line">                <span class="keyword">goto</span> end;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (!BN_mod_mul(y, t, t, p, ctx))</span><br><span class="line">            <span class="keyword">goto</span> end;</span><br><span class="line">        <span class="keyword">if</span> (!BN_mod_mul(x, x, t, p, ctx))</span><br><span class="line">            <span class="keyword">goto</span> end;</span><br><span class="line">        <span class="keyword">if</span> (!BN_mod_mul(b, b, y, p, ctx))</span><br><span class="line">            <span class="keyword">goto</span> end;</span><br><span class="line">        e = i;</span><br><span class="line">    &#125;</span><br><span class="line"> vrfy:</span><br><span class="line">    <span class="keyword">if</span> (!err) &#123;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * verify the result -- the input might have been not a square (test</span></span><br><span class="line"><span class="comment">         * added in 0.9.8)</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">if</span> (!BN_mod_sqr(x, ret, p, ctx))</span><br><span class="line">            err = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span> (!err &amp;&amp; <span class="number">0</span> != BN_cmp(x, A)) &#123;</span><br><span class="line">            ERR_raise(ERR_LIB_BN, BN_R_NOT_A_SQUARE);</span><br><span class="line">            err = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"> end:</span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="keyword">if</span> (ret != in)</span><br><span class="line">            BN_clear_free(ret);</span><br><span class="line">        ret = <span class="literal">NULL</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (used_ctx)</span><br><span class="line">        BN_CTX_end(ctx);</span><br><span class="line">    bn_check_top(ret);</span><br><span class="line">    <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>我们直接来看修改前的代码</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (<span class="number">1</span>)&#123;</span><br><span class="line">.....</span><br><span class="line">	i = <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">if</span> (!BN_mod_sqr(t, b, p, ctx))</span><br><span class="line">	    <span class="keyword">goto</span> end;</span><br><span class="line">	<span class="keyword">while</span> (!BN_is_one(t)) &#123;</span><br><span class="line">	    i++;</span><br><span class="line">	    <span class="keyword">if</span> (i == e) &#123;</span><br><span class="line">	        ERR_raise(ERR_LIB_BN, BN_R_NOT_A_SQUARE);</span><br><span class="line">	        <span class="keyword">goto</span> end;</span><br><span class="line">  ....</span><br><span class="line">    <span class="keyword">if</span> (!BN_mod_mul(b, b, y, p, ctx))</span><br><span class="line">            <span class="keyword">goto</span> end;</span><br><span class="line">     e = i;</span><br><span class="line">  ....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>在外层循环中首先会给i赋值为1，然后调用BN_mod_sqr函数，该函数的含义为接收一个素数p与数b计算t&#x3D;b^2 % p 如果计算成功则返回1，计算失败则返回0。如果没有计算成功就goto end直接退出循环，也就不会有拒绝服务的情况发生，当然我们需要让他正常返回计算结果。这是第一次外层循环需要满足的条件，然后调用BN_is_one函数判断t是否为1，如果此时t等于1那么就不会进入内层循环，而是直接到外层循环的底部将e的值赋为i，此时的i为1，也就是e为1，第一次外层循环最重要的工作也就是这一步为e赋值为1。这个时候我们就要想想怎么进入内层循环并让i&#x3D;&#x3D;e恒不成立就能使得程序一直在内层循环晃悠而不能退出，很明显需要满足BN_is_one函数的计算结果为False也就是t不等于1。进入第二次外层循环时当BN_mod_sqr计算结果使得t不为1时会进入内层循环，然后计算i++，此时i&#x3D;2 !&#x3D; e 也就不会进入内部的if语句，然后进入下一次内层循环，此时i再次自增，以后无论循环多少次都不会再有i&#x3D;1&#x3D;e的情况发生于是程序就在内层卡死了。那么现在需要实现的逻辑就是在第一次外层循环时使得t等于1，第二时不等于1，这么看来是不可能实现的除非b与p的值在后面的代码中发生了变化，不然不可能存在对相同的操作数操作两次结果不一样。恰好上面代码中使用了BN_mod_mul函数改变了b的值，每一次外层循环使用该函数时改变b的值，为b&#x3D;b<em>y mod p ，而y的值为 t</em>t mod p。<br>事情到了这里一切都已经明朗了起来，当然怎么找到符合条件的p和b的值是个问题，这里面的推导我看了存在大量的数学算法，直接给我整蒙了，查了一些资料也没有搞的很明白。<br>然后我去试了一下这个poc，发现确实有效，首先你的在你的设备上安装openssl，然后查看一下版本是不是存在漏洞<br><img src="https://i-blog.csdnimg.cn/blog_migrate/f40147184694f737d314256d31a597f5.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>不好意思，好像有漏洞<br>然后你下载好poc，然后使用gcc编译<br><code>gcc -o my_bad_sqrt my_bad_sqrt.c -lcrypt</code><br>编译的过程中可能报错<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a7b556f84a26a0655a93482ea258ab2b.png" referrerpolicy="no-referrer" alt="在这里插入图片描述">centos执行<br><code>yum install openssl-devel</code>安装依赖<br>ubuntu执行<br><code>apt-get install libssl-dev</code>安装依赖<br>然后运行编译好的可执行文件<br><code>./my_bad_sqrt</code><br>然后依旧会看到终端一直卡起了<br><img src="https://i-blog.csdnimg.cn/blog_migrate/4210eab367d720ea7462d79068a07909.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>我们去看一下CPU的占用情况<br><img src="https://i-blog.csdnimg.cn/blog_migrate/df6bcb9d766c7c420438c771652089ba.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>效果直接拉满好吗<br>看了一下poc的写法<br><img src="https://i-blog.csdnimg.cn/blog_migrate/9c934f6a8589937bdce039a9c4335a8f.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>很简单，先申请空间，然后将十进制字符串a与p转换为大数,然后调用BN_mod_sqrt函数，想来这个函数就在openssl&#x2F;bn.h这个头文件里头。</p>
+<p>在外层循环中首先会给i赋值为1，然后调用BN_mod_sqr函数，该函数的含义为接收一个素数p与数b计算t&#x3D;b^2 % p 如果计算成功则返回1，计算失败则返回0。如果没有计算成功就goto end直接退出循环，也就不会有拒绝服务的情况发生，当然我们需要让他正常返回计算结果。这是第一次外层循环需要满足的条件，然后调用BN_is_one函数判断t是否为1，如果此时t等于1那么就不会进入内层循环，而是直接到外层循环的底部将e的值赋为i，此时的i为1，也就是e为1，第一次外层循环最重要的工作也就是这一步为e赋值为1。这个时候我们就要想想怎么进入内层循环并让i&#x3D;&#x3D;e恒不成立就能使得程序一直在内层循环晃悠而不能退出，很明显需要满足BN_is_one函数的计算结果为False也就是t不等于1。进入第二次外层循环时当BN_mod_sqr计算结果使得t不为1时会进入内层循环，然后计算i++，此时i&#x3D;2 !&#x3D; e 也就不会进入内部的if语句，然后进入下一次内层循环，此时i再次自增，以后无论循环多少次都不会再有i&#x3D;1&#x3D;e的情况发生于是程序就在内层卡死了。那么现在需要实现的逻辑就是在第一次外层循环时使得t等于1，第二时不等于1，这么看来是不可能实现的除非b与p的值在后面的代码中发生了变化，不然不可能存在对相同的操作数操作两次结果不一样。恰好上面代码中使用了BN_mod_mul函数改变了b的值，每一次外层循环使用该函数时改变b的值，为b&#x3D;b<em>y mod p ，而y的值为 t</em>t mod p。<br>事情到了这里一切都已经明朗了起来，当然怎么找到符合条件的p和b的值是个问题，这里面的推导我看了存在大量的数学算法，直接给我整蒙了，查了一些资料也没有搞的很明白。<br>然后我去试了一下这个poc，发现确实有效，首先你的在你的设备上安装openssl，然后查看一下版本是不是存在漏洞<br><img src="https://i-blog.csdnimg.cn/blog_migrate/f40147184694f737d314256d31a597f5.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>不好意思，好像有漏洞<br>然后你下载好poc，然后使用gcc编译<br><code>gcc -o my_bad_sqrt my_bad_sqrt.c -lcrypt</code><br>编译的过程中可能报错<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a7b556f84a26a0655a93482ea258ab2b.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer">centos执行<br><code>yum install openssl-devel</code>安装依赖<br>ubuntu执行<br><code>apt-get install libssl-dev</code>安装依赖<br>然后运行编译好的可执行文件<br><code>./my_bad_sqrt</code><br>然后依旧会看到终端一直卡起了<br><img src="https://i-blog.csdnimg.cn/blog_migrate/4210eab367d720ea7462d79068a07909.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>我们去看一下CPU的占用情况<br><img src="https://i-blog.csdnimg.cn/blog_migrate/df6bcb9d766c7c420438c771652089ba.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>效果直接拉满好吗<br>看了一下poc的写法<br><img src="https://i-blog.csdnimg.cn/blog_migrate/9c934f6a8589937bdce039a9c4335a8f.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>很简单，先申请空间，然后将十进制字符串a与p转换为大数,然后调用BN_mod_sqrt函数，想来这个函数就在openssl&#x2F;bn.h这个头文件里头。</p>
 
     </div>
 
@@ -474,8 +474,8 @@
       <i class="fa fa-chevron-left"></i> PostgreSQL JDBC Driver RCE&任意文件写入漏洞
     </a></div>
       <div class="post-nav-item">
-    <a href="/archives/fe14a293.html" rel="next" title="JEP 290 初识">
-      JEP 290 初识 <i class="fa fa-chevron-right"></i>
+    <a href="/archives/29b6e7bf.html" rel="next" title="JNDI注入再理解">
+      JNDI注入再理解 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -864,6 +864,199 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
     gitalk.render('gitalk-container');
   }, window.Gitalk);
 });
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
 </script>
 
     </div>

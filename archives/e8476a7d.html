@@ -316,7 +316,7 @@
 <p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://mp.weixin.qq.com/s/jUFT1iA6Uy7EKJAFkebjDw">https://mp.weixin.qq.com/s/jUFT1iA6Uy7EKJAFkebjDw</a><br><a target="_blank" rel="noopener external nofollow noreferrer" href="https://twitter.com/binitamshah/status/1511254916484198402?s=20&t=qrF9mz6muHovokRB5nGPkg">https://twitter.com/binitamshah/status/1511254916484198402?s=20&amp;t=qrF9mz6muHovokRB5nGPkg</a></p>
 </blockquote>
 <span id="more"></span>
-<p>最终的实现效果是这样的<br><img src="https://i-blog.csdnimg.cn/blog_migrate/da6b1188291a0cb3faaa42a16cb0f24a.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>看到这里我陷入了疑问，平时我们用burp抓的包都是HTTP1.1版本的，怎么到了wireshark这里之后就变成HTTP2版本的了，于是我使用有道翻译做了个实验。首先使用Burp抓包然后再发包使用wireshark抓包之后发现报文还是正常的HTTP1.1版本的，在wireshark中使用HTTP2协议过滤器捕获不到这部分流量，当我直接使用浏览器访问时却是能后正常使用http2协议过滤器看到这些报文，据说是有HTTP协议协商机制</p>
+<p>最终的实现效果是这样的<br><img src="https://i-blog.csdnimg.cn/blog_migrate/da6b1188291a0cb3faaa42a16cb0f24a.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>看到这里我陷入了疑问，平时我们用burp抓的包都是HTTP1.1版本的，怎么到了wireshark这里之后就变成HTTP2版本的了，于是我使用有道翻译做了个实验。首先使用Burp抓包然后再发包使用wireshark抓包之后发现报文还是正常的HTTP1.1版本的，在wireshark中使用HTTP2协议过滤器捕获不到这部分流量，当我直接使用浏览器访问时却是能后正常使用http2协议过滤器看到这些报文，据说是有HTTP协议协商机制</p>
 <blockquote>
 <p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://cloud.tencent.com/developer/article/1420299">https://cloud.tencent.com/developer/article/1420299</a></p>
 </blockquote>
@@ -386,8 +386,8 @@
 <td>用于继续传送首部块片段序列</td>
 </tr>
 </tbody></table>
-<h2 id="DATA帧"><a href="#DATA帧" class="headerlink" title="DATA帧"></a>DATA帧</h2><p>DATA帧的payload部分已8位的填充长度开头，然后是正式的数据部分，最后根据填充长度字段指定的长度在末尾填充对应数量的0<br>看一下实际的帧<br><img src="https://i-blog.csdnimg.cn/blog_migrate/fbb55e776451089a2079bcc7e3b4523b.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>可以看到DATA帧的标志位分成了三部分分别为保留位、填充标志、是否为当前流的结束包三个字段</p>
-<h2 id="HEADERS帧"><a href="#HEADERS帧" class="headerlink" title="HEADERS帧"></a>HEADERS帧</h2><p>同样的HEADERS帧也是以8位填充长度字段开头，然后是1位的流依赖申明，31位的依赖流ID、8位的优先级、压缩头部、填充值<br><img src="https://i-blog.csdnimg.cn/blog_migrate/f400f0bb602346560e078f4bca820ca1.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>标志位包括保留位、优先级标识、填充标识、是否为当前流的最后一个头部包、是否为当前流的最后一个包</p>
+<h2 id="DATA帧"><a href="#DATA帧" class="headerlink" title="DATA帧"></a>DATA帧</h2><p>DATA帧的payload部分已8位的填充长度开头，然后是正式的数据部分，最后根据填充长度字段指定的长度在末尾填充对应数量的0<br>看一下实际的帧<br><img src="https://i-blog.csdnimg.cn/blog_migrate/fbb55e776451089a2079bcc7e3b4523b.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>可以看到DATA帧的标志位分成了三部分分别为保留位、填充标志、是否为当前流的结束包三个字段</p>
+<h2 id="HEADERS帧"><a href="#HEADERS帧" class="headerlink" title="HEADERS帧"></a>HEADERS帧</h2><p>同样的HEADERS帧也是以8位填充长度字段开头，然后是1位的流依赖申明，31位的依赖流ID、8位的优先级、压缩头部、填充值<br><img src="https://i-blog.csdnimg.cn/blog_migrate/f400f0bb602346560e078f4bca820ca1.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>标志位包括保留位、优先级标识、填充标识、是否为当前流的最后一个头部包、是否为当前流的最后一个包</p>
 <h2 id="SETTINGS-帧"><a href="#SETTINGS-帧" class="headerlink" title="SETTINGS 帧"></a>SETTINGS 帧</h2><p>SETTINGS帧的就包括两部分分别为设置项ID以及其值<br>设置项一般包含一下项目</p>
 <table>
 <thead>
@@ -428,7 +428,7 @@
 <td>通知对端，发送端准备接收的首部列表大小的最大字节数。该值是基于未压缩的首部域大小，包括名称和值的字节长度，外加每个首部域的 32 字节的开销</td>
 </tr>
 </tbody></table>
-<p><img src="https://i-blog.csdnimg.cn/blog_migrate/6c1518eb180419c56d1cde1f8f3c1325.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>标志位就ACK比较重要，这个标识位是在收到对端发送的SETTINGS帧时向对端回复时设置的，用以确认已收到报文。<br>然后一次完整的连接过程是以Magic帧开头GOAWAY帧结尾的，但在我观察实际流量时发现却没有GOAWAY帧</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/6c1518eb180419c56d1cde1f8f3c1325.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>标志位就ACK比较重要，这个标识位是在收到对端发送的SETTINGS帧时向对端回复时设置的，用以确认已收到报文。<br>然后一次完整的连接过程是以Magic帧开头GOAWAY帧结尾的，但在我观察实际流量时发现却没有GOAWAY帧</p>
 
     </div>
 
@@ -569,12 +569,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/archives/53313e1c.html" rel="prev" title="tomcat架构学习">
-      <i class="fa fa-chevron-left"></i> tomcat架构学习
+    <a href="/archives/7473afbd.html" rel="prev" title="冒泡排序调优 go语言">
+      <i class="fa fa-chevron-left"></i> 冒泡排序调优 go语言
     </a></div>
       <div class="post-nav-item">
-    <a href="/archives/193abed6.html" rel="next" title="WOS2 多款产品未授权任意文件上传漏洞【CVE-2022-29464】">
-      WOS2 多款产品未授权任意文件上传漏洞【CVE-2022-29464】 <i class="fa fa-chevron-right"></i>
+    <a href="/archives/53313e1c.html" rel="next" title="tomcat架构学习">
+      tomcat架构学习 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -964,6 +964,199 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
     gitalk.render('gitalk-container');
   }, window.Gitalk);
 });
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
 </script>
 
     </div>

@@ -350,15 +350,15 @@
 <blockquote>
 <p><b><font color="red">申明：</font></b>本文只做学习交流使用，严禁任何组织和个人通过转发、转载等方式进行传播，因此导致的法律后果与本文作者无关。</p>
 </blockquote>
-<p>小菜鸡昨晚正在积极进补雷神大大的课程的时候：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7a29e750df12950a939abb3ac4b60a21.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>老板的消息划破了寂静的夜空，也打断了我学习的脚步：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/512baf9e23209af67cd6f42175fa1b99.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>按照我的尿性，这种时候我肯定偷偷装死没跑了。<br>不过这个漏洞还是引起了我的兴趣，毕竟热度就那么多，蹭一蹭就没有了，我肯定也要蹭一蹭了。于是在昨晚瞎整了一晚上没结果后，今天上班的时候划水就把这整个利用过程给跑通了…..<br>果然上班划水才是生产力啊。</p>
+<p>小菜鸡昨晚正在积极进补雷神大大的课程的时候：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7a29e750df12950a939abb3ac4b60a21.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>老板的消息划破了寂静的夜空，也打断了我学习的脚步：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/512baf9e23209af67cd6f42175fa1b99.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>按照我的尿性，这种时候我肯定偷偷装死没跑了。<br>不过这个漏洞还是引起了我的兴趣，毕竟热度就那么多，蹭一蹭就没有了，我肯定也要蹭一蹭了。于是在昨晚瞎整了一晚上没结果后，今天上班的时候划水就把这整个利用过程给跑通了…..<br>果然上班划水才是生产力啊。</p>
 <span id="more"></span>
 <p>首先，我们使用maven进行项目管理，搭建漏洞环境：<br>在pom.xml中引入下面的两个依赖：</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.logging.log4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.12.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.logging.log4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.12.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <p>漏洞存在的版本就懒得说了，反正不是最新版就对了，手动狗头！！<br>然后写个小页面：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.log4j2;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.logging.log4j.LogManager;</span><br><span class="line"><span class="keyword">import</span> org.apache.logging.log4j.Logger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Log4j2Test</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="type">Logger</span> <span class="variable">logger</span> <span class="operator">=</span>  LogManager.getLogger();</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        logger.error(<span class="string">&quot;payload手动打码&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>然后打断点直接开始调试：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/92ef54f1b81f34febe364524cf063e15.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>跳进去，懂的都懂：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/1679d2a2bc9c9de40ecf28d36a1070cc.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>到了这儿后据说是一个非常重要的步骤，调用<code>logIfEnabled</code>方法判断是否启用日志记录，这里的日志记录分为不同的等级，可以在log4j2的配置文件log4j2.properties中进行配置日志记录的级别。<br>我们继续跟进该方法：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/729130e9fa14957c6e2b815d1b31c7c6.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>虽然不知道<code>logMessage</code>函数干什么的，不过肯定不是我们需要的，继续跟进：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/f31c2dfe441cc6dfb5b1e9c32bdb7a1a.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br><code>logMessageSafely</code>函数，翻译一下就是日志信息安全性，猜一下可能是进行安全性判断的吧？因为是从零开始的期间我还跟进了newMessage函数，发现是将我们的message封装成了一个对象，对我们的目标没有大的影响， 跟进：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/55b52ab3475ace84ea0be5261d33948a.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>就想这样，将message封装进了一个<code>ReusableSimpleMessage</code>对象，继续回到<code>logMessageSafely</code>函数跟进：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/02c3d13d06be439ccfff0bc1e451d194.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>跟进<code>logMessageTrackRecursion</code>函数，不懂就问recursion什么意思？所以我抽空去有道查了一下：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/6cdb98d468bfff0259e7da92d31b8c95.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>函数名翻译过来就是日志信息跟踪递归，什么意思？俺也不知道，继续跟进：</p>
-<p><img src="https://i-blog.csdnimg.cn/blog_migrate/701069406622e415d2b25b3c7798b2d3.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>哦豁，原来就在下面，跟进函数<code>tryLogMessage</code>，老规矩还是翻译一下，捕获日志信息，还是不知道什么意思，但是又有什么关系呢，继续跟进：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/98636e80eb9cc3fce6b1e17cf058713a.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>管他什么呢，无脑继续跟：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/39d5b64d2dba6ca930f9611576bfc86d.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>又能怎么样呢，继续：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/60380af23a7bfce5738d606173e194ec.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>好烦啊，无限套娃：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/b789a326b70d2fb87c02d77bf7556660.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>先进去看看：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/c4facdffe086a4b185b4df31b00f32d9.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>好像做了很多，又好像什么也没做，就是setMessage哪儿换了个对象封装message：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/9c674c83442ac5e197f1d9db190fac1f.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>意义不大，所以我们继续单步执行：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/0369eb8151f77750a1d36fc269eb7747.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>到这儿后跟进<code>this.log</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/5af6633b2ea10974dae5f3fd0eb3a151.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>然后进入<code>processLogEvent</code>：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/c817be2d6cc1bcaf4b9f3e216de576fa.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>到了这儿后，如果我们直接单步向下会发现处理发生了延迟，这就是我们的主机在请求dns解析产生的延迟，我也是在发现了这个特点之后才能在这又臭又长的调用链中坚持到最后，继续跟进：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/00286cb7c1ef331c295df7fa35613128.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>这儿很关键啊，兄弟们，不信我们往下看：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/82528d1fa8e3932a8ba4b2543307a737.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>继续：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/2a77c16aef24c107051f88dd1fd25798.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>这儿是挨着的两次调用：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/0d1cb474302bf5ec825c0722d332e4b5.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>继续：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/0af7a6a5af6786246a7db5c3bc915d46.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>这儿三重套娃：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8f85f1a45d1dbb0ca01e8cb7425fbc5c.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>二重套娃：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/acb65f312ca7767ba09307778fc8f515.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>刚才说错了兄弟们，前面不重要，这儿很重要啊，这儿有11重循环，当循环到第8层的时候会有惊喜，所以我们至今到第8次循环让你们见识见识什么他么的叫他么的惊喜：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a2dcf295b6dbcbcb38531c4b5ad0c9d9.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>好了看到i等于8了吗：<br>跟进去咯：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/22983898aa9728d1ef3af6c3adf236e2.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>继续咯，不用我教你吧：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/b29b5f9fe7a9a8b2aaa875a07bff652e.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>亲，敲黑板划重点了啊！！！！！<br>这里有个进入的前提条件：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/0369aa95ff29a7c9fe14bc8aa05010c0.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br><code>this.config</code>不为空，且<code>this.noLookups</code>为<code>false</code>,这也是为什么你在各种各样的公众号看到的该漏洞的一个解决方案就是将<code>noLookups</code>的值设置为true的原因。</p>
-<p><code>workingBuiler</code>是个啥？我也不知道啊，怎么可能，这玩意就是一个<code>stringBuilder</code>，所以你懂了吧？<br><img src="https://i-blog.csdnimg.cn/blog_migrate/52031b353660b11cecfe36d09ce1ee31.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>因为他娘的在这个声明过了，那么问题来了，长度80，也就是我的日志长度不能超过80？扯淡呢吧？当然超过80了，搞不懂搞不懂。<br>进入的条件判断有一个offset调试后发现是59，查了一下发现是$，也就是说message前面的58个字符的长度是固定的咯，我们输入的信息从第59个开始：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/95d37546a76a8458337d2d73f41c4196.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>然后判断连续两个字符是是否为<code>\$&#123;</code>,如果是进入正题，截取了从59到后面的所有字符赋值给<code>value</code>，然后给我们的<code>workingBuilder</code>设置了长度并将截取的value进行处理之后赋值给他，在这里我利用了前面说到的延时特性观察到命令执行就发生在这里的对value处理过程中，所以我们跟进这个处理过程：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/77e72d743f92e20ce96f1ff90ce87a50.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>source就是value的值，继续跟进：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/1bad77b2aceba1bb205a5a23c2bfab76.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>又开始套娃了：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7102cb38abd72eb84a66f10353cf72dc.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>这个<code>substitute</code>函数可以说是写的又臭又长，总结一下左右就是提取那个啥？就那个我们的payload就对了，一直单步到这儿：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/777e4b23c5e9cb4f1dbdb1f9a9c8fdd7.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>进去：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/85de273e4cebfbfdbdaeff7c550bbc55.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>到这儿后其实<code>variableName</code>就是我们的payload主体了，继续：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/0313841f9f36678dd7e4d637817783b1.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>这里有两个重要的操作，一个是获得了协议前缀，一个是获取了具体的paload内容，<code>this.strLookupMap</code>里面定义了很多支持的协议，我们可以看一下：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/cd6baa92469583faac3fc24c6b7b5550.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>进入进入断点，判断event是否为空，肯定不为空啊，所以进入的是<code>lookup.lookup(name)</code>：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/2457f1acef53a78931a280628fc472c8.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>到了这里就有意思而了，第一个红框是获取一个<code>JndiManager</code>，但是在我调试的时候这里面好像是报错了还是怎么了，总是进不到第二个红框里面，而执行命令的代码又恰好在第二个红框里面，你说奇怪不奇怪？<br>是有意我直接强行跟踪到了第二个红框里面的代码：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/99a6eb1527f821e09afa691c4f89d85d.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>重中之重就在这里了哈！！！lookup函数，看到这个你想到了什么？不确定吗？那来看看<code>this.context</code>是什么，<code>InitialContext</code>有没有想起点什么？？？？<br>打完收工！！！！！</p>
+<p>然后打断点直接开始调试：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/92ef54f1b81f34febe364524cf063e15.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>跳进去，懂的都懂：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/1679d2a2bc9c9de40ecf28d36a1070cc.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>到了这儿后据说是一个非常重要的步骤，调用<code>logIfEnabled</code>方法判断是否启用日志记录，这里的日志记录分为不同的等级，可以在log4j2的配置文件log4j2.properties中进行配置日志记录的级别。<br>我们继续跟进该方法：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/729130e9fa14957c6e2b815d1b31c7c6.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>虽然不知道<code>logMessage</code>函数干什么的，不过肯定不是我们需要的，继续跟进：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/f31c2dfe441cc6dfb5b1e9c32bdb7a1a.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br><code>logMessageSafely</code>函数，翻译一下就是日志信息安全性，猜一下可能是进行安全性判断的吧？因为是从零开始的期间我还跟进了newMessage函数，发现是将我们的message封装成了一个对象，对我们的目标没有大的影响， 跟进：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/55b52ab3475ace84ea0be5261d33948a.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>就想这样，将message封装进了一个<code>ReusableSimpleMessage</code>对象，继续回到<code>logMessageSafely</code>函数跟进：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/02c3d13d06be439ccfff0bc1e451d194.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>跟进<code>logMessageTrackRecursion</code>函数，不懂就问recursion什么意思？所以我抽空去有道查了一下：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/6cdb98d468bfff0259e7da92d31b8c95.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>函数名翻译过来就是日志信息跟踪递归，什么意思？俺也不知道，继续跟进：</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/701069406622e415d2b25b3c7798b2d3.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>哦豁，原来就在下面，跟进函数<code>tryLogMessage</code>，老规矩还是翻译一下，捕获日志信息，还是不知道什么意思，但是又有什么关系呢，继续跟进：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/98636e80eb9cc3fce6b1e17cf058713a.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>管他什么呢，无脑继续跟：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/39d5b64d2dba6ca930f9611576bfc86d.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>又能怎么样呢，继续：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/60380af23a7bfce5738d606173e194ec.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>好烦啊，无限套娃：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/b789a326b70d2fb87c02d77bf7556660.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>先进去看看：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/c4facdffe086a4b185b4df31b00f32d9.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>好像做了很多，又好像什么也没做，就是setMessage哪儿换了个对象封装message：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/9c674c83442ac5e197f1d9db190fac1f.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>意义不大，所以我们继续单步执行：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/0369eb8151f77750a1d36fc269eb7747.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>到这儿后跟进<code>this.log</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/5af6633b2ea10974dae5f3fd0eb3a151.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>然后进入<code>processLogEvent</code>：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/c817be2d6cc1bcaf4b9f3e216de576fa.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>到了这儿后，如果我们直接单步向下会发现处理发生了延迟，这就是我们的主机在请求dns解析产生的延迟，我也是在发现了这个特点之后才能在这又臭又长的调用链中坚持到最后，继续跟进：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/00286cb7c1ef331c295df7fa35613128.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>这儿很关键啊，兄弟们，不信我们往下看：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/82528d1fa8e3932a8ba4b2543307a737.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>继续：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/2a77c16aef24c107051f88dd1fd25798.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>这儿是挨着的两次调用：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/0d1cb474302bf5ec825c0722d332e4b5.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>继续：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/0af7a6a5af6786246a7db5c3bc915d46.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>这儿三重套娃：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8f85f1a45d1dbb0ca01e8cb7425fbc5c.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>二重套娃：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/acb65f312ca7767ba09307778fc8f515.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>刚才说错了兄弟们，前面不重要，这儿很重要啊，这儿有11重循环，当循环到第8层的时候会有惊喜，所以我们至今到第8次循环让你们见识见识什么他么的叫他么的惊喜：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a2dcf295b6dbcbcb38531c4b5ad0c9d9.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>好了看到i等于8了吗：<br>跟进去咯：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/22983898aa9728d1ef3af6c3adf236e2.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>继续咯，不用我教你吧：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/b29b5f9fe7a9a8b2aaa875a07bff652e.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>亲，敲黑板划重点了啊！！！！！<br>这里有个进入的前提条件：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/0369aa95ff29a7c9fe14bc8aa05010c0.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br><code>this.config</code>不为空，且<code>this.noLookups</code>为<code>false</code>,这也是为什么你在各种各样的公众号看到的该漏洞的一个解决方案就是将<code>noLookups</code>的值设置为true的原因。</p>
+<p><code>workingBuiler</code>是个啥？我也不知道啊，怎么可能，这玩意就是一个<code>stringBuilder</code>，所以你懂了吧？<br><img src="https://i-blog.csdnimg.cn/blog_migrate/52031b353660b11cecfe36d09ce1ee31.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>因为他娘的在这个声明过了，那么问题来了，长度80，也就是我的日志长度不能超过80？扯淡呢吧？当然超过80了，搞不懂搞不懂。<br>进入的条件判断有一个offset调试后发现是59，查了一下发现是$，也就是说message前面的58个字符的长度是固定的咯，我们输入的信息从第59个开始：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/95d37546a76a8458337d2d73f41c4196.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>然后判断连续两个字符是是否为<code>\$&#123;</code>,如果是进入正题，截取了从59到后面的所有字符赋值给<code>value</code>，然后给我们的<code>workingBuilder</code>设置了长度并将截取的value进行处理之后赋值给他，在这里我利用了前面说到的延时特性观察到命令执行就发生在这里的对value处理过程中，所以我们跟进这个处理过程：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/77e72d743f92e20ce96f1ff90ce87a50.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>source就是value的值，继续跟进：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/1bad77b2aceba1bb205a5a23c2bfab76.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>又开始套娃了：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7102cb38abd72eb84a66f10353cf72dc.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>这个<code>substitute</code>函数可以说是写的又臭又长，总结一下左右就是提取那个啥？就那个我们的payload就对了，一直单步到这儿：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/777e4b23c5e9cb4f1dbdb1f9a9c8fdd7.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>进去：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/85de273e4cebfbfdbdaeff7c550bbc55.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>到这儿后其实<code>variableName</code>就是我们的payload主体了，继续：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/0313841f9f36678dd7e4d637817783b1.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>这里有两个重要的操作，一个是获得了协议前缀，一个是获取了具体的paload内容，<code>this.strLookupMap</code>里面定义了很多支持的协议，我们可以看一下：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/cd6baa92469583faac3fc24c6b7b5550.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>进入进入断点，判断event是否为空，肯定不为空啊，所以进入的是<code>lookup.lookup(name)</code>：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/2457f1acef53a78931a280628fc472c8.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>到了这里就有意思而了，第一个红框是获取一个<code>JndiManager</code>，但是在我调试的时候这里面好像是报错了还是怎么了，总是进不到第二个红框里面，而执行命令的代码又恰好在第二个红框里面，你说奇怪不奇怪？<br>是有意我直接强行跟踪到了第二个红框里面的代码：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/99a6eb1527f821e09afa691c4f89d85d.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>重中之重就在这里了哈！！！lookup函数，看到这个你想到了什么？不确定吗？那来看看<code>this.context</code>是什么，<code>InitialContext</code>有没有想起点什么？？？？<br>打完收工！！！！！</p>
 
     </div>
 
@@ -497,8 +497,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/archives/f9db7072.html" rel="prev" title="深入理解计算机系统读书笔记（三）">
-      <i class="fa fa-chevron-left"></i> 深入理解计算机系统读书笔记（三）
+    <a href="/archives/84d33ff8.html" rel="prev" title="深入理解计算机系统读书笔记（一）">
+      <i class="fa fa-chevron-left"></i> 深入理解计算机系统读书笔记（一）
     </a></div>
       <div class="post-nav-item">
     <a href="/archives/9b259762.html" rel="next" title="浅出理解java类加载机制">
@@ -891,6 +891,199 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
     gitalk.render('gitalk-container');
   }, window.Gitalk);
 });
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
 </script>
 
     </div>

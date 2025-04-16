@@ -318,9 +318,9 @@
 <p>首先我们得简单写一个servlet，当然不写也没事，因为我们的分析到不了处理servlet这一步，只用tomcat默认提供的ROOT就行</p>
 <p>首先我们需要在web.xml中注册 RemoteIpFilter 这个过滤器</p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">filter</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>remote-ip-filter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">filter-class</span>&gt;</span>org.apache.catalina.filters.RemoteIpFilter<span class="tag">&lt;/<span class="name">filter-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">filter</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">filter-mapping</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">filter-name</span>&gt;</span>remote-ip-filter<span class="tag">&lt;/<span class="name">filter-name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="name">url-pattern</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">filter-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>然后把tomcat启动起来，打断点调试，因为问题是出在<code>X-Forwarded-Proto</code>这个HTTP标头，我们就在<code>RemoteIpFilter</code>这个文件中搜索该关键字<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8fccc156174026ce6ffe38387554d8d2.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/1a0a9c8269fc8630579509ed1a647dbf.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/6aac723742f1e1fbfe535979647d4d61.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>如果获取到<code>X-Forwarded-Proto</code> 并且其值为https就设置Secure属性为True，这个属性最终就体现在cookie上，我们假设一种情况，当反代服务器与提供服务的服务器之间使用http通信时会发生什么，因为反代服务器设置了<code>X-Forwarded-Proto: https</code>，服务提供者会将请求的secure属性设置为True导致被设置了secure的cookie被通过http传输，从而使的cookie存在被劫持的可能。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/69bd4dbb8fa769e97a28745b0cbffeaf.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>这几乎就是这个漏洞的全部<br>我们看看官方的修复commit<br><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/apache/tomcat/commit/c64d496dda1560b5df113be55fbfaefec349b50f#diff-9c316c073cfa58d2e1d10f6b11760fbd2c14e478376c92b36e10a21235bb449bR766">Fix BZ 66471 - JSessionId secure attribute missing with RemoteIpFilte…</a></p>
-<p>老实说他这个修复方法我没太看懂<br>修改了<code>setSecure</code>方法，获取了<code>request</code>对象，修改后获取的<code>request</code>应该和修改前不一样，修改前获取的是<code>XForwardedRequest</code>对象，修改后应该是原始的<code>ServletRequest</code>对象，所以这里设置<code>secure</code>属性并没有修改到<code>XRequest</code>对象的secure值，所以并不会对转发请求造成影响，从而完成修复<br><img src="https://i-blog.csdnimg.cn/blog_migrate/fcb4252b0f33f77a916761385b40ee35.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"></p>
-<p>在该commit里还加了一个测试用例<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e14900826002dd9dd055128cd6a96538.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>如果能对该测试用例有足够的理解，理解该漏洞应该不难</p>
+<p>然后把tomcat启动起来，打断点调试，因为问题是出在<code>X-Forwarded-Proto</code>这个HTTP标头，我们就在<code>RemoteIpFilter</code>这个文件中搜索该关键字<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8fccc156174026ce6ffe38387554d8d2.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/1a0a9c8269fc8630579509ed1a647dbf.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/6aac723742f1e1fbfe535979647d4d61.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>如果获取到<code>X-Forwarded-Proto</code> 并且其值为https就设置Secure属性为True，这个属性最终就体现在cookie上，我们假设一种情况，当反代服务器与提供服务的服务器之间使用http通信时会发生什么，因为反代服务器设置了<code>X-Forwarded-Proto: https</code>，服务提供者会将请求的secure属性设置为True导致被设置了secure的cookie被通过http传输，从而使的cookie存在被劫持的可能。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/69bd4dbb8fa769e97a28745b0cbffeaf.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>这几乎就是这个漏洞的全部<br>我们看看官方的修复commit<br><a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/apache/tomcat/commit/c64d496dda1560b5df113be55fbfaefec349b50f#diff-9c316c073cfa58d2e1d10f6b11760fbd2c14e478376c92b36e10a21235bb449bR766">Fix BZ 66471 - JSessionId secure attribute missing with RemoteIpFilte…</a></p>
+<p>老实说他这个修复方法我没太看懂<br>修改了<code>setSecure</code>方法，获取了<code>request</code>对象，修改后获取的<code>request</code>应该和修改前不一样，修改前获取的是<code>XForwardedRequest</code>对象，修改后应该是原始的<code>ServletRequest</code>对象，所以这里设置<code>secure</code>属性并没有修改到<code>XRequest</code>对象的secure值，所以并不会对转发请求造成影响，从而完成修复<br><img src="https://i-blog.csdnimg.cn/blog_migrate/fcb4252b0f33f77a916761385b40ee35.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"></p>
+<p>在该commit里还加了一个测试用例<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e14900826002dd9dd055128cd6a96538.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>如果能对该测试用例有足够的理解，理解该漏洞应该不难</p>
 
     </div>
 
@@ -854,6 +854,199 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
     gitalk.render('gitalk-container');
   }, window.Gitalk);
 });
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
 </script>
 
     </div>

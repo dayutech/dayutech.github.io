@@ -340,14 +340,14 @@
 <p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://paper.seebug.org/1832/">https://paper.seebug.org/1832/</a></p>
 </blockquote>
 <p>这篇文章里介绍了Mysql 的JDBC驱动可能导致的漏洞的分析，不过这好像不是我需要的，不过我还是学习了一波，具体的调用流程我还没有看，准备咋写完这篇就去看看。后来我又在刚才提到的公众号里找到了另一篇将PostGreSQL的注入分析，于是我就跟着分析了一波。这篇文章里介绍了两个漏洞一个是RCE，另一个是任意文件写入漏洞。</p>
-<h1 id="RCE"><a href="#RCE" class="headerlink" title="RCE"></a>RCE</h1><p>首先我们创建一个MAVEN项目，然后引入相关的依赖：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/5ced078929b993db8057524c1e367ab0.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>然后编写一个漏洞利用POC。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/32449109031c3fc2a331e246a6cacf49.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>很明显导致漏洞的是jdbcURL的socketFactory与socketFactoryArg这两个参数，在jdbcURL的定义中，参数部分一般被称作扩展参数，其总用是指定连接数据库的一些特性。大胆cancel导致漏洞的就是这两个参数，而这个漏洞的kick-off就是DriverManager.getConnection这个类方法。那么我们接下来要做的就是不断跟踪这个函数的Chain最终找到sink点。直接开干，毫无疑问我们要使用调试模式将代码跑起来，然后键入到getConnection函数里面。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/064c6d4ca7a7331a6e695e5d01c6a6d2.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>无意义的部分我就直接放图片了，需要关注的地方我会说明<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7392fcc25dc3f316af36782dc20f0293.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/ccbaeb08422697f7a4fb4670f23057dd.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>这里注意注意第151行</p>
+<h1 id="RCE"><a href="#RCE" class="headerlink" title="RCE"></a>RCE</h1><p>首先我们创建一个MAVEN项目，然后引入相关的依赖：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/5ced078929b993db8057524c1e367ab0.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>然后编写一个漏洞利用POC。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/32449109031c3fc2a331e246a6cacf49.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>很明显导致漏洞的是jdbcURL的socketFactory与socketFactoryArg这两个参数，在jdbcURL的定义中，参数部分一般被称作扩展参数，其总用是指定连接数据库的一些特性。大胆cancel导致漏洞的就是这两个参数，而这个漏洞的kick-off就是DriverManager.getConnection这个类方法。那么我们接下来要做的就是不断跟踪这个函数的Chain最终找到sink点。直接开干，毫无疑问我们要使用调试模式将代码跑起来，然后键入到getConnection函数里面。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/064c6d4ca7a7331a6e695e5d01c6a6d2.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>无意义的部分我就直接放图片了，需要关注的地方我会说明<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7392fcc25dc3f316af36782dc20f0293.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/ccbaeb08422697f7a4fb4670f23057dd.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>这里注意注意第151行</p>
 <blockquote>
 <p>this.setupLoggerFromProperties(props);</p>
 </blockquote>
-<p>这与我们的任意文件写入有关，当然现在我们不关注他，这个时候我们可以看一下props的值<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ab3aaf9cdbd7f4e7a764c52c68ff5b62.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>存储的都是jdbcRUL含有的一些关键信息，具体的实现步骤我当然是一步一步看了的，有新区的可以自己看看。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/d9714883310a8c2d83f1b6538fcdf8b6.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"></p>
-<p><img src="https://i-blog.csdnimg.cn/blog_migrate/9c41a90e6a0b2680b1ba52b62aa8cff6.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>这里对props进行了处理，最终生成的是一个hostSpecs类型的数组，hostSpecs对象存储了数据库连接的hostnae, port以及一个扩展参数localSocketAddress，<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8e662319025a149bd51fcb4a54792ca8.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/371c3ab18de2f8e22781466536dc56e4.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/dd9ed18eb4931c726f21b622b0886322.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/6ac4cbac510fe44fe69ab979e601d56d.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>这个时候可以看一波这个info存储的信息了<br><img src="https://i-blog.csdnimg.cn/blog_migrate/403ae02a564320dedc0f27f2c54d2a05.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/df2ae255020b698ba90dea5bf60ce140.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>这里注意第三个参数<code>PGProperty.SOCKET_FACTORY_ARG</code>，PGProperty是一个枚举类型，其内部定义了get方法，实现的功能是对判断枚举项的值有没有在传入的properties中，如果在则查找返回，如果不在则返回默认值。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7ce33e988bcb94a35fd158b484e500f9.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/1a4f33fffdfd9632bb4a02a46150e3ae.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>可以看到有很多的枚举项，这些内容很大一部分都是JDBC的扩展参数的可选值。<br>在我们的代码中这个值就是<code>args</code>也就是我们最开始poc设置的参数<code>socketFactoryArg</code><br>还可以看一看第一个参数的值<br><img src="https://i-blog.csdnimg.cn/blog_migrate/56340d55a62456873cb62038ab7c52f3.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>就是最开始设置的参数<code>socketFactoryClass</code><br>然后跟进这个函数<code>instantiate</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/90be4014a268634cde7e700a2425fda1.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>很明显的反射调用，第一个参数作为类名，第三个参数作为构造方法的参数，那么这个函数<code>ObjectFactory.instantiate</code>就是我们的sink点了。<br>现在我们要找到一个gadget能够在在类实例化的过程中实现RCE，作者根据jackson的历史漏洞<code>CVE-2017-17485</code>找到这么一个类<br><code>org.springframework.context.support.ClassPathXmlApplicationContext</code> 该类在实例化的时候会下载出入的参数指定的xml文件然后获取java bean，然后通过jpel表达式执行恶意代码。<br>完整的poc长这样<br><img src="https://i-blog.csdnimg.cn/blog_migrate/2281dffccbdcbb3e7ef26beb6c41b4d6.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>当然过去jdbc连接的用户名根本不用填，根本用不上。<br>xml文件长这样：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/d32339c5218d29b8d0b34a29ee52d131.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>然后直接运行代码<br><img src="https://i-blog.csdnimg.cn/blog_migrate/f5ff4c93c580108a6d0240e6a85db852.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>完美</p>
-<h1 id="任意文件写"><a href="#任意文件写" class="headerlink" title="任意文件写"></a>任意文件写</h1><p>这个也比较简单，上面有提到过，重点在<code>this.setupLoggerFromProperties(props);</code>里面设置了日志处理器，在调用该logger的时候就会使用该处理器将日志记录到指定的日志文件中。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/2163e134a61bb522243e3e445f0eeca2.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>这里注意要设置jdbc扩展参数<code>logger_level</code>设置日志记录的级别，当然不能为off，<br><img src="https://i-blog.csdnimg.cn/blog_migrate/829303d5d04f95aadbb7c8cb22f66df3.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>设置扩展参数<code>logger_file</code>指定日志文件的路径，这里没有对路径进行过滤，所以可以进行目录穿越，将文件指定到想要的位置。</p>
-<p><img src="https://i-blog.csdnimg.cn/blog_migrate/763faa16a6ecaf5bf292864d963eb372.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>这个文件处理器最终被添加到了<code>Parent_LOGGER</code>这个日志记录器中<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a9a2b6ea66b5222132b9b34ef86ba49e.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>在执行完<code>setupLoggerFromProperties(props)</code>后，马上就有记录日志的操作，该操作将整个jdbcUrl记录到日志中。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/10dcb0eb1dd3852c53c60fd860fbd202.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"><br>注意到这里的日志记录器并不是<code>PARENT_LOGGER</code>而是<code>LOGGER</code>，那么他是怎么调用到父记录器的呢，这个可以自己跟一下log的流程看一下怎么获取的，最终的poc与效果<br><img src="https://i-blog.csdnimg.cn/blog_migrate/1f0bd72347a1eb74e185be6a2a08c8f9.png" referrerpolicy="no-referrer" alt="在这里插入图片描述"></p>
+<p>这与我们的任意文件写入有关，当然现在我们不关注他，这个时候我们可以看一下props的值<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ab3aaf9cdbd7f4e7a764c52c68ff5b62.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>存储的都是jdbcRUL含有的一些关键信息，具体的实现步骤我当然是一步一步看了的，有新区的可以自己看看。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/d9714883310a8c2d83f1b6538fcdf8b6.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/9c41a90e6a0b2680b1ba52b62aa8cff6.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>这里对props进行了处理，最终生成的是一个hostSpecs类型的数组，hostSpecs对象存储了数据库连接的hostnae, port以及一个扩展参数localSocketAddress，<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8e662319025a149bd51fcb4a54792ca8.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/371c3ab18de2f8e22781466536dc56e4.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/dd9ed18eb4931c726f21b622b0886322.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/6ac4cbac510fe44fe69ab979e601d56d.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>这个时候可以看一波这个info存储的信息了<br><img src="https://i-blog.csdnimg.cn/blog_migrate/403ae02a564320dedc0f27f2c54d2a05.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/df2ae255020b698ba90dea5bf60ce140.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>这里注意第三个参数<code>PGProperty.SOCKET_FACTORY_ARG</code>，PGProperty是一个枚举类型，其内部定义了get方法，实现的功能是对判断枚举项的值有没有在传入的properties中，如果在则查找返回，如果不在则返回默认值。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7ce33e988bcb94a35fd158b484e500f9.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/1a4f33fffdfd9632bb4a02a46150e3ae.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>可以看到有很多的枚举项，这些内容很大一部分都是JDBC的扩展参数的可选值。<br>在我们的代码中这个值就是<code>args</code>也就是我们最开始poc设置的参数<code>socketFactoryArg</code><br>还可以看一看第一个参数的值<br><img src="https://i-blog.csdnimg.cn/blog_migrate/56340d55a62456873cb62038ab7c52f3.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>就是最开始设置的参数<code>socketFactoryClass</code><br>然后跟进这个函数<code>instantiate</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/90be4014a268634cde7e700a2425fda1.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>很明显的反射调用，第一个参数作为类名，第三个参数作为构造方法的参数，那么这个函数<code>ObjectFactory.instantiate</code>就是我们的sink点了。<br>现在我们要找到一个gadget能够在在类实例化的过程中实现RCE，作者根据jackson的历史漏洞<code>CVE-2017-17485</code>找到这么一个类<br><code>org.springframework.context.support.ClassPathXmlApplicationContext</code> 该类在实例化的时候会下载出入的参数指定的xml文件然后获取java bean，然后通过jpel表达式执行恶意代码。<br>完整的poc长这样<br><img src="https://i-blog.csdnimg.cn/blog_migrate/2281dffccbdcbb3e7ef26beb6c41b4d6.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>当然过去jdbc连接的用户名根本不用填，根本用不上。<br>xml文件长这样：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/d32339c5218d29b8d0b34a29ee52d131.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>然后直接运行代码<br><img src="https://i-blog.csdnimg.cn/blog_migrate/f5ff4c93c580108a6d0240e6a85db852.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>完美</p>
+<h1 id="任意文件写"><a href="#任意文件写" class="headerlink" title="任意文件写"></a>任意文件写</h1><p>这个也比较简单，上面有提到过，重点在<code>this.setupLoggerFromProperties(props);</code>里面设置了日志处理器，在调用该logger的时候就会使用该处理器将日志记录到指定的日志文件中。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/2163e134a61bb522243e3e445f0eeca2.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>这里注意要设置jdbc扩展参数<code>logger_level</code>设置日志记录的级别，当然不能为off，<br><img src="https://i-blog.csdnimg.cn/blog_migrate/829303d5d04f95aadbb7c8cb22f66df3.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>设置扩展参数<code>logger_file</code>指定日志文件的路径，这里没有对路径进行过滤，所以可以进行目录穿越，将文件指定到想要的位置。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/763faa16a6ecaf5bf292864d963eb372.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>这个文件处理器最终被添加到了<code>Parent_LOGGER</code>这个日志记录器中<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a9a2b6ea66b5222132b9b34ef86ba49e.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>在执行完<code>setupLoggerFromProperties(props)</code>后，马上就有记录日志的操作，该操作将整个jdbcUrl记录到日志中。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/10dcb0eb1dd3852c53c60fd860fbd202.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"><br>注意到这里的日志记录器并不是<code>PARENT_LOGGER</code>而是<code>LOGGER</code>，那么他是怎么调用到父记录器的呢，这个可以自己跟一下log的流程看一下怎么获取的，最终的poc与效果<br><img src="https://i-blog.csdnimg.cn/blog_migrate/1f0bd72347a1eb74e185be6a2a08c8f9.png" referrerpolicy="no-referrer" alt="在这里插入图片描述" referrerpolicy="no-referrer"></p>
 
     </div>
 
@@ -883,6 +883,199 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
     gitalk.render('gitalk-container');
   }, window.Gitalk);
 });
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
 </script>
 
     </div>
