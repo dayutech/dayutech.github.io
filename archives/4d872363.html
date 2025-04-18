@@ -31,17 +31,17 @@
 <meta property="og:description" content="本文介绍了 网站架构发展 的相关知识点">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://dayutech.github.io/archives/4d872363/Untitled.png">
-<meta property="og:image" content="https://dayutech.github.io/Untitled%201.png">
-<meta property="og:image" content="https://dayutech.github.io/Untitled%202.png">
-<meta property="og:image" content="https://dayutech.github.io/Untitled%203.png">
-<meta property="og:image" content="https://dayutech.github.io/Untitled%204.png">
-<meta property="og:image" content="https://dayutech.github.io/Untitled%205.png">
-<meta property="og:image" content="https://dayutech.github.io/Untitled%206.png">
-<meta property="og:image" content="https://dayutech.github.io/Untitled%207.png">
-<meta property="og:image" content="https://dayutech.github.io/Untitled%208.png">
-<meta property="og:image" content="https://dayutech.github.io/Untitled%209.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/4d872363/Untitled-1.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/4d872363/Untitled-2.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/4d872363/Untitled-3.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/4d872363/Untitled-4.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/4d872363/Untitled-5.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/4d872363/Untitled-6.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/4d872363/Untitled-7.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/4d872363/Untitled-8.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/4d872363/Untitled-9.png">
 <meta property="article:published_time" content="2025-04-10T12:56:11.000Z">
-<meta property="article:modified_time" content="2025-04-15T01:39:43.984Z">
+<meta property="article:modified_time" content="2025-04-18T02:42:52.036Z">
 <meta property="article:author" content="Arliya">
 <meta property="article:tag" content="网站">
 <meta name="twitter:card" content="summary">
@@ -271,7 +271,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-04-15 09:39:43" itemprop="dateModified" datetime="2025-04-15T09:39:43+08:00">2025-04-15</time>
+                <time title="修改时间：2025-04-18 10:42:52" itemprop="dateModified" datetime="2025-04-18T10:42:52+08:00">2025-04-18</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -323,29 +323,29 @@
         <h1 id="网站架构发展"><a href="#网站架构发展" class="headerlink" title="网站架构发展"></a>网站架构发展</h1><h2 id="初始阶段的架构"><a href="#初始阶段的架构" class="headerlink" title="初始阶段的架构"></a>初始阶段的架构</h2><p>最初的架构所有的服务器都在同一台机器上面，没有太多的用户访问，不存在性能瓶颈</p>
 <p><img src="/archives/4d872363/Untitled.png" referrerpolicy="no-referrer"></p>
 <h2 id="应用服务器与数据服务的分离"><a href="#应用服务器与数据服务的分离" class="headerlink" title="应用服务器与数据服务的分离"></a>应用服务器与数据服务的分离</h2><p>随着业务的发展，服务器的瓶颈主键暴露了出来，最明显的一个问题就是服务器的存储空间不足，于是乎我们将应用于数据分厘，应用服务器、数据库服务器、文件服务器三者分离</p>
-<p><img src="/Untitled%201.png" referrerpolicy="no-referrer"></p>
+<p><img src="/archives/4d872363/Untitled-1.png" referrerpolicy="no-referrer"></p>
 <h2 id="使用缓存改善网站性能"><a href="#使用缓存改善网站性能" class="headerlink" title="使用缓存改善网站性能"></a>使用缓存改善网站性能</h2><p>业务继续发展，数据库的压力越来越大，顶部业务的访问量占据了整个业务的80%的流量，于是乎便有了缓存服务器技术，将访问量大的数据提前缓存到缓存服务器，提升了服务的速率与质量。</p>
-<p><img src="/Untitled%202.png" referrerpolicy="no-referrer"></p>
+<p><img src="/archives/4d872363/Untitled-2.png" referrerpolicy="no-referrer"></p>
 <h2 id="使用应用服务器集群改善网站的并发处理能力"><a href="#使用应用服务器集群改善网站的并发处理能力" class="headerlink" title="使用应用服务器集群改善网站的并发处理能力"></a>使用应用服务器集群改善网站的并发处理能力</h2><p>单一应用服务器在面对高并发的应用场景有明显的性能瓶颈，于是我们通过应用服务器集群来解决这个问题，通过一个负载均衡服务器来调度资源。</p>
-<p><img src="/Untitled%203.png" referrerpolicy="no-referrer"></p>
+<p><img src="/archives/4d872363/Untitled-3.png" referrerpolicy="no-referrer"></p>
 <h2 id="数据库读写分离"><a href="#数据库读写分离" class="headerlink" title="数据库读写分离"></a>数据库读写分离</h2><p>使用了缓存后，基本解决了数据库读的压力，但随着业务的发展，数据写的压力越来愈大，这时候通过读写分离来解决，通过使用主从数据库服务器来优化数据库的性能，写入操作都到达主服务器，从服务器从主服务器处复制数据，读取操作都到从服务器。</p>
-<p><img src="/Untitled%204.png" referrerpolicy="no-referrer"></p>
+<p><img src="/archives/4d872363/Untitled-4.png" referrerpolicy="no-referrer"></p>
 <h2 id="使用反向代理和-CDN-加速网站响应"><a href="#使用反向代理和-CDN-加速网站响应" class="headerlink" title="使用反向代理和 CDN 加速网站响应"></a>使用反向代理和 CDN 加速网站响应</h2><p>cdn 内容分发网络，通过将用户引流至离用户最近的服务器，减轻中心服务器的压力。通过dns服务器来实现负载均衡。</p>
 <p>反向代理 </p>
-<p><img src="/Untitled%205.png" referrerpolicy="no-referrer"></p>
+<p><img src="/archives/4d872363/Untitled-5.png" referrerpolicy="no-referrer"></p>
 <h2 id="使用分布式文件系统和分布式数据库系统"><a href="#使用分布式文件系统和分布式数据库系统" class="headerlink" title="使用分布式文件系统和分布式数据库系统"></a>使用分布式文件系统和分布式数据库系统</h2><p>任何强大的单一服务器都满足不了大型网站持续增长的业务需求。数据库经过读写分离后，从一台服务器拆分成两台服务器，但是随着网站业务的发展依然不能满足需求，这时需要使用分布式数据库。文件系统也一样，需要使用分布式文件系统。</p>
-<p><img src="/Untitled%206.png" referrerpolicy="no-referrer"></p>
+<p><img src="/archives/4d872363/Untitled-6.png" referrerpolicy="no-referrer"></p>
 <p>数据库划分有两种，分别是分割与分层</p>
 <p>分层是垂直的，将不同的业务的数据独立存储</p>
 <p>分割是水平的，当一个表的数据超过了数据库的性能极限的时候，将其分割成几篇存储到不同的服务器上面</p>
 <h2 id="使用-NoSQL-和搜索引擎"><a href="#使用-NoSQL-和搜索引擎" class="headerlink" title="使用 NoSQL 和搜索引擎"></a>使用 NoSQL 和搜索引擎</h2><p>随着网站业务越来越复杂，对数据存储和检索的需求也越来越复杂，网站需要采用一些非关系数据库技术如 NoSQL 和非数据库查询技术如搜索引擎。</p>
-<p><img src="/Untitled%207.png" referrerpolicy="no-referrer"></p>
+<p><img src="/archives/4d872363/Untitled-7.png" referrerpolicy="no-referrer"></p>
 <h2 id="业务拆分"><a href="#业务拆分" class="headerlink" title="业务拆分"></a>业务拆分</h2><p>大型网站为了应对日益复杂的业务场景，通过使用分而治之的手段将整个网站业务分成不同的产品线。如大型购物交易网站都会将首页、商铺、订单、买家、卖家等拆分成不同的产品线，分归不同的业务团队负责。</p>
 <p>具体到技术上，也会根据产品线划分，将一个网站拆分成许多不同的应用，每个应用独立部署。应用之间可以通过一个超链接建立关系（在首页上的导航链接每个都指向不同的应用地址），也可以通过消息队列进行数据分发，当然最多的还是通过访问同一个数据存储系统来构成一个关联的完整系统</p>
-<p><img src="/Untitled%208.png" referrerpolicy="no-referrer"></p>
+<p><img src="/archives/4d872363/Untitled-8.png" referrerpolicy="no-referrer"></p>
 <h2 id="分布式服务"><a href="#分布式服务" class="headerlink" title="分布式服务"></a>分布式服务</h2><p>随着业务拆分越来越小，存储系统越来越庞大，应用系统的整体复杂度呈指数级增加，部署维护越来越困难。由于所有应用要和所有数据库系统连接，在数万台服务器规模的网站中，这些连接的数目是服务器规模的平方，导致数据库连接资源不足，拒绝服务。</p>
 <p>既然每一个应用系统都需要执行许多相同的业务操作，比如用户管理、商品管理等，那么可以将这些共用的业务提取出来，独立部署。由这些可复用的业务连接数据库，提供共用业务服务，而应用系统只需要管理用户界面，通过分布式服务调用共用业务服务完成具体业务操作。</p>
-<p><img src="/Untitled%209.png" referrerpolicy="no-referrer"></p>
+<p><img src="/archives/4d872363/Untitled-9.png" referrerpolicy="no-referrer"></p>
 
     </div>
 
@@ -488,8 +488,8 @@
       <i class="fa fa-chevron-left"></i> 防火墙
     </a></div>
       <div class="post-nav-item">
-    <a href="/archives/8891b17.html" rel="next" title="浏览器编码与解码">
-      浏览器编码与解码 <i class="fa fa-chevron-right"></i>
+    <a href="/archives/41b7ef22.html" rel="next" title="浏览器访问网站过程">
+      浏览器访问网站过程 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -621,6 +621,10 @@
 		<!-- 显示10数目的文章 -->
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/4d872363.html" title="网站架构发展" target="_blank">网站架构发展</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
 				<a href="/archives/6eecc4bb.html" title="读书笔记-WEB前端黑客技术揭秘" target="_blank">读书笔记-WEB前端黑客技术揭秘</a>
 			  </li>
 			
@@ -646,10 +650,6 @@
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
 				<a href="/archives/cf1ba47f.html" title="解决hexo-next主题上游仓库改变告警" target="_blank">解决hexo-next主题上游仓库改变告警</a>
-			  </li>
-			
-			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/4d872363.html" title="网站架构发展" target="_blank">网站架构发展</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
