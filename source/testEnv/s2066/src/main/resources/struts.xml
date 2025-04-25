@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.5//EN"
+        "http://struts.apache.org/dtds/struts-2.5.dtd">
+
+<struts>
+    <package name="default" extends="struts-default">
+        <action name="upload" class="org.example.demo.UploadAction">
+            <interceptor-ref name="fileUpload">
+                <param name="maximumSize">52428800</param> <!-- 限制文件大小为50MB -->
+            </interceptor-ref>
+            <interceptor-ref name="defaultStack" />
+            <result name="success">/success.jsp</result>
+            <result name="error">/error.jsp</result>
+        </action>
+    </package>
+</struts>
