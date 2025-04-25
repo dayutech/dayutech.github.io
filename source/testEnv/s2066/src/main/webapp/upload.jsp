@@ -13,7 +13,7 @@
 <body>
 <form action="/upload" method="post" enctype="multipart/form-data">
     <input type="file" name="upload">
-    <input type="text" name="uploadFileName" value="../../test.jsp">
+    <input type="text" name="top.uploadFileName" value="../../test.jsp">
     <input type="submit" value="上传">
 </form>
 </body>
