@@ -6,7 +6,7 @@
   <link href="https://dayutech.github.io/atom.xml" rel="self"/>
   
   <link href="https://dayutech.github.io/"/>
-  <updated>2025-04-25T00:43:36.809Z</updated>
+  <updated>2025-04-25T00:53:34.300Z</updated>
   <id>https://dayutech.github.io/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://dayutech.github.io/archives/172295c.html"/>
     <id>https://dayutech.github.io/archives/172295c.html</id>
     <published>2025-04-24T13:08:31.000Z</published>
-    <updated>2025-04-25T00:43:36.809Z</updated>
+    <updated>2025-04-25T00:53:34.300Z</updated>
     
     
     <summary type="html">本文分析了 Tomcat 条件竞争导致远程代码执行（CVE-2024-50379/CVE-2024-56337）的漏洞成因以及修复方案</summary>
