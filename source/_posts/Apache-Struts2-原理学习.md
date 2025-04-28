@@ -212,23 +212,35 @@ public void register(ContainerBuilder containerBuilder, LocatableProperties prop
                     Element child = (Element) childNode;
 
                     final String nodeName = child.getNodeName();
-
+                    // 解析bean标签
                     if ("bean".equals(nodeName)) {
+                        // 类型属性
                         String type = child.getAttribute("type");
+                        // bean名称  同一个类可以有多个bean名称   
                         String name = child.getAttribute("name");
+                        // bean 的实现类
                         String impl = child.getAttribute("class");
+                        // 是否进行静态插入   容器会解析类的静态属性
                         String onlyStatic = child.getAttribute("static");
+                        // bean的生命周期
                         String scopeStr = child.getAttribute("scope");
+                        // 是否是可选的
+                        // 当optional属性为true时，即便class不存在加载也不会失败
                         boolean optional = "true".equals(child.getAttribute("optional"));
                         Scope scope = Scope.SINGLETON;
+                        // 多实例
                         if ("prototype".equals(scopeStr)) {
                             scope = Scope.PROTOTYPE;
+                            // 只在一次请求过程中有效
                         } else if ("request".equals(scopeStr)) {
                             scope = Scope.REQUEST;
+                            // 在一个session中有效
                         } else if ("session".equals(scopeStr)) {
                             scope = Scope.SESSION;
+                            // 单例
                         } else if ("singleton".equals(scopeStr)) {
                             scope = Scope.SINGLETON;
+                            // 在当前线程中有效
                         } else if ("thread".equals(scopeStr)) {
                             scope = Scope.THREAD;
                         }
@@ -238,18 +250,28 @@ public void register(ContainerBuilder containerBuilder, LocatableProperties prop
                         }
 
                         try {
+                            // 加载bean的实现类
                             Class classImpl = ClassLoaderUtil.loadClass(impl, getClass());
                             Class classType = classImpl;
+                            // 如果指定了bean的类型则使用指定的类型
+                            // 否则以实现类的类型为bean的类型
                             if (StringUtils.isNotEmpty(type)) {
                                 classType = ClassLoaderUtil.loadClass(type, getClass());
                             }
+                            // 如果是静态注入
                             if ("true".equals(onlyStatic)) {
                                 // Force loading of class to detect no class def found exceptions
                                 classImpl.getDeclaredClasses();
+                                // 在创建时，向bean中注入静态字段以及方法
                                 containerBuilder.injectStatics(classImpl);
                             } else {
+                                // 如果已经存在同名同类型的bean了
                                 if (containerBuilder.contains(classType, name)) {
+                                    // 获取当前bean节点在xml文件中的定位 得到一个LocationImpl对象
+                                    // 包括行号 列号 uri 这三个来自命名空间 http://struts.apache.org/xwork/location 下的属性
+                                    // 如 <t xmlns:s=http://struts.apache.org/xwork/location s:src="" s:row="" s:col="">
                                     Location loc = LocationUtils.getLocation(loadedBeans.get(classType.getName() + name));
+                                    // 存在重复的bean直接就抛出异常了 这个值默认为true
                                     if (throwExceptionOnDuplicateBeans) {
                                         throw new ConfigurationException("Bean type " + classType + " with the name " +
                                                 name + " has already been loaded by " + loc, child);
@@ -257,11 +279,16 @@ public void register(ContainerBuilder containerBuilder, LocatableProperties prop
                                 }
 
                                 // Force loading of class to detect no class def found exceptions
+                                // 强制进行类加载  可能跟类的加载机制有关系  懒加载
+                                // 使用 loadClass 方法加载的类并没有执行静态代码块
+                                // 调用该方法进行类的强制加载
                                 classImpl.getDeclaredConstructors();
 
                                 LOG.debug("Loaded type: {} name: {} impl: {}", type, name, impl);
+                                // 将bean注入到容器中  该方法后面再分析
                                 containerBuilder.factory(classType, name, new LocatableFactory(name, classType, classImpl, scope, childNode), scope);
                             }
+                            // 记录加载的bean
                             loadedBeans.put(classType.getName() + name, child);
                         } catch (Throwable ex) {
                             if (!optional) {
@@ -270,6 +297,7 @@ public void register(ContainerBuilder containerBuilder, LocatableProperties prop
                                 LOG.debug("Unable to load optional class: {}", impl);
                             }
                         }
+                        // 在 struts.xml 中定义常量，这些常量可以在 Struts 2 的配置文件和其他部分使用。
                     } else if ("constant".equals(nodeName)) {
                         String name = child.getAttribute("name");
                         String value = child.getAttribute("value");
@@ -278,20 +306,29 @@ public void register(ContainerBuilder containerBuilder, LocatableProperties prop
                             LOG.debug("Substituting value [{}] using [{}]", value, valueSubstitutor.getClass().getName());
                             value = valueSubstitutor.substitute(value);
                         }
-
+                        // 和properties文件的属性一个以西  
                         props.setProperty(name, value, childNode);
+                        // 该标签被用于处理那些在正常处理流程中未被识别或未被处理的请求
                     } else if (nodeName.equals("unknown-handler-stack")) {
                         List<UnknownHandlerConfig> unknownHandlerStack = new ArrayList<UnknownHandlerConfig>();
+                        // 定义处理器列表
                         NodeList unknownHandlers = child.getElementsByTagName("unknown-handler-ref");
                         int unknownHandlersSize = unknownHandlers.getLength();
 
                         for (int k = 0; k < unknownHandlersSize; k++) {
                             Element unknownHandler = (Element) unknownHandlers.item(k);
                             Location location = LocationUtils.getLocation(unknownHandler);
-                            unknownHandlerStack.add(new UnknownHandlerConfig(unknownHandler.getAttribute("name"), location));
+                            // 通过名称进行引用
+                            // 在使用时需要先定义  unknown-handler 标签
+                            // <unknown-handler name="defaultUnknownHandler" class="com.example.DefaultUnknownHandler" />
+                            // <unknown-handler name="customUnknownHandler" class="com.example.CustomUnknownHandler" />
+
+                                    unknownHandlerStack.add(new UnknownHandlerConfig(unknownHandler.getAttribute("name"), location));
                         }
 
                         if (!unknownHandlerStack.isEmpty())
+                            // configuration由init方法传入   具体用处目前还不知道
+                            // 但应该是在请求无法被匹配的之后将从这个configurration中取出 handler对请求进行处理
                             configuration.setUnknownHandlerStack(unknownHandlerStack);
                     }
                 }
@@ -421,4 +458,213 @@ public int compare(Document doc1, Document doc2) {
         }
         return finalDocs;
         }
+```
+### 遗留属性的初始化
+将 `PropertiesConfigurationProvider`对象添加到`containerProvider`中  关注其register方法 
+```java
+final DefaultSettings settings = new DefaultSettings();
+loadSettings(props, settings);
+```
+
+```java
+public DefaultSettings() {
+
+        ArrayList<Settings> list = new ArrayList<>();
+
+        // stuts.properties, default.properties
+        try {
+            // 加载所有的 struts.properties文件
+            list.add(new PropertiesSettings("struts"));
+        } catch (Exception e) {
+            LOG.warn("DefaultSettings: Could not find or error in struts.properties", e);
+        }
+
+        delegate = new DelegatingSettings(list);
+
+        // struts.custom.properties
+    // 获取 struts.properties 中的 struts.custom.properties 属性的值 
+    // 这个值指向了其他的配置文件 通过逗号分隔
+        String files = delegate.get(StrutsConstants.STRUTS_CUSTOM_PROPERTIES);
+        if (files != null) {
+            StringTokenizer customProperties = new StringTokenizer(files, ",");
+
+            while (customProperties.hasMoreTokens()) {
+                String name = customProperties.nextToken();
+                try {
+                    // 将所有的文件进行读取解析封装成 PropertiesSettings 对象
+                    list.add(new PropertiesSettings(name));
+                } catch (Exception e) {
+                    LOG.error("DefaultSettings: Could not find {}.properties. Skipping.", name);
+                }
+            }
+            // 创建一个委托对象
+            // 后面调用的loadSetting方法将调用delegate的list方法获取所有的配置并逐个遍历复制到性的prop对象中
+            delegate = new DelegatingSettings(list);
+        }
+    }
+```
+### 初始化用户自定义的配置Provider
+```java
+private void init_CustomConfigurationProviders() {
+    // 获取过滤器属性  configProviders
+        String configProvs = initParams.get("configProviders");
+        if (configProvs != null) {
+            String[] classes = configProvs.split("\\s*[,]\\s*");
+            for (String cname : classes) {
+                try {
+                    // 加载类
+                    Class cls = ClassLoaderUtil.loadClass(cname, this.getClass());
+                    // 类实例化
+                    ConfigurationProvider prov = (ConfigurationProvider)cls.newInstance();
+                    // 如果时 ServletContextAwareConfigurationProvider 的子类 还需要先调用 initWithContext 方法
+                    // 主要是看是否需要使用到servletContext里面的数据
+                    if (prov instanceof ServletContextAwareConfigurationProvider) {
+                        ((ServletContextAwareConfigurationProvider)prov).initWithContext(servletContext);
+                    }
+                    // 添加到容器中
+                    configurationManager.addContainerProvider(prov);
+                } catch (InstantiationException e) {
+                    throw new ConfigurationException("Unable to instantiate provider: "+cname, e);
+                } catch (IllegalAccessException e) {
+                    throw new ConfigurationException("Unable to access provider: "+cname, e);
+                } catch (ClassNotFoundException e) {
+                    throw new ConfigurationException("Unable to locate provider class: "+cname, e);
+                }
+            }
+        }
+    }
+```
+### 初始化过滤器参数
+将过滤器参数添加到  register 方法传入的 LocatableProperties 对象中
+
+### 初始化标准对象的别名（将标准对象添加到容器中）
+创建 DefaultBeanSelectionProvider 并放到容器里
+为一些标准对象设置别名  
+```java
+public void register(ContainerBuilder builder, LocatableProperties props) {
+    // 创建别名 其实就是将一些标准对象加入到容器中
+    alias(ObjectFactory.class, StrutsConstants.STRUTS_OBJECTFACTORY, builder, props);
+    alias(ActionFactory.class, StrutsConstants.STRUTS_OBJECTFACTORY_ACTIONFACTORY, builder, props);
+    alias(ResultFactory.class, StrutsConstants.STRUTS_OBJECTFACTORY_RESULTFACTORY, builder, props);
+    alias(ConverterFactory.class, StrutsConstants.STRUTS_OBJECTFACTORY_CONVERTERFACTORY, builder, props);
+    alias(InterceptorFactory.class, StrutsConstants.STRUTS_OBJECTFACTORY_INTERCEPTORFACTORY, builder, props);
+    alias(ValidatorFactory.class, StrutsConstants.STRUTS_OBJECTFACTORY_VALIDATORFACTORY, builder, props);
+    alias(UnknownHandlerFactory.class, StrutsConstants.STRUTS_OBJECTFACTORY_UNKNOWNHANDLERFACTORY, builder, props);
+
+    alias(FileManagerFactory.class, StrutsConstants.STRUTS_FILE_MANAGER_FACTORY, builder, props, Scope.SINGLETON);
+
+    alias(XWorkConverter.class, StrutsConstants.STRUTS_XWORKCONVERTER, builder, props);
+    alias(CollectionConverter.class, StrutsConstants.STRUTS_CONVERTER_COLLECTION, builder, props);
+    alias(ArrayConverter.class, StrutsConstants.STRUTS_CONVERTER_ARRAY, builder, props);
+    alias(DateConverter.class, StrutsConstants.STRUTS_CONVERTER_DATE, builder, props);
+    alias(NumberConverter.class, StrutsConstants.STRUTS_CONVERTER_NUMBER, builder, props);
+    alias(StringConverter.class, StrutsConstants.STRUTS_CONVERTER_STRING, builder, props);
+
+    alias(ConversionPropertiesProcessor.class, StrutsConstants.STRUTS_CONVERTER_PROPERTIES_PROCESSOR, builder, props);
+    alias(ConversionFileProcessor.class, StrutsConstants.STRUTS_CONVERTER_FILE_PROCESSOR, builder, props);
+    alias(ConversionAnnotationProcessor.class, StrutsConstants.STRUTS_CONVERTER_ANNOTATION_PROCESSOR, builder, props);
+    alias(TypeConverterCreator.class, StrutsConstants.STRUTS_CONVERTER_CREATOR, builder, props);
+    alias(TypeConverterHolder.class, StrutsConstants.STRUTS_CONVERTER_HOLDER, builder, props);
+
+    alias(TextProvider.class, StrutsConstants.STRUTS_XWORKTEXTPROVIDER, builder, props, Scope.PROTOTYPE);
+    alias(TextProvider.class, StrutsConstants.STRUTS_TEXT_PROVIDER, builder, props, Scope.PROTOTYPE);
+    alias(TextProviderFactory.class, StrutsConstants.STRUTS_TEXT_PROVIDER_FACTORY, builder, props, Scope.PROTOTYPE);
+    alias(LocaleProviderFactory.class, StrutsConstants.STRUTS_LOCALE_PROVIDER_FACTORY, builder, props);
+    alias(LocalizedTextProvider.class, StrutsConstants.STRUTS_LOCALIZED_TEXT_PROVIDER, builder, props);
+
+    alias(ActionProxyFactory.class, StrutsConstants.STRUTS_ACTIONPROXYFACTORY, builder, props);
+    alias(ObjectTypeDeterminer.class, StrutsConstants.STRUTS_OBJECTTYPEDETERMINER, builder, props);
+    alias(ActionMapper.class, StrutsConstants.STRUTS_MAPPER_CLASS, builder, props);
+    alias(MultiPartRequest.class, StrutsConstants.STRUTS_MULTIPART_PARSER, builder, props, Scope.PROTOTYPE);
+    alias(FreemarkerManager.class, StrutsConstants.STRUTS_FREEMARKER_MANAGER_CLASSNAME, builder, props);
+    alias(VelocityManager.class, StrutsConstants.STRUTS_VELOCITY_MANAGER_CLASSNAME, builder, props);
+    alias(UrlRenderer.class, StrutsConstants.STRUTS_URL_RENDERER, builder, props);
+    alias(ActionValidatorManager.class, StrutsConstants.STRUTS_ACTIONVALIDATORMANAGER, builder, props);
+    alias(ValueStackFactory.class, StrutsConstants.STRUTS_VALUESTACKFACTORY, builder, props);
+    alias(ReflectionProvider.class, StrutsConstants.STRUTS_REFLECTIONPROVIDER, builder, props);
+    alias(ReflectionContextFactory.class, StrutsConstants.STRUTS_REFLECTIONCONTEXTFACTORY, builder, props);
+    alias(PatternMatcher.class, StrutsConstants.STRUTS_PATTERNMATCHER, builder, props);
+    alias(ContentTypeMatcher.class, StrutsConstants.STRUTS_CONTENT_TYPE_MATCHER, builder, props);
+    alias(StaticContentLoader.class, StrutsConstants.STRUTS_STATIC_CONTENT_LOADER, builder, props);
+    alias(UnknownHandlerManager.class, StrutsConstants.STRUTS_UNKNOWN_HANDLER_MANAGER, builder, props);
+    alias(UrlHelper.class, StrutsConstants.STRUTS_URL_HELPER, builder, props);
+
+    alias(TextParser.class, StrutsConstants.STRUTS_EXPRESSION_PARSER, builder, props);
+
+    alias(DispatcherErrorHandler.class, StrutsConstants.STRUTS_DISPATCHER_ERROR_HANDLER, builder, props);
+
+    /** Checker is used mostly in interceptors, so there be one instance of checker per interceptor with Scope.PROTOTYPE **/
+    alias(ExcludedPatternsChecker.class, StrutsConstants.STRUTS_EXCLUDED_PATTERNS_CHECKER, builder, props, Scope.PROTOTYPE);
+    alias(AcceptedPatternsChecker.class, StrutsConstants.STRUTS_ACCEPTED_PATTERNS_CHECKER, builder, props, Scope.PROTOTYPE);
+    alias(NotExcludedAcceptedPatternsChecker.class, StrutsConstants.STRUTS_NOT_EXCLUDED_ACCEPTED_PATTERNS_CHECKER
+            , builder, props, Scope.SINGLETON);
+    // 切换到啊开发模式 取决于  配置文件中是否有配置
+    switchDevMode(props);
+
+    // Convert Struts properties into XWork properties
+    // 给struts的一些参数换个名字  有啥用不清楚
+    convertIfExist(props, StrutsConstants.STRUTS_LOG_MISSING_PROPERTIES, XWorkConstants.LOG_MISSING_PROPERTIES);
+    convertIfExist(props, StrutsConstants.STRUTS_ENABLE_OGNL_EXPRESSION_CACHE, XWorkConstants.ENABLE_OGNL_EXPRESSION_CACHE);
+    convertIfExist(props, StrutsConstants.STRUTS_ENABLE_OGNL_EVAL_EXPRESSION, XWorkConstants.ENABLE_OGNL_EVAL_EXPRESSION);
+    convertIfExist(props, StrutsConstants.STRUTS_ALLOW_STATIC_METHOD_ACCESS, XWorkConstants.ALLOW_STATIC_METHOD_ACCESS);
+    convertIfExist(props, StrutsConstants.STRUTS_CONFIGURATION_XML_RELOAD, XWorkConstants.RELOAD_XML_CONFIGURATION);
+
+    convertIfExist(props, StrutsConstants.STRUTS_EXCLUDED_CLASSES, XWorkConstants.OGNL_EXCLUDED_CLASSES);
+    convertIfExist(props, StrutsConstants.STRUTS_EXCLUDED_PACKAGE_NAME_PATTERNS, XWorkConstants.OGNL_EXCLUDED_PACKAGE_NAME_PATTERNS);
+    convertIfExist(props, StrutsConstants.STRUTS_EXCLUDED_PACKAGE_NAMES, XWorkConstants.OGNL_EXCLUDED_PACKAGE_NAMES);
+
+    convertIfExist(props, StrutsConstants.STRUTS_ADDITIONAL_EXCLUDED_PATTERNS, XWorkConstants.ADDITIONAL_EXCLUDED_PATTERNS);
+    convertIfExist(props, StrutsConstants.STRUTS_ADDITIONAL_ACCEPTED_PATTERNS, XWorkConstants.ADDITIONAL_ACCEPTED_PATTERNS);
+    convertIfExist(props, StrutsConstants.STRUTS_OVERRIDE_EXCLUDED_PATTERNS, XWorkConstants.OVERRIDE_EXCLUDED_PATTERNS);
+    convertIfExist(props, StrutsConstants.STRUTS_OVERRIDE_ACCEPTED_PATTERNS, XWorkConstants.OVERRIDE_ACCEPTED_PATTERNS);
+}
+```
+
+
+```java
+protected void alias(Class type, String key, ContainerBuilder builder, Properties props, Scope scope) {
+    // 如果这个标准对象目前还没有被添加到容器中
+        if (!builder.contains(type, Container.DEFAULT_NAME)) {
+            // 查看配置文件中是否设置了这个对象的名称
+            String foundName = props.getProperty(key, DEFAULT_BEAN_NAME);
+            // 如果在容器中通过配置的名称和类型找到了对应的bean 
+            // 什么情况下bean会先于程序启动被装入到容器中？
+            // 只能是用于在struts.xml等配置文件中配置了bean，覆盖了标准对象
+            // 那么就需要为这个对象进行添加系统默认的名称以避免框架运行时找不到标准对象
+            if (builder.contains(type, foundName)) {
+                LOG.trace("Choosing bean ({}) for ({})", foundName, type.getName());
+                // 那么给这个标准对象添加一个别名为  default
+                builder.alias(type, foundName, Container.DEFAULT_NAME);
+            } else {
+                try {
+                    // 如果容器中找不到对象 则证明该标准对象还没有被添加到容器中
+                    // 通过配置的名称进行类加载  这里证明配置的名称应该是一个全类名
+                    Class cls = ClassLoaderUtil.loadClass(foundName, this.getClass());
+                    LOG.trace("Choosing bean ({}) for ({})", cls.getName(), type.getName());
+                    // 如果找到了对一个的类并成功加载 那么加u将这个类添加到容器中
+                    // 使用的名称为 default 
+                    builder.factory(type, cls, scope);
+                } catch (ClassNotFoundException ex) {
+                    // Perhaps a spring bean id, so we'll delegate to the object factory at runtime
+                    LOG.trace("Choosing bean ({}) for ({}) to be loaded from the ObjectFactory", foundName, type.getName());
+                    if (DEFAULT_BEAN_NAME.equals(foundName)) {
+                        // Probably an optional bean, will ignore
+                    } else {
+                        if (ObjectFactory.class != type) {
+                            builder.factory(type, new ObjectFactoryDelegateFactory(foundName, type), scope);
+                        } else {
+                            throw new ConfigurationException("Cannot locate the chosen ObjectFactory implementation: " + foundName);
+                        }
+                    }
+                }
+            }
+        } else {
+            LOG.warn("Unable to alias bean type ({}), default mapping already assigned.", type.getName());
+        }
+    }
+```
+
+### 初始化预加载配置对象（创建容器）
+```java
+
 ```
