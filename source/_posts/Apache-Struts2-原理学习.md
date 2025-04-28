@@ -1,5 +1,6 @@
 ---
 title: Apache Struts2 原理学习
+abbrlink: 66a16759
 date: 2025-04-28 16:44:23
 tags:
 ---
@@ -665,6 +666,399 @@ protected void alias(Class type, String key, ContainerBuilder builder, Propertie
 ```
 
 ### 初始化预加载配置对象（创建容器）
+
 ```java
+import com.opensymphony.xwork2.inject.Inject;
+
+public Container getContainer() {
+    if (ContainerHolder.get() != null) {
+        return ContainerHolder.get();
+    }
+    // 容器管理器之前已经有创建了
+    ConfigurationManager mgr = getConfigurationManager();
+    if (mgr == null) {
+        throw new IllegalStateException("The configuration manager shouldn't be null");
+    } else {
+        // Configuration 对象之前没有创建  这里会创建  
+        Configuration config = mgr.getConfiguration();
+        if (config == null) {
+            throw new IllegalStateException("Unable to load configuration");
+        } else {
+            Container container = config.getContainer();
+            ContainerHolder.store(container);
+            return container;
+        }
+    }
+}
+
+public synchronized Configuration getConfiguration() {
+    if (configuration == null) {
+        // 创建 DefaultConfiguration 对象 并设置到属性中
+        setConfiguration(createConfiguration(defaultFrameworkBeanName));
+        try {
+            // 加载容器   ContainerProviders 就是之气那那一些列的init方法中设置的那些
+            configuration.reloadContainer(getContainerProviders());
+        } catch (ConfigurationException e) {
+            setConfiguration(null);
+            throw new ConfigurationException("Unable to load configuration.", e);
+        }
+    } else {
+        conditionalReload();
+    }
+
+    return configuration;
+}
+
+public synchronized List<PackageProvider> reloadContainer(List<ContainerProvider> providers) throws ConfigurationException {
+    packageContexts.clear();
+    loadedFileNames.clear();
+    List<PackageProvider> packageProviders = new ArrayList<>();
+    // 这个参数就是传入到  containerProvider 的 register方法的第二个参数  
+    // 所以在register方法调用完毕后 props中存的就是struts的所有配置属性
+    ContainerProperties props = new ContainerProperties();
+    // 容器的构建器
+    ContainerBuilder builder = new ContainerBuilder();
+    // 创建根容器
+    Container bootstrap = createBootstrapContainer(providers);
+    // 遍历provider
+    for (final ContainerProvider containerProvider : providers) {
+        // 容器注入
+        bootstrap.inject(containerProvider);
+        // 调用容器provider的init方法
+        containerProvider.init(this);
+        // 调用register方法
+        containerProvider.register(builder, props);
+    }
+    props.setConstants(builder);
+
+    builder.factory(Configuration.class, new Factory<Configuration>() {
+        public Configuration create(Context context) throws Exception {
+            return DefaultConfiguration.this;
+        }
+
+        @Override
+        public Class<? extends Configuration> type() {
+            return DefaultConfiguration.this.getClass();
+        }
+    });
+
+    ActionContext oldContext = ActionContext.getContext();
+    try {
+        // Set the bootstrap container for the purposes of factory creation
+
+        setContext(bootstrap);
+        container = builder.create(false);
+        setContext(container);
+        objectFactory = container.getInstance(ObjectFactory.class);
+
+        // Process the configuration providers first
+        for (final ContainerProvider containerProvider : providers) {
+            if (containerProvider instanceof PackageProvider) {
+                container.inject(containerProvider);
+                ((PackageProvider) containerProvider).loadPackages();
+                packageProviders.add((PackageProvider) containerProvider);
+            }
+        }
+
+        // Then process any package providers from the plugins
+        Set<String> packageProviderNames = container.getInstanceNames(PackageProvider.class);
+        for (String name : packageProviderNames) {
+            PackageProvider provider = container.getInstance(PackageProvider.class, name);
+            provider.init(this);
+            provider.loadPackages();
+            packageProviders.add(provider);
+        }
+
+        rebuildRuntimeConfiguration();
+    } finally {
+        if (oldContext == null) {
+            ActionContext.setContext(null);
+        }
+    }
+    return packageProviders;
+}
+
+
+protected Container createBootstrapContainer(List<ContainerProvider> providers) {
+    // 创建容器builder 
+    // 构造方法里主要创价了两个 factories 即 CONTAINER_FACTORY 以及 LOGGER_FACTORY
+    ContainerBuilder builder = new ContainerBuilder();
+    boolean fmFactoryRegistered = false;
+    // 遍历containerProvider
+    for (ContainerProvider provider : providers) {
+        if (provider instanceof FileManagerProvider) {
+            // 调用fileManagerProvider的register注入文件管理器
+            // 文件管理器后面还会被注入一次 但是因为其是单例的所以没啥影响
+            // 这里提前注入是因为后面有些provider的register方法会使用到filemanager取访问文件1
+            provider.register(builder, null);
+        }
+        if (provider instanceof FileManagerFactoryProvider) {
+            // 同上
+            provider.register(builder, null);
+            fmFactoryRegistered = true;
+        }
+    }
+    // 注入标准对象
+    builder.factory(ObjectFactory.class, Scope.SINGLETON);
+    builder.factory(ActionFactory.class, DefaultActionFactory.class, Scope.SINGLETON);
+    builder.factory(ResultFactory.class, DefaultResultFactory.class, Scope.SINGLETON);
+    builder.factory(InterceptorFactory.class, DefaultInterceptorFactory.class, Scope.SINGLETON);
+    builder.factory(com.opensymphony.xwork2.factory.ValidatorFactory.class, com.opensymphony.xwork2.factory.DefaultValidatorFactory.class, Scope.SINGLETON);
+    builder.factory(ConverterFactory.class, DefaultConverterFactory.class, Scope.SINGLETON);
+    builder.factory(UnknownHandlerFactory.class, DefaultUnknownHandlerFactory.class, Scope.SINGLETON);
+
+    builder.factory(FileManager.class, "system", DefaultFileManager.class, Scope.SINGLETON);
+    if (!fmFactoryRegistered) {
+        builder.factory(FileManagerFactory.class, DefaultFileManagerFactory.class, Scope.SINGLETON);
+    }
+    builder.factory(ReflectionProvider.class, OgnlReflectionProvider.class, Scope.SINGLETON);
+    builder.factory(ValueStackFactory.class, OgnlValueStackFactory.class, Scope.SINGLETON);
+
+    builder.factory(XWorkConverter.class, Scope.SINGLETON);
+    builder.factory(ConversionPropertiesProcessor.class, DefaultConversionPropertiesProcessor.class, Scope.SINGLETON);
+    builder.factory(ConversionFileProcessor.class, DefaultConversionFileProcessor.class, Scope.SINGLETON);
+    builder.factory(ConversionAnnotationProcessor.class, DefaultConversionAnnotationProcessor.class, Scope.SINGLETON);
+    builder.factory(TypeConverterCreator.class, DefaultTypeConverterCreator.class, Scope.SINGLETON);
+    builder.factory(TypeConverterHolder.class, DefaultTypeConverterHolder.class, Scope.SINGLETON);
+
+    builder.factory(XWorkBasicConverter.class, Scope.SINGLETON);
+    builder.factory(TypeConverter.class, XWorkConstants.COLLECTION_CONVERTER, CollectionConverter.class, Scope.SINGLETON);
+    builder.factory(TypeConverter.class, XWorkConstants.ARRAY_CONVERTER, ArrayConverter.class, Scope.SINGLETON);
+    builder.factory(TypeConverter.class, XWorkConstants.DATE_CONVERTER, DateConverter.class, Scope.SINGLETON);
+    builder.factory(TypeConverter.class, XWorkConstants.NUMBER_CONVERTER, NumberConverter.class, Scope.SINGLETON);
+    builder.factory(TypeConverter.class, XWorkConstants.STRING_CONVERTER, StringConverter.class, Scope.SINGLETON);
+
+    builder.factory(TextProvider.class, "system", DefaultTextProvider.class, Scope.SINGLETON);
+
+    builder.factory(LocalizedTextProvider.class, StrutsLocalizedTextProvider.class, Scope.SINGLETON);
+    builder.factory(TextProviderFactory.class, StrutsTextProviderFactory.class, Scope.SINGLETON);
+    builder.factory(LocaleProviderFactory.class, DefaultLocaleProviderFactory.class, Scope.SINGLETON);
+
+    builder.factory(TextParser.class, OgnlTextParser.class, Scope.SINGLETON);
+
+    builder.factory(ObjectTypeDeterminer.class, DefaultObjectTypeDeterminer.class, Scope.SINGLETON);
+    builder.factory(PropertyAccessor.class, CompoundRoot.class.getName(), CompoundRootAccessor.class, Scope.SINGLETON);
+    builder.factory(OgnlUtil.class, Scope.SINGLETON);
+
+    builder.factory(ValueSubstitutor.class, EnvsValueSubstitutor.class, Scope.SINGLETON);
+    // 常量是一个 prototype类型的 String类型的bean 每一次访问都会创建一个新的bean
+    builder.constant(XWorkConstants.DEV_MODE, "false");
+    builder.constant(StrutsConstants.STRUTS_DEVMODE, "false");
+    builder.constant(XWorkConstants.LOG_MISSING_PROPERTIES, "false");
+    builder.constant(XWorkConstants.ENABLE_OGNL_EVAL_EXPRESSION, "false");
+    builder.constant(XWorkConstants.ENABLE_OGNL_EXPRESSION_CACHE, "true");
+    builder.constant(XWorkConstants.RELOAD_XML_CONFIGURATION, "false");
+    builder.constant(StrutsConstants.STRUTS_I18N_RELOAD, "false");
+
+    builder.constant(StrutsConstants.STRUTS_MATCHER_APPEND_NAMED_PARAMETERS, "true");
+    // 创建container实例
+    return builder.create(true);
+}
+
+// 看看factory方法具体干了啥
+public <T> ContainerBuilder factory(final Class<T> type, final String name,
+                                    final Class<? extends T> implementation, final Scope scope) {
+    // This factory creates new instances of the given implementation.
+    // We have to lazy load the constructor because the Container
+    // hasn't been created yet.
+    InternalFactory<? extends T> factory = new InternalFactory<T>() {
+
+        volatile ContainerImpl.ConstructorInjector<? extends T> constructor;
+
+        // 当调用factory的create的时候就会真正的创建bean实例
+        // internalFacotry是最内层的factory，外面还有其他的包装用的factory用来完成不同的功能
+        // 如scopeFactory 用来确定bean的生命周期
+        @SuppressWarnings("unchecked")
+        public T create(InternalContext context) {
+            if (constructor == null) {
+                // 获取bean的构造函数
+                // 这里采用了单例设计 即只获取一次构造方法 避免每一次创建bean的时候都重复获取
+                this.constructor =
+                        context.getContainerImpl().getConstructor(implementation);
+            }
+            // 创建对象实例
+            return (T) constructor.construct(context, type);
+        }
+
+        @Override
+        public Class<? extends T> type() {
+            return implementation;
+        }
+
+        @Override
+        public String toString() {
+            return new LinkedHashMap<String, Object>() {{
+                put("type", type);
+                put("name", name);
+                put("implementation", implementation);
+                put("scope", scope);
+            }}.toString();
+        }
+    };
+
+    return factory(Key.newInstance(type, name), factory, scope);
+}
+
+private <T> ContainerBuilder factory(final Key<T> key,
+                                     InternalFactory<? extends T> factory, Scope scope) {
+    // 确认容器是否被创建  没有被创建才能继续执行
+    ensureNotCreated();
+    // 检查容器中是否已经被注入了 同名的bean  type+name
+    checkKey(key);
+    // 创建bean生命周期工厂  不同的生命周期得到的工厂是不一样的 具体体现在其create方法的实现不同上
+    // 因为不同作用与需要使用不同的存储方案 如 thread就需要使用threadLocal的变量类型进行存储
+    final InternalFactory<? extends T> scopedFactory = scope.scopeFactory(key.getType(), key.getName(), factory);
+    // 所有的 factory 都保存在factories中
+    factories.put(key, scopedFactory);
+    // 对scopefactory更进一步的包装  
+    // 主要设计 ExternalContext 的设置
+    // 这个类主要设计了 ExternalContext 的设置 只有 单例以及  EarlyInitializable类型的bean才被使用
+    // 那么对于其他类型的bean来说岂不就是无用的，那么就存在一个自选消耗的问题，那么是否应该把一步放到if里面去。  
+    // 这不提个pr吗？？？ 
+    InternalFactory<T> callableFactory = createCallableFactory(key, scopedFactory);
+    // 判断factor的类型  即bean标签的type属性指定的值
+    // 指示这些bean需要提前进行装配  
+    if (EarlyInitializable.class.isAssignableFrom(factory.type())) {
+        earlyInitializableFactories.add(callableFactory);
+        // 单例类型的bean也需要单独存放在一个列表中
+    } else if (scope == Scope.SINGLETON) {
+        singletonFactories.add(callableFactory);
+    }
+
+    return this;
+}
+
+// 创建容器实例
+public Container create(boolean loadSingletons) {
+    // 确保容器没有被创建
+    ensureNotCreated();
+    created = true;
+    // 新建一个 ContainerImpl 实例对象
+    // // 将 创建从 type 到 bean name的不可变映射关系 线程安全
+    final ContainerImpl container = new ContainerImpl(new HashMap<>(factories));
+    // 
+    if (loadSingletons) {
+        container.callInContext(new ContainerImpl.ContextualCallable<Void>() {
+            public Void call(InternalContext context) {
+                for (InternalFactory<?> factory : singletonFactories) {
+                    // 单例的bean 不需要接收返回值  因为创建后其直接被工厂类的instance 变量引用
+                    // 每次创建都会直接从 instance 变量中找
+                    factory.create(context);
+                }
+                return null;
+            }
+        });
+    }
+
+    container.callInContext(new ContainerImpl.ContextualCallable<Void>() {
+        public Void call(InternalContext context) {
+            // 提前初始化的bean 被标记为 
+            // 这类型的bean 有个特定就是实现了 Initializable 接口 并且会在创建时调用  init方法
+            // 默认有一个这样的bean被配置  即 DefaultConversionPropertiesProcessor   用作properties 转化器
+            // 该类会读取两个properties配置文件取查找对应的转换器
+            for (InternalFactory<?> factory : earlyInitializableFactories) {
+                factory.create(context);
+            }
+            return null;
+        }
+    });
+    // 处理被标注为 static的bean 处理其静态字段以及静态方法
+    container.injectStatics(staticInjections);
+    return container;
+}
+
+// 将 创建从 type 到 bean name的不可变映射关系 线程安全
+ContainerImpl(Map<Key<?>, InternalFactory<?>> factories) {
+    this.factories = factories;
+    Map<Class<?>, Set<String>> map = new HashMap<>();
+    for (Key<?> key : factories.keySet()) {
+        Set<String> names = map.get(key.getType());
+        if (names == null) {
+            names = new HashSet<>();
+            map.put(key.getType(), names);
+        }
+        names.add(key.getName());
+    }
+
+    for (Entry<Class<?>, Set<String>> entry : map.entrySet()) {
+        entry.setValue(Collections.unmodifiableSet(entry.getValue()));
+    }
+
+    this.factoryNamesByType = Collections.unmodifiableMap(map);
+}
+
+void injectStatics(List<Class<?>> staticInjections) {
+    final List<Injector> injectors = new ArrayList<>();
+    // 遍历需要被注入静态字段与方法的bean
+    for (Class<?> clazz : staticInjections) {
+        // 查找字段注入器 并添加到  injectors 中
+        addInjectorsForFields(clazz.getDeclaredFields(), true, injectors);
+        // 查找方法注入器 并添加到 injectors 中
+        addInjectorsForMethods(clazz.getDeclaredMethods(), true, injectors);
+    }
+    // 调用注入器进行注入
+    callInContext(new ContextualCallable<Void>() {
+        public Void call(InternalContext context) {
+            for (Injector injector : injectors) {
+                injector.inject(context, null);
+            }
+            return null;
+        }
+    });
+}
+
+// 以字段注入器为例子
+// name就是字段的Inject注解的value 指向了另一个bean
+// field 为需要注入的字段
+// container为根容器
+public FieldInjector(ContainerImpl container, Field field, String name)
+        throws MissingDependencyException {
+    this.field = field;
+    if ((!Modifier.isPublic(field.getModifiers()) || !Modifier.isPublic(field.getDeclaringClass().getModifiers()))
+            && !field.isAccessible()) {
+        SecurityManager sm = System.getSecurityManager();
+        try {
+            if (sm != null) {
+                sm.checkPermission(new ReflectPermission("suppressAccessChecks"));
+            }
+            field.setAccessible(true);
+        } catch (AccessControlException e) {
+            throw new DependencyException("Security manager in use, could not access field: "
+                    + field.getDeclaringClass().getName() + "(" + field.getName() + ")", e);
+        }
+    }
+    // 创建用户注入的key
+    Key<?> key = Key.newInstance(field.getType(), name);
+    // 在容器中查找待注入的bean 找到的是一个factory 再调用factory的create方法就可以创建bean了
+    factory = container.getFactory(key);
+    if (factory == null) {
+        throw new MissingDependencyException("No mapping found for dependency " + key + " in " + field + ".");
+    }
+
+    this.externalContext = ExternalContext.newInstance(field, key, container);
+}
+
+public void inject(InternalContext context, Object o) {
+    ExternalContext<?> previous = context.getExternalContext();
+    context.setExternalContext(externalContext);
+    try {
+        // 给字段设置值
+        // 因为是静态字段 所以o应该为null
+        // 调用create方法查找bean
+        field.set(o, factory.create(context));
+    } catch (IllegalAccessException e) {
+        throw new AssertionError(e);
+    } finally {
+        context.setExternalContext(previous);
+    }
+}
+
+// 对于方法上的注入器来说
+// 首先会查找方法上是否有Inject注解 Inject注解的value为默认的bean的名称
+// 然后取遍历参数  获得每一个参数的类型然后 查找参数是否被Inject注解 如果有则使用这个注解的值作为 bean的名称取查找bean，
+// 如果参数没有被注解 则使用默认名称取查找对应的bean。
+// 方法上的Inject注解是必须要有的
+@Inject("default")
+public static methodA(@Inject("id") String id, Test test);
 
 ```
