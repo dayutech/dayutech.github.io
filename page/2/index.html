@@ -226,6 +226,99 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/66a16759.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/archives/66a16759.html" class="post-title-link" itemprop="url">Apache Struts2 原理学习</a>
+        </h2>
+
+        <div class="post-meta">
+		  
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-04-28 16:44:23 / 修改时间：17:32:11" itemprop="dateCreated datePublished" datetime="2025-04-28T16:44:23+08:00">2025-04-28</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>7 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="过滤器初始化"><a href="#过滤器初始化" class="headerlink" title="过滤器初始化"></a>过滤器初始化</h1><p>Struts2 的访问从配置的<code>org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter</code>过滤器开始。<br>过滤器在程序加载过程中首先被执行的是<code>init</code>方法  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">(FilterConfig filterConfig)</span> <span class="keyword">throws</span> ServletException &#123;</span><br><span class="line">    <span class="comment">// 创建 InitOperations 对象 负责各个关键组件的初始化操作</span></span><br><span class="line">        <span class="type">InitOperations</span> <span class="variable">init</span> <span class="operator">=</span> createInitOperations(); </span><br><span class="line">        <span class="type">Dispatcher</span> <span class="variable">dispatcher</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 简单的包装了一下 filterConfig</span></span><br><span class="line">        <span class="type">FilterHostConfig</span> <span class="variable">config</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FilterHostConfig</span>(filterConfig);</span><br><span class="line">        <span class="comment">// 初始化日志记录器  不是重点</span></span><br><span class="line">        init.initLogging(config);</span><br><span class="line">        <span class="comment">// 初始化dispatcher 重点</span></span><br><span class="line">        dispatcher = init.initDispatcher(config);</span><br><span class="line">        <span class="comment">// 初始化静态类容加载器</span></span><br><span class="line">        init.initStaticContentLoader(config, dispatcher);</span><br><span class="line">        </span><br><span class="line">        prepare = createPrepareOperations(dispatcher);</span><br><span class="line">        execute = createExecuteOperations(dispatcher);</span><br><span class="line">        <span class="built_in">this</span>.excludedPatterns = init.buildExcludedPatternsList(dispatcher);</span><br><span class="line"></span><br><span class="line">        postInit(dispatcher, filterConfig);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (dispatcher != <span class="literal">null</span>) &#123;</span><br><span class="line">        dispatcher.cleanUpAfterInit();</span><br><span class="line">        &#125;</span><br><span class="line">        init.cleanup();</span><br><span class="line">        &#125;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="Dispatcher-初始化"><a href="#Dispatcher-初始化" class="headerlink" title="Dispatcher 初始化"></a>Dispatcher 初始化</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Dispatcher <span class="title function_">initDispatcher</span><span class="params">( HostConfig filterConfig )</span> &#123;</span><br><span class="line">    <span class="comment">// 创建Dispatcher 设置了servletContext与initParams </span></span><br><span class="line">        <span class="type">Dispatcher</span> <span class="variable">dispatcher</span> <span class="operator">=</span> createDispatcher(filterConfig);</span><br><span class="line">        <span class="comment">// 执行初始化 重点</span></span><br><span class="line">        dispatcher.init();</span><br><span class="line">        <span class="keyword">return</span> dispatcher;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span> &#123;</span><br><span class="line"></span><br><span class="line">    	<span class="keyword">if</span> (configurationManager == <span class="literal">null</span>) &#123;</span><br><span class="line">    		configurationManager = createConfigurationManager(Container.DEFAULT_NAME);</span><br><span class="line">    	&#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 执行文件映射器的初始化</span></span><br><span class="line">            init_FileManager();</span><br><span class="line">            <span class="comment">// 执行默认属性的初始化 位于jar包中的默认属性</span></span><br><span class="line">            init_DefaultProperties(); <span class="comment">// [1]</span></span><br><span class="line">        <span class="comment">// 执行配置文件的初始化 包括 struts.xml struts-plugin.xml 等</span></span><br><span class="line">            init_TraditionalXmlConfigurations(); <span class="comment">// [2]</span></span><br><span class="line">        <span class="comment">// 执行自定义配置文件的初始化 自定义的 struts.properties 属性的初始化</span></span><br><span class="line">        <span class="comment">// 这个文件是用于引用其他的配置文件的</span></span><br><span class="line">            init_LegacyStrutsProperties(); <span class="comment">// [3]</span></span><br><span class="line">            init_CustomConfigurationProviders(); <span class="comment">// [5]</span></span><br><span class="line">            init_FilterInitParameters() ; <span class="comment">// [6]</span></span><br><span class="line">            init_AliasStandardObjects() ; <span class="comment">// [7]</span></span><br><span class="line"></span><br><span class="line">            <span class="type">Container</span> <span class="variable">container</span> <span class="operator">=</span> init_PreloadConfiguration();</span><br><span class="line">            container.inject(<span class="built_in">this</span>);</span><br><span class="line">            init_CheckWebLogicWorkaround(container);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (!dispatcherListeners.isEmpty()) &#123;</span><br><span class="line">                <span class="keyword">for</span> (DispatcherListener l : dispatcherListeners) &#123;</span><br><span class="line">                    l.dispatcherInitialized(<span class="built_in">this</span>);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            errorHandler.init(servletContext);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">            LOG.error(<span class="string">&quot;Dispatcher initialization failed&quot;</span>, ex);</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">StrutsException</span>(ex);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="文件映射器初始化"><a href="#文件映射器初始化" class="headerlink" title="文件映射器初始化"></a>文件映射器初始化</h3><p>主要功能是构建了文件管理器与文件管理器工厂<br>文件管理器工厂在查找文件的时候首先会尝试从容器中查找是否配置了文件管理器，如果没有找到，则会查找存储在工厂中的systemFileManager 这个systemFileManager应该也是在bean容器初始化的时候被注入的  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">init_FileManager</span><span class="params">()</span> <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">    <span class="comment">// 如果 filter初始化参数中配置了 struts.fileManager 参数则使用用户自定以的文件管理器  实现了FileManager类</span></span><br><span class="line">        <span class="comment">// 主要功能是进行文件的读写与修改的监控</span></span><br><span class="line">        <span class="keyword">if</span> (initParams.containsKey(StrutsConstants.STRUTS_FILE_MANAGER)) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">String</span> <span class="variable">fileManagerClassName</span> <span class="operator">=</span> initParams.get(StrutsConstants.STRUTS_FILE_MANAGER);</span><br><span class="line">            <span class="keyword">final</span> Class&lt;FileManager&gt; fileManagerClass = (Class&lt;FileManager&gt;) Class.forName(fileManagerClassName);</span><br><span class="line">            LOG.info(<span class="string">&quot;Custom FileManager specified: &#123;&#125;&quot;</span>, fileManagerClassName);</span><br><span class="line">            configurationManager.addContainerProvider(<span class="keyword">new</span> <span class="title class_">FileManagerProvider</span>(fileManagerClass, fileManagerClass.getSimpleName()));</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 使用默认的文件管理器</span></span><br><span class="line">            <span class="comment">// add any other Struts 2 provided implementations of FileManager</span></span><br><span class="line">            configurationManager.addContainerProvider(<span class="keyword">new</span> <span class="title class_">FileManagerProvider</span>(JBossFileManager.class, <span class="string">&quot;jboss&quot;</span>));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 如果设置了文件管理器工厂  struts.fileManagerFactory</span></span><br><span class="line">        <span class="comment">// 这些provider都被添加到  ContainerProvider列表中去了，后面应该会统一调用 他们的register方法将他们一起注册到容器中</span></span><br><span class="line">        <span class="keyword">if</span> (initParams.containsKey(StrutsConstants.STRUTS_FILE_MANAGER_FACTORY)) &#123;</span><br><span class="line">            <span class="keyword">final</span> <span class="type">String</span> <span class="variable">fileManagerFactoryClassName</span> <span class="operator">=</span> initParams.get(StrutsConstants.STRUTS_FILE_MANAGER_FACTORY);</span><br><span class="line">            <span class="keyword">final</span> Class&lt;FileManagerFactory&gt; fileManagerFactoryClass = (Class&lt;FileManagerFactory&gt;) Class.forName(fileManagerFactoryClassName);</span><br><span class="line">            LOG.info(<span class="string">&quot;Custom FileManagerFactory specified: &#123;&#125;&quot;</span>, fileManagerFactoryClassName);</span><br><span class="line">            configurationManager.addContainerProvider(<span class="keyword">new</span> <span class="title class_">FileManagerFactoryProvider</span>(fileManagerFactoryClass));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="默认属性初始化"><a href="#默认属性初始化" class="headerlink" title="默认属性初始化"></a>默认属性初始化</h3><p>主要动作是向containerProvider中添加了 <code>DefaultPropertiesProvider</code>对象，我们重点关注其<code>register</code>方法  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">register</span><span class="params">(ContainerBuilder builder, LocatableProperties props)</span> <span class="keyword">throws</span> ConfigurationException &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 从org/apache/struts2/default.properties文件中加载默认属性</span></span><br><span class="line">            <span class="type">PropertiesSettings</span> <span class="variable">defaultSettings</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">PropertiesSettings</span>(<span class="string">&quot;org/apache/struts2/default&quot;</span>);</span><br><span class="line">            loadSettings(props, defaultSettings);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigurationException</span>(<span class="string">&quot;Could not find or error in org/apache/struts2/default.properties&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="title function_">PropertiesSettings</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="comment">// 尝试从多个不同的类加载器中加载属性文件 默认是从当前上下文类加载器加载</span></span><br><span class="line">        <span class="type">URL</span> <span class="variable">settingsUrl</span> <span class="operator">=</span> ClassLoaderUtil.getResource(name + <span class="string">&quot;.properties&quot;</span>, getClass());</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">if</span> (settingsUrl == <span class="literal">null</span>) &#123;</span><br><span class="line">            LOG.debug(<span class="string">&quot;&#123;&#125;.properties missing&quot;</span>, name);</span><br><span class="line">            settings = <span class="keyword">new</span> <span class="title class_">LocatableProperties</span>();</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// LocatableProperties 类是 Properties 的子类 增加了属性的定位功能，包括属性所在行 属性的注释 属性所在文件的url信息</span></span><br><span class="line">        settings = <span class="keyword">new</span> <span class="title class_">LocatableProperties</span>(<span class="keyword">new</span> <span class="title class_">LocationImpl</span>(<span class="literal">null</span>, settingsUrl.toString()));</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Load settings</span></span><br><span class="line">        <span class="keyword">try</span> (<span class="type">InputStream</span> <span class="variable">in</span> <span class="operator">=</span> settingsUrl.openStream()) &#123;</span><br><span class="line">            <span class="comment">// 正式从属性文件中加载属性 属性存储在父类对象 Properties 中</span></span><br><span class="line">        <span class="comment">// LocatableProperties 类中直接存储的是定位信息</span></span><br><span class="line">            settings.load(in);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">StrutsException</span>(<span class="string">&quot;Could not load &quot;</span> + name + <span class="string">&quot;.properties: &quot;</span> + e, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 将加载的默认书信复制一份到 register方法传入的 props参数中</span></span><br><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">loadSettings</span><span class="params">(LocatableProperties props, <span class="keyword">final</span> Settings settings)</span> &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">Iterator</span> <span class="variable">i</span> <span class="operator">=</span> settings.list(); i.hasNext(); ) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> (String) i.next();</span><br><span class="line">            props.setProperty(name, settings.get(name), settings.getLocation(name));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="传统xml配置文件初始化"><a href="#传统xml配置文件初始化" class="headerlink" title="传统xml配置文件初始化"></a>传统xml配置文件初始化</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">init_TraditionalXmlConfigurations</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="comment">// 尝试从过滤器初始化参数中获取配置路径</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">configPaths</span> <span class="operator">=</span> initParams.get(<span class="string">&quot;config&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (configPaths == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">// 如果没有配置则使用默认配置路径</span></span><br><span class="line">        <span class="comment">// struts-default.xml,struts-plugin.xml,struts.xml</span></span><br><span class="line">            configPaths = DEFAULT_CONFIGURATION_PATHS;</span><br><span class="line">        &#125;</span><br><span class="line">        String[] files = configPaths.split(<span class="string">&quot;\\s*[,]\\s*&quot;</span>);</span><br><span class="line">        <span class="keyword">for</span> (String file : files) &#123;</span><br><span class="line">            <span class="keyword">if</span> (file.endsWith(<span class="string">&quot;.xml&quot;</span>)) &#123;</span><br><span class="line">                <span class="comment">// 每一个文件添加 一个xmlConfiguationProider</span></span><br><span class="line">                configurationManager.addContainerProvider(createStrutsXmlConfigurationProvider(file, <span class="literal">false</span>, servletContext));</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IllegalArgumentException</span>(<span class="string">&quot;Invalid configuration file name&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>重点关注<code>StrutsXmlConfigurationProvider</code>的<code>register</code>方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">register</span><span class="params">(ContainerBuilder containerBuilder, LocatableProperties props)</span> <span class="keyword">throws</span> ConfigurationException &#123;</span><br><span class="line">    <span class="comment">// 如果有传入servletContext 则此时将servletContext对象添加到容器中</span></span><br><span class="line">        <span class="keyword">if</span> (servletContext != <span class="literal">null</span> &amp;&amp; !containerBuilder.contains(ServletContext.class)) &#123;</span><br><span class="line">            containerBuilder.factory(ServletContext.class, <span class="keyword">new</span> <span class="title class_">Factory</span>&lt;ServletContext&gt;() &#123;</span><br><span class="line">                <span class="keyword">public</span> ServletContext <span class="title function_">create</span><span class="params">(Context context)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">                    <span class="keyword">return</span> servletContext;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">public</span> Class&lt;? <span class="keyword">extends</span> <span class="title class_">ServletContext</span>&gt; type() &#123;</span><br><span class="line">                    <span class="keyword">return</span> servletContext.getClass();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// 调用父类的register方法</span></span><br><span class="line">        <span class="built_in">super</span>.register(containerBuilder, props);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>register 的时候  如果 documents 不为空才会有所动作  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">register</span><span class="params">(ContainerBuilder containerBuilder, LocatableProperties props)</span> <span class="keyword">throws</span> ConfigurationException &#123;</span><br><span class="line">        LOG.trace(<span class="string">&quot;Parsing configuration file [&#123;&#125;]&quot;</span>, configFileName);</span><br><span class="line">        Map&lt;String, Node&gt; loadedBeans = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (Document doc : documents) &#123;</span><br><span class="line">            <span class="type">Element</span> <span class="variable">rootElement</span> <span class="operator">=</span> doc.getDocumentElement();</span><br><span class="line">            <span class="type">NodeList</span> <span class="variable">children</span> <span class="operator">=</span> rootElement.getChildNodes();</span><br><span class="line">            <span class="type">int</span> <span class="variable">childSize</span> <span class="operator">=</span> children.getLength();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; childSize; i++) &#123;</span><br><span class="line">                <span class="type">Node</span> <span class="variable">childNode</span> <span class="operator">=</span> children.item(i);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (childNode <span class="keyword">instanceof</span> Element) &#123;</span><br><span class="line">                    <span class="type">Element</span> <span class="variable">child</span> <span class="operator">=</span> (Element) childNode;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">final</span> <span class="type">String</span> <span class="variable">nodeName</span> <span class="operator">=</span> child.getNodeName();</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">if</span> (<span class="string">&quot;bean&quot;</span>.equals(nodeName)) &#123;</span><br><span class="line">                        <span class="type">String</span> <span class="variable">type</span> <span class="operator">=</span> child.getAttribute(<span class="string">&quot;type&quot;</span>);</span><br><span class="line">                        <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> child.getAttribute(<span class="string">&quot;name&quot;</span>);</span><br><span class="line">                        <span class="type">String</span> <span class="variable">impl</span> <span class="operator">=</span> child.getAttribute(<span class="string">&quot;class&quot;</span>);</span><br><span class="line">                        <span class="type">String</span> <span class="variable">onlyStatic</span> <span class="operator">=</span> child.getAttribute(<span class="string">&quot;static&quot;</span>);</span><br><span class="line">                        <span class="type">String</span> <span class="variable">scopeStr</span> <span class="operator">=</span> child.getAttribute(<span class="string">&quot;scope&quot;</span>);</span><br><span class="line">                        <span class="type">boolean</span> <span class="variable">optional</span> <span class="operator">=</span> <span class="string">&quot;true&quot;</span>.equals(child.getAttribute(<span class="string">&quot;optional&quot;</span>));</span><br><span class="line">                        <span class="type">Scope</span> <span class="variable">scope</span> <span class="operator">=</span> Scope.SINGLETON;</span><br><span class="line">                        <span class="keyword">if</span> (<span class="string">&quot;prototype&quot;</span>.equals(scopeStr)) &#123;</span><br><span class="line">                            scope = Scope.PROTOTYPE;</span><br><span class="line">                        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">&quot;request&quot;</span>.equals(scopeStr)) &#123;</span><br><span class="line">                            scope = Scope.REQUEST;</span><br><span class="line">                        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">&quot;session&quot;</span>.equals(scopeStr)) &#123;</span><br><span class="line">                            scope = Scope.SESSION;</span><br><span class="line">                        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">&quot;singleton&quot;</span>.equals(scopeStr)) &#123;</span><br><span class="line">                            scope = Scope.SINGLETON;</span><br><span class="line">                        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">&quot;thread&quot;</span>.equals(scopeStr)) &#123;</span><br><span class="line">                            scope = Scope.THREAD;</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                        <span class="keyword">if</span> (StringUtils.isEmpty(name)) &#123;</span><br><span class="line">                            name = Container.DEFAULT_NAME;</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                        <span class="keyword">try</span> &#123;</span><br><span class="line">                            <span class="type">Class</span> <span class="variable">classImpl</span> <span class="operator">=</span> ClassLoaderUtil.loadClass(impl, getClass());</span><br><span class="line">                            <span class="type">Class</span> <span class="variable">classType</span> <span class="operator">=</span> classImpl;</span><br><span class="line">                            <span class="keyword">if</span> (StringUtils.isNotEmpty(type)) &#123;</span><br><span class="line">                                classType = ClassLoaderUtil.loadClass(type, getClass());</span><br><span class="line">                            &#125;</span><br><span class="line">                            <span class="keyword">if</span> (<span class="string">&quot;true&quot;</span>.equals(onlyStatic)) &#123;</span><br><span class="line">                                <span class="comment">// Force loading of class to detect no class def found exceptions</span></span><br><span class="line">                                classImpl.getDeclaredClasses();</span><br><span class="line">                                containerBuilder.injectStatics(classImpl);</span><br><span class="line">                            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                                <span class="keyword">if</span> (containerBuilder.contains(classType, name)) &#123;</span><br><span class="line">                                    <span class="type">Location</span> <span class="variable">loc</span> <span class="operator">=</span> LocationUtils.getLocation(loadedBeans.get(classType.getName() + name));</span><br><span class="line">                                    <span class="keyword">if</span> (throwExceptionOnDuplicateBeans) &#123;</span><br><span class="line">                                        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigurationException</span>(<span class="string">&quot;Bean type &quot;</span> + classType + <span class="string">&quot; with the name &quot;</span> +</span><br><span class="line">                                                name + <span class="string">&quot; has already been loaded by &quot;</span> + loc, child);</span><br><span class="line">                                    &#125;</span><br><span class="line">                                &#125;</span><br><span class="line"></span><br><span class="line">                                <span class="comment">// Force loading of class to detect no class def found exceptions</span></span><br><span class="line">                                classImpl.getDeclaredConstructors();</span><br><span class="line"></span><br><span class="line">                                LOG.debug(<span class="string">&quot;Loaded type: &#123;&#125; name: &#123;&#125; impl: &#123;&#125;&quot;</span>, type, name, impl);</span><br><span class="line">                                containerBuilder.factory(classType, name, <span class="keyword">new</span> <span class="title class_">LocatableFactory</span>(name, classType, classImpl, scope, childNode), scope);</span><br><span class="line">                            &#125;</span><br><span class="line">                            loadedBeans.put(classType.getName() + name, child);</span><br><span class="line">                        &#125; <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">                            <span class="keyword">if</span> (!optional) &#123;</span><br><span class="line">                                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigurationException</span>(<span class="string">&quot;Unable to load bean: type:&quot;</span> + type + <span class="string">&quot; class:&quot;</span> + impl, ex, childNode);</span><br><span class="line">                            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                                LOG.debug(<span class="string">&quot;Unable to load optional class: &#123;&#125;&quot;</span>, impl);</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="string">&quot;constant&quot;</span>.equals(nodeName)) &#123;</span><br><span class="line">                        <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> child.getAttribute(<span class="string">&quot;name&quot;</span>);</span><br><span class="line">                        <span class="type">String</span> <span class="variable">value</span> <span class="operator">=</span> child.getAttribute(<span class="string">&quot;value&quot;</span>);</span><br><span class="line"></span><br><span class="line">                        <span class="keyword">if</span> (valueSubstitutor != <span class="literal">null</span>) &#123;</span><br><span class="line">                            LOG.debug(<span class="string">&quot;Substituting value [&#123;&#125;] using [&#123;&#125;]&quot;</span>, value, valueSubstitutor.getClass().getName());</span><br><span class="line">                            value = valueSubstitutor.substitute(value);</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                        props.setProperty(name, value, childNode);</span><br><span class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (nodeName.equals(<span class="string">&quot;unknown-handler-stack&quot;</span>)) &#123;</span><br><span class="line">                        List&lt;UnknownHandlerConfig&gt; unknownHandlerStack = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;UnknownHandlerConfig&gt;();</span><br><span class="line">                        <span class="type">NodeList</span> <span class="variable">unknownHandlers</span> <span class="operator">=</span> child.getElementsByTagName(<span class="string">&quot;unknown-handler-ref&quot;</span>);</span><br><span class="line">                        <span class="type">int</span> <span class="variable">unknownHandlersSize</span> <span class="operator">=</span> unknownHandlers.getLength();</span><br><span class="line"></span><br><span class="line">                        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">k</span> <span class="operator">=</span> <span class="number">0</span>; k &lt; unknownHandlersSize; k++) &#123;</span><br><span class="line">                            <span class="type">Element</span> <span class="variable">unknownHandler</span> <span class="operator">=</span> (Element) unknownHandlers.item(k);</span><br><span class="line">                            <span class="type">Location</span> <span class="variable">location</span> <span class="operator">=</span> LocationUtils.getLocation(unknownHandler);</span><br><span class="line">                            unknownHandlerStack.add(<span class="keyword">new</span> <span class="title class_">UnknownHandlerConfig</span>(unknownHandler.getAttribute(<span class="string">&quot;name&quot;</span>), location));</span><br><span class="line">                        &#125;</span><br><span class="line"></span><br><span class="line">                        <span class="keyword">if</span> (!unknownHandlerStack.isEmpty())</span><br><span class="line">                            configuration.setUnknownHandlerStack(unknownHandlerStack);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>documents 在<code>init</code>方法调用时才会被设置<br>这也就是说明  <code>containerProvider</code>在调用register方法前会先调用<code>init</code>方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">(Configuration configuration)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.configuration = configuration;</span><br><span class="line">        <span class="built_in">this</span>.includedFileNames = configuration.getLoadedFileNames();</span><br><span class="line">        loadDocuments(configFileName);</span><br><span class="line">        &#125;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">loadDocuments</span><span class="params">(String configFileName)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">        loadedFileUrls.clear();</span><br><span class="line">        documents = loadConfigurationFiles(configFileName, <span class="literal">null</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ConfigurationException e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> e;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigurationException</span>(<span class="string">&quot;Error loading configuration file &quot;</span> + configFileName, e);</span><br><span class="line">        &#125;</span><br><span class="line">        &#125;</span><br><span class="line"><span class="keyword">private</span> List&lt;Document&gt; <span class="title function_">loadConfigurationFiles</span><span class="params">(String fileName, Element includeElement)</span> &#123;</span><br><span class="line">        List&lt;Document&gt; docs = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        List&lt;Document&gt; finalDocs = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        <span class="keyword">if</span> (!includedFileNames.contains(fileName)) &#123;</span><br><span class="line">        LOG.debug(<span class="string">&quot;Loading action configurations from: &#123;&#125;&quot;</span>, fileName);</span><br><span class="line"></span><br><span class="line">        includedFileNames.add(fileName);</span><br><span class="line"></span><br><span class="line">        Iterator&lt;URL&gt; urls = <span class="literal">null</span>;</span><br><span class="line">        <span class="type">InputStream</span> <span class="variable">is</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="type">IOException</span> <span class="variable">ioException</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">// 通过资源名获取所有妈祖条件的资源的路径</span></span><br><span class="line">        urls = getConfigurationUrls(fileName);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException ex) &#123;</span><br><span class="line">        ioException = ex;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (urls == <span class="literal">null</span> || !urls.hasNext()) &#123;</span><br><span class="line">        <span class="keyword">if</span> (errorIfMissing) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigurationException</span>(<span class="string">&quot;Could not open files of the name &quot;</span> + fileName, ioException);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        LOG.trace(<span class="string">&quot;Unable to locate configuration files of the name &#123;&#125;, skipping&quot;</span>, fileName);</span><br><span class="line">        <span class="keyword">return</span> docs;</span><br><span class="line">        &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">URL</span> <span class="variable">url</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">while</span> (urls.hasNext()) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">        url = urls.next();</span><br><span class="line">        <span class="comment">// 通过文件管理器去加载文件了   默认时jbossfilemanager</span></span><br><span class="line">        is = fileManager.loadFile(url);</span><br><span class="line"></span><br><span class="line">        <span class="type">InputSource</span> <span class="variable">in</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">InputSource</span>(is);</span><br><span class="line"></span><br><span class="line">        in.setSystemId(url.toString());</span><br><span class="line">        <span class="comment">// 解析xml文件添加到docs中</span></span><br><span class="line">        docs.add(DomHelper.parse(in, dtdMappings));</span><br><span class="line">        loadedFileUrls.add(url.toString());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (XWorkException e) &#123;</span><br><span class="line">        <span class="keyword">if</span> (includeElement != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigurationException</span>(<span class="string">&quot;Unable to load &quot;</span> + url, e, includeElement);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigurationException</span>(<span class="string">&quot;Unable to load &quot;</span> + url, e);</span><br><span class="line">        &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConfigurationException</span>(<span class="string">&quot;Caught exception while loading file &quot;</span> + fileName, e, includeElement);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (is != <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">        is.close();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        LOG.error(<span class="string">&quot;Unable to close input stream&quot;</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//sort the documents, according to the &quot;order&quot; attribute</span></span><br><span class="line">        <span class="comment">// 对文档进行排序</span></span><br><span class="line">        Collections.sort(docs, <span class="keyword">new</span> <span class="title class_">Comparator</span>&lt;Document&gt;() &#123;</span><br><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compare</span><span class="params">(Document doc1, Document doc2)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> XmlHelper.getLoadOrder(doc1).compareTo(XmlHelper.getLoadOrder(doc2));</span><br><span class="line">        &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">        <span class="comment">// 解析文档中的 include 标签 然后将包含的xml文件也加载到docs中</span></span><br><span class="line">        <span class="keyword">for</span> (Document doc : docs) &#123;</span><br><span class="line">        <span class="type">Element</span> <span class="variable">rootElement</span> <span class="operator">=</span> doc.getDocumentElement();</span><br><span class="line">        <span class="type">NodeList</span> <span class="variable">children</span> <span class="operator">=</span> rootElement.getChildNodes();</span><br><span class="line">        <span class="type">int</span> <span class="variable">childSize</span> <span class="operator">=</span> children.getLength();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; childSize; i++) &#123;</span><br><span class="line">        <span class="type">Node</span> <span class="variable">childNode</span> <span class="operator">=</span> children.item(i);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (childNode <span class="keyword">instanceof</span> Element) &#123;</span><br><span class="line">        <span class="type">Element</span> <span class="variable">child</span> <span class="operator">=</span> (Element) childNode;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> <span class="type">String</span> <span class="variable">nodeName</span> <span class="operator">=</span> child.getNodeName();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (<span class="string">&quot;include&quot;</span>.equals(nodeName)) &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">includeFileName</span> <span class="operator">=</span> child.getAttribute(<span class="string">&quot;file&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (includeFileName.indexOf(<span class="string">&#x27;*&#x27;</span>) != -<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="comment">// handleWildCardIncludes(includeFileName, docs, child);</span></span><br><span class="line">        <span class="type">ClassPathFinder</span> <span class="variable">wildcardFinder</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ClassPathFinder</span>();</span><br><span class="line">        wildcardFinder.setPattern(includeFileName);</span><br><span class="line">        Vector&lt;String&gt; wildcardMatches = wildcardFinder.findMatches();</span><br><span class="line">        <span class="keyword">for</span> (String match : wildcardMatches) &#123;</span><br><span class="line">        finalDocs.addAll(loadConfigurationFiles(match, child));</span><br><span class="line">        &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        finalDocs.addAll(loadConfigurationFiles(includeFileName, child));</span><br><span class="line">        &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        finalDocs.add(doc);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        LOG.debug(<span class="string">&quot;Loaded action configuration from: &#123;&#125;&quot;</span>, fileName);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> finalDocs;</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/cf1ba47f.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -519,108 +612,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/4187a059.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/dayu/avatar.png">
-      <meta itemprop="name" content="Arliya">
-      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dayu Technology Co., LTD">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/archives/4187a059.html" class="post-title-link" itemprop="url">Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析</a>
-        </h2>
-
-        <div class="post-meta">
-		  
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-04-15 09:39:43" itemprop="dateModified" datetime="2025-04-15T09:39:43+08:00">2025-04-15</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>3.7k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>13 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>@<a href="Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9ETemplateImpl%E5%88%A9%E7%94%A8%E9%93%BE%E6%9D%A1%E8%B7%9F%E8%B8%AA%E4%B8%8E%E5%88%86%E6%9E%90">TOC</a></p>
-<p>我们知道Fastjson在进行序列化的时候会调用当前类的所有getter方法去获取所有public成员变量的值，像这样：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.serializer.SerializerFeature;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FastjsonTest</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">FastjsonUnserilizeTest</span> <span class="variable">fastjsonUnserilizeTest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FastjsonUnserilizeTest</span>();</span><br><span class="line"><span class="comment">//        fastjsonUnserilizeTest.setAge(20);</span></span><br><span class="line"><span class="comment">//        fastjsonUnserilizeTest.setName(&quot;armandhenewpy&quot;);</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> JSON.toJSONString(fastjsonUnserilizeTest, SerializerFeature.WriteClassName);</span><br><span class="line">        System.out.println(s);</span><br><span class="line"><span class="comment">//        String s1 = &quot;&#123;\&quot;@type\&quot;:\&quot;com.armandhe.javabase.FastjsonUnserilizeTest\&quot;,\&quot;age\&quot;:20,\&quot;name\&quot;:\&quot;armandhenewpy\&quot;&#125;&quot;;</span></span><br><span class="line"><span class="comment">//        JSONObject jsonObject = JSON.parseObject(s1);</span></span><br><span class="line"><span class="comment">//        System.out.println(jsonObject);</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/archives/4187a059.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  <!-- needsharebutton Javascript file -->
-<script src="js/needsharebutton.min.js"></script>
-<!-- needsharebutton CSS file -->
-<link href="css/needsharebutton.min.css" rel="stylesheet" />
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/38dceb78.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -795,6 +786,108 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/archives/9d7d8426.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/4187a059.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/archives/4187a059.html" class="post-title-link" itemprop="url">Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析</a>
+        </h2>
+
+        <div class="post-meta">
+		  
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-04-15 09:39:43" itemprop="dateModified" datetime="2025-04-15T09:39:43+08:00">2025-04-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>13 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>@<a href="Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9ETemplateImpl%E5%88%A9%E7%94%A8%E9%93%BE%E6%9D%A1%E8%B7%9F%E8%B8%AA%E4%B8%8E%E5%88%86%E6%9E%90">TOC</a></p>
+<p>我们知道Fastjson在进行序列化的时候会调用当前类的所有getter方法去获取所有public成员变量的值，像这样：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.serializer.SerializerFeature;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FastjsonTest</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">FastjsonUnserilizeTest</span> <span class="variable">fastjsonUnserilizeTest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FastjsonUnserilizeTest</span>();</span><br><span class="line"><span class="comment">//        fastjsonUnserilizeTest.setAge(20);</span></span><br><span class="line"><span class="comment">//        fastjsonUnserilizeTest.setName(&quot;armandhenewpy&quot;);</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> JSON.toJSONString(fastjsonUnserilizeTest, SerializerFeature.WriteClassName);</span><br><span class="line">        System.out.println(s);</span><br><span class="line"><span class="comment">//        String s1 = &quot;&#123;\&quot;@type\&quot;:\&quot;com.armandhe.javabase.FastjsonUnserilizeTest\&quot;,\&quot;age\&quot;:20,\&quot;name\&quot;:\&quot;armandhenewpy\&quot;&#125;&quot;;</span></span><br><span class="line"><span class="comment">//        JSONObject jsonObject = JSON.parseObject(s1);</span></span><br><span class="line"><span class="comment">//        System.out.println(jsonObject);</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/archives/4187a059.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1126,106 +1219,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/fe14a293.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/dayu/avatar.png">
-      <meta itemprop="name" content="Arliya">
-      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dayu Technology Co., LTD">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/archives/fe14a293.html" class="post-title-link" itemprop="url">JEP 290 初识</a>
-        </h2>
-
-        <div class="post-meta">
-		  
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-04-15 09:39:43" itemprop="dateModified" datetime="2025-04-15T09:39:43+08:00">2025-04-15</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">漏洞原理</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>330</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>1 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>JEP 290是 oracle提供已一套JAVA反序列化机制，其并不是一种必须被强制执行的策略，而是需要程序员或者运维人员进行开发与启用。关于该机制的优缺点借用老外的一篇文章</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/archives/fe14a293.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  <!-- needsharebutton Javascript file -->
-<script src="js/needsharebutton.min.js"></script>
-<!-- needsharebutton CSS file -->
-<link href="css/needsharebutton.min.css" rel="stylesheet" />
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1297,7 +1290,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">91</span>
+          <span class="site-state-item-count">92</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1348,6 +1341,10 @@
 		<!-- 显示10数目的文章 -->
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/66a16759.html" title="Apache Struts2 原理学习" target="_blank">Apache Struts2 原理学习</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
 				<a href="/archives/f9ff5c36.html" title="CrushFTP 认证绕过（CVE-2025-2825）" target="_blank">CrushFTP 认证绕过（CVE-2025-2825）</a>
 			  </li>
 			
@@ -1383,10 +1380,6 @@
 				<a href="/archives/4d872363.html" title="网站架构发展" target="_blank">网站架构发展</a>
 			  </li>
 			
-			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/6eecc4bb.html" title="读书笔记-WEB前端黑客技术揭秘" target="_blank">读书笔记-WEB前端黑客技术揭秘</a>
-			  </li>
-			
 		  </ul>
 		</div>
 	  
@@ -1420,13 +1413,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">179k</span>
+    <span title="站点总字数">181k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">10:50</span>
+    <span title="站点阅读时长">10:57</span>
 </div>
   <div class="powered-by">由 <a href="https://github.com/dayutech" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">DayuTech</a> 强力驱动
   </div>
