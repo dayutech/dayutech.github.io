@@ -716,19 +716,20 @@ public synchronized List<PackageProvider> reloadContainer(List<ContainerProvider
     // 这个参数就是传入到  containerProvider 的 register方法的第二个参数  
     // 所以在register方法调用完毕后 props中存的就是struts的所有配置属性
     ContainerProperties props = new ContainerProperties();
-    // 容器的构建器
+    // 容器的构建器 这个容器的构建器属于用户，包含用户注入的bean等
     ContainerBuilder builder = new ContainerBuilder();
-    // 创建根容器
+    // 创建根容器 跟容器中主要包含的时系统的标准对象
     Container bootstrap = createBootstrapContainer(providers);
     // 遍历provider
     for (final ContainerProvider containerProvider : providers) {
-        // 容器注入
+        // 容器注入  为provider注入字段  通过inject标签注入
         bootstrap.inject(containerProvider);
         // 调用容器provider的init方法
         containerProvider.init(this);
         // 调用register方法
         containerProvider.register(builder, props);
     }
+    // 将provider设置的属性 转换为string类型的bean注入到容器中
     props.setConstants(builder);
 
     builder.factory(Configuration.class, new Factory<Configuration>() {
@@ -741,20 +742,32 @@ public synchronized List<PackageProvider> reloadContainer(List<ContainerProvider
             return DefaultConfiguration.this.getClass();
         }
     });
-
+    // 创建actionContext 最开始应该为空
     ActionContext oldContext = ActionContext.getContext();
     try {
         // Set the bootstrap container for the purposes of factory creation
-
+        // 创建 ActionContext 包括 值栈的创建
         setContext(bootstrap);
+        // 创建 用户容器  不加载单例对象
         container = builder.create(false);
+        // 这里啥也不会做  之前已经创建了ActionContext了  不会再重复创建
+        // 这一步应该是为了避免前面 bootStrap 容器 中没有加载的有值栈对象工厂的情况
+        // 但是这种情况真的会出现吗
         setContext(container);
+        // 获取  ObjectFactory 的bean实例
         objectFactory = container.getInstance(ObjectFactory.class);
 
         // Process the configuration providers first
         for (final ContainerProvider containerProvider : providers) {
+            // 对PackageProvider进行特殊处理
+        // 所有的ConfigurationProvider的子类都是 packageProvider
+        // 包括 struts.xml等文件对应的provider
             if (containerProvider instanceof PackageProvider) {
+                // 前面已经注入过依次了  这里再次注入意义何在
                 container.inject(containerProvider);
+                // 调用loadPackages方法
+                // 其实就是处理 struts.xml等文件对应的 package标签  
+                // 即与action有关
                 ((PackageProvider) containerProvider).loadPackages();
                 packageProviders.add((PackageProvider) containerProvider);
             }
@@ -1062,3 +1075,403 @@ public void inject(InternalContext context, Object o) {
 public static methodA(@Inject("id") String id, Test test);
 
 ```
+#### 容器注入方法是如何工作的
+o是调用构造方法创建的bean实例 inject方法负责将该bean中的被Inject注解修饰的字段或者方法参数注入到bean对象中
+```java
+public void inject(final Object o) {
+    // callInContext 会先创建一个 InternalContext 然后调用call方法
+        callInContext(new ContextualCallable<Void>() {
+            public Void call(InternalContext context) {
+                inject(o, context);
+                return null;
+            }
+        });
+    }
+void inject(Object o, InternalContext context) {
+    // 调用 jnjectors的get方法获取方法与字段的注入器，然后调用注入器的inject方法
+List<Injector> injectors = this.injectors.get(o.getClass());
+for (Injector injector : injectors) {
+injector.inject(context, o);
+}
+}
+// jnjectors在容器初始化的时候被定义 
+// 定义了一个匿名类对象  该对象为 ReferenceCache类型 
+// 重写了create方法
+
+final Map<Class<?>, List<Injector>> injectors =
+        new ReferenceCache<Class<?>, List<Injector>>() {
+@Override
+protected List<Injector> create(Class<?> key) {
+        List<Injector> injectors = new ArrayList<>();
+        addInjectors(key, injectors);
+        return injectors;
+        }
+        };
+
+
+// 找到其get方法
+@Override
+public V get(final Object key) {
+    // 先尝试从父类中查找  找不到再调用 internalCreate 方法进行创建
+        V value = super.get(key);
+        return (value == null) ? internalCreate((K) key) : value;
+        }
+// 父类的查找方法
+        V internalGet(K key) {
+    // delegate 为一个并发Map，被初始话为空
+        // makeKeyReferenceAware 创建了key的引用 默认为强引用类型
+        // 这种Class类型的对象 会被经常使用所以被定义为强引用类型 不会再gc的时候被回收 除非不在存在引用计数
+        Object valueReference = delegate.get(makeKeyReferenceAware(key));
+        // 返回null
+        return valueReference == null ? null : (V) dereferenceValue(valueReference);
+        }
+// 子类创建
+V internalCreate(K key) {
+try {
+    // 创建一个未来任务
+        // 这里使用多线程的必要性是什么   整个初始化过程都是再单线程的环境中运行的  
+        // 这里搞这么复杂的必要性没看出来
+        // 且创建线程也是额外的开销 
+        // 上面只考虑了初始化过程是单线程的 但实际使用是并不只有初始化时参会调用到该方法
+        // 如果时用户触发了这个方法则可能时在多线程环境中 这时候就要保证线程安全
+        // CallableCreate 的call方法是核心
+FutureTask<V> futureTask = new FutureTask<>(new CallableCreate(key));
+
+// use a reference so we get the same equality semantics.
+Object keyReference = referenceKey(key);
+// 将任务放入到线程安全的map中
+Future<V> future = futures.putIfAbsent(keyReference, futureTask);
+// 如果map中没有已经存在的future，那么当前线程负责调用该future
+if (future == null) {
+// winning thread.
+try {
+if (localFuture.get() != null) {
+throw new IllegalStateException("Nested creations within the same cache are not allowed.");
+}
+// threadLocal 类型 每个线程各一
+        // 用来避免重复嵌套创建
+localFuture.set(futureTask);
+// 运行task
+futureTask.run();
+// 阻塞等待获取
+V value = futureTask.get();
+// 通过put的策略将注入器添加到引用map中
+        // 下次访问的时候直接通过keyReference进行get 就不再需要重新创建了
+putStrategy().execute(this, keyReference, referenceValue(keyReference, value));
+return value;
+} finally {
+localFuture.remove();
+futures.remove(keyReference);
+}
+} else {
+    // 如果map中存在已经存在的future，那么当前线程负责等待该future执行完毕 
+        // 避免重复创建注入器
+// wait for winning thread.
+return future.get();
+}
+} catch (InterruptedException e) {
+throw new RuntimeException(e);
+} catch (ExecutionException e) {
+Throwable cause = e.getCause();
+if (cause instanceof RuntimeException) {
+throw (RuntimeException) cause;
+} else if (cause instanceof Error) {
+throw (Error) cause;
+}
+throw new RuntimeException(cause);
+}
+}
+
+public V call() {
+        // try one more time (a previous future could have come and gone.)
+        // 再次尝试从缓存中获取  说是为了避免其他future以及成功创建了注入器
+        // 但问题是这个init过程也不是多线程的啊。。。。
+        V value = internalGet(key);
+        if (value != null) {
+        return value;
+        }
+
+        // create value.
+        value = create(key);
+        if (value == null) {
+        throw new NullPointerException("create(K) returned null for: " + key);
+        }
+        return value;
+        }
+
+final Map<Class<?>, List<Injector>> injectors = new ReferenceCache<Class<?>, List<Injector>>() {
+protected List<Injector> create(Class<?> key) {
+        List<Injector> injectors = new ArrayList();
+        ContainerImpl.this.addInjectors(key, injectors);
+        return injectors;
+        }
+        };
+
+// 注入器的部分前面提到过 这里不再赘述
+void addInjectors(Class clazz, List<Injector> injectors) {
+if (clazz == Object.class) {
+return;
+}
+// 递归调用  获取父类字段以及方法注入器
+// Add injectors for superclass first.
+addInjectors(clazz.getSuperclass(), injectors);
+
+// TODO (crazybob): Filter out overridden members.
+        // 获取字段注入器
+addInjectorsForFields(clazz.getDeclaredFields(), false, injectors);
+// 获取方法注入器
+addInjectorsForMethods(clazz.getDeclaredMethods(), false, injectors);
+}       
+// 注入器会通过反射的方式去设置bean对象的字段以及方法
+
+        
+        
+        
+```
+### struts.xml package处理
+对package的处理实际上也就是对action的处理，通过StutsXmlCOnfigurationProvider的loadPackages方法来进行
+```java
+@Override
+public void loadPackages() {
+        ActionContext ctx = ActionContext.getContext();
+        ctx.put(reloadKey, Boolean.TRUE);
+        // 调用父类方法
+        super.loadPackages();
+        }
+// 
+public void loadPackages() throws ConfigurationException {
+        List<Element> reloads = new ArrayList<Element>();
+        verifyPackageStructure();
+        // struts标签下的内容
+        for (Document doc : documents) {
+        Element rootElement = doc.getDocumentElement();
+        // 获取所有子标签
+        NodeList children = rootElement.getChildNodes();
+        int childSize = children.getLength();
+
+        for (int i = 0; i < childSize; i++) {
+        Node childNode = children.item(i);
+        // 如果时元素标签
+        if (childNode instanceof Element) {
+        Element child = (Element) childNode;
+        
+final String nodeName = child.getNodeName();
+        // 如果节点名为 package
+        if ("package".equals(nodeName)) {
+            // 向配置类中添加 packageConfig
+        PackageConfig cfg = addPackage(child);
+        if (cfg.isNeedsRefresh()) {
+        reloads.add(child);
+        }
+        }
+        }
+        }
+        // 用户可集成strutsConfigurationProvider 重写 loadExtraConfiguration方法 实现扩展的功能 主要时对struts.xml等文件的解析 如增加新的标签等  。。。。
+        loadExtraConfiguration(doc);
+        }
+
+        if (reloads.size() > 0) {
+        reloadRequiredPackages(reloads);
+        }
+        // 重复调用
+        for (Document doc : documents) {
+        loadExtraConfiguration(doc);
+        }
+
+        documents.clear();
+        declaredPackages.clear();
+        configuration = null;
+        }
+protected PackageConfig addPackage(Element packageElement) throws ConfigurationException {
+    // 获取package name
+        String packageName = packageElement.getAttribute("name");
+        // configguration 中存在一个默认的包配置名为struts-default
+        // 我们配置的包名为 default  现在还没有被创建
+        // 如果我们将我们的包名设置为 struts-default 则会导致我们的包的内容无效
+        PackageConfig packageConfig = configuration.getPackageConfig(packageName);
+        if (packageConfig != null) {
+        LOG.debug("Package [{}] already loaded, skipping re-loading it and using existing PackageConfig [{}]", packageName, packageConfig);
+        return packageConfig;
+        }
+        // 创建包配置构建器
+        PackageConfig.Builder newPackage = buildPackageContext(packageElement);
+
+        if (newPackage.isNeedsRefresh()) {
+        return newPackage.build();
+        }
+
+        LOG.debug("Loaded {}", newPackage);
+
+        // add result types (and default result) to this package
+        // 解析 result-type标签 
+        addResultTypes(newPackage, packageElement);
+
+        // load the interceptors and interceptor stacks for this package
+        // 加载拦截器 以及拦截器栈
+        // 拦截器通过 interceptor 标签指定  被解析为拦截器配置 添加到拦截器配置列表中
+        // 包拦截器生效需要通过 包拦截器栈来配置  通过 interceptor-stack 标签下的interceptor-ref来指定
+        // 拦截器栈可以有多个 通过不同的名字区分 和拦截器配置一起被添加到拦截器配置列表中
+        // 不同的action可以引用不同的拦截器或者拦截器栈
+        // 拦截器栈类似于组的概念 表示一组拦截器
+        loadInterceptors(newPackage, packageElement);
+
+        // load the default interceptor reference for this package
+        // 加载默认拦截器引用 通过default-interpretor-ref标签指定
+        // 对包的所有action都有效?
+        loadDefaultInterceptorRef(newPackage, packageElement);
+
+        // load the default class ref for this package
+        // 加载默认类引用  通过 default-class-ref标签指定 
+        // 当某些标签的class属性没有被指定的时候就是使用该标签指定的class
+        loadDefaultClassRef(newPackage, packageElement);
+
+        // load the global result list for this package
+        // 加载全局结果处理
+        // action执行完后的行为  默认行为吗？
+        loadGlobalResults(newPackage, packageElement);
+        // 允许调用的action方法 
+        // 如果不配置 那么所有的 public cation方法均可以被调用
+        loadGlobalAllowedMethods(newPackage, packageElement);
+
+        // load the global exception handler list for this package
+        // 定义全局异常映射结果
+        loadGlobalExceptionMappings(newPackage, packageElement);
+
+        // get actions
+        // action节点处理
+        NodeList actionList = packageElement.getElementsByTagName("action");
+
+        for (int i = 0; i < actionList.getLength(); i++) {
+        Element actionElement = (Element) actionList.item(i);
+        // 创建action配置
+        addAction(actionElement, newPackage);
+        }
+
+        // load the default action reference for this package
+        // 默认action引用   当用户访问该命名空间但没有指定具体的action的时候将调用默认的action
+        loadDefaultActionRef(newPackage, packageElement);
+
+        PackageConfig cfg = newPackage.build();
+        configuration.addPackageConfig(cfg.getName(), cfg);
+        return cfg;
+        }
+
+
+protected PackageConfig.Builder buildPackageContext(Element packageElement) {
+    // extends为 struts-default 即默认存在的一个包配置  作为 当前包配置的父亲
+        // 父配置可以有多个 通过都好分割  字符串中越靠后的父包 被插入到当前包配置的父包列表的第一个
+        String parent = packageElement.getAttribute("extends");
+        // 是否时抽象的
+        String abstractVal = packageElement.getAttribute("abstract");
+        boolean isAbstract = Boolean.parseBoolean(abstractVal);
+        // 获取包名
+        String name = StringUtils.defaultString(packageElement.getAttribute("name"));
+        // 获取包命名空间
+        String namespace = StringUtils.defaultString(packageElement.getAttribute("namespace"));
+
+        // Strict DMI is enabled by default, it can disabled by user
+        boolean strictDMI = true;
+        // 是否启用严格方法调用 默认为true
+        if (packageElement.hasAttribute("strict-method-invocation")) {
+        strictDMI = Boolean.parseBoolean(packageElement.getAttribute("strict-method-invocation"));
+        }
+        // 创建包配置其构建器 并设置一些属性
+        PackageConfig.Builder cfg = new PackageConfig.Builder(name)
+        .namespace(namespace)
+        .isAbstract(isAbstract)
+        .strictMethodInvocation(strictDMI)
+        .location(DomHelper.getLocationObject(packageElement));
+        // 获取父包配置
+        if (StringUtils.isNotEmpty(StringUtils.defaultString(parent))) { // has parents, let's look it up
+        List<PackageConfig> parents = new ArrayList<>();
+        for (String parentPackageName : ConfigurationUtil.buildParentListFromString(parent)) {
+        if (configuration.getPackageConfigNames().contains(parentPackageName)) {
+        parents.add(configuration.getPackageConfig(parentPackageName));
+        } else if (declaredPackages.containsKey(parentPackageName)) {
+        if (configuration.getPackageConfig(parentPackageName) == null) {
+        addPackage(declaredPackages.get(parentPackageName));
+        }
+        parents.add(configuration.getPackageConfig(parentPackageName));
+        } else {
+        throw new ConfigurationException("Parent package is not defined: " + parentPackageName);
+        }
+
+        }
+
+        if (parents.size() <= 0) {
+        cfg.needsRefresh(true);
+        } else {
+            // 将父包配置添加到当前包配置中
+        cfg.addParents(parents);
+        }
+        }
+
+        return cfg;
+        }
+
+protected void addAction(Element actionElement, PackageConfig.Builder packageContext) throws ConfigurationException {
+        String name = actionElement.getAttribute("name");
+        String className = actionElement.getAttribute("class");
+        //methodName should be null if it's not set
+        String methodName = StringUtils.trimToNull(actionElement.getAttribute("method"));
+        Location location = DomHelper.getLocationObject(actionElement);
+
+        if (location == null) {
+        LOG.warn("Location null for {}", className);
+        }
+
+        // if there isn't a class name specified for an <action/> then try to
+        // use the default-class-ref from the <package/>
+        if (StringUtils.isEmpty(className)) {
+        // if there is a package default-class-ref use that, otherwise use action support
+           /* if (StringUtils.isNotEmpty(packageContext.getDefaultClassRef())) {
+                className = packageContext.getDefaultClassRef();
+            } else {
+                className = ActionSupport.class.getName();
+            }*/
+
+        } else {
+            // 校验cation是否存在 是否可访问
+        if (!verifyAction(className, name, location)) {
+        LOG.error("Unable to verify action [{}] with class [{}], from [{}]", name, className, location);
+        return;
+        }
+        }
+
+        Map<String, ResultConfig> results;
+        try {
+            // action处理完成后的行为
+        results = buildResults(actionElement, packageContext);
+        } catch (ConfigurationException e) {
+        throw new ConfigurationException("Error building results for action " + name + " in namespace " + packageContext.getNamespace(), e, actionElement);
+        }
+
+        // 构造 action的拦截器列表
+        List<InterceptorMapping> interceptorList = buildInterceptorList(actionElement, packageContext);
+        // 构造action的异常处理列表
+        List<ExceptionMappingConfig> exceptionMappings = buildExceptionMappings(actionElement, packageContext);
+        // 构造action允许访问的方法
+        Set<String> allowedMethods = buildAllowedMethods(actionElement, packageContext);
+        // 构造actionConfig
+        ActionConfig actionConfig = new ActionConfig.Builder(packageContext.getName(), name, className)
+        .methodName(methodName)
+        .addResultConfigs(results)
+        .addInterceptors(interceptorList)
+        .addExceptionMappings(exceptionMappings)
+        .addParams(XmlHelper.getParams(actionElement))
+        .setStrictMethodInvocation(packageContext.isStrictMethodInvocation())
+        .addAllowedMethod(allowedMethods)
+        .location(location)
+        .build();
+        // 通过名称引用actionConfig
+        // 添加到包配置中
+        packageContext.addActionConfig(name, actionConfig);
+
+        LOG.debug("Loaded {}{} in '{}' package: {}",
+        StringUtils.isNotEmpty(packageContext.getNamespace()) ? (packageContext.getNamespace() + "/") : "",
+        name, packageContext.getName(), actionConfig);
+        }        
+        
+```
+
+
