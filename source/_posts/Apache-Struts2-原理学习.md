@@ -3,6 +3,10 @@ title: Apache Struts2 原理学习
 abbrlink: 66a16759
 date: 2025-04-28 16:44:23
 tags:
+  - Apache Struts2
+categories:
+  - [框架学习]
+top: 205
 ---
 # 过滤器初始化
 Struts2 的访问从配置的`org.apache.struts2.dispatcher.filter.StrutsPrepareAndExecuteFilter`过滤器开始。  
@@ -24,8 +28,9 @@ public void init(FilterConfig filterConfig) throws ServletException {
         
         prepare = createPrepareOperations(dispatcher);
         execute = createExecuteOperations(dispatcher);
+        // 设置将哪些path排除到strutsd的filter之外 这些请求将不会被struts处理 而交给之后的filter或者servlet处理
         this.excludedPatterns = init.buildExcludedPatternsList(dispatcher);
-
+        // 用户可以继承该过滤器 重写该方法 做一些额外的初始化操作
         postInit(dispatcher, filterConfig);
         } finally {
         if (dispatcher != null) {
@@ -35,6 +40,7 @@ public void init(FilterConfig filterConfig) throws ServletException {
         }
         }
 ```
+<!--more-->
 ## Dispatcher 初始化
 ```java
 public Dispatcher initDispatcher( HostConfig filterConfig ) {
@@ -774,6 +780,7 @@ public synchronized List<PackageProvider> reloadContainer(List<ContainerProvider
         }
 
         // Then process any package providers from the plugins
+        // 用户可以自定义 packageProvider 
         Set<String> packageProviderNames = container.getInstanceNames(PackageProvider.class);
         for (String name : packageProviderNames) {
             PackageProvider provider = container.getInstance(PackageProvider.class, name);
@@ -781,7 +788,8 @@ public synchronized List<PackageProvider> reloadContainer(List<ContainerProvider
             provider.loadPackages();
             packageProviders.add(provider);
         }
-
+        // 重构运行时配置 主要是对每个Action的配置进行补充， 如果一些关键配置缺省的话从父包的配置中获取默认的配置
+        // 如 result 以及拦截器的配置
         rebuildRuntimeConfiguration();
     } finally {
         if (oldContext == null) {
@@ -1073,7 +1081,49 @@ public void inject(InternalContext context, Object o) {
 // 方法上的Inject注解是必须要有的
 @Inject("default")
 public static methodA(@Inject("id") String id, Test test);
+// 重构运行时配置
+protected synchronized RuntimeConfiguration buildRuntimeConfiguration() throws ConfigurationException {
+        Map<String, Map<String, ActionConfig>> namespaceActionConfigs = new LinkedHashMap<>();
+        Map<String, String> namespaceConfigs = new LinkedHashMap<>();
+        // 遍历包配置
+        for (PackageConfig packageConfig : packageContexts.values()) {
+        // 如果包配置不是抽象的
+        // 这里借鉴了面向对象的理念  抽象包作为父包被集成 不直接参与action以及bean等的定义
+        if (!packageConfig.isAbstract()) {
+            // 获取包命名空间   我未配置
+        String namespace = packageConfig.getNamespace();
+        // null
+        Map<String, ActionConfig> configs = namespaceActionConfigs.get(namespace);
 
+        if (configs == null) {
+        configs = new LinkedHashMap<>();
+        }
+        // 获取cationConfig
+        Map<String, ActionConfig> actionConfigs = packageConfig.getAllActionConfigs();
+        // 遍历actionConfig
+        for (Object o : actionConfigs.keySet()) {
+        String actionName = (String) o;
+        // 通过actionname获取对应的配置对象
+        ActionConfig baseConfig = actionConfigs.get(actionName);
+        // buildFullActionConfig 方法负责重构actionConfig 主要时对result以及interpretor的重构
+        configs.put(actionName, buildFullActionConfig(packageConfig, baseConfig));
+        }
+        
+        namespaceActionConfigs.put(namespace, configs);
+        if (packageConfig.getFullDefaultActionRef() != null) {
+        namespaceConfigs.put(namespace, packageConfig.getFullDefaultActionRef());
+        }
+        }
+        }
+
+        PatternMatcher<int[]> matcher = container.getInstance(PatternMatcher.class);
+        boolean appendNamedParameters = Boolean.parseBoolean(
+        container.getInstance(String.class, StrutsConstants.STRUTS_MATCHER_APPEND_NAMED_PARAMETERS)
+        );
+
+        return new RuntimeConfigurationImpl(Collections.unmodifiableMap(namespaceActionConfigs),
+        Collections.unmodifiableMap(namespaceConfigs), matcher, appendNamedParameters);
+        }
 ```
 #### 容器注入方法是如何工作的
 o是调用构造方法创建的bean实例 inject方法负责将该bean中的被Inject注解修饰的字段或者方法参数注入到bean对象中
@@ -1473,5 +1523,8 @@ protected void addAction(Element actionElement, PackageConfig.Builder packageCon
         }        
         
 ```
+# 过滤器执行
+```java
 
+```
 
