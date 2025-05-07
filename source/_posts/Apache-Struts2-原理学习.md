@@ -1527,4 +1527,13 @@ protected void addAction(Element actionElement, PackageConfig.Builder packageCon
 ```java
 
 ```
+# s2-067 s2-066
+修复方案是在添加文件参数时先删除已经存在的参数，那么如果在文件参数被添加后再次被添加的话 就会删除之前的参数再次设置新的参数，  
+要达成这个条件需要满足这个拦截器在 FileUploadIntercetor拦截器后执行appendAll方法，  
+符合条件的拦截器存在且调用了appendAll方法  不过设置的参数不是我想要的。  
+比如在 checkbox拦截器中插入的值为false 是固定的  用户没法控制  
+datetime中插入的值为Date类型  类型不匹配插入会失败  
+multiselect 拦截器中插入的是一个空的字符串数组 长度为0 也没法控制
+staticParams  拦截器 处理配置中设置的固定params 无法控制
+actionMapping 参数拦截器  负责将action标签中设置的参数添加到request中
 
