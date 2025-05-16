@@ -1,12 +1,13 @@
 ---
 title: Java HashMap 实现方法
-date: 2025-05-16 10:19:27
 tags:
   - Java
   - HashMap
 categories:
   - Java
-top: 205
+top: 220
+abbrlink: 31bfcb8f
+date: 2025-05-16 10:19:27
 ---
 # 成员变量含义
 | 变量名 | 默认值     | 含义                                                                                    |
@@ -172,6 +173,7 @@ final void treeify(Node<K,V>[] tab) {
                     }
                 }
             }
+            // 将root移动到tab的第一个元素
             moveRootToFront(tab, root);
         }
 ```
@@ -325,7 +327,99 @@ static <K,V> TreeNode<K,V> rotateRight(TreeNode<K,V> root,
         }
 ```
 # 扩容
-
+```java
+final Node<K,V>[] resize() {
+        Node<K,V>[] oldTab = table;
+        // 原表为空  new完后就是空的 
+        int oldCap = (oldTab == null) ? 0 : oldTab.length;
+        int oldThr = threshold;
+        // 新表容量以及扩容阈值
+        int newCap, newThr = 0;
+        // 原表长度大于0
+        if (oldCap > 0) {
+            // 原表已经是最大值了  不扩容  直接返回
+            if (oldCap >= MAXIMUM_CAPACITY) {
+                threshold = Integer.MAX_VALUE;
+                return oldTab;
+            }
+            // 原表容量扩大一倍 如果小于最大容量且原表容量大于等于默认容量
+            // 新表阈值同比扩大一倍
+            else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
+                     oldCap >= DEFAULT_INITIAL_CAPACITY)
+                newThr = oldThr << 1; // double threshold
+        }
+        // 如果原表容量小于等于0 且原表的阈值大于0
+        // 新的容量为原表的阈值
+        else if (oldThr > 0) // initial capacity was placed in threshold
+            newCap = oldThr;
+        // 原表的容量等于0
+        else {               // zero initial threshold signifies using defaults
+            newCap = DEFAULT_INITIAL_CAPACITY;
+            newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
+        }
+        // 新表阈值等于零 通过公式计算新的阈值
+        if (newThr == 0) {
+            float ft = (float)newCap * loadFactor;
+            newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
+                      (int)ft : Integer.MAX_VALUE);
+        }
+        threshold = newThr;
+        @SuppressWarnings({"rawtypes","unchecked"})
+        Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
+        table = newTab;
+        if (oldTab != null) {
+            // 遍历原表
+            for (int j = 0; j < oldCap; ++j) {
+                Node<K,V> e;
+                if ((e = oldTab[j]) != null) {
+                    oldTab[j] = null;
+                    // 如果原表的某一个位置只有一个节点 则直接将这个节点重新计算索引放到新表中
+                    if (e.next == null)
+                        newTab[e.hash & (newCap - 1)] = e;
+                    // 如果是红黑树 则进行单独处理
+                    else if (e instanceof TreeNode)
+                        ((TreeNode<K,V>)e).split(this, newTab, j, oldCap);
+                    else { // preserve order
+                        Node<K,V> loHead = null, loTail = null;
+                        Node<K,V> hiHead = null, hiTail = null;
+                        Node<K,V> next;
+                        do {
+                            next = e.next;
+                            // 区分hash位于新表的高位还是低位
+                            // 因为 新表的容量总是原表的2次幂，所以原表某一索引位置的链表中的节点再新表中
+                            // 要么位于 原来的位置  要么位于原来的位置加原表的容量 得到的新的位置
+                            // 这些结果位于原表同一索引位置
+                            if ((e.hash & oldCap) == 0) {
+                                if (loTail == null)
+                                    loHead = e;
+                                else
+                                    loTail.next = e;
+                                loTail = e;
+                            }
+                            // 位于原表索引+原表容量的位置
+                            else {
+                                if (hiTail == null)
+                                    hiHead = e;
+                                else
+                                    hiTail.next = e;
+                                hiTail = e;
+                            }
+                        } while ((e = next) != null);
+                        if (loTail != null) {
+                            loTail.next = null;
+                            newTab[j] = loHead;
+                        }
+                        if (hiTail != null) {
+                            hiTail.next = null;
+                            newTab[j + oldCap] = hiHead;
+                        }
+                    }
+                }
+            }
+        }
+        return newTab;
+    }
+```
 # Node与TreeNode
 Node对象表示一个链表节点，其包含4个关键成员变量分别为 
 ```java
