@@ -1,5 +1,6 @@
 ---
-title: '从三味书屋到百草堂，从XmlSerializer到BinnaryFormatter之XmlSerializer反序列化漏洞ObjectDataProvider利用链'
+title: >-
+  从三味书屋到百草堂，从XmlSerializer到BinnaryFormatter之XmlSerializer反序列化漏洞ObjectDataProvider利用链
 tags:
   - C#
   - 反序列化
@@ -7,10 +8,10 @@ tags:
   - BinnaryFormatter
   - ObjectDataProvider
 categories:
-  - [漏洞原理]
+  - - 漏洞原理
 top: 221
 description: 本文详细介绍了 XmlSerializer 反序列化漏洞利用的 ObjectDataProvider 调用链路
-abbrlink: '85333474'
+abbrlink: ff457959
 date: 2025-05-26 14:23:34
 ---
 # 利用链分析
