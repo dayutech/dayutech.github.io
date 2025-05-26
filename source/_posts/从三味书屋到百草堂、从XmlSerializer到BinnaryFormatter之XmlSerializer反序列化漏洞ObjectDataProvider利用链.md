@@ -186,9 +186,9 @@ class Program
 ```
 `ExpandedWrapper`被编译的时候会自动生成一个程序集（咱也不知道是谁生成的，我看的文章是说在XmlSerializer在初始化的时候生成这个程序集），  
 这个程序集中包含两个类分别是 `XmlSerializationReaderExpandedWrapper2`以及`XmlSerializationWriterExpandedWrapper2`分别在`ExpanderWrapper`的序列化以及反序列化过程中被调用  
-[img1](0880c08b01109690e53a.png)
+![img1](0880c08b01109690e53a.png)
 在反序列化过程中首先被调用的是`Read9_Item`方法   
-[img2](0880c08b011096908d3c.png)
+![img2](0880c08b011096908d3c.png)
 `Read9_Item`方法调用`Read8_Item`  
 ```c#
 public object Read9_Item()
