@@ -7,7 +7,7 @@ tags:
   - BinnaryFormatter
   - ObjectDataProvider
 categories:
-  - 漏洞原理
+  - [漏洞原理]
 top: 221
 description: 本文详细介绍了 XmlSerializer 反序列化漏洞利用的 ObjectDataProvider 调用链路
 abbrlink: '85333474'
