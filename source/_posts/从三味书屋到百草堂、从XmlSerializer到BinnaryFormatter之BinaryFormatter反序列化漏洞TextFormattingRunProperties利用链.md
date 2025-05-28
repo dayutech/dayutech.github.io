@@ -1,6 +1,6 @@
 ---
 title: >-
-  '从三味书屋到百草堂、从XmlSerializer到BinnaryFormatter之BinaryFormatter反序列化漏洞TextFormattingRunProperties利用链'
+  从三味书屋到百草堂、从XmlSerializer到BinnaryFormatter之BinaryFormatter反序列化漏洞TextFormattingRunProperties利用链
 tags:
   - C# - 反序列化
   - XmlSerializer
