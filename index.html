@@ -226,6 +226,106 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/42eb2c82.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/archives/42eb2c82.html" class="post-title-link" itemprop="url">动态代理在java反序列化中的应用</a>
+        </h2>
+
+        <div class="post-meta">
+		  
+            <i class="fa fa-thumb-tack"></i>
+            <font color=FF0000>置顶</font>
+            <span class="post-meta-divider"> | </span>
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-07-29 17:05:59 / 修改时间：17:15:15" itemprop="dateCreated datePublished" datetime="2025-07-29T17:05:59+08:00">2025-07-29</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.1k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>15 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="动态代理在Java反序列化中的应用"><a href="#动态代理在Java反序列化中的应用" class="headerlink" title="动态代理在Java反序列化中的应用"></a>动态代理在Java反序列化中的应用</h1><h2 id="动态代理简介"><a href="#动态代理简介" class="headerlink" title="动态代理简介"></a>动态代理简介</h2><p>何为代理？当你想要去购买一件商品时，是你会直接找生产商购买还是找商店购买？当你需要购买一辆汽车时你是会找华为、小米还是比亚迪直接购买，还是找4S店购买？<br>华为、小米与比亚迪可能遥不可及，你甚至不知道它在哪里，但是华为、小米与比亚迪的4S店却满大街都是。<br>对车商来说，向全国各地铺设直营店铺无疑是费时费力费钱的买卖，无论从人力经济性还是渠道扩展来说不是简单活计。<br>有时候过江龙确实比不上地头蛇有力量，这时候4S店站出来说，我可以为你负责汽车的销售、维修、保养等工作，我就在中间赚点辛苦钱。车商一看，这感情好，我就只负责车辆的生产就好了，销售就交给你了老弟。<br>对于客户来说，找厂商直接买车面临着车商在哪、车坏了去哪维修、开一段时间去哪保养等问题。与其直接对接车商不如对接4S店来得更加轻松。<br>将上面得例子映射到编程问题中，车商就是被代理类，4S店就是代理类，客户就是开发者或者测试维护人员等。代理类可以集中统一地对一类的被代理类进行维护管理，如统一的日志管理，状态检查，条件判断等。  </p>
+<p>在编程中，代理是一种常见设计模式，它可以为编程提供更多的灵活性，能够有效地对类与方法的功能进行扩充。<br>代理按照代理类创建的时间节点不同又可分为静态代理与动态代理，所谓静态代理即对每一个被代理类均创建一个对应的代理类以代理其功能并按照需要进行扩展，这样就面临一个困境，即如果有很多的需要被代理的类，<br>那么就需要手动创建对应数量的代理类，这无疑增加了工作量与复杂度。而动态代理则能很好地屏蔽这个缺陷，动态代理通过代理接口实现了代理类的运行时动态生成，无论存在多少被代理类，<br>只要他们实现了相关的接口便可以动态地进行代理类的生成。  </p>
+<p>在 <code>JAVA</code> 中，动态代理的实现主要依赖于 <code>Proxy</code> 类以及相应的 <code>InvocationHandler</code> 实现，<code>Proxy</code> 类负责代理类的生成，<code>InvocationHandler</code> 接口负责目标方法的功能扩展，如统一增加的日志、状态检查等功能。<br>因为动态代理能集中统一地对类的方法调用进行操作，其常常在反序列化漏洞利用过程中被用作修改方法默认行为、捕获方法调用异常、连接Gadget片段等。  </p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/archives/42eb2c82.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/6f1feaf8.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -511,106 +611,6 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/archives/ff457959.html">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  <!-- needsharebutton Javascript file -->
-<script src="js/needsharebutton.min.js"></script>
-<!-- needsharebutton CSS file -->
-<link href="css/needsharebutton.min.css" rel="stylesheet" />
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/42eb2c82.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/dayu/avatar.png">
-      <meta itemprop="name" content="Arliya">
-      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dayu Technology Co., LTD">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/archives/42eb2c82.html" class="post-title-link" itemprop="url">动态代理在java反序列化中的应用</a>
-        </h2>
-
-        <div class="post-meta">
-		  
-            <i class="fa fa-thumb-tack"></i>
-            <font color=FF0000>置顶</font>
-            <span class="post-meta-divider"> | </span>
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2025-07-29 17:05:59 / 修改时间：17:10:30" itemprop="dateCreated datePublished" datetime="2025-07-29T17:05:59+08:00">2025-07-29</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>4.1k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>15 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="动态代理在Java反序列化中的应用"><a href="#动态代理在Java反序列化中的应用" class="headerlink" title="动态代理在Java反序列化中的应用"></a>动态代理在Java反序列化中的应用</h1><h2 id="动态代理简介"><a href="#动态代理简介" class="headerlink" title="动态代理简介"></a>动态代理简介</h2><p>何为代理？当你想要去购买一件商品时，是你会直接找生产商购买还是找商店购买？当你需要购买一辆汽车时你是会找华为、小米还是比亚迪直接购买，还是找4S店购买？<br>华为、小米与比亚迪可能遥不可及，你甚至不知道它在哪里，但是华为、小米与比亚迪的4S店却满大街都是。<br>对车商来说，向全国各地铺设直营店铺无疑是费时费力费钱的买卖，无论从人力经济性还是渠道扩展来说不是简单活计。<br>有时候过江龙确实比不上地头蛇有力量，这时候4S店站出来说，我可以为你负责汽车的销售、维修、保养等工作，我就在中间赚点辛苦钱。车商一看，这感情好，我就只负责车辆的生产就好了，销售就交给你了老弟。<br>对于客户来说，找厂商直接买车面临着车商在哪、车坏了去哪维修、开一段时间去哪保养等问题。与其直接对接车商不如对接4S店来得更加轻松。<br>将上面得例子映射到编程问题中，车商就是被代理类，4S店就是代理类，客户就是开发者或者测试维护人员等。代理类可以集中统一地对一类的被代理类进行维护管理，如统一的日志管理，状态检查，条件判断等。  </p>
-<p>在编程中，代理是一种常见设计模式，它可以为编程提供更多的灵活性，能够有效地对类与方法的功能进行扩充。<br>代理按照代理类创建的时间节点不同又可分为静态代理与动态代理，所谓静态代理即对每一个被代理类均创建一个对应的代理类以代理其功能并按照需要进行扩展，这样就面临一个困境，即如果有很多的需要被代理的类，<br>那么就需要手动创建对应数量的代理类，这无疑增加了工作量与复杂度。而动态代理则能很好地屏蔽这个缺陷，动态代理通过代理接口实现了代理类的运行时动态生成，无论存在多少被代理类，<br>只要他们实现了相关的接口便可以动态地进行代理类的生成。  </p>
-<p>在 <code>JAVA</code> 中，动态代理的实现主要依赖于 <code>Proxy</code> 类以及相应的 <code>InvocationHandler</code> 实现，<code>Proxy</code> 类负责代理类的生成，<code>InvocationHandler</code> 接口负责目标方法的功能扩展，如统一增加的日志、状态检查等功能。<br>因为动态代理能集中统一地对类的方法调用进行操作，其常常在反序列化漏洞利用过程中被用作修改方法默认行为、捕获方法调用异常、连接Gadget片段等。  </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/archives/42eb2c82.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
