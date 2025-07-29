@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/dayu/dayu-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dayu/dayu-web-app-manifest-512x512.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/dayu/dayu-web-app-manifest-192x192.png">
+  <link rel="mask-icon" href="/images/dayu/dayu-favicon.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dayutech.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文分析了 Tomcat 条件竞争导致远程代码执行（CVE-2024-50379&#x2F;CVE-2024-56337）的漏洞成因以及修复方案">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Tomcat 条件竞争导致远程代码执行（CVE-2024-50379&#x2F;CVE-2024-56337）">
+<meta property="og:url" content="https://dayutech.github.io/archives/172295c.html">
+<meta property="og:site_name" content="Dayu Technology Co., LTD">
+<meta property="og:description" content="本文分析了 Tomcat 条件竞争导致远程代码执行（CVE-2024-50379&#x2F;CVE-2024-56337）的漏洞成因以及修复方案">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://dayutech.github.io/archives/172295c/img.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/172295c/img_1.png">
+<meta property="article:published_time" content="2025-04-24T13:08:31.000Z">
+<meta property="article:modified_time" content="2025-07-29T09:02:07.678Z">
+<meta property="article:author" content="Arliya">
+<meta property="article:tag" content="RCE">
+<meta property="article:tag" content="远程代码执行">
+<meta property="article:tag" content="Tomcat">
+<meta property="article:tag" content="条件竞争">
+<meta property="article:tag" content="CVE-2024-50379">
+<meta property="article:tag" content="CVE-2024-56337">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://dayutech.github.io/archives/172295c/img.png">
+
+<link rel="canonical" href="https://dayutech.github.io/archives/172295c.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.css"><style>
+#needsharebutton-postbottom {
+  cursor: pointer;
+  height: 26px;
+  margin-top: 10px;
+  position: relative;
+}
+#needsharebutton-postbottom .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 3px;
+  display: initial;
+  padding: 1px 4px;
+}
+</style><style>
+#needsharebutton-float {
+  bottom: 88px;
+  cursor: pointer;
+  left: -8px;
+  position: fixed;
+  z-index: 9999;
+}
+#needsharebutton-float .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 4px;
+  padding: 0 10px 0 14px;
+}
+</style>
+  <title>Tomcat 条件竞争导致远程代码执行（CVE-2024-50379/CVE-2024-56337） | Dayu Technology Co., LTD</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Dayu Technology Co., LTD" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dayu Technology Co., LTD</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">大禹科技股份有限公司</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-rss">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/dayutech/dayutech.github.io" class="github-corner" title="Dayu GitHub" aria-label="Dayu GitHub" rel="noopener external nofollow noreferrer" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/172295c.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Tomcat 条件竞争导致远程代码执行（CVE-2024-50379/CVE-2024-56337）
+        </h1>
+
+        <div class="post-meta">
+		  
+            <i class="fa fa-thumb-tack"></i>
+            <font color=FF0000>置顶</font>
+            <span class="post-meta-divider"> | </span>
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-24 21:08:31" itemprop="dateCreated datePublished" datetime="2025-04-24T21:08:31+08:00">2025-04-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-29 17:02:07" itemprop="dateModified" datetime="2025-07-29T17:02:07+08:00">2025-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>11 分钟</span>
+            </span>
+            <div class="post-description">本文分析了 Tomcat 条件竞争导致远程代码执行（CVE-2024-50379/CVE-2024-56337）的漏洞成因以及修复方案</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h1><p>该漏洞是由于Tomcat在验证文件路径时存在缺陷，如果readonly参数被设置为false（这是一个非标准配置），并且服务器允许通过PUT方法上传文件，<br>那么攻击者就可以上传含有恶意JSP代码的文件。通过不断地发送请求，攻击者可以利用条件竞争，使得Tomcat解析并执行这些恶意文件，从而实现远程代码执行。  </p>
+<h1 id="影响版本"><a href="#影响版本" class="headerlink" title="影响版本"></a>影响版本</h1><p>11.0.0-M1 &lt;&#x3D; Apache Tomcat &lt; 11.0.2<br>10.1.0-M1 &lt;&#x3D; Apache Tomcat &lt; 10.1.34<br>9.0.0.M1 &lt;&#x3D; Apache Tomcat &lt; 9.0.98   </p>
+<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><p>该漏洞只在大小写不敏感的操作系统下发生，故所有测试环境均基于Windows系统。<br>下载 <code>Tomcat 9.0.97</code> 版本，解压后<a target="_blank" rel="noopener external nofollow noreferrer" href="https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.97/bin/">下载地址</a><br>下载对应版本的源代码<a target="_blank" rel="noopener external nofollow noreferrer" href="https://github.com/apache/tomcat/releases/tag/9.0.97">下载地址</a><br>配置ROOT APP 修改<code>web.xml</code>文件，设置<code>DefaultServlet</code>的<code>readonly</code>属性为false，即对静态资源启动PUT方法以为ROOT APP添加静态文件。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">servlet</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-name</span>&gt;</span>default<span class="tag">&lt;/<span class="name">servlet-name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">servlet-class</span>&gt;</span>org.apache.catalina.servlets.DefaultServlet<span class="tag">&lt;/<span class="name">servlet-class</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>debug<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>0<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>listings<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>false<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">init-param</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">param-name</span>&gt;</span>readonly<span class="tag">&lt;/<span class="name">param-name</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">param-value</span>&gt;</span>false<span class="tag">&lt;/<span class="name">param-value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">init-param</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">load-on-startup</span>&gt;</span>1<span class="tag">&lt;/<span class="name">load-on-startup</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">servlet</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>此时我们可以使用类似下面这样的请求在 ROOT APP中新增一个静态文件。 </p>
+<figure class="highlight http"><figcaption><span>request</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">PUT</span> <span class="string">/test.html</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>localhost:8000</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>text/plain</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>0</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"></span><br><span class="line"><span class="language-subunit">&lt;html&gt;</span></span><br><span class="line"><span class="language-subunit">&lt;body&gt;</span></span><br><span class="line"><span class="language-subunit"><span class="keyword">test</span></span></span><br><span class="line"><span class="keyword"><span class="language-subunit"></span>&lt;body&gt;</span></span><br><span class="line"><span class="language-subunit">&lt;/html&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这样请求体中的内容将被写入到 ROOT APP 的根目录下。</p>
+<p>选择较低版本的JDK对tomcat进行启动，我这里使用的是<code>8u202</code>，因为较高版本的JDK规范化路径缓存默认是禁用的，而该漏洞需要这个选项开启。<br>进入<code>Tomcat</code>根目录的<code>/bin</code>目录下执行以下命令启动tomcat并启动调试  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">catalina.bat jpda start</span><br></pre></td></tr></table></figure>
+<p>启动后程序默认监听在8000端口<br>使用idea打开Tomcat源代码，并配置调试选项，设置调试端口为8000<br><img src="/archives/172295c/img.png" alt="img.png">  </p>
+<h1 id="漏洞成因"><a href="#漏洞成因" class="headerlink" title="漏洞成因"></a>漏洞成因</h1><p>这里我直接先介绍漏洞成因，以方便我对该漏洞进行说明。<br>当Tomcat的某一个APP的启动了静态文件的写入功能时（即readonly参数被设置为false），此时服务器允许通过PUT方法上传文件。此时我们可以通过PUT方法<br>想服务器上传一个名为<code>test.JSP</code>的文件，然后在该文件没有正式落地的时候，通过GET请求访问<code>test.jsp</code>，在特殊的时机下静态资源文件<code>test.JSP</code>将被作为动态<br>的<code>jsp</code>文件解析，从而导致远程代码执行。<br>值得关注的点时<code>test.JSP</code>是被作为静态资源文件由<code>DefaultServlet</code>进行解析处理的，而<code>test.jsp</code>则是作为动态文件由<code>JspServlet</code>进行解析处理的，<br>或者说<code>JspServlet</code>只处理<code>.jsp</code>以及<code>.jspx</code>作为后缀的文件（JspServlet是大小写敏感的），而<code>test.JSP</code>或者<code>test.Jsp</code>这类文件都被认为是静态资源文件<br>由<code>DefaultServlet</code>处理。<br>因为我们的payload访问的是<code>test.jsp</code>，该请求是由<code>JspServlet</code>处理的，所以我们从<code>JspServlet</code>的<code>serviceJspFile</code>方法开始。<br><code>jspUri</code>即我们传入的<code>test.jsp</code>，这里跟进到<code>getResource</code>方法。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">serviceJspFile</span><span class="params">(HttpServletRequest request,</span></span><br><span class="line"><span class="params">                                HttpServletResponse response, String jspUri,</span></span><br><span class="line"><span class="params">                                <span class="type">boolean</span> precompile)</span></span><br><span class="line">        <span class="keyword">throws</span> ServletException, IOException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">JspServletWrapper</span> <span class="variable">wrapper</span> <span class="operator">=</span> rctxt.getWrapper(jspUri);</span><br><span class="line">        <span class="keyword">if</span> (wrapper == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span>(<span class="built_in">this</span>) &#123;</span><br><span class="line">                wrapper = rctxt.getWrapper(jspUri);</span><br><span class="line">                <span class="keyword">if</span> (wrapper == <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="comment">// Check if the requested JSP page exists, to avoid</span></span><br><span class="line">                    <span class="comment">// creating unnecessary directories and files.</span></span><br><span class="line">                    <span class="keyword">if</span> (<span class="literal">null</span> == context.getResource(jspUri)) &#123;</span><br><span class="line">                        handleMissingResource(request, response, jspUri);</span><br><span class="line">                        <span class="keyword">return</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                    wrapper = <span class="keyword">new</span> <span class="title class_">JspServletWrapper</span>(config, options, jspUri,</span><br><span class="line">                                                    rctxt);</span><br><span class="line">                    rctxt.addWrapper(jspUri,wrapper);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            wrapper.service(request, response, precompile);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (FileNotFoundException fnfe) &#123;</span><br><span class="line">            handleMissingResource(request, response, jspUri);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p><code>getResource</code>方法位于<code>org.apache.catalina.core.ApplicationContext.getResource</code><br><code>validateResourcePath</code>方法首先检查<code>path</code>是否以<code>/</code>开头，如果以<code>/</code>开头则返回<code>path</code>，否则返回<code>/</code>加上<code>path</code>。<br>然后调用<code>StandRoot</code>的<code>getResource</code>方法。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> URL <span class="title function_">getResource</span><span class="params">(String path)</span> <span class="keyword">throws</span> MalformedURLException &#123;</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">validatedPath</span> <span class="operator">=</span> validateResourcePath(path, !GET_RESOURCE_REQUIRE_SLASH);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (validatedPath == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">MalformedURLException</span>(sm.getString(<span class="string">&quot;applicationContext.requestDispatcher.iae&quot;</span>, path));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">WebResourceRoot</span> <span class="variable">resources</span> <span class="operator">=</span> context.getResources();</span><br><span class="line">        <span class="keyword">if</span> (resources != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> resources.getResource(validatedPath).getURL();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>如果缓存允许缓存则从缓存中查找文件子资源。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> WebResource <span class="title function_">getResource</span><span class="params">(String path, <span class="type">boolean</span> validate, <span class="type">boolean</span> useClassLoaderResources)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (validate) &#123;</span><br><span class="line">            path = validate(path);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (isCachingAllowed()) &#123;</span><br><span class="line">            <span class="keyword">return</span> cache.getResource(path, useClassLoaderResources);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> getResourceInternal(path, useClassLoaderResources);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>noCache</code>方法中指定了一些特殊的文件是不能缓存的，如：.class .jar 或者 classes目录下的文件等。<br>然后从资源缓存列表<code>resourceCache</code>中根据请求的资源路径查找缓存资源，第一次访问时会返回<code>null</code>，即<code>cacheEntry</code>此时为<code>null</code>。<br>然后创建一个 <code>CachedResource</code>对象赋值给<code>cacheEntry</code>并调用其<code>validateResource</code>方法，进入该方法。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> WebResource <span class="title function_">getResource</span><span class="params">(String path, <span class="type">boolean</span> useClassLoaderResources)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (noCache(path)) &#123;</span><br><span class="line">            <span class="keyword">return</span> root.getResourceInternal(path, useClassLoaderResources);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">CacheStrategy</span> <span class="variable">strategy</span> <span class="operator">=</span> getCacheStrategy(); <span class="comment">// 默认为空</span></span><br><span class="line">        <span class="keyword">if</span> (strategy != <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (strategy.noCache(path)) &#123;</span><br><span class="line">                <span class="keyword">return</span> root.getResourceInternal(path, useClassLoaderResources);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        lookupCount.increment();</span><br><span class="line"></span><br><span class="line">        <span class="type">CachedResource</span> <span class="variable">cacheEntry</span> <span class="operator">=</span> resourceCache.get(path); <span class="comment">// 从资源缓存列表中根据请求的资源路径查找缓存资源，</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (cacheEntry != <span class="literal">null</span> &amp;&amp; !cacheEntry.validateResource(useClassLoaderResources)) &#123;</span><br><span class="line">            removeCacheEntry(path);</span><br><span class="line">            cacheEntry = <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (cacheEntry == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="type">int</span> <span class="variable">objectMaxSizeBytes</span> <span class="operator">=</span> getObjectMaxSizeBytes();</span><br><span class="line">            <span class="type">CachedResource</span> <span class="variable">newCacheEntry</span> <span class="operator">=</span></span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">CachedResource</span>(<span class="built_in">this</span>, root, path, getTtl(), objectMaxSizeBytes, useClassLoaderResources);</span><br><span class="line"></span><br><span class="line">            cacheEntry = resourceCache.putIfAbsent(path, newCacheEntry);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (cacheEntry == <span class="literal">null</span>) &#123;</span><br><span class="line">                cacheEntry = newCacheEntry;</span><br><span class="line">                cacheEntry.validateResource(useClassLoaderResources);</span><br><span class="line">                <span class="type">long</span> <span class="variable">delta</span> <span class="operator">=</span> cacheEntry.getSize();</span><br><span class="line">                <span class="type">long</span> <span class="variable">result</span> <span class="operator">=</span> size.addAndGet(delta);</span><br><span class="line">                <span class="keyword">if</span> (log.isDebugEnabled()) &#123;</span><br><span class="line">                    log.debug(sm.getString(<span class="string">&quot;cache.sizeTracking.add&quot;</span>, Long.toString(delta), cacheEntry, path,</span><br><span class="line">                            Long.toString(result)));</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (size.get() &gt; maxSize) &#123;</span><br><span class="line">                    <span class="comment">// Process resources unordered for speed. Trades cache</span></span><br><span class="line">                    <span class="comment">// efficiency (younger entries may be evicted before older</span></span><br><span class="line">                    <span class="comment">// ones) for speed since this is on the critical path for</span></span><br><span class="line">                    <span class="comment">// request processing</span></span><br><span class="line">                    <span class="type">long</span> <span class="variable">targetSize</span> <span class="operator">=</span> maxSize * (<span class="number">100</span> - TARGET_FREE_PERCENT_GET) / <span class="number">100</span>;</span><br><span class="line">                    <span class="type">long</span> <span class="variable">newSize</span> <span class="operator">=</span> evict(targetSize, resourceCache.values().iterator());</span><br><span class="line">                    <span class="keyword">if</span> (newSize &gt; maxSize) &#123;</span><br><span class="line">                        <span class="comment">// Unable to create sufficient space for this resource</span></span><br><span class="line">                        <span class="comment">// Remove it from the cache</span></span><br><span class="line">                        removeCacheEntry(path);</span><br><span class="line">                        log.warn(sm.getString(<span class="string">&quot;cache.addFail&quot;</span>, path, root.getContext().getName()));</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// Another thread added the entry to the cache</span></span><br><span class="line">                <span class="keyword">if</span> (cacheEntry.usesClassLoaderResources() != useClassLoaderResources) &#123;</span><br><span class="line">                    cacheEntry = newCacheEntry;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// Make sure it is validated</span></span><br><span class="line">                cacheEntry.validateResource(useClassLoaderResources);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            hitCount.increment();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> cacheEntry;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>该方法首次调用时<code>webResource</code>为<code>null</code><br>然后会进入到<code>StrandardRoot</code>的<code>getResourceInternal</code>方法中。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="type">boolean</span> <span class="title function_">validateResource</span><span class="params">(<span class="type">boolean</span> useClassLoaderResources)</span> &#123;</span><br><span class="line">        <span class="comment">// It is possible that some resources will only be visible for a given</span></span><br><span class="line">        <span class="comment">// value of useClassLoaderResources. Therefore, if the lookup is made</span></span><br><span class="line">        <span class="comment">// with a different value of useClassLoaderResources than was used when</span></span><br><span class="line">        <span class="comment">// creating the cache entry, invalidate the entry. This should have</span></span><br><span class="line">        <span class="comment">// minimal performance impact as it would be unusual for a resource to</span></span><br><span class="line">        <span class="comment">// be looked up both as a static resource and as a class loader</span></span><br><span class="line">        <span class="comment">// resource.</span></span><br><span class="line">        <span class="keyword">if</span> (usesClassLoaderResources != useClassLoaderResources) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="type">long</span> <span class="variable">now</span> <span class="operator">=</span> System.currentTimeMillis();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (webResource == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span> (<span class="built_in">this</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (webResource == <span class="literal">null</span>) &#123;</span><br><span class="line">                    webResource = root.getResourceInternal(webAppPath, useClassLoaderResources);</span><br><span class="line">                    getLastModified();</span><br><span class="line">                    getContentLength();</span><br><span class="line">                    nextCheck = ttl + now;</span><br><span class="line">                    <span class="comment">// exists() is a relatively expensive check for a file so</span></span><br><span class="line">                    <span class="comment">// use the fact that we know if it exists at this point</span></span><br><span class="line">                    <span class="keyword">if</span> (webResource <span class="keyword">instanceof</span> EmptyResource) &#123;</span><br><span class="line">                        cachedExists = Boolean.FALSE;</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        cachedExists = Boolean.TRUE;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>该方法循环遍历<code>allResources</code>的所有元素并调用其<code>getResource</code>方法，直到扎找到资源为止。<br>第一个被调用的<code>WebResourceSet</code>为<code>DirResourceSet</code>。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">final</span> WebResource <span class="title function_">getResourceInternal</span><span class="params">(String path, <span class="type">boolean</span> useClassLoaderResources)</span> &#123;</span><br><span class="line">        <span class="type">WebResource</span> <span class="variable">result</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="type">WebResource</span> <span class="variable">virtual</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="type">WebResource</span> <span class="variable">mainEmpty</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">for</span> (List&lt;WebResourceSet&gt; list : allResources) &#123;</span><br><span class="line">            <span class="keyword">for</span> (WebResourceSet webResourceSet : list) &#123;</span><br><span class="line">                <span class="keyword">if</span> (!useClassLoaderResources &amp;&amp; !webResourceSet.getClassLoaderOnly() ||</span><br><span class="line">                        useClassLoaderResources &amp;&amp; !webResourceSet.getStaticOnly()) &#123;</span><br><span class="line">                    result = webResourceSet.getResource(path);</span><br><span class="line">                    <span class="keyword">if</span> (result.exists()) &#123;</span><br><span class="line">                        <span class="keyword">return</span> result;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span> (virtual == <span class="literal">null</span>) &#123;</span><br><span class="line">                        <span class="keyword">if</span> (result.isVirtual()) &#123;</span><br><span class="line">                            virtual = result;</span><br><span class="line">                        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (main.equals(webResourceSet)) &#123;</span><br><span class="line">                            mainEmpty = result;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    ...</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p><code>DirResourceSet#getResource</code> 方法中会调用<code>file</code>方法查找文件。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> WebResource <span class="title function_">getResource</span><span class="params">(String path)</span> &#123;</span><br><span class="line">    checkPath(path);</span><br><span class="line">    <span class="type">String</span> <span class="variable">webAppMount</span> <span class="operator">=</span> getWebAppMount();</span><br><span class="line">    <span class="type">WebResourceRoot</span> <span class="variable">root</span> <span class="operator">=</span> getRoot();</span><br><span class="line">    <span class="keyword">if</span> (path.startsWith(webAppMount)) &#123;</span><br><span class="line">        <span class="type">ResourceLock</span> <span class="variable">lock</span> <span class="operator">=</span> lockForRead(path);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">File</span> <span class="variable">f</span> <span class="operator">=</span> file(path.substring(webAppMount.length()), <span class="literal">false</span>);<span class="comment">// 查找文件资源</span></span><br><span class="line">            <span class="keyword">if</span> (f == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">EmptyResource</span>(root, path);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (!f.exists()) &#123; <span class="comment">// 检查文件是否存在，也就是说在这条代码执行前我们通过PUT方法上传的文件必须要落地</span></span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">EmptyResource</span>(root, path, f);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (f.isDirectory() &amp;&amp; path.charAt(path.length() - <span class="number">1</span>) != <span class="string">&#x27;/&#x27;</span>) &#123;</span><br><span class="line">                path = path + <span class="string">&#x27;/&#x27;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">FileResource</span>(root, path, f, isReadOnly(), getManifest(), <span class="built_in">this</span>, lock.key);</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            unlockForRead(lock);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">EmptyResource</span>(root, path);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过<code>fileBase</code>与<code>name</code>一起构造文件对象，这里<code>name</code>的值即我们传入的<code>/test.jsp</code><br>然后会调用<code>getCanonicalPath</code>来获得文件的规范化路径。<br>最后会比较<code>getCanonicalPath</code>方法获取的规范化路径<code>canPath</code>是否与文件的绝对路径<code>absPath</code>相等，如果两者不想的则返回null，此时我们需要这两个值是相等的，<br>所以我们需要保证<code>canPath</code>与<code>absPath</code>相等。跟进<code>getCanonicalPath</code>方法。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">final</span> File <span class="title function_">file</span><span class="params">(String name, <span class="type">boolean</span> mustExist)</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">        <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(fileBase, name);</span><br><span class="line">    ...</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            canPath = file.getCanonicalPath();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">        &#125;</span><br><span class="line">    ...</span><br><span class="line">        absPath = absPath.substring(absoluteBase.length());</span><br><span class="line">        canPath = canPath.substring(canonicalBase.length());</span><br><span class="line">    ...</span><br><span class="line">        <span class="keyword">if</span> (!canPath.equals(absPath)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (!canPath.equalsIgnoreCase(absPath)) &#123;</span><br><span class="line">                logIgnoredSymlink(getRoot().getContext().getName(), absPath, canPath);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> file;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p><code>java.io.File.getCanonicalPath</code><br>继续跟进 <code>canonicalize</code>方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> String <span class="title function_">getCanonicalPath</span><span class="params">()</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="keyword">if</span> (isInvalid()) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">IOException</span>(<span class="string">&quot;Invalid file path&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> fs.canonicalize(fs.resolve(<span class="built_in">this</span>));</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p><code>useCanonCaches</code> 表示是否启用规范路径缓存，也就是我们文章开头提到的高版本<code>JDK</code>这个值被设为<code>false</code>导致漏洞无法利用的原因。<br>我们要利用漏洞<code>useCanonCaches</code>的值必须为<code>true</code>，即我们希望进行规范化路径缓存。<br>该方法最终会调用到 <code>canonicalize0</code>方法，这是一个<code>native</code>方法，具体的细节我就不再分析了，感兴趣可以查看<a target="_blank" rel="noopener external nofollow noreferrer" href="https://xz.aliyun.com/news/16337">参考链接</a>。<br><code>canonicalize0</code>方法有个特性，其规范的路径时不区分大小写的，即如果我要规范一个路径<code>bastPath/test.jsp</code>，<br>该方法会去<code>basePath</code>路径下查找是否存在<code>test.jsp</code>文件，如果此时<code>basePath</code>下不存在<code>test.jsp</code>文件，将<code>basePath/test.jsp</code>这个路径原样返回，<br>如果<code>basePath</code>目录下存在<code>test.JSP</code>文件，则返回<code>basePath/test.JSP</code>，即规范路径时不区分大小写。<br>根据这个特性我们就可以将一个<code>.JSP</code>结尾的静态资源文件当作动态文件解析了。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">canonicalize</span><span class="params">(String path)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="keyword">if</span> (!useCanonCaches) &#123;</span><br><span class="line">            <span class="keyword">return</span> canonicalize0(path);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">res</span> <span class="operator">=</span> cache.get(path);<span class="comment">// 先查找缓存，首次访问时返回null</span></span><br><span class="line">            <span class="keyword">if</span> (res == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">dir</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">                <span class="type">String</span> <span class="variable">resDir</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">                <span class="keyword">if</span> (useCanonPrefixCache) &#123;<span class="comment">// 是否启用了前缀缓存，即缓存目录，我们直接访问的文件没有多层目录结构所以不涉及这一点。</span></span><br><span class="line">                    dir = parentOrNull(path);</span><br><span class="line">                    <span class="keyword">if</span> (dir != <span class="literal">null</span>) &#123;</span><br><span class="line">                        resDir = prefixCache.get(dir);</span><br><span class="line">                        <span class="keyword">if</span> (resDir != <span class="literal">null</span>) &#123;</span><br><span class="line">                            <span class="type">String</span> <span class="variable">filename</span> <span class="operator">=</span> path.substring(<span class="number">1</span> + dir.length());</span><br><span class="line">                            res = canonicalizeWithPrefix(resDir, filename);</span><br><span class="line">                            cache.put(dir + File.separatorChar + filename, res);</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (res == <span class="literal">null</span>) &#123;</span><br><span class="line">                    res = canonicalize0(path);<span class="comment">// native方法</span></span><br><span class="line">                    cache.put(path, res); <span class="comment">// 将规范化的结果放入到缓存中</span></span><br><span class="line">                    <span class="keyword">if</span> (useCanonPrefixCache &amp;&amp; dir != <span class="literal">null</span>) &#123; <span class="comment">// 如果启动了前缀缓存，还需要往前缀缓存添加缓存项。</span></span><br><span class="line">                        resDir = parentOrNull(res);</span><br><span class="line">                        <span class="keyword">if</span> (resDir != <span class="literal">null</span>) &#123;</span><br><span class="line">                            <span class="type">File</span> <span class="variable">f</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(res);</span><br><span class="line">                            <span class="keyword">if</span> (f.exists() &amp;&amp; !f.isDirectory()) &#123;</span><br><span class="line">                                prefixCache.put(dir, resDir);</span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> res;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>上面的方法执行完后会往<code>cache</code>中写入这样的键值对<code>test.jsp -&gt; test.JSP</code>。<br>当向上回退到<code>file</code>方法的时候出现问题了。<br>再file方法中计算的<code>basePath/test.jsp</code>计算的<code>canPath</code>为<code>basePath/test.JSP</code>，计算的<code>absPath</code>为<code>basePath/test.jsp</code>，<br>两者不相等导致<code>file</code>方法将会返回<code>null</code>，这不是我们想要的。<br>还记得前面提到<code>canonicalize0</code>方法的时候说过其有一个特性是当<code>basePath/test.jsp</code>或者<code>basePath/test.JSP</code>等文件在文件系统中不存在的时候会原样返回<code>basePath/test.jsp</code>。<br>这样在<code>file</code>方法中得到的<code>canPath</code>就与<code>absPath</code>一致了，也就能正确返回<code>File</code>对象了。<br>继续向上回溯到<code>DirResourceSet#getResource</code>方法，在成功调用file方法查找到文件资源后，调用<code>f.exists()</code>方法，检查文件是否存在，这是时候需要保证文件系统中存在文件<code>basePath/test.jsp</code>。<br>因为在<code>Windows</code>的文件系统中文件名是大小写不敏感的，所以<code>basePath/test.jsp</code>或者<code>basePath/test.JSP</code>其实表示同一个文件。<br>我们无法凭空创建一个<code>test.jsp</code>文件，但是可以创建<code>test.JSP</code>文件，因为该文件在Tomcat中是一个被当作一个静态资源文件处理的，我们可以通过PUT方法进行上传。  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> WebResource <span class="title function_">getResource</span><span class="params">(String path)</span> &#123;</span><br><span class="line">        checkPath(path);</span><br><span class="line">        <span class="type">String</span> <span class="variable">webAppMount</span> <span class="operator">=</span> getWebAppMount();</span><br><span class="line">        <span class="type">WebResourceRoot</span> <span class="variable">root</span> <span class="operator">=</span> getRoot();</span><br><span class="line">        <span class="keyword">if</span> (path.startsWith(webAppMount)) &#123;</span><br><span class="line">            <span class="type">ResourceLock</span> <span class="variable">lock</span> <span class="operator">=</span> lockForRead(path);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">File</span> <span class="variable">f</span> <span class="operator">=</span> file(path.substring(webAppMount.length()), <span class="literal">false</span>);<span class="comment">// 成功找到了file资源 path为 `basePath/test.jsp`</span></span><br><span class="line">                <span class="keyword">if</span> (f == <span class="literal">null</span>) &#123;</span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">EmptyResource</span>(root, path);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (!f.exists()) &#123; <span class="comment">// 检查文件是否存在，也就是说在这条代码执行前我们通过PUT方法上传的文件必须要落地</span></span><br><span class="line">                    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">EmptyResource</span>(root, path, f);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (f.isDirectory() &amp;&amp; path.charAt(path.length() - <span class="number">1</span>) != <span class="string">&#x27;/&#x27;</span>) &#123;</span><br><span class="line">                    path = path + <span class="string">&#x27;/&#x27;</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">FileResource</span>(root, path, f, isReadOnly(), getManifest(), <span class="built_in">this</span>, lock.key);</span><br><span class="line">            &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                unlockForRead(lock);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">EmptyResource</span>(root, path);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p><code>test.JSP</code>文件的上传时机是非常重要的，我们需要<code>canonicalize0</code>方法调用完之前这个文件是不存在于文件系统的，否则缓存中保存的就是<code>a.jsp -&gt; a.JSP</code>的映射关系，计算的<code>canPath</code>也变成了<code>a.JSP</code><br>这样不能通过<code>absPath</code>与<code>canPath</code>的比较。 且要保证在<code>f.exists</code>调用之前<code>test.JSP</code>文件成功落盘，因为我们要保证文件存在否则将响应一个空的资源对象。  </p>
+<p>在调试环境下要做到这一点是非常简单的，我们只需要在<code>f.exists</code>这一行下断点，访问<code>test.jsp</code>运行到这一行时再到文件系统中创建<code>test.JSP</code>文件，然后让代码继续执行即可观察到<code>test.JSP</code>中的命令被执行了。</p>
+<pre><code class="language-jsp">&lt;%=Runtime.getRuntime().exec(&quot;calc&quot;)%&gt;
+</code></pre>
+<p><img src="/archives/172295c/img_1.png" alt="img_1.png">  </p>
+<p>实战环境下PoC的写法在了解了原理后相比并不困难（人比较懒），这里不再赘述。</p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul>
+<li><a target="_blank" rel="noopener external nofollow noreferrer" href="https://xz.aliyun.com/news/16337">Tomcat CVE-2024-50379 &#x2F; CVE-2024-56337 条件竞争漏洞分析</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    <div class="post-widgets">
+      <div id="needsharebutton-postbottom">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    </div>
+        <div class="reward-container">
+  <div>Buy me a coffee.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Arliya 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Arliya 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Arliya
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dayutech.github.io/archives/172295c.html" title="Tomcat 条件竞争导致远程代码执行（CVE-2024-50379&#x2F;CVE-2024-56337）">https://dayutech.github.io/archives/172295c.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/RCE/" rel="tag"><i class="fa fa-tag"></i> RCE</a>
+              <a href="/tags/%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/" rel="tag"><i class="fa fa-tag"></i> 远程代码执行</a>
+              <a href="/tags/Tomcat/" rel="tag"><i class="fa fa-tag"></i> Tomcat</a>
+              <a href="/tags/%E6%9D%A1%E4%BB%B6%E7%AB%9E%E4%BA%89/" rel="tag"><i class="fa fa-tag"></i> 条件竞争</a>
+              <a href="/tags/CVE-2024-50379/" rel="tag"><i class="fa fa-tag"></i> CVE-2024-50379</a>
+              <a href="/tags/CVE-2024-56337/" rel="tag"><i class="fa fa-tag"></i> CVE-2024-56337</a>
+          </div>
+		  
+          <script data-pjax>
+	var tagsall=document.getElementsByClassName("post-tags")
+	for (var i = tagsall.length - 1; i >= 0; i--){
+		var tags=tagsall[i].getElementsByTagName("a");
+		for (var j = tags.length - 1; j >= 0; j--) {
+			var golden_ratio = 0.618033988749895;
+			var s = 0.5;
+			var v = 0.999;
+			var h = golden_ratio + Math.random()*0.8 - 0.5;
+			var h_i = parseInt(h * 6);
+			var f = h * 6 - h_i;
+			var p = v * (1 - s);
+			var q = v * (1 - f * s);
+			var t = v * (1 - (1 - f) * s);
+			var r, g, b;
+			switch (h_i) {
+				case 0:
+					r = v;
+					g = t;
+					b = p;
+					break;
+				case 1:
+					r = q;
+					g = v;
+					b = p;
+					break;
+				case 2:
+					r = p;
+					g = v;
+					b = t;
+					break;
+				case 3 :
+					r = p;
+					g = q;
+					b = v;
+					break;
+				case 4:
+					r = t;
+					g = p;
+					b = v;
+					break;
+				case 5:
+					r = v;
+					g = p;
+					b = q;
+					break;
+				default:
+					r = 1;
+					g = 1;
+					b = 1;
+			  }
+			tags[j].style.background = "rgba("+parseInt(r*255)+","+parseInt(g*255)+","+parseInt(b*255)+","+0.5+")";
+		}
+	}          
+                         
+            </script>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/f65bb354.html" rel="prev" title="WebFlux集成Spring-Security受限静态资源访问授权绕过（CVE-2024-38821）">
+      <i class="fa fa-chevron-left"></i> WebFlux集成Spring-Security受限静态资源访问授权绕过（CVE-2024-38821）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/fe8a0a5d.html" rel="next" title="Apache Struts2 S2-066 任意文件上传漏洞（CVE-2023-50164）">
+      Apache Struts2 S2-066 任意文件上传漏洞（CVE-2023-50164） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">漏洞描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC"><span class="nav-number">2.</span> <span class="nav-text">影响版本</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">3.</span> <span class="nav-text">环境搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E6%88%90%E5%9B%A0"><span class="nav-number">4.</span> <span class="nav-text">漏洞成因</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">5.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Arliya"
+      src="/images/dayu/avatar.png">
+  <p class="site-author-name" itemprop="name">Arliya</p>
+  <div class="site-description" itemprop="description">主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">101</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">190</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dayutech" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dayutech" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:test@qq.com" title="E-Mail → mailto:test@qq.com" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/yourname" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://youtube.com/yourname" title="YouTube → https:&#x2F;&#x2F;youtube.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener external nofollow noreferrer" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+	  
+		<div class="links-of-blogroll scroll" style="margin-top:20px; border-style:dotted none none none; padding-top:5px; text-align:left;padding-left: 20px; padding-right: 10px; padding-bottom: 5px;">
+		  <div class="links-of-blogroll-title" style="padding-bottom: 5px; padding-top: 5px; padding-left: 0px; padding-right: 20px; font-size: 1.6em; argin-right: 5px;">
+		<!-- 选择合适的icon --><i class="fab fa-markdown" aria-hidden="true"></i>
+			<b style="font-size: 0.65em; padding-left: 8px; position: relative; top: -2px;">文章列表</b>
+		  </div>
+		  <ul class="links-of-blogroll-list">
+		<!-- 文章排序规格,-updated 按照文章更新时间倒排 -->
+			
+		<!-- 显示10数目的文章 -->
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42eb2c82.html" title="动态代理在java反序列化中的应用" target="_blank">动态代理在java反序列化中的应用</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/b7f3ad9b.html" title="面试题整理" target="_blank">面试题整理</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/9c75190f.html" title="防火墙" target="_blank">防火墙</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42623881.html" title="通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入" target="_blank">通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/6eecc4bb.html" title="读书笔记-WEB前端黑客技术揭秘" target="_blank">读书笔记-WEB前端黑客技术揭秘</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/ef2b93c5.html" title="记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题" target="_blank">记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/53e2963.html" title="解决hexo图片访问遇到图床防盗链无法访问的问题" target="_blank">解决hexo图片访问遇到图床防盗链无法访问的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/7f771bb5.html" title="解决hexo内嵌js无法加载问题" target="_blank">解决hexo内嵌js无法加载问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/e9ccef3c.html" title="解决hexo-pdf无法使用的问题" target="_blank">解决hexo-pdf无法使用的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/cf1ba47f.html" title="解决hexo-next主题上游仓库改变告警" target="_blank">解决hexo-next主题上游仓库改变告警</a>
+			  </li>
+			
+		  </ul>
+		</div>
+	  
+	 
+    </div>
+	
+  </aside>
+  <div id="sidebar-dimmer"></div>
+ 
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Arliya</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">202k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">12:14</span>
+</div>
+  <div class="powered-by">由 <a href="https://github.com/dayutech" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">DayuTech</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+<div id="needsharebutton-float">
+      <span class="btn">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </span>
+    </div>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.js"></script>
+  <script>
+      pbOptions = {};
+        pbOptions.iconStyle = "box";
+        pbOptions.boxForm = "horizontal";
+        pbOptions.position = "bottomCenter";
+        pbOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-postbottom', pbOptions);
+      flOptions = {};
+        flOptions.iconStyle = "box";
+        flOptions.boxForm = "horizontal";
+        flOptions.position = "middleRight";
+        flOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-float', flOptions);
+  </script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23li28mRRYx9D76aAJ',
+      clientSecret: '8f7211d1bd039050ed40345ddf60273d6626ad6f',
+      repo        : 'dayutech.github.io',
+      owner       : 'dayutech',
+      admin       : ['dayutech'],
+      id          : '8573a02e2427a6d77935ab0e93ae7bd4',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
+</script>
+
+    </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

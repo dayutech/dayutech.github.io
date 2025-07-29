@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/dayu/dayu-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dayu/dayu-web-app-manifest-512x512.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/dayu/dayu-web-app-manifest-192x192.png">
+  <link rel="mask-icon" href="/images/dayu/dayu-favicon.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dayutech.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="这两天没啥工作，一般这时候我都不会发挥自己的主观能动性去主动找活，于是乎只能上网看看博客，提升提升自己的技术。想起在这家公司呆久了把内网方面本来就不多的知识都快丢光了，于是乎趁着难得清闲准备补充补充营养。看了一些与内网穿透相关的博客，准备实操的时候遇到了麻烦。本着逢山开路遇水架桥的精神，今天势必要把这个问题拿下。 问题描述Regeorg是只提供了对python2的支持，使用python3来运行爆了">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Regeorg 从python2改造为python3-从实战中学习socks5协议">
+<meta property="og:url" content="https://dayutech.github.io/archives/97967489.html">
+<meta property="og:site_name" content="Dayu Technology Co., LTD">
+<meta property="og:description" content="这两天没啥工作，一般这时候我都不会发挥自己的主观能动性去主动找活，于是乎只能上网看看博客，提升提升自己的技术。想起在这家公司呆久了把内网方面本来就不多的知识都快丢光了，于是乎趁着难得清闲准备补充补充营养。看了一些与内网穿透相关的博客，准备实操的时候遇到了麻烦。本着逢山开路遇水架桥的精神，今天势必要把这个问题拿下。 问题描述Regeorg是只提供了对python2的支持，使用python3来运行爆了">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/97ecb5ee4338329ab06c0b030df7da84.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/d531a71d517083d9bebe4aeb09d61e0f.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/6302ac82d9c11e48049e198ddd612390.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/58625b0f130fb888f7066a19ac678cbc.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/fa058e1d062e8d304184d650d283e46a.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/98b84fedce2f56ca214ae1589a3389f6.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/7a6b1c432a99fd9eea79db8888ece049.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/7bbc7c72185f3c3a55a613ba4cb04af3.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/ecead071f4b5bbd407812026d4051afd.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/a84e9ac7cc5e22b2806783cdbc43f736.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/e9c237dc00808f555a523bbb2d759238.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/ced66d140d30ac8e35728340dc47e33d.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/82e89d004969163ba8c14115fdad24ed.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/0ec6fa88abffe7b8479c6051b0212c39.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/7df90243bf7ab5b29611e562a4407c2c.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/44eccbbfe4dc6f729a1dd632b5651cc4.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/76abbec7793072c7e1fde2a8a2df5250.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/6547dde1f41b35a9de072dfbe3fdb792.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/5c8f58075f2a46b420c95e81b8f08bdc.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/aba99a4b53948789d732d47502454885.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/742086ad66da9674eadc46708c9c167d.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/2ba215498dff04709a1e3487da1be6d6.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/a8b92d967f4a49d2092512c8eba00d50.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/416ea62c6df5f7ee88081d90139d4f9c.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/76cfa7252d15c299dd537ddf8bab7ca5.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/37e3efc518bf7d2004c79c68f6b722dc.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/ceeac2b3ba3c44fe58b54d3f0606667a.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/0703ef906c9884e66280559026b329f5.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/e942c6c511496d40a72f12f185203247.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/8e607021b4b8f987b760e045b0c62569.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/5ad30111475af280ed290ec3dae3ae3a.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/1a1b501ffb0d39e593fdd3779a6ea606.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/304db3550a2ae2b4a9b29c291d0996b9.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/fcf7266a7587289ac9b3ab14fed79f80.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/3a0ae96d858aac3a66887b752deea43a.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/002db315455703ef5072157e3d276ec3.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/462d7582eb007c1a3b95ecc2327c0772.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/176be127ed8938f9f8efc3a0e05fb0f4.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/ab9f3cf728b02c6ca63667e371686f5f.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/b6f114b7d3786ad8062e0c88bcfe2db4.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/834676e13418f033c9f5b1d41572ea24.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/1676c712ac01528957e13c058c8c6104.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/9d0b4e6115dab04a5e526c3f903181d1.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/e93be96c679b771f49e124bb63fc58fd.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/bc9496b44d736bf6b0cc1459df0d5f08.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/caf0cbb99f1dfb5b61d66f8e36d0f54f.png">
+<meta property="article:published_time" content="2025-04-14T02:33:52.000Z">
+<meta property="article:modified_time" content="2025-07-29T09:02:07.118Z">
+<meta property="article:author" content="Arliya">
+<meta property="article:tag" content="socks5">
+<meta property="article:tag" content="Regeorg">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i-blog.csdnimg.cn/blog_migrate/97ecb5ee4338329ab06c0b030df7da84.png">
+
+<link rel="canonical" href="https://dayutech.github.io/archives/97967489.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.css"><style>
+#needsharebutton-postbottom {
+  cursor: pointer;
+  height: 26px;
+  margin-top: 10px;
+  position: relative;
+}
+#needsharebutton-postbottom .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 3px;
+  display: initial;
+  padding: 1px 4px;
+}
+</style><style>
+#needsharebutton-float {
+  bottom: 88px;
+  cursor: pointer;
+  left: -8px;
+  position: fixed;
+  z-index: 9999;
+}
+#needsharebutton-float .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 4px;
+  padding: 0 10px 0 14px;
+}
+</style>
+  <title>Regeorg 从python2改造为python3-从实战中学习socks5协议 | Dayu Technology Co., LTD</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Dayu Technology Co., LTD" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dayu Technology Co., LTD</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">大禹科技股份有限公司</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-rss">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/dayutech/dayutech.github.io" class="github-corner" title="Dayu GitHub" aria-label="Dayu GitHub" rel="noopener external nofollow noreferrer" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/97967489.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Regeorg 从python2改造为python3-从实战中学习socks5协议
+        </h1>
+
+        <div class="post-meta">
+		  
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-29 17:02:07" itemprop="dateModified" datetime="2025-07-29T17:02:07+08:00">2025-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8D%8F%E8%AE%AE%E8%A7%84%E8%8C%83/" itemprop="url" rel="index"><span itemprop="name">协议规范</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>9 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>这两天没啥工作，一般这时候我都不会发挥自己的主观能动性去主动找活，于是乎只能上网看看博客，提升提升自己的技术。想起在这家公司呆久了把内网方面本来就不多的知识都快丢光了，于是乎趁着难得清闲准备补充补充营养。看了一些与内网穿透相关的博客，准备实操的时候遇到了麻烦。本着逢山开路遇水架桥的精神，今天势必要把这个问题拿下。</p>
+<h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>Regeorg是只提供了对python2的支持，使用python3来运行爆了一大串错我，今天咱就一个问题一个问题得搞定，手把手教你怎么把Regeorg改造成python3版本。看了下这个项目8年前年就停止更新了<br><img src="https://i-blog.csdnimg.cn/blog_migrate/97ecb5ee4338329ab06c0b030df7da84.png" alt="在这里插入图片描述"></p>
+<span id="more"></span>
+<h1 id="解决过程"><a href="#解决过程" class="headerlink" title="解决过程"></a>解决过程</h1><h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><table>
+<thead>
+<tr>
+<th>平台</th>
+<th>ip地址</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>物理机（windows11）</td>
+<td>192.168.1.101</td>
+</tr>
+<tr>
+<td>虚拟机1（centos7）</td>
+<td>双网卡192.168.248.146(nat)、172.16.128.2(仅主机模式)</td>
+</tr>
+<tr>
+<td>虚拟机2（windows7）</td>
+<td>172.16.128.1(仅主机模式，搭建了web服务器)</td>
+</tr>
+<tr>
+<td>物理机作为我们的攻击机，可以正常与虚拟机1通信，虚拟机1安装了web服务作为受控主机，可正常与物理机与虚拟机2通信，虚拟机2模拟内网主机，仅能与虚拟机1通信不能与物理机通信</td>
+<td></td>
+</tr>
+</tbody></table>
+<h2 id="过程"><a href="#过程" class="headerlink" title="过程"></a>过程</h2><p>首先我们把项目 clone下来<br><img src="https://i-blog.csdnimg.cn/blog_migrate/d531a71d517083d9bebe4aeb09d61e0f.png" alt="在这里插入图片描述"><br>因为被控主机的中间件解析器为PHP所以这里选择php后缀的脚本作为代理转发服务器，可以看到有两个php文件，他两的区别在于一个使用了dl加载动态链接库一个没有<br><img src="https://i-blog.csdnimg.cn/blog_migrate/6302ac82d9c11e48049e198ddd612390.png" alt="在这里插入图片描述"><br>这么看来该文件只能在windows环境下使用，且因为PHP貌似是5.2之后就溢出了dl函数，所以我们不用这个文件而用tunnel.nosocket.php来作为代理服务器。当该文件被上传到受控主机后使用浏览器访问该文件<br><img src="https://i-blog.csdnimg.cn/blog_migrate/58625b0f130fb888f7066a19ac678cbc.png" alt="在这里插入图片描述"><br>如果看到这些字就证明服务器已就位，当然这个过程可能并不会那么顺利，你可能会遇到的问题为权限问题导致的文件不可用，这时候只需使用<code>linux</code>命令<code>chmod</code>给 <code>tunnel.nosocket.php</code>赋予更高的权限就ok了。<br>然后我么运行命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python reGeorgSocksProxy.py -p 8754 -u http://192.168.248.145/tunnel.nosocket.php</span><br></pre></td></tr></table></figure>
+<p>在我们的攻击机上起一个客户端<br><img src="https://i-blog.csdnimg.cn/blog_migrate/fa058e1d062e8d304184d650d283e46a.png" alt="在这里插入图片描述"><br>报错了，这个很见到，把代码里所有的<code>except</code>语句中的逗号改成<code>as</code>就好了。然后运行又报错了<br><img src="https://i-blog.csdnimg.cn/blog_migrate/98b84fedce2f56ca214ae1589a3389f6.png" alt="在这里插入图片描述"><br>这个也很简单，<code>print</code>的写法不对，改成<code>print()</code>就好了，再运行</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/7a6b1c432a99fd9eea79db8888ece049.png" alt="在这里插入图片描述"><br>说是少了模块，看一下怎么引入的<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7bbc7c72185f3c3a55a613ba4cb04af3.png" alt="在这里插入图片描述"><br><code>python3</code>里面<code>urlparse</code>集成到<code>urllib</code>包里面，直接删掉这一行然后重新导入<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ecead071f4b5bbd407812026d4051afd.png" alt="在这里插入图片描述"></p>
+<p>再运行虽然没有说没有报错但是提示了，<code>georg</code>没有准备好<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a84e9ac7cc5e22b2806783cdbc43f736.png" alt="在这里插入图片描述"><br>在代码里搜一下这句报错在哪儿出现的<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e9c237dc00808f555a523bbb2d759238.png" alt="在这里插入图片描述"><br>看来是这行<code>askGeorg</code>返回了<code>False</code>，跟进去看看<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ced66d140d30ac8e35728340dc47e33d.png" alt="在这里插入图片描述"><br>重点画红框的地方，内层的if语句没有进去，我们直接打印一下相关的值看看<br><img src="https://i-blog.csdnimg.cn/blog_migrate/82e89d004969163ba8c14115fdad24ed.png" alt="在这里插入图片描述"><br>注意到<code>response.dat</code>返回的是字节类型与<code>BASICCHECKSTRING</code>的字符串类型肯定不相等，我们将<code>BASICCHECKSTRING</code>的类型修改为字节文本就<code>ok</code>了，记得不要再使用<code>strip</code>去除两端空白字符<br><img src="https://i-blog.csdnimg.cn/blog_migrate/0ec6fa88abffe7b8479c6051b0212c39.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/7df90243bf7ab5b29611e562a4407c2c.png" alt="在这里插入图片描述"><br>再运行看起来ok了<br><img src="https://i-blog.csdnimg.cn/blog_migrate/44eccbbfe4dc6f729a1dd632b5651cc4.png" alt="在这里插入图片描述"><br>当然事情没有那么简单，这时候我们使用<code>proxifier</code>将本地应用的流量代理到<code>regeorg</code>客户端试一下<br>配置代理服务器<br><img src="https://i-blog.csdnimg.cn/blog_migrate/76abbec7793072c7e1fde2a8a2df5250.png" alt="在这里插入图片描述"><br>配置代理规则<br><img src="https://i-blog.csdnimg.cn/blog_migrate/6547dde1f41b35a9de072dfbe3fdb792.png" alt="在这里插入图片描述"><br>这里注意第一处红框处是为了让本地环回网卡的流量都通过直连的方式访问，避免死循环，第二处红框则是将使用chrome浏览器访问<code>172.16.128.1</code>的流量都转发到我们的<code>regeorg</code>客户端。然后我们用浏览器访问一下<code>172.16.128.1</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/5c8f58075f2a46b420c95e81b8f08bdc.png" alt="在这里插入图片描述"><br>发现访问失败了，而且<code>regeorg</code>客户端屁都没有冒，这肯定是哪里出现了问题，那么我们还是来调试一下</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/aba99a4b53948789d732d47502454885.png" alt="在这里插入图片描述"><br>最终的请求是由这条语句进行的那么我们跟进去看看，这里调用了<code>start</code>方法，应该是多线程的写法，所以我们直接去找<code>run</code>方法<br><img src="https://i-blog.csdnimg.cn/blog_migrate/742086ad66da9674eadc46708c9c167d.png" alt="在这里插入图片描述"><br>注意到刚才控制台没有打印日志，也就是没有报错也没有进入if分支，也就是说，if的判断条件返回了<code>false</code>，那么跟进去看<br><img src="https://i-blog.csdnimg.cn/blog_migrate/2ba215498dff04709a1e3487da1be6d6.png" alt="在这里插入图片描述"><br>这里就是在对<code>socks</code>协议进行解析了，首先读取了一个字节，这里的第一个字节也就是使用的协议版本号，这里为<code>socks5</code>协议，我们打印一下看看<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a8b92d967f4a49d2092512c8eba00d50.png" alt="在这里插入图片描述"><br>很明显这里又是数据类型有问题，在<code>python2</code>中字节文本与文本字符串是不分开的所以无所谓，但<code>python</code>里做了严格的区分，所以这里我们将连个<code>if</code>判断条件改为字节文本。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/416ea62c6df5f7ee88081d90139d4f9c.png" alt="在这里插入图片描述"><br>再运行<br><img src="https://i-blog.csdnimg.cn/blog_migrate/76cfa7252d15c299dd537ddf8bab7ca5.png" alt="在这里插入图片描述"><br>又报错了，这里说的是在141行需要一个字节对象，但给了一个字符串，那就到141行<br><img src="https://i-blog.csdnimg.cn/blog_migrate/37e3efc518bf7d2004c79c68f6b722dc.png" alt="在这里插入图片描述"><br>这里的<code>VER</code>与<code>METHOD</code>为定义的两个字符串常量，我们知道<code>sockets</code>的<code>sendall</code>是不能发送字符串的需要对其进行编码，这里可以使用<code>encode</code>方法同一修改或者在其定义的地方修改<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ceeac2b3ba3c44fe58b54d3f0606667a.png" alt="在这里插入图片描述"><br>再运行，又报错<br><img src="https://i-blog.csdnimg.cn/blog_migrate/0703ef906c9884e66280559026b329f5.png" alt="在这里插入图片描述"><br>说的是166行<code>None</code>类型不能进行切片，也就是说<code>targetPort</code>返回了<code>None</code>，去看看<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e942c6c511496d40a72f12f185203247.png" alt="在这里插入图片描述"><br>那么再看看<code>targetPort</code>哪里来的<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8e607021b4b8f987b760e045b0c62569.png" alt="在这里插入图片描述"><br>大意就是通过<code>atyp</code>的值，来判断<code>targetPort</code>的取值方式，这里很明显还是数据类型导致的，老规矩直接改成字节文本，同时注意到这里会继续对<code>proxifier</code>发过来的握手包进行解析，先解析两个字节，一个字节是<code>nmethods</code>，一个为<code>methods``，nmethods</code>表示可以使用的方法，<code>methods</code>表示方法的值。然后<code>regeorg</code>会选择可用的方法给<code>proxifier</code>回包告诉向客户端确认协议版本号以及使用的方法。这里看一下这几个参数的值</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/5ad30111475af280ed290ec3dae3ae3a.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/1a1b501ffb0d39e593fdd3779a6ea606.png" alt="在这里插入图片描述"><br>然后<code>proxifier</code>会再回一个包，这里进行解析<br><img src="https://i-blog.csdnimg.cn/blog_migrate/304db3550a2ae2b4a9b29c291d0996b9.png" alt="在这里插入图片描述"><br>首先第一个字节任然是版本号，然后根据版本号的不同会有不同的解析方式，这里直接看<code>socks5</code>的格式<br>后面字节分别为命令，保留位以及目标类型，这里看一下值<br><img src="https://i-blog.csdnimg.cn/blog_migrate/fcf7266a7587289ac9b3ab14fed79f80.png" alt="在这里插入图片描述"><br>命令为01，也就是连接请求，保留位不管，然后是目标类型01也就是ipv4地址。<br>这些都了解了我们继续看报错的内容<br><img src="https://i-blog.csdnimg.cn/blog_migrate/3a0ae96d858aac3a66887b752deea43a.png" alt="在这里插入图片描述"><br>说ord函数拿到了一个整数，但需要的是1个字符，这里直接改<br><img src="https://i-blog.csdnimg.cn/blog_migrate/002db315455703ef5072157e3d276ec3.png" alt="在这里插入图片描述"><br>再运行<br><img src="https://i-blog.csdnimg.cn/blog_migrate/462d7582eb007c1a3b95ecc2327c0772.png" alt="在这里插入图片描述"><br>还是这儿不过报错内容变了，还是数据类型的问题，直接改就完了<br><img src="https://i-blog.csdnimg.cn/blog_migrate/176be127ed8938f9f8efc3a0e05fb0f4.png" alt="在这里插入图片描述"><br>运行，看报错<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ab9f3cf728b02c6ca63667e371686f5f.png" alt="在这里插入图片描述"></p>
+<p>这里说的是连接目标失败，然后我搜了这一句报错在代码里面没有，那么只有可能来自服务端的响应，去服务端搜<br><img src="https://i-blog.csdnimg.cn/blog_migrate/b6f114b7d3786ad8062e0c88bcfe2db4.png" alt="在这里插入图片描述"><br>这一看就是socket连接失败了，然后我一看我虚拟机自动挂起了，重新开起来再运行<br><img src="https://i-blog.csdnimg.cn/blog_migrate/834676e13418f033c9f5b1d41572ea24.png" alt="在这里插入图片描述"><br>又是数据类型问题，直接改<br><img src="https://i-blog.csdnimg.cn/blog_migrate/1676c712ac01528957e13c058c8c6104.png" alt="在这里插入图片描述"><br>再运行<br><img src="https://i-blog.csdnimg.cn/blog_migrate/9d0b4e6115dab04a5e526c3f903181d1.png" alt="在这里插入图片描述"><br>搞定了，不过浏览器的渲染结果是这样的<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e93be96c679b771f49e124bb63fc58fd.png" alt="在这里插入图片描述"><br>响应无效，说明是响应的问题，然后我使用<code>proxifier</code>代理了<code>burp</code>的流量看了下响应<br><img src="https://i-blog.csdnimg.cn/blog_migrate/bc9496b44d736bf6b0cc1459df0d5f08.png" alt="在这里插入图片描述"><br>协议前头多了个<code>P</code>啊，这浏览器解析不了很正常，秉持着打破砂锅问到底的精神，我们还是要装样子看看这个<code>P</code>怎么来的，所以这里打印一下客户端从服务端获取的响应<br><img src="https://i-blog.csdnimg.cn/blog_migrate/caf0cbb99f1dfb5b61d66f8e36d0f54f.png" alt="在这里插入图片描述"><br>这也没有<code>P</code>啊，证明应该不是<code>regeorg</code>的问题，那么就是<code>proxifier</code>的问题了，这个就有点难搞了。。。</p>
+
+    </div>
+
+    
+    
+    <div class="post-widgets">
+      <div id="needsharebutton-postbottom">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    </div>
+        <div class="reward-container">
+  <div>Buy me a coffee.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Arliya 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Arliya 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Arliya
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dayutech.github.io/archives/97967489.html" title="Regeorg 从python2改造为python3-从实战中学习socks5协议">https://dayutech.github.io/archives/97967489.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/socks5/" rel="tag"><i class="fa fa-tag"></i> socks5</a>
+              <a href="/tags/Regeorg/" rel="tag"><i class="fa fa-tag"></i> Regeorg</a>
+          </div>
+		  
+          <script data-pjax>
+	var tagsall=document.getElementsByClassName("post-tags")
+	for (var i = tagsall.length - 1; i >= 0; i--){
+		var tags=tagsall[i].getElementsByTagName("a");
+		for (var j = tags.length - 1; j >= 0; j--) {
+			var golden_ratio = 0.618033988749895;
+			var s = 0.5;
+			var v = 0.999;
+			var h = golden_ratio + Math.random()*0.8 - 0.5;
+			var h_i = parseInt(h * 6);
+			var f = h * 6 - h_i;
+			var p = v * (1 - s);
+			var q = v * (1 - f * s);
+			var t = v * (1 - (1 - f) * s);
+			var r, g, b;
+			switch (h_i) {
+				case 0:
+					r = v;
+					g = t;
+					b = p;
+					break;
+				case 1:
+					r = q;
+					g = v;
+					b = p;
+					break;
+				case 2:
+					r = p;
+					g = v;
+					b = t;
+					break;
+				case 3 :
+					r = p;
+					g = q;
+					b = v;
+					break;
+				case 4:
+					r = t;
+					g = p;
+					b = v;
+					break;
+				case 5:
+					r = v;
+					g = p;
+					b = q;
+					break;
+				default:
+					r = 1;
+					g = 1;
+					b = 1;
+			  }
+			tags[j].style.background = "rgba("+parseInt(r*255)+","+parseInt(g*255)+","+parseInt(b*255)+","+0.5+")";
+		}
+	}          
+                         
+            </script>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/dbd438c0.html" rel="prev" title="PostgreSQL JDBC Driver RCE&任意文件写入漏洞">
+      <i class="fa fa-chevron-left"></i> PostgreSQL JDBC Driver RCE&任意文件写入漏洞
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/1298d583.html" rel="next" title="RMI原理浅析">
+      RMI原理浅析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">问题描述</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">解决过程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">2.1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E7%A8%8B"><span class="nav-number">2.2.</span> <span class="nav-text">过程</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Arliya"
+      src="/images/dayu/avatar.png">
+  <p class="site-author-name" itemprop="name">Arliya</p>
+  <div class="site-description" itemprop="description">主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">101</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">190</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dayutech" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dayutech" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:test@qq.com" title="E-Mail → mailto:test@qq.com" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/yourname" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://youtube.com/yourname" title="YouTube → https:&#x2F;&#x2F;youtube.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener external nofollow noreferrer" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+	  
+		<div class="links-of-blogroll scroll" style="margin-top:20px; border-style:dotted none none none; padding-top:5px; text-align:left;padding-left: 20px; padding-right: 10px; padding-bottom: 5px;">
+		  <div class="links-of-blogroll-title" style="padding-bottom: 5px; padding-top: 5px; padding-left: 0px; padding-right: 20px; font-size: 1.6em; argin-right: 5px;">
+		<!-- 选择合适的icon --><i class="fab fa-markdown" aria-hidden="true"></i>
+			<b style="font-size: 0.65em; padding-left: 8px; position: relative; top: -2px;">文章列表</b>
+		  </div>
+		  <ul class="links-of-blogroll-list">
+		<!-- 文章排序规格,-updated 按照文章更新时间倒排 -->
+			
+		<!-- 显示10数目的文章 -->
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42eb2c82.html" title="动态代理在java反序列化中的应用" target="_blank">动态代理在java反序列化中的应用</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/b7f3ad9b.html" title="面试题整理" target="_blank">面试题整理</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/9c75190f.html" title="防火墙" target="_blank">防火墙</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42623881.html" title="通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入" target="_blank">通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/6eecc4bb.html" title="读书笔记-WEB前端黑客技术揭秘" target="_blank">读书笔记-WEB前端黑客技术揭秘</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/ef2b93c5.html" title="记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题" target="_blank">记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/53e2963.html" title="解决hexo图片访问遇到图床防盗链无法访问的问题" target="_blank">解决hexo图片访问遇到图床防盗链无法访问的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/7f771bb5.html" title="解决hexo内嵌js无法加载问题" target="_blank">解决hexo内嵌js无法加载问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/e9ccef3c.html" title="解决hexo-pdf无法使用的问题" target="_blank">解决hexo-pdf无法使用的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/cf1ba47f.html" title="解决hexo-next主题上游仓库改变告警" target="_blank">解决hexo-next主题上游仓库改变告警</a>
+			  </li>
+			
+		  </ul>
+		</div>
+	  
+	 
+    </div>
+	
+  </aside>
+  <div id="sidebar-dimmer"></div>
+ 
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Arliya</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">202k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">12:14</span>
+</div>
+  <div class="powered-by">由 <a href="https://github.com/dayutech" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">DayuTech</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+<div id="needsharebutton-float">
+      <span class="btn">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </span>
+    </div>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.js"></script>
+  <script>
+      pbOptions = {};
+        pbOptions.iconStyle = "box";
+        pbOptions.boxForm = "horizontal";
+        pbOptions.position = "bottomCenter";
+        pbOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-postbottom', pbOptions);
+      flOptions = {};
+        flOptions.iconStyle = "box";
+        flOptions.boxForm = "horizontal";
+        flOptions.position = "middleRight";
+        flOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-float', flOptions);
+  </script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23li28mRRYx9D76aAJ',
+      clientSecret: '8f7211d1bd039050ed40345ddf60273d6626ad6f',
+      repo        : 'dayutech.github.io',
+      owner       : 'dayutech',
+      admin       : ['dayutech'],
+      id          : '99cb002af9d9055863be084aed0f2900',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
+</script>
+
+    </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

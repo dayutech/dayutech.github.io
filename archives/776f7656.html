@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/dayu/dayu-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dayu/dayu-web-app-manifest-512x512.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/dayu/dayu-web-app-manifest-192x192.png">
+  <link rel="mask-icon" href="/images/dayu/dayu-favicon.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dayutech.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文介绍了 交换机、单臂路由、三层交换机、VLAN、ARP 的相关知识点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据链路层设备及协议：交换机、单臂路由、三层交换机、VLAN、ARP">
+<meta property="og:url" content="https://dayutech.github.io/archives/776f7656.html">
+<meta property="og:site_name" content="Dayu Technology Co., LTD">
+<meta property="og:description" content="本文介绍了 交换机、单臂路由、三层交换机、VLAN、ARP 的相关知识点">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://dayutech.github.io/archives/776f7656/download.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/776f7656/v2-63baa76ac2837bc1f3ef6d9b438a0181_720w.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/776f7656/1111.jpg">
+<meta property="article:published_time" content="2025-04-10T12:56:11.000Z">
+<meta property="article:modified_time" content="2025-07-29T09:02:08.102Z">
+<meta property="article:author" content="Arliya">
+<meta property="article:tag" content="交换机">
+<meta property="article:tag" content="路由器">
+<meta property="article:tag" content="三层交换机">
+<meta property="article:tag" content="VLAN">
+<meta property="article:tag" content="ARP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://dayutech.github.io/archives/776f7656/download.png">
+
+<link rel="canonical" href="https://dayutech.github.io/archives/776f7656.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.css"><style>
+#needsharebutton-postbottom {
+  cursor: pointer;
+  height: 26px;
+  margin-top: 10px;
+  position: relative;
+}
+#needsharebutton-postbottom .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 3px;
+  display: initial;
+  padding: 1px 4px;
+}
+</style><style>
+#needsharebutton-float {
+  bottom: 88px;
+  cursor: pointer;
+  left: -8px;
+  position: fixed;
+  z-index: 9999;
+}
+#needsharebutton-float .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 4px;
+  padding: 0 10px 0 14px;
+}
+</style>
+  <title>数据链路层设备及协议：交换机、单臂路由、三层交换机、VLAN、ARP | Dayu Technology Co., LTD</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Dayu Technology Co., LTD" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dayu Technology Co., LTD</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">大禹科技股份有限公司</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-rss">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/dayutech/dayutech.github.io" class="github-corner" title="Dayu GitHub" aria-label="Dayu GitHub" rel="noopener external nofollow noreferrer" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/776f7656.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数据链路层设备及协议：交换机、单臂路由、三层交换机、VLAN、ARP
+        </h1>
+
+        <div class="post-meta">
+		  
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-10 20:56:11" itemprop="dateCreated datePublished" datetime="2025-04-10T20:56:11+08:00">2025-04-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-29 17:02:08" itemprop="dateModified" datetime="2025-07-29T17:02:08+08:00">2025-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">安全技术</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8D%8F%E8%AE%AE%E8%A7%84%E8%8C%83/" itemprop="url" rel="index"><span itemprop="name">协议规范</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>15 分钟</span>
+            </span>
+            <div class="post-description">本文介绍了 交换机、单臂路由、三层交换机、VLAN、ARP 的相关知识点</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="交换机"><a href="#交换机" class="headerlink" title="交换机"></a>交换机</h1><p>本笔记部分参考网址：</p>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://zhuanlan.zhihu.com/p/122241071">交换机工作原理详解（附原理图）</a></p>
+<h2 id="基本情况"><a href="#基本情况" class="headerlink" title="基本情况"></a>基本情况</h2><p>交换机工作在TCP&#x2F;IP五层模型的第二层，负责寻址对数据帧进行转发，其亦可实现对网络中冲突域的隔离。其工作的核心协议是以太网协议，其可实现MAC地址的自动学习与维护。</p>
+<h2 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h2><p>网络层数据经过数据链路层封装帧头后，经由网线发送达到交换机的端口，交换机首先根据帧头中的目标MAC地址从MAC地址表中去查找需要将该帧发送到哪个端口并自动学习其源MAC地址将其绑定到该端口，如果未在MAC地址表中匹配到该MAC地址，则对数据进除接受端口外的所有端口进行广播，若匹配到该MAC地址则对该帧转发到对应的端口，目标机在收到该帧后，首先核对该帧中的目标MAC地址是否是自己，若不是，则对数据进行丢弃，若是，则对数据进行解封装，丢弃帧头与FCS帧尾，并将数据根据帧头中的TYPE域将数据上送到网络层对应的协议进行处理。</p>
+<h2 id="交换机命令"><a href="#交换机命令" class="headerlink" title="交换机命令"></a>交换机命令</h2><p>交换机配置通过交换机上的Console口使用Console—全反线，连接电脑使用专门的工具进行配置。</p>
+<p><a href="%E4%BA%8C%E5%B1%82%E4%BA%A4%E6%8D%A2%E6%9C%BA%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%2011b9282f208e494e8480f56a9ee69779.csv">二层交换机常用命令</a></p>
+<h1 id="VLAN"><a href="#VLAN" class="headerlink" title="VLAN"></a>VLAN</h1><p>本部分笔记参考</p>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://zhuanlan.zhihu.com/p/35616289">VLAN 基础知识</a></p>
+<h2 id="基本情况-1"><a href="#基本情况-1" class="headerlink" title="基本情况"></a>基本情况</h2><p>VLAN:虚拟局域网，通过划分VLAN可实现对广播域的隔离，降低网络链路负担，提高通信效率。</p>
+<h3 id="为什么需要VLAN"><a href="#为什么需要VLAN" class="headerlink" title="为什么需要VLAN"></a>为什么需要VLAN</h3><p>广播域：指的是广播帧(目标MAC地址全部为1)所能传递到的范围，亦即能够直接通信的范围。严格地说，并不仅仅是广播帧，多播帧(Multicast Frame)和目标不明的单播帧(Unknown Unicast Frame)也能在同一个广播域中畅行无阻。</p>
+<p>数据帧要在网络中传播必须知道目标主机的MAC地址，这时源主机会通过ARP协议发起ARP Requests，及目标MAC地址各位均为1的帧，当交换机接受到该帧后，将向出去接受端口的所有端口转发该requests，即泛洪flooding，原本源主机只是想知道目标IP主机的MAC地址，事实却是该Requests却传遍了整个网络，这大大占用了网络的带宽，同时网络中的各主机接受到该Requests后还需消耗一定的CPU去处理该请求，试想一下，当该局域网足够大时，占用的资源将是可观的。不止如此使用广播的协议不仅ARP一种，DHCP、RIP等协议均使用广播的方式通信，这又加大了网络链路的负担。所以VLAN技术也就应运而生。</p>
+<h3 id="什么是VLAN"><a href="#什么是VLAN" class="headerlink" title="什么是VLAN"></a>什么是VLAN</h3><p>VLAN是通过虚拟技术，在交换机中划分不同的局域网，从而实现了广播域的逻辑隔离。</p>
+<h3 id="VLAN与使用路由器隔离相比有什么优点"><a href="#VLAN与使用路由器隔离相比有什么优点" class="headerlink" title="VLAN与使用路由器隔离相比有什么优点"></a>VLAN与使用路由器隔离相比有什么优点</h3><p>使用路由器进行隔离是基于物理层面实现的，路由器一个物理接口连接了一个局域网，故其接口的数量及决定了局域网的数量，当局域网数量足够多的时候，就需要路由器拥有更多的接口或者拥有更多的路由器，而一般路由器的接口数量为4个左右且路由器的价格是相对昂贵的，所以才有路由器来隔离广播域需要极大得成本，而VLAN是通过虚拟技术来实现隔离广播域的，在成本上无疑更具优势。当然VLAN在隔离广播域的同时也隔离了不同VLAN间的通信，我们采用单臂路由、三层交换机技术来解决这个问题。</p>
+<h2 id="VLAN类型"><a href="#VLAN类型" class="headerlink" title="VLAN类型"></a>VLAN类型</h2><h3 id="基于端口的VLAN-静态VLAN"><a href="#基于端口的VLAN-静态VLAN" class="headerlink" title="基于端口的VLAN-静态VLAN"></a>基于端口的VLAN-静态VLAN</h3><p>将交换机的不同端口划分到不同的VLAN中，只有相同的VLAN间的设备才能相互通信，从而实现了对广播域的隔离。如，某一端口属于VLAN 10，其只能与同属于VLAN 10 的端口的设备进行通信。</p>
+<p>该方法意味着PC只要更换了网线，就有可能进入了别的VLAN，从而不能与某些设备进行通信。</p>
+<h3 id="基于MAC地址的VLAN-动态VLAN"><a href="#基于MAC地址的VLAN-动态VLAN" class="headerlink" title="基于MAC地址的VLAN-动态VLAN"></a>基于MAC地址的VLAN-动态VLAN</h3><p>交换机通过识别MAC地址来识别某个设备属于哪个VLAN，从而实现了，动态得管理。但缺点也很明显，这需要耗费大量的人力物力在交换机中配置VLAN表</p>
+<h3 id="基于协议的VLAN-动态VLAN"><a href="#基于协议的VLAN-动态VLAN" class="headerlink" title="基于协议的VLAN-动态VLAN"></a>基于协议的VLAN-动态VLAN</h3><p>根据PC运行的协议来划分VLAN，但计算机运行的协议是有限的，从而限制了VLAN的划分</p>
+<h3 id="基于子网的VLAN-动态VLAN"><a href="#基于子网的VLAN-动态VLAN" class="headerlink" title="基于子网的VLAN-动态VLAN"></a>基于子网的VLAN-动态VLAN</h3><p>通过识别帧中源IP属于哪个网段来划分VLAN。</p>
+<h3 id="基于用户的VLAN-动态VLAN"><a href="#基于用户的VLAN-动态VLAN" class="headerlink" title="基于用户的VLAN-动态VLAN"></a>基于用户的VLAN-动态VLAN</h3><p>根据交换机各端口所连的计算机上当前登录的用户，来决定该端口属于哪个VLAN。这里的用户识别信息，一般是计算机操作系统登录的用户，比如可以是Windows域中使用的用户名。这些用户名信息，属于OSI第四层以上的信息。</p>
+<h2 id="VLAN标签技术"><a href="#VLAN标签技术" class="headerlink" title="VLAN标签技术"></a>VLAN标签技术</h2><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>在一个设置了VLAN的交换机中，当该交换机的一个端口收到一个数据帧的时候，通过VLAN表查找到该端口所属的VLAN后，在该帧的源MAC地址与TYPE域之间会插入一个VLAN标签来唯一标识该帧属于某个VLAN，然后再通过MAC地址表查找该帧要发送到的端口并判断该端口的VLAN ID ，若相同则将VLAN标签剥离重新封装该帧并转发，若不相同则丢弃该帧。</p>
+<h3 id="如何在两个交换机间实现VLAN"><a href="#如何在两个交换机间实现VLAN" class="headerlink" title="如何在两个交换机间实现VLAN"></a>如何在两个交换机间实现VLAN</h3><p>当需要将两个处于不同交换机上的用户划分到同一VLAN中时，一般采用的策略是在两个交换间建立链路，将其对应的端口设置为同一VLAN即可，但这种方式，当VLAN的数目逐渐增加之后就显得捉襟见肘了，采用这种方式不仅需要建立大量的物理连接，其每一条链路的利用率也是极地的，这显然不是一种好的解决方案。</p>
+<p>这时需要用到TRUNK(中继)技术，交换机的接口可以分为两类，一类是与PC直连的称之为ACCESS，一类是交换机之间互连的称之为TRUNK，TRUNK的优点是可以允许链路上通过不同VLAN ID的数据。</p>
+<p>例：当交换机在转发帧的时候，发现除接受端口外的直连端口中并没有匹配的VLAN，此时交换机将数据通过TRUNK转发出去。</p>
+<h3 id="标签类型与格式"><a href="#标签类型与格式" class="headerlink" title="标签类型与格式"></a>标签类型与格式</h3><p>该部分笔记来自：</p>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://support.huawei.com/enterprise/zh/doc/EDOC1100088136">IEEE 802.1Q封装的VLAN数据帧格式</a></p>
+<p><strong>Cisco ISL协议</strong></p>
+<p>思科开发的一种VLAN标签协议格式，由于其占用数据量较大等因素，现以很少使用</p>
+<p><strong>IEEE 802.1Q协议</strong></p>
+<p>当今使用最多的一种标签协议类型。</p>
+<p><img src="/archives/776f7656/download.png"></p>
+<p><a href="VLAN%E6%A0%87%E7%AD%BE%E6%A0%BC%E5%BC%8F%20835161fbbe6c4960890ae8174d4e7306.csv">VLAN标签格式</a></p>
+<h2 id="VLAN通信过程"><a href="#VLAN通信过程" class="headerlink" title="VLAN通信过程"></a>VLAN通信过程</h2><h3 id="同一VLAN间通信过程"><a href="#同一VLAN间通信过程" class="headerlink" title="同一VLAN间通信过程"></a>同一VLAN间通信过程</h3><p>当一个以太网帧经由F0&#x2F;1端口进入交换机后，交换机通过查找VLAN表匹配F0&#x2F;1端口对应的VLAN ID ，并在该帧的源MAC地址与TYPE域之间插入4Bytes的IEEE 802.1Q标签并重新计算FCS值，然后对比该以太网帧中的目标MAC地址匹配MAC地址表，若匹配不成功，则通过广播的方式将该以太网帧向除了其源端口外的所有同一VLAN内的端口进行广播，若匹配成功，在从VLAN表中查找目标MAC地址所在的端口是否与源端口处在同一VLAN中，若不匹配，则丢弃该帧，若成功匹配，则剥离VLAN标签兵重新计算FCS值对该帧进行封装发送。</p>
+<h3 id="同一VLAN跨交换机通信过程"><a href="#同一VLAN跨交换机通信过程" class="headerlink" title="同一VLAN跨交换机通信过程"></a>同一VLAN跨交换机通信过程</h3><p>将两个交换机相连交的接口均配置成TRUNK接口，从而使该端口可以转发所有的VLAN数据。当两台设备需要跨交换机进行通信时。当一个以太网帧经由F0&#x2F;1端口进入交换机后，交换机通过查找VLAN表匹配F0&#x2F;1端口对应的VLAN ID ，并在该帧的源MAC地址与TYPE域之间插入4Bytes的IEEE 802.1Q标签并重新计算FCS值，然后对比该以太网帧中的目标MAC地址匹配MAC地址表，若匹配不成功，则通过广播的方式将该以太网帧向除了其源端口外的所有同一VLAN内的端口进行广播，若匹配成功，在从VLAN表中查找目标MAC地址所在的端口是否与源端口处在同一VLAN中，若不匹配，则丢弃该帧，若成功匹配，则剥离VLAN标签兵重新计算FCS值对该帧进行封装发送。此时以太网帧以未被标标识的帧格式在TRUNK上传输，当其到达另一个路由器的TRNK接口时，该路由器执行与上述过程相同的操作，将该帧转发到目标MAC对应的设备。</p>
+<h3 id="不同VLAN间通信过程"><a href="#不同VLAN间通信过程" class="headerlink" title="不同VLAN间通信过程"></a>不同VLAN间通信过程</h3><p>VLAN在实现了广播域隔离的同时也隔离了不同VLAN间通信的可能性。而要想同时实现隔离广播域又能在VLAN间进行通信则需要用到另一种设备：路由器该例中使用的路由器，我们将其称之为单臂路由。</p>
+<p>将路由器与交换器连接的端口设置为TRUNK。</p>
+<p><img src="/archives/776f7656/v2-63baa76ac2837bc1f3ef6d9b438a0181_720w.png"></p>
+<p>计算机A从通信目标的IP地址(192.168.2.1)得出C与本机不属于同一个网段。因此会向设定的默认网关(DefaultGateway，GW)转发数据帧。在发送数据帧之前，需要先用ARP获取路由器的MAC地址。</p>
+<p>得到路由器的MAC地址R后，接下来就是按图中所示的步骤发送往C去的数据帧。①的数据帧中，目标MAC地址是路由器的地址R、但内含的目标IP地址仍是最终要通信的对象C的地址。这一部分的内容，涉及到局域网内经过路由器转发时的通信步骤，有机会再详细解说吧。</p>
+<p>交换机在端口1上收到①的数据帧后，检索MAC地址列表中与端口1同属一个VLAN的表项。由于汇聚链路会被看作属于所有的VLAN，因此这时交换机的端口6也属于被参照对象。这样交换机就知道往MAC地址R发送数据帧，需要经过端口6转发。</p>
+<p>从端口6发送数据帧时，由于它是汇聚链接，因此会被附加上VLAN识别信息。由于原先是来自红色VLAN的数据帧，因此如图中②所示，会被加上红色VLAN的识别信息后进入汇聚链路。路由器收到②的数据帧后，确认其VLAN识别信息，由于它是属于红色VLAN的数据帧，因此交由负责红色VLAN的子接口接收。</p>
+<p>接着，根据路由器内部的路由表，判断该向哪里中继。</p>
+<p>由于目标网络192.168.2.0&#x2F;24是蓝色VLAN，，且该网络通过子接口与路由器直连，因此只要从负责蓝色VLAN的子接口转发就可以了。这时，数据帧的目标MAC地址被改写成计算机C的目标地址;并且由于需要经过汇聚链路转发，因此被附加了属于蓝色VLAN的识别信息。这就是图中③的数据帧。</p>
+<p>交换机收到③的数据帧后，根据VLAN标识信息从MAC地址列表中检索属于蓝色VLAN的表项。由于通信目标——计算机C连接在端口3上、且端口3为普通的访问链接，因此交换机会将数据帧去除VLAN识别信息后(数据帧④)转发给端口3，最终计算机C才能成功地收到这个数据帧。</p>
+<p><a href="%E5%88%92%E5%88%86vlan%E5%91%BD%E4%BB%A4%20b42867526201431db722223d7e6dcf67.csv">划分vlan命令</a></p>
+<h2 id="三层交换机"><a href="#三层交换机" class="headerlink" title="三层交换机"></a>三层交换机</h2><h2 id="ARP协议"><a href="#ARP协议" class="headerlink" title="ARP协议"></a>ARP协议</h2><p>本部分笔记参考：</p>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://zhuanlan.zhihu.com/p/145782441">一文读懂ARP协议，从IP获取对方MAC实操</a></p>
+<p>两台PC要成功实现相互间的通信，必须要知道对方的IP地址以及MAC地址，IP地址通过域名系统可以很方便得获得，那么MAC地址呢？此时就需要一个获取目的主机MAC地址的协议。ARP协议即为了完成这个功能而设计。</p>
+<h3 id="ARP协议工作原理"><a href="#ARP协议工作原理" class="headerlink" title="ARP协议工作原理"></a>ARP协议工作原理</h3><p>在知道目的主机IP地址的情况下，计算机首先判断该IP地址是否与自己属于同一个网段，如果不属于同一个网段，则需要向网关转发，计算机通过网关的IP地址在ARP缓存表中查找是否保存有网关的MAC地址，若无则发送广播，若有则直接进行封装。若属于同一 网段，IP报文到达数据链路层进行封装，此时需要知道对方的MAC地址。计算机会首先查询自己的arp缓存表，如果缓存表中有目标IP的MAC则使用该MAC地址进行封装，如果缓存表中不存在该表项，这时主机会向交换机发送ARP request 报文，该报文在数据链路层封装帧头与帧尾，因为不知道目标MAC地址，此时目的MAC地址被设置为FF-FF-FF-FF-FF-FF。交换机收到该报文时发现目标MAC地址是广播地址，于是将该报文向除来端口外的所有端口进行广播，并同时学习来端口的MAC地址放入MAC地址表。发送端口的主机接受到该广播的时候，数据链路层通过解析帧头发现其中TYPE类型为ARP，于是将其SDU部分送给网络层的ARP协议解析，网络层解析ARP报头时发现该报文的目的IP地址与自己的不一致，于是将该报文丢弃，并学习该报文中的源MAC地址与源IP地址映射并更新自己的ARP缓存表。接受端口主机在发现该ARP头部的目的IP地址与自己一致的话，将以单播的形式给源主机回应一个ARP replay 报文将源mac地址修正为自己的mac地址，目的mac地址修改为对方的mac地址，ARP报头中目的mac地址与源mac地址、操作码均进行修正，并学习源主机的IP与MAC地址放入自己的ARP缓存表。源主机收到该replay包后，将得到的目的主机的IP地址和MAC地址添加到自己的ARP列表中，并利用此信息开始数据的传输。如果源主机一直没有收到ARP响应数据包，表示ARP查询失败。</p>
+<h3 id="ARP报头分析"><a href="#ARP报头分析" class="headerlink" title="ARP报头分析"></a>ARP报头分析</h3><p><img src="/archives/776f7656/1111.jpg"></p>
+<ul>
+<li>Hardware Type： 表示硬件地址类型，一般为以太网；</li>
+<li>Protocol Type： 表示三层协议地址类型，一般为IP；</li>
+<li>Hardware Length和Protocol Length：为MAC地址和IP地址的长度，单位是字节；</li>
+<li>Operation Code： 指定了ARP报文的类型，包括ARP request和ARP reply；</li>
+<li>Source Hardware Address：  指的是发送ARP报文的设备MAC地址；</li>
+<li>Source Protocol Address：指的是发送ARP报文的设备IP地址；</li>
+<li>Destination Hardware Address：指的是接收者MAC地址，在ARP request报文中，该字段值为0；</li>
+<li>8、Destination Protocol Address：指的是指接收者的IP地址。</li>
+</ul>
+
+    </div>
+
+    
+    
+    <div class="post-widgets">
+      <div id="needsharebutton-postbottom">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    </div>
+        <div class="reward-container">
+  <div>Buy me a coffee.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Arliya 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Arliya 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Arliya
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dayutech.github.io/archives/776f7656.html" title="数据链路层设备及协议：交换机、单臂路由、三层交换机、VLAN、ARP">https://dayutech.github.io/archives/776f7656.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E4%BA%A4%E6%8D%A2%E6%9C%BA/" rel="tag"><i class="fa fa-tag"></i> 交换机</a>
+              <a href="/tags/%E8%B7%AF%E7%94%B1%E5%99%A8/" rel="tag"><i class="fa fa-tag"></i> 路由器</a>
+              <a href="/tags/%E4%B8%89%E5%B1%82%E4%BA%A4%E6%8D%A2%E6%9C%BA/" rel="tag"><i class="fa fa-tag"></i> 三层交换机</a>
+              <a href="/tags/VLAN/" rel="tag"><i class="fa fa-tag"></i> VLAN</a>
+              <a href="/tags/ARP/" rel="tag"><i class="fa fa-tag"></i> ARP</a>
+          </div>
+		  
+          <script data-pjax>
+	var tagsall=document.getElementsByClassName("post-tags")
+	for (var i = tagsall.length - 1; i >= 0; i--){
+		var tags=tagsall[i].getElementsByTagName("a");
+		for (var j = tags.length - 1; j >= 0; j--) {
+			var golden_ratio = 0.618033988749895;
+			var s = 0.5;
+			var v = 0.999;
+			var h = golden_ratio + Math.random()*0.8 - 0.5;
+			var h_i = parseInt(h * 6);
+			var f = h * 6 - h_i;
+			var p = v * (1 - s);
+			var q = v * (1 - f * s);
+			var t = v * (1 - (1 - f) * s);
+			var r, g, b;
+			switch (h_i) {
+				case 0:
+					r = v;
+					g = t;
+					b = p;
+					break;
+				case 1:
+					r = q;
+					g = v;
+					b = p;
+					break;
+				case 2:
+					r = p;
+					g = v;
+					b = t;
+					break;
+				case 3 :
+					r = p;
+					g = q;
+					b = v;
+					break;
+				case 4:
+					r = t;
+					g = p;
+					b = v;
+					break;
+				case 5:
+					r = v;
+					g = p;
+					b = q;
+					break;
+				default:
+					r = 1;
+					g = 1;
+					b = 1;
+			  }
+			tags[j].style.background = "rgba("+parseInt(r*255)+","+parseInt(g*255)+","+parseInt(b*255)+","+0.5+")";
+		}
+	}          
+                         
+            </script>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/4089de4e.html" rel="prev" title="文件包含漏洞">
+      <i class="fa fa-chevron-left"></i> 文件包含漏洞
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/931c692.html" rel="next" title="文件上传漏洞">
+      文件上传漏洞 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%A4%E6%8D%A2%E6%9C%BA"><span class="nav-number">1.</span> <span class="nav-text">交换机</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%83%85%E5%86%B5"><span class="nav-number">1.1.</span> <span class="nav-text">基本情况</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">1.2.</span> <span class="nav-text">工作原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A4%E6%8D%A2%E6%9C%BA%E5%91%BD%E4%BB%A4"><span class="nav-number">1.3.</span> <span class="nav-text">交换机命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#VLAN"><span class="nav-number">2.</span> <span class="nav-text">VLAN</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%83%85%E5%86%B5-1"><span class="nav-number">2.1.</span> <span class="nav-text">基本情况</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81VLAN"><span class="nav-number">2.1.1.</span> <span class="nav-text">为什么需要VLAN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFVLAN"><span class="nav-number">2.1.2.</span> <span class="nav-text">什么是VLAN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#VLAN%E4%B8%8E%E4%BD%BF%E7%94%A8%E8%B7%AF%E7%94%B1%E5%99%A8%E9%9A%94%E7%A6%BB%E7%9B%B8%E6%AF%94%E6%9C%89%E4%BB%80%E4%B9%88%E4%BC%98%E7%82%B9"><span class="nav-number">2.1.3.</span> <span class="nav-text">VLAN与使用路由器隔离相比有什么优点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VLAN%E7%B1%BB%E5%9E%8B"><span class="nav-number">2.2.</span> <span class="nav-text">VLAN类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E7%AB%AF%E5%8F%A3%E7%9A%84VLAN-%E9%9D%99%E6%80%81VLAN"><span class="nav-number">2.2.1.</span> <span class="nav-text">基于端口的VLAN-静态VLAN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8EMAC%E5%9C%B0%E5%9D%80%E7%9A%84VLAN-%E5%8A%A8%E6%80%81VLAN"><span class="nav-number">2.2.2.</span> <span class="nav-text">基于MAC地址的VLAN-动态VLAN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%8D%8F%E8%AE%AE%E7%9A%84VLAN-%E5%8A%A8%E6%80%81VLAN"><span class="nav-number">2.2.3.</span> <span class="nav-text">基于协议的VLAN-动态VLAN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%AD%90%E7%BD%91%E7%9A%84VLAN-%E5%8A%A8%E6%80%81VLAN"><span class="nav-number">2.2.4.</span> <span class="nav-text">基于子网的VLAN-动态VLAN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E7%94%A8%E6%88%B7%E7%9A%84VLAN-%E5%8A%A8%E6%80%81VLAN"><span class="nav-number">2.2.5.</span> <span class="nav-text">基于用户的VLAN-动态VLAN</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VLAN%E6%A0%87%E7%AD%BE%E6%8A%80%E6%9C%AF"><span class="nav-number">2.3.</span> <span class="nav-text">VLAN标签技术</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">2.3.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%9C%A8%E4%B8%A4%E4%B8%AA%E4%BA%A4%E6%8D%A2%E6%9C%BA%E9%97%B4%E5%AE%9E%E7%8E%B0VLAN"><span class="nav-number">2.3.2.</span> <span class="nav-text">如何在两个交换机间实现VLAN</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E7%AD%BE%E7%B1%BB%E5%9E%8B%E4%B8%8E%E6%A0%BC%E5%BC%8F"><span class="nav-number">2.3.3.</span> <span class="nav-text">标签类型与格式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VLAN%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="nav-number">2.4.</span> <span class="nav-text">VLAN通信过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E4%B8%80VLAN%E9%97%B4%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="nav-number">2.4.1.</span> <span class="nav-text">同一VLAN间通信过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E4%B8%80VLAN%E8%B7%A8%E4%BA%A4%E6%8D%A2%E6%9C%BA%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="nav-number">2.4.2.</span> <span class="nav-text">同一VLAN跨交换机通信过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E5%90%8CVLAN%E9%97%B4%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="nav-number">2.4.3.</span> <span class="nav-text">不同VLAN间通信过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E5%B1%82%E4%BA%A4%E6%8D%A2%E6%9C%BA"><span class="nav-number">2.5.</span> <span class="nav-text">三层交换机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ARP%E5%8D%8F%E8%AE%AE"><span class="nav-number">2.6.</span> <span class="nav-text">ARP协议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ARP%E5%8D%8F%E8%AE%AE%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">2.6.1.</span> <span class="nav-text">ARP协议工作原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ARP%E6%8A%A5%E5%A4%B4%E5%88%86%E6%9E%90"><span class="nav-number">2.6.2.</span> <span class="nav-text">ARP报头分析</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Arliya"
+      src="/images/dayu/avatar.png">
+  <p class="site-author-name" itemprop="name">Arliya</p>
+  <div class="site-description" itemprop="description">主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">101</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">190</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dayutech" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dayutech" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:test@qq.com" title="E-Mail → mailto:test@qq.com" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/yourname" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://youtube.com/yourname" title="YouTube → https:&#x2F;&#x2F;youtube.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener external nofollow noreferrer" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+	  
+		<div class="links-of-blogroll scroll" style="margin-top:20px; border-style:dotted none none none; padding-top:5px; text-align:left;padding-left: 20px; padding-right: 10px; padding-bottom: 5px;">
+		  <div class="links-of-blogroll-title" style="padding-bottom: 5px; padding-top: 5px; padding-left: 0px; padding-right: 20px; font-size: 1.6em; argin-right: 5px;">
+		<!-- 选择合适的icon --><i class="fab fa-markdown" aria-hidden="true"></i>
+			<b style="font-size: 0.65em; padding-left: 8px; position: relative; top: -2px;">文章列表</b>
+		  </div>
+		  <ul class="links-of-blogroll-list">
+		<!-- 文章排序规格,-updated 按照文章更新时间倒排 -->
+			
+		<!-- 显示10数目的文章 -->
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42eb2c82.html" title="动态代理在java反序列化中的应用" target="_blank">动态代理在java反序列化中的应用</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/b7f3ad9b.html" title="面试题整理" target="_blank">面试题整理</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/9c75190f.html" title="防火墙" target="_blank">防火墙</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42623881.html" title="通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入" target="_blank">通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/6eecc4bb.html" title="读书笔记-WEB前端黑客技术揭秘" target="_blank">读书笔记-WEB前端黑客技术揭秘</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/ef2b93c5.html" title="记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题" target="_blank">记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/53e2963.html" title="解决hexo图片访问遇到图床防盗链无法访问的问题" target="_blank">解决hexo图片访问遇到图床防盗链无法访问的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/7f771bb5.html" title="解决hexo内嵌js无法加载问题" target="_blank">解决hexo内嵌js无法加载问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/e9ccef3c.html" title="解决hexo-pdf无法使用的问题" target="_blank">解决hexo-pdf无法使用的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/cf1ba47f.html" title="解决hexo-next主题上游仓库改变告警" target="_blank">解决hexo-next主题上游仓库改变告警</a>
+			  </li>
+			
+		  </ul>
+		</div>
+	  
+	 
+    </div>
+	
+  </aside>
+  <div id="sidebar-dimmer"></div>
+ 
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Arliya</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">202k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">12:14</span>
+</div>
+  <div class="powered-by">由 <a href="https://github.com/dayutech" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">DayuTech</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+<div id="needsharebutton-float">
+      <span class="btn">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </span>
+    </div>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.js"></script>
+  <script>
+      pbOptions = {};
+        pbOptions.iconStyle = "box";
+        pbOptions.boxForm = "horizontal";
+        pbOptions.position = "bottomCenter";
+        pbOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-postbottom', pbOptions);
+      flOptions = {};
+        flOptions.iconStyle = "box";
+        flOptions.boxForm = "horizontal";
+        flOptions.position = "middleRight";
+        flOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-float', flOptions);
+  </script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23li28mRRYx9D76aAJ',
+      clientSecret: '8f7211d1bd039050ed40345ddf60273d6626ad6f',
+      repo        : 'dayutech.github.io',
+      owner       : 'dayutech',
+      admin       : ['dayutech'],
+      id          : '84f34aeaaaddb69b01150fecf1a58980',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
+</script>
+
+    </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

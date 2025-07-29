@@ -1,0 +1,13 @@
+﻿Name,Tags
+array_count_values(array),对数组值进行计数
+"array_key_exists(key,array)",判断数组的建是否存在
+"array_search(value,array，bool)","搜索数组的值，返回索引值,第三个参数设定该函数的模式，为true时为严格模式，只有值于类型都一样时才返回索引，默认为false"
+count(array)," "
+array_sum(array),
+"in_array(value,array，bool)",返回数组中是否存在某个值
+"list($a,$b,$c)=array",将数组中的值赋给变量，仅用于数字索引的数组
+asort(array),对数组进行排序，返回布尔值，将改变原数组
+array_reverse(),对数组进行反序排列
+"array_combine(array1,array2)",一个数组的值作为键，几个数组的值作为值，生成一个新的数组
+"array_filter(array,function)",通过函数对数组进行过滤
+,

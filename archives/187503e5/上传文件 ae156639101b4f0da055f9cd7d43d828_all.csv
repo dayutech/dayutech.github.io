@@ -1,0 +1,15 @@
+﻿Name,Tags
+$_FILE['file']['name'],上传的文件被报错在超全局常量$_FILE['file']
+$_FILE['file']['size'],
+$_FILE['file']['temp_name'],
+$_FILE['file']['error'],文件上传时的错误信息
+,0 没有错误
+,1 文件大小超过了php配置文件的最大尺寸
+,2 文件大小超过了html表单限制的大小
+,3 文件被上传了部分
+,4 没有上传任何文件
+$_FILE['file']['type'],
+is_upload_file($_FILE['file']['temp_name']),
+"move_upload_file($_FILE['file']['temp_name'],dst_path)",
+pathinfo($_FILE['file']['name']),返回路径、文件名、扩展名组成的数组
+,

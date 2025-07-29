@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/dayu/dayu-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dayu/dayu-web-app-manifest-512x512.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/dayu/dayu-web-app-manifest-192x192.png">
+  <link rel="mask-icon" href="/images/dayu/dayu-favicon.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dayutech.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文介绍了 从代码层面看RMI规范的实现与攻击原理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从代码层面看RMI规范的实现与攻击原理（二）">
+<meta property="og:url" content="https://dayutech.github.io/archives/fa9410e3.html">
+<meta property="og:site_name" content="Dayu Technology Co., LTD">
+<meta property="og:description" content="本文介绍了 从代码层面看RMI规范的实现与攻击原理">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/dbf896f525e005c3f49f93c2c2b39a37.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/e42dd5107e36f41ed2c10a2d30a4d1e2.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/bafcbde8f4bf2a190f44ea70dd762b7a.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/ea3ac57bee04b54eb242d352b48f3a4a.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/9c92b01fedcdad85dff58052275cec1a.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/71d465617ce4c4548e6106ec95aa4323.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/d196277e2faec5a89a3d0d5a0b02b98b.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/144f3de9286eb00c7507604db62c8f74.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/9a6527244365840d5bfdb548e6b15259.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/467770a61828fca8946939daf24c16ac.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/b31e77b96439a904f7ac83f2bce7a856.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/aea1a383e6ae368a46fbd0b5e75f6981.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/da119bd40e9e12c28d3b358372a8135d.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/e7a3fb0c0f7cbeb075727c3a33b65b2e.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/d49db9d235e7ceebf6abaecd40dd3cd1.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/276f048bb9549fc1de41ac6470cd007d.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/4b358d22fffa2030fdcd91d2c50fd03e.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/22d3992d28378bcfb6ac6dd3fc0b294c.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/b7ce319853f0a81f9b6423e73422a923.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/ac74b906c3c7167d461247f0e5910147.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/5d128b917e925efdae34ee1ccde566ad.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/d5ea58732ddac83242ae8649d58cf580.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/c21e1dc5f77996f14dd88261428f5953.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/33435cfb0a4de3e39f01e53c38da88ea.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/c85f4ddc3b459144609138ebcdd56296.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/fefe420814025b84e8d9a10f36c5b8aa.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/1818e586dbb2a51d0291e31e5fdf1f7e.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/ff74eef65b4fdf5f6aad80a54a0bd84e.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/a3402e3f023d26c3aa3f42a79ae037dd.png">
+<meta property="article:published_time" content="2025-04-14T02:33:52.000Z">
+<meta property="article:modified_time" content="2025-07-29T09:02:08.059Z">
+<meta property="article:author" content="Arliya">
+<meta property="article:tag" content="代码审计">
+<meta property="article:tag" content="RMI">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i-blog.csdnimg.cn/blog_migrate/dbf896f525e005c3f49f93c2c2b39a37.png">
+
+<link rel="canonical" href="https://dayutech.github.io/archives/fa9410e3.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.css"><style>
+#needsharebutton-postbottom {
+  cursor: pointer;
+  height: 26px;
+  margin-top: 10px;
+  position: relative;
+}
+#needsharebutton-postbottom .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 3px;
+  display: initial;
+  padding: 1px 4px;
+}
+</style><style>
+#needsharebutton-float {
+  bottom: 88px;
+  cursor: pointer;
+  left: -8px;
+  position: fixed;
+  z-index: 9999;
+}
+#needsharebutton-float .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 4px;
+  padding: 0 10px 0 14px;
+}
+</style>
+  <title>从代码层面看RMI规范的实现与攻击原理（二） | Dayu Technology Co., LTD</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Dayu Technology Co., LTD" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dayu Technology Co., LTD</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">大禹科技股份有限公司</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-rss">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/dayutech/dayutech.github.io" class="github-corner" title="Dayu GitHub" aria-label="Dayu GitHub" rel="noopener external nofollow noreferrer" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/fa9410e3.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          从代码层面看RMI规范的实现与攻击原理（二）
+        </h1>
+
+        <div class="post-meta">
+		  
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-29 17:02:08" itemprop="dateModified" datetime="2025-07-29T17:02:08+08:00">2025-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" itemprop="url" rel="index"><span itemprop="name">代码审计</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>11 分钟</span>
+            </span>
+            <div class="post-description">本文介绍了 从代码层面看RMI规范的实现与攻击原理</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>@<a href="%E4%BB%8E%E4%BB%A3%E7%A0%81%E5%B1%82%E9%9D%A2%E7%9C%8BRMI%E8%A7%84%E8%8C%83%E7%9A%84%E5%AE%9E%E7%8E%B0%E4%B8%8E%E6%94%BB%E5%87%BB%E5%8E%9F%E7%90%86%EF%BC%88%E4%BA%8C%EF%BC%89">TOC</a></p>
+<blockquote>
+<p>日常吐槽：这份工作确实无聊，不出活，没进步就是我上班的真实写照，学习进步还是要看下班后。</p>
+</blockquote>
+<p>上一篇文章我们看了RMI客户端侧代码获取一个注册中心的操作，这一次我们来看看<code>lookup</code>函数是怎么工作的，有不对的地方大佬轻点喷。</p>
+<p>在上一篇中我们知道最终获取到的<code>Registry</code>对象是由<code>RegistryImpl_Stub</code>不断转型过来的，那么使用该对象调用<code>lookup</code>函数理论上来说也就是会调用<code>RegistryImpl_Stub</code>中的<code>lookup</code>函数。<br>首先打断点进入到<code>lookup</code>函数：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/dbf896f525e005c3f49f93c2c2b39a37.png" alt="在这里插入图片描述"><br>果然是调用的<code>RegistryImpl_Stub</code>中的函数，到这里前期我们有两个点需要关注一是116行，一是123行。<br>首先我们跟进116行的方法，这里调用的是<code>ref</code>对象的newCall，从名字我们大概猜到可能是要发送请求了，首先我们用wireshark过滤一下1099端口，然后让代码执行完116行：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e42dd5107e36f41ed2c10a2d30a4d1e2.png" alt="在这里插入图片描述"><br>标记1处由客户端向注册中心发送请求，发送要使用的JRMI版本号，2处由注册中心向客户端确认版本号，至于第三处也是由客户端发起，具体干了什么我不太清楚（通过后面的分析我发现这一步应该也是类似于TCP三次握手那样的一个确认机制，注册中心返回自己的IP地址，然后客户端提取ip放到这个包里面，最后发送到注册中心，注册中心再对这次请求进行确认）：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/bafcbde8f4bf2a190f44ea70dd762b7a.png" alt="在这里插入图片描述"><br>看这意思发送了一个ip地址过去，难道是协商要用哪一张网卡？？？？172这个ip还是我安装wsl的时候生成的一张虚拟网卡。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ea3ac57bee04b54eb242d352b48f3a4a.png" alt="在这里插入图片描述"><br>看名字还是个虚拟以太网交换机？？这我就更迷惑了。。。不过暂时这不重要。<br>那么现在我们就进入到这个<code>newCall</code>方法中看一下都做了什么吧。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/9c92b01fedcdad85dff58052275cec1a.png" alt="在这里插入图片描述"><br>看到进入了<code>UnicastRef</code>这个类的中，这里注意第343行的代码，首先调用了<code>ref</code>对象的<code>getChannel</code>方法肯定是会返回一个对象的，然后再调用这个对象的<code>newConnection</code>方法，看着名字已经很清楚了这应该就是发送请求的关键函数了。<code>getChannel</code>不出意外是获取一个socket通道，然后<code>newConnection</code>方法发送请求，我们看看对不对，首先进入<code>getChannel</code>方法：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/71d465617ce4c4548e6106ec95aa4323.png" alt="在这里插入图片描述"><br>看到进入了<code>LiveRef#getChannel</code>，这里大眼一瞧就注意到了第152行。调用了<code>ep</code>对象的<code>getChannel</code>方法，如果还记得上一篇的话，在获取注册中心的时候我们获得过一次<code>TCPEndpoint</code>对象然后赋值给了<code>ep</code>，这里就是了，<code>ep</code>中封装了注册中心的host与port：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/d196277e2faec5a89a3d0d5a0b02b98b.png" alt="在这里插入图片描述"><br>进入到<code>getChannel</code>方法：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/144f3de9286eb00c7507604db62c8f74.png" alt="在这里插入图片描述"><br>果然来到了<code>TCPEndpoint</code>类。419行又是函数套函数，不过<code>getOutBoundTransport</code>应该是个类函数，翻译成中文就是获取对外绑定传输，强行翻译了一波。。。。从名字看不出来什么，进到函数里面看看：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/9a6527244365840d5bfdb548e6b15259.png" alt="在这里插入图片描述"><br>欧，又有，先看<code>getLocalEndpoint</code>函数吧，进去：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> TCPEndpoint <span class="title function_">getLocalEndpoint</span><span class="params">(<span class="type">int</span> port,</span></span><br><span class="line"><span class="params">                                               RMIClientSocketFactory csf,</span></span><br><span class="line"><span class="params">                                               RMIServerSocketFactory ssf)</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">         * Find mapping for an endpoint key to the list of local unique</span></span><br><span class="line"><span class="comment">         * endpoints for this client/server socket factory pair (perhaps</span></span><br><span class="line"><span class="comment">         * null) for the specific port.</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="type">TCPEndpoint</span> <span class="variable">ep</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">synchronized</span> (localEndpoints) &#123;</span><br><span class="line">            <span class="type">TCPEndpoint</span> <span class="variable">endpointKey</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TCPEndpoint</span>(<span class="literal">null</span>, port, csf, ssf);</span><br><span class="line">            LinkedList&lt;TCPEndpoint&gt; epList = localEndpoints.get(endpointKey);</span><br><span class="line">            <span class="type">String</span> <span class="variable">localHost</span> <span class="operator">=</span> resampleLocalHost();</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (epList == <span class="literal">null</span>) &#123;</span><br><span class="line">                <span class="comment">/*</span></span><br><span class="line"><span class="comment">                 * Create new endpoint list.</span></span><br><span class="line"><span class="comment">                 */</span></span><br><span class="line">                ep = <span class="keyword">new</span> <span class="title class_">TCPEndpoint</span>(localHost, port, csf, ssf);</span><br><span class="line">                epList = <span class="keyword">new</span> <span class="title class_">LinkedList</span>&lt;TCPEndpoint&gt;();</span><br><span class="line">                epList.add(ep);</span><br><span class="line">                ep.listenPort = port;</span><br><span class="line">                ep.transport = <span class="keyword">new</span> <span class="title class_">TCPTransport</span>(epList);</span><br><span class="line">                localEndpoints.put(endpointKey, epList);</span><br><span class="line"></span><br><span class="line">                <span class="keyword">if</span> (TCPTransport.tcpLog.isLoggable(Log.BRIEF)) &#123;</span><br><span class="line">                    TCPTransport.tcpLog.log(Log.BRIEF,</span><br><span class="line">                        <span class="string">&quot;created local endpoint for socket factory &quot;</span> + ssf +</span><br><span class="line">                        <span class="string">&quot; on port &quot;</span> + port);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (epList) &#123;</span><br><span class="line">                    ep = epList.getLast();</span><br><span class="line">                    <span class="type">String</span> <span class="variable">lastHost</span> <span class="operator">=</span> ep.host;</span><br><span class="line">                    <span class="type">int</span> <span class="variable">lastPort</span> <span class="operator">=</span>  ep.port;</span><br><span class="line">                    <span class="type">TCPTransport</span> <span class="variable">lastTransport</span> <span class="operator">=</span> ep.transport;</span><br><span class="line">                    <span class="comment">// assert (localHost == null ^ lastHost != null)</span></span><br><span class="line">                    <span class="keyword">if</span> (localHost != <span class="literal">null</span> &amp;&amp; !localHost.equals(lastHost)) &#123;</span><br><span class="line">                        <span class="comment">/*</span></span><br><span class="line"><span class="comment">                         * Hostname has been updated; add updated endpoint</span></span><br><span class="line"><span class="comment">                         * to list.</span></span><br><span class="line"><span class="comment">                         */</span></span><br><span class="line">                        <span class="keyword">if</span> (lastPort != <span class="number">0</span>) &#123;</span><br><span class="line">                            <span class="comment">/*</span></span><br><span class="line"><span class="comment">                             * Remove outdated endpoints only if the</span></span><br><span class="line"><span class="comment">                             * port has already been set on those endpoints.</span></span><br><span class="line"><span class="comment">                             */</span></span><br><span class="line">                            epList.clear();</span><br><span class="line">                        &#125;</span><br><span class="line">                        ep = <span class="keyword">new</span> <span class="title class_">TCPEndpoint</span>(localHost, lastPort, csf, ssf);</span><br><span class="line">                        ep.listenPort = port;</span><br><span class="line">                        ep.transport = lastTransport;</span><br><span class="line">                        epList.add(ep);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> ep;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>长的有点过粪了。。。。<br>看到函数中代码是异步执行的，这玩意儿我python中的异步都没咋搞清楚，更别说java了，但不影响我看代码。。。<br>首先new了一个<code>TCPEndpoint</code>类型的endpointkey，暂时不知道干什么的，然后调用了<code>localEndpoint</code>的get方法，看看<code>localEndpoint</code>是什么<br><img src="https://i-blog.csdnimg.cn/blog_migrate/467770a61828fca8946939daf24c16ac.png" alt="在这里插入图片描述"><br><code>Map</code>类型，键为<code>TCPEndpoint</code>类型，值为LinkedList集合类型。所以<br><img src="https://i-blog.csdnimg.cn/blog_migrate/b31e77b96439a904f7ac83f2bce7a856.png" alt="在这里插入图片描述"><br>201就是根据<code>endpointkey</code>从<code>Map</code>中 取值，然后202行调用<code>resampleLocalHost</code>方法对主机名进行重新采样，我猜就是再获取一下对host进行解析，不妨跟进去看一看：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/aea1a383e6ae368a46fbd0b5e75f6981.png" alt="在这里插入图片描述"><br>257行获取了一个字符串，看命名应该是从properties中获取hostname，跟进<code>getHostnameProperty</code>函数看一下：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/da119bd40e9e12c28d3b358372a8135d.png" alt="在这里插入图片描述"><br>这里有个<code>GetPropertyAction</code>类，上网查了一下粗糙的理解就是获取properties的值，进入函数看了看就是个赋值操作，不知道为甚么网上那样说。<br>最终的结论是<code>resampleLocalHost</code>方法还是返回了注册中心的IP地址，可能因为我这里在本地看不出来区别，分开的话应该就能判断出一些什么了。<br>然后回到<code>getLocalEndpoint</code>方法<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e7a3fb0c0f7cbeb075727c3a33b65b2e.png" alt="在这里插入图片描述"><br>又创建了一个<code>TCPEndpoint</code>对象，不过这时候有了主机名了localhost，一个<code>LinkedList</code>把新的<code>ep</code>放进去，然后又设置了一下ep的<code>listenport</code>属性，然后新建一个<code>TCPTransport</code>赋值给了<code>ep</code>的<code>transport</code>，真有趣，一个套一个。。。。最后返回了<code>ep</code>，一个<code>TCPEndpoint</code>对象。<br>然后抛出到<code>getOutboundTransport</code>方法又是这样的：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/d49db9d235e7ceebf6abaecd40dd3cd1.png" alt="在这里插入图片描述"><br>还是要的<code>transport</code>你说有趣不有趣。<br>依次往上抛，最终还是调用的<code>TCPTransport</code>对象的<code>getChannel</code>方法。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/276f048bb9549fc1de41ac6470cd007d.png" alt="在这里插入图片描述"><br>这个<code>channelTable</code>又是一个<code>Map</code><img src="https://i-blog.csdnimg.cn/blog_migrate/4b358d22fffa2030fdcd91d2c50fd03e.png" alt="在这里插入图片描述"><br>一个端点对应一个TCP通道，很明显，我们还没有建立通道，所以这个表现在肯定是空的，所以在get的时候一是获取了个寂寞。<br>既然表示空的，下面的操作自然就是创建一个通道然后建立映射关系。然后返回这个通道，终于<code>getChannel</code>方法结束了，然后就是建立连接了，也就是调用<code>TCPChannel</code>对象的<code>newConnection</code>方法。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/22d3992d28378bcfb6ac6dd3fc0b294c.png" alt="在这里插入图片描述"><br>代码挺长的，说白了就是看看是不是已经有了一个连接了，如果有了就直接拿来用，如果没有就新建一个，我们直接进到新建的逻辑里面：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Connection <span class="title function_">createConnection</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException &#123;</span><br><span class="line">        Connection conn;</span><br><span class="line"></span><br><span class="line">        TCPTransport.tcpLog.log(Log.BRIEF, <span class="string">&quot;create connection&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!usingMultiplexer) &#123;</span><br><span class="line">            <span class="type">Socket</span> <span class="variable">sock</span> <span class="operator">=</span> ep.newSocket();</span><br><span class="line">            conn = <span class="keyword">new</span> <span class="title class_">TCPConnection</span>(<span class="built_in">this</span>, sock);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">DataOutputStream</span> <span class="variable">out</span> <span class="operator">=</span></span><br><span class="line">                    <span class="keyword">new</span> <span class="title class_">DataOutputStream</span>(conn.getOutputStream());</span><br><span class="line">                writeTransportHeader(out);</span><br><span class="line"></span><br><span class="line">                <span class="comment">// choose protocol (single op if not reusable socket)</span></span><br><span class="line">                <span class="keyword">if</span> (!conn.isReusable()) &#123;</span><br><span class="line">                    out.writeByte(TransportConstants.SingleOpProtocol);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    out.writeByte(TransportConstants.StreamProtocol);</span><br><span class="line">                    out.flush();</span><br><span class="line"></span><br><span class="line">                    <span class="comment">/*</span></span><br><span class="line"><span class="comment">                     * Set socket read timeout to configured value for JRMP</span></span><br><span class="line"><span class="comment">                     * connection handshake; this also serves to guard against</span></span><br><span class="line"><span class="comment">                     * non-JRMP servers that do not respond (see 4322806).</span></span><br><span class="line"><span class="comment">                     */</span></span><br><span class="line">                    <span class="type">int</span> <span class="variable">originalSoTimeout</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        originalSoTimeout = sock.getSoTimeout();</span><br><span class="line">                        sock.setSoTimeout(handshakeTimeout);</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                        <span class="comment">// if we fail to set this, ignore and proceed anyway</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="type">DataInputStream</span> <span class="variable">in</span> <span class="operator">=</span></span><br><span class="line">                        <span class="keyword">new</span> <span class="title class_">DataInputStream</span>(conn.getInputStream());</span><br><span class="line">                    <span class="type">byte</span> <span class="variable">ack</span> <span class="operator">=</span> in.readByte();</span><br><span class="line">                    <span class="keyword">if</span> (ack != TransportConstants.ProtocolAck) &#123;</span><br><span class="line">                        <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConnectIOException</span>(</span><br><span class="line">                            ack == TransportConstants.ProtocolNack ?</span><br><span class="line">                            <span class="string">&quot;JRMP StreamProtocol not supported by server&quot;</span> :</span><br><span class="line">                            <span class="string">&quot;non-JRMP server at remote endpoint&quot;</span>);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="type">String</span> <span class="variable">suggestedHost</span> <span class="operator">=</span> in.readUTF();</span><br><span class="line">                    <span class="type">int</span>    <span class="variable">suggestedPort</span> <span class="operator">=</span> in.readInt();</span><br><span class="line">                    <span class="keyword">if</span> (TCPTransport.tcpLog.isLoggable(Log.VERBOSE)) &#123;</span><br><span class="line">                        TCPTransport.tcpLog.log(Log.VERBOSE,</span><br><span class="line">                            <span class="string">&quot;server suggested &quot;</span> + suggestedHost + <span class="string">&quot;:&quot;</span> +</span><br><span class="line">                            suggestedPort);</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="comment">// set local host name, if unknown</span></span><br><span class="line">                    TCPEndpoint.setLocalHost(suggestedHost);</span><br><span class="line">                    <span class="comment">// do NOT set the default port, because we don&#x27;t</span></span><br><span class="line">                    <span class="comment">// know if we can&#x27;t listen YET...</span></span><br><span class="line"></span><br><span class="line">                    <span class="comment">// write out default endpoint to match protocol</span></span><br><span class="line">                    <span class="comment">// (but it serves no purpose)</span></span><br><span class="line">                    <span class="type">TCPEndpoint</span> <span class="variable">localEp</span> <span class="operator">=</span></span><br><span class="line">                        TCPEndpoint.getLocalEndpoint(<span class="number">0</span>, <span class="literal">null</span>, <span class="literal">null</span>);</span><br><span class="line">                    out.writeUTF(localEp.getHost());</span><br><span class="line">                    out.writeInt(localEp.getPort());</span><br><span class="line">                    <span class="keyword">if</span> (TCPTransport.tcpLog.isLoggable(Log.VERBOSE)) &#123;</span><br><span class="line">                        TCPTransport.tcpLog.log(Log.VERBOSE, <span class="string">&quot;using &quot;</span> +</span><br><span class="line">                            localEp.getHost() + <span class="string">&quot;:&quot;</span> + localEp.getPort());</span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="comment">/*</span></span><br><span class="line"><span class="comment">                     * After JRMP handshake, set socket read timeout to value</span></span><br><span class="line"><span class="comment">                     * configured for the rest of the lifetime of the</span></span><br><span class="line"><span class="comment">                     * connection.  <span class="doctag">NOTE:</span> this timeout, if configured to a</span></span><br><span class="line"><span class="comment">                     * finite duration, places an upper bound on the time</span></span><br><span class="line"><span class="comment">                     * that a remote method call is permitted to execute.</span></span><br><span class="line"><span class="comment">                     */</span></span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        <span class="comment">/*</span></span><br><span class="line"><span class="comment">                         * If socket factory had set a non-zero timeout on its</span></span><br><span class="line"><span class="comment">                         * own, then restore it instead of using the property-</span></span><br><span class="line"><span class="comment">                         * configured value.</span></span><br><span class="line"><span class="comment">                         */</span></span><br><span class="line">                        sock.setSoTimeout((originalSoTimeout != <span class="number">0</span> ?</span><br><span class="line">                                           originalSoTimeout :</span><br><span class="line">                                           responseTimeout));</span><br><span class="line">                    &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                        <span class="comment">// if we fail to set this, ignore and proceed anyway</span></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    out.flush();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    conn.close();</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Exception ex) &#123;&#125;</span><br><span class="line">                <span class="keyword">if</span> (e <span class="keyword">instanceof</span> RemoteException) &#123;</span><br><span class="line">                    <span class="keyword">throw</span> (RemoteException) e;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConnectIOException</span>(</span><br><span class="line">                        <span class="string">&quot;error during JRMP connection establishment&quot;</span>, e);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                conn = multiplexer.openConnection();</span><br><span class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                <span class="keyword">synchronized</span> (<span class="built_in">this</span>) &#123;</span><br><span class="line">                    usingMultiplexer = <span class="literal">false</span>;</span><br><span class="line">                    multiplexer = <span class="literal">null</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">ConnectIOException</span>(</span><br><span class="line">                    <span class="string">&quot;error opening virtual connection &quot;</span> +</span><br><span class="line">                    <span class="string">&quot;over multiplexed connection&quot;</span>, e);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> conn;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>这一段代码就长的有点离大谱了，主要关注两个<code>out.flush</code>就是这行代码发起了请求，前面都是些前戏。。。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/b7ce319853f0a81f9b6423e73422a923.png" alt="在这里插入图片描述"><br>216与217行的代码已经很清楚了，新建一个socket，然后进行TCP连接，也就是进行三次握手，217执行完毕后，我们就可以使用wireshark看到：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ac74b906c3c7167d461247f0e5910147.png" alt="在这里插入图片描述"><br>妥妥的握手报文。<br>然后就是创建一个使用<code>conn</code>创建一个输出流，然后将其封装为数据输出流，然后再为输出流设置JRMI幻数与版本：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/5d128b917e925efdae34ee1ccde566ad.png" alt="在这里插入图片描述"><br>看一下协议幻数与版本号分别是多少：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/d5ea58732ddac83242ae8649d58cf580.png" alt="在这里插入图片描述"></p>
+<p>然后判断连接是否可重用，嗯，我看过了，是可重用的，所以又给输出流写了<code>TransportConstants.StreamProtocol</code>，这个值为<code>0x4b</code><br>这个编号我还好奇去转了一下码：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/c21e1dc5f77996f14dd88261428f5953.png" alt="在这里插入图片描述"><br>然后我去查了一下协议号：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/33435cfb0a4de3e39f01e53c38da88ea.png" alt="在这里插入图片描述"><br>这75是个什么鬼。。。对不上啊，只能解释为这两不是一个概念了。。。嗯，肯定不是一个概念，在<code>out.flush</code>发包后，我们看看看wireshark抓到的包：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/c85f4ddc3b459144609138ebcdd56296.png" alt="在这里插入图片描述"><br>看红框里面的16进制值为<code>4a524d4900024b</code>，就是协议幻数+版本号+流协议标识，知道了这个，我们就有了伪造RMI协议的第一个关键信息了。。。。。<br>看看对响应的处理：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/fefe420814025b84e8d9a10f36c5b8aa.png" alt="在这里插入图片描述"><br>首先封装了一个<code>DataInputStream</code>流对象，然后从输入流里面读了1个字节出来作为协议确认码ack，此处为<code>78</code>,然后判断ack是否等于<code>TransportConstants.ProtocolAck</code>，即<code>0x4e</code>，翻译为十进制就是78，这里是相等的。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/1818e586dbb2a51d0291e31e5fdf1f7e.png" alt="在这里插入图片描述"><br>然后继续读输入流得到<code>suggestedHost</code>与<code>suggestedPort</code><br>然后设置<code>TCPEndpoint</code>的host为获取到的<code>suggestedHost</code>，<code>localhost</code>也为获取到的<code>suggestedHost</code>，然后创建一个本地端点，通过这个端点获取主机与端口设置给输出流，然后out.flush将缓冲区的数据发送出去，通过wireshark抓包<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ff74eef65b4fdf5f6aad80a54a0bd84e.png" alt="在这里插入图片描述"><br>看到这里发送的请求报文中确实有ip地址，但是没有看到端口啊，哪里除了问题？<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a3402e3f023d26c3aa3f42a79ae037dd.png" alt="在这里插入图片描述"><br>注意到这儿获取本地端点的时候传入的端口就是0，抓包看到的请求为0也算正常。<br>这里就获取到了伪造RMI协议的第二个关键数据。。。。。这是越来越刑啊。。。。。</p>
+<p>总之到目前为止，发送RMI请求的连接已经获取完毕的，接下来的工作就是客户端携带要查询的key去注册中心查询是否存在对应的对象，然后注册中心将返回一个存根给客户端，然后客户端利用这个存根再去访问服务器的skeleton，服务器骨架访问服务器查看是否存在这样一个方法，根据客户端发送过来的方法名与参数执行对应的方法，然后将执行的结果返回给客户端由客户端存根接收然后转发给客户端。<br>好了今天时间比较晚了，预知后事如何，请听下回分解。。。。</p>
+
+    </div>
+
+    
+    
+    <div class="post-widgets">
+      <div id="needsharebutton-postbottom">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    </div>
+        <div class="reward-container">
+  <div>Buy me a coffee.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Arliya 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Arliya 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Arliya
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dayutech.github.io/archives/fa9410e3.html" title="从代码层面看RMI规范的实现与攻击原理（二）">https://dayutech.github.io/archives/fa9410e3.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" rel="tag"><i class="fa fa-tag"></i> 代码审计</a>
+              <a href="/tags/RMI/" rel="tag"><i class="fa fa-tag"></i> RMI</a>
+          </div>
+		  
+          <script data-pjax>
+	var tagsall=document.getElementsByClassName("post-tags")
+	for (var i = tagsall.length - 1; i >= 0; i--){
+		var tags=tagsall[i].getElementsByTagName("a");
+		for (var j = tags.length - 1; j >= 0; j--) {
+			var golden_ratio = 0.618033988749895;
+			var s = 0.5;
+			var v = 0.999;
+			var h = golden_ratio + Math.random()*0.8 - 0.5;
+			var h_i = parseInt(h * 6);
+			var f = h * 6 - h_i;
+			var p = v * (1 - s);
+			var q = v * (1 - f * s);
+			var t = v * (1 - (1 - f) * s);
+			var r, g, b;
+			switch (h_i) {
+				case 0:
+					r = v;
+					g = t;
+					b = p;
+					break;
+				case 1:
+					r = q;
+					g = v;
+					b = p;
+					break;
+				case 2:
+					r = p;
+					g = v;
+					b = t;
+					break;
+				case 3 :
+					r = p;
+					g = q;
+					b = v;
+					break;
+				case 4:
+					r = t;
+					g = p;
+					b = v;
+					break;
+				case 5:
+					r = v;
+					g = p;
+					b = q;
+					break;
+				default:
+					r = 1;
+					g = 1;
+					b = 1;
+			  }
+			tags[j].style.background = "rgba("+parseInt(r*255)+","+parseInt(g*255)+","+parseInt(b*255)+","+0.5+")";
+		}
+	}          
+                         
+            </script>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/b78ab3b1.html" rel="prev" title="从代码层面看RMI规范的实现与攻击原理（三）">
+      <i class="fa fa-chevron-left"></i> 从代码层面看RMI规范的实现与攻击原理（三）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/ca82fc3b.html" rel="next" title="从代码层面看RMI规范的实现与攻击原理（一）">
+      从代码层面看RMI规范的实现与攻击原理（一） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Arliya"
+      src="/images/dayu/avatar.png">
+  <p class="site-author-name" itemprop="name">Arliya</p>
+  <div class="site-description" itemprop="description">主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">101</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">190</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dayutech" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dayutech" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:test@qq.com" title="E-Mail → mailto:test@qq.com" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/yourname" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://youtube.com/yourname" title="YouTube → https:&#x2F;&#x2F;youtube.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener external nofollow noreferrer" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+	  
+		<div class="links-of-blogroll scroll" style="margin-top:20px; border-style:dotted none none none; padding-top:5px; text-align:left;padding-left: 20px; padding-right: 10px; padding-bottom: 5px;">
+		  <div class="links-of-blogroll-title" style="padding-bottom: 5px; padding-top: 5px; padding-left: 0px; padding-right: 20px; font-size: 1.6em; argin-right: 5px;">
+		<!-- 选择合适的icon --><i class="fab fa-markdown" aria-hidden="true"></i>
+			<b style="font-size: 0.65em; padding-left: 8px; position: relative; top: -2px;">文章列表</b>
+		  </div>
+		  <ul class="links-of-blogroll-list">
+		<!-- 文章排序规格,-updated 按照文章更新时间倒排 -->
+			
+		<!-- 显示10数目的文章 -->
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42eb2c82.html" title="动态代理在java反序列化中的应用" target="_blank">动态代理在java反序列化中的应用</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/b7f3ad9b.html" title="面试题整理" target="_blank">面试题整理</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/9c75190f.html" title="防火墙" target="_blank">防火墙</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42623881.html" title="通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入" target="_blank">通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/6eecc4bb.html" title="读书笔记-WEB前端黑客技术揭秘" target="_blank">读书笔记-WEB前端黑客技术揭秘</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/ef2b93c5.html" title="记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题" target="_blank">记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/53e2963.html" title="解决hexo图片访问遇到图床防盗链无法访问的问题" target="_blank">解决hexo图片访问遇到图床防盗链无法访问的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/7f771bb5.html" title="解决hexo内嵌js无法加载问题" target="_blank">解决hexo内嵌js无法加载问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/e9ccef3c.html" title="解决hexo-pdf无法使用的问题" target="_blank">解决hexo-pdf无法使用的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/cf1ba47f.html" title="解决hexo-next主题上游仓库改变告警" target="_blank">解决hexo-next主题上游仓库改变告警</a>
+			  </li>
+			
+		  </ul>
+		</div>
+	  
+	 
+    </div>
+	
+  </aside>
+  <div id="sidebar-dimmer"></div>
+ 
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Arliya</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">202k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">12:14</span>
+</div>
+  <div class="powered-by">由 <a href="https://github.com/dayutech" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">DayuTech</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+<div id="needsharebutton-float">
+      <span class="btn">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </span>
+    </div>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.js"></script>
+  <script>
+      pbOptions = {};
+        pbOptions.iconStyle = "box";
+        pbOptions.boxForm = "horizontal";
+        pbOptions.position = "bottomCenter";
+        pbOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-postbottom', pbOptions);
+      flOptions = {};
+        flOptions.iconStyle = "box";
+        flOptions.boxForm = "horizontal";
+        flOptions.position = "middleRight";
+        flOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-float', flOptions);
+  </script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23li28mRRYx9D76aAJ',
+      clientSecret: '8f7211d1bd039050ed40345ddf60273d6626ad6f',
+      repo        : 'dayutech.github.io',
+      owner       : 'dayutech',
+      admin       : ['dayutech'],
+      id          : '0398dca4518802654724f742f9a29775',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
+</script>
+
+    </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

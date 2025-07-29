@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/dayu/dayu-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dayu/dayu-web-app-manifest-512x512.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/dayu/dayu-web-app-manifest-192x192.png">
+  <link rel="mask-icon" href="/images/dayu/dayu-favicon.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dayutech.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文介绍了 TCP UDP IP 的相关知识点">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TCP-UDP-IP学习">
+<meta property="og:url" content="https://dayutech.github.io/archives/eecf3b2.html">
+<meta property="og:site_name" content="Dayu Technology Co., LTD">
+<meta property="og:description" content="本文介绍了 TCP UDP IP 的相关知识点">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://dayutech.github.io/archives/eecf3b2/111.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/eecf3b2/100327022731.jpg">
+<meta property="og:image" content="https://dayutech.github.io/archives/eecf3b2/30193705-accbdcad601c4d45b96392feea1bb63a.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/eecf3b2/20200807132831372.png">
+<meta property="og:image" content="https://dayutech.github.io/archives/eecf3b2/20200807134300500.png">
+<meta property="article:published_time" content="2025-04-10T12:56:11.000Z">
+<meta property="article:modified_time" content="2025-07-29T09:02:07.642Z">
+<meta property="article:author" content="Arliya">
+<meta property="article:tag" content="TCP">
+<meta property="article:tag" content="UDP">
+<meta property="article:tag" content="IP">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://dayutech.github.io/archives/eecf3b2/111.png">
+
+<link rel="canonical" href="https://dayutech.github.io/archives/eecf3b2.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.css"><style>
+#needsharebutton-postbottom {
+  cursor: pointer;
+  height: 26px;
+  margin-top: 10px;
+  position: relative;
+}
+#needsharebutton-postbottom .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 3px;
+  display: initial;
+  padding: 1px 4px;
+}
+</style><style>
+#needsharebutton-float {
+  bottom: 88px;
+  cursor: pointer;
+  left: -8px;
+  position: fixed;
+  z-index: 9999;
+}
+#needsharebutton-float .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 4px;
+  padding: 0 10px 0 14px;
+}
+</style>
+  <title>TCP-UDP-IP学习 | Dayu Technology Co., LTD</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="Dayu Technology Co., LTD" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dayu Technology Co., LTD</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">大禹科技股份有限公司</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-rss">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/dayutech/dayutech.github.io" class="github-corner" title="Dayu GitHub" aria-label="Dayu GitHub" rel="noopener external nofollow noreferrer" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/eecf3b2.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          TCP-UDP-IP学习
+        </h1>
+
+        <div class="post-meta">
+		  
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-10 20:56:11" itemprop="dateCreated datePublished" datetime="2025-04-10T20:56:11+08:00">2025-04-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-29 17:02:07" itemprop="dateModified" datetime="2025-07-29T17:02:07+08:00">2025-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">安全技术</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%8D%8F%E8%AE%AE%E8%A7%84%E8%8C%83/" itemprop="url" rel="index"><span itemprop="name">协议规范</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>19 分钟</span>
+            </span>
+            <div class="post-description">本文介绍了 TCP UDP IP 的相关知识点</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="TCP协议"><a href="#TCP协议" class="headerlink" title="TCP协议"></a>TCP协议</h1><p>本部分笔记笔记参考网址：</p>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.cnblogs.com/zmlctt/p/3690998.html">TCP三次握手四次挥手详解 - zmlctt - 博客园</a></p>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://baike.baidu.com/item/TCP/33012">TCP（传输控制协议）_百度百科</a></p>
+<h2 id="基本信息"><a href="#基本信息" class="headerlink" title="基本信息"></a>基本信息</h2><p>TCP: 传输控制协议，工作在osi七层模型的传输层上，是一种面向连接的协议，负责端对端网络连接的建立，进程间通信，流量控制、数据校验等功能</p>
+<p>SYN:同步序列编号，Synchronize Sequence Numbers</p>
+<p>2MSL:2 Maximum Segment Lifetime 2倍报文最大生存时间。</p>
+<h2 id="首部格式"><a href="#首部格式" class="headerlink" title="首部格式"></a>首部格式</h2><p>首部最长为60个字节，最短为20个字节—当首部中无选项字段时。</p>
+<p>Source Port———源端口，16bits,0-65535<br>Destination Port ————目的端口，16bits,0-65535</p>
+<p>Sequence Number————发送数据包中第一个分段的序列号，32bits</p>
+<p>Acknowledgement Number—————-确认序列号，32bits</p>
+<p>Data Offsset ————数据偏移，32bits，该字段的值是TCP首部长度除以4，用以指定TCP报文段的数据部分起始位置距离TCP报文段的起始位置有多远，该选项存在的意义是tcp首部中存在长度不确定的Options。</p>
+<p>标志位———-6bits：</p>
+<p>第一位：URG—表示Urgent Pointer字段有意义</p>
+<p>第二位：ACK—表示Acknowledgement Numbber 字段有意义</p>
+<p>第三位：PUSH—-表示push功能，当两个应用程序通信时，某一端如果希望当前数据中包含的指令得到尽快的响应，则此时将该数据段的push标志位设置为1，当接受方收到该数据段后，不是将该报文段放置在缓存中排队输送到应用程序，而是立即将其提交到接受方应用程序。</p>
+<p>第四位：RST—复位TCP连接，当tcp连接中出现了严重的差错时，将该值设置为1，此时表示要重新建立TCP连接。</p>
+<p>第五位：SYN——表示SYN报文</p>
+<p>第六位：FIN——表示没有数据可以发送了</p>
+<p>Window——表示接受缓冲区的空闲空间，16bits，用来告诉TCP接受对端自己能够接受逇最大数据长度</p>
+<p>Checksum——校验和，16bits。在计算校验和时，要在TCP首部的前面加上12个字节的伪首部。</p>
+<p>Urgent Pointers ——紧急指针，16位， 只有URG标志位被设置时该字段才有意义，表示紧急数据相对序列号（Sequence Number字段的值）的偏移。表明当前连接中有紧急字段需要发送，此时tcp将该报文段插入到报文段队列的最前方，优先发送</p>
+<h2 id="伪首部格式"><a href="#伪首部格式" class="headerlink" title="伪首部格式"></a>伪首部格式</h2><p>本部分参考网址：</p>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://blog.csdn.net/jiangqin115/article/details/39315085">TCP,UDP伪首部描述_jiangqin115的专栏-CSDN博客_udp伪首部</a></p>
+<p>Source IP——源IP地址，32bits</p>
+<p>Destination Ip ———目的IP地址，32bits</p>
+<p>填充位———8bits,均填充为0</p>
+<p>Protocol———协议位，使用协议的协议号，8bits，tcp为6</p>
+<p>Data Segment Length ———数据段长度，16bits</p>
+<p>首部并非TCP&amp;UDP数据报中实际的有效成分。伪首部是一个虚拟的 数据结构，其中的信息是从数据报所在IP分组头的分组头中提取的，既不向下传送也不向上递交，而仅仅是为计算 校验和。这样的 校验和，既校验了TCP&amp;UDP用户数据的源 端口号和目的端口号以及TCP&amp;UDP用户数据报的数据部分，又检验了IP数据报的源IP地址和目的地址。伪报头保证TCP&amp;UDP数据单元到达正确的目的地址。因此，伪报头中包含IP地址并且作为计算 校验和需要考虑的一部分。最终目的端根据伪报头和 数据单元计算 校验和以验证通信数据在传输过程中没有改变而且到达了正确的目的地址。</p>
+<h2 id="TCP连接建立与终止"><a href="#TCP连接建立与终止" class="headerlink" title="TCP连接建立与终止"></a>TCP连接建立与终止</h2><h3 id="建立连接-3次握手"><a href="#建立连接-3次握手" class="headerlink" title="建立连接-3次握手"></a>建立连接-3次握手</h3><p>TCP三次握手：</p>
+<ol>
+<li>客户端发送SYN(Seq&#x3D;x，初始序号，存储在报头的Sequence Number中)，SYN标志位为1，ACK标志位为0，的报文给服务器端，进入SYN_SEND状态</li>
+<li>服务器接收到SYN报文，回应一个SYN(seq&#x3D;y)+ACK（ACK &#x3D; x+1），SYN与ACK标志位同时为1的报文给客户端，进入SYN_RECV状态。</li>
+<li>客户端收到服务器端的SYN报文，回应一个ACK(ACK&#x3D;y+1)，SYN标志位为0，ACK标志位为1的包给服务器，进入established状态。</li>
+</ol>
+<p>至此，TCP客户端与服务器端的连接被建立起来，可以进行相互间的数据传输了</p>
+<p><img src="/archives/eecf3b2/111.png"></p>
+<ol>
+<li>某个应用进程首先调用close,称该端执行“主动关闭”，该端的TCP于是发送一个FIN分节，表示数据发送完毕,此时主动方将关闭发送服务。</li>
+<li>接受到这个FIN的对端执行“被动关闭”，这个FIN由TCP确认，发送ACK包给主动方。FIN的接收也作为一个文件结束符（end-of-file）传递给接收端应用进程，放在已排队等候该应用进程接收的任何其他数据之后，因为，FIN的接收意味着接收端应用进程在相应连接上再无额外数据可接收。</li>
+<li>一段时间后，接受到这个文件结束符的应用进程将调用close关闭它的套接字。这导致他的tcp也发送一个FIN+ACK，进入LAST-ACK状态。</li>
+<li>接受端接受到这个FIN后，其TCP确认这个FIN向被动方发送ACK包。从而进入TIME_WAIT状态。等待2MSL之后，如不再有新的ACK+FIN包传来，则主动方关闭接收服务（被动方若超过msl之后仍没有收到确认包，则会重发FIN_ACK包，主动方在2msl之后再关闭服务则能确保能够收到来自被动方的重发包）。</li>
+</ol>
+<p><img src="/archives/eecf3b2/100327022731.jpg"></p>
+<h2 id="可靠性实现"><a href="#可靠性实现" class="headerlink" title="可靠性实现"></a>可靠性实现</h2><h3 id="重传策略"><a href="#重传策略" class="headerlink" title="重传策略"></a>重传策略</h3><p>TCP在发送一个数据段后立即启动一个定时器，如果在重传超时时间内接收到确认就关闭该重传，如果未接收到确认，则重传该数据段。</p>
+<h3 id="可靠性"><a href="#可靠性" class="headerlink" title="可靠性"></a>可靠性</h3><ol>
+<li>校验和：TCP将保持他首部和数据的校验和。这是一个端到端的校验和，目的是检测数据在传输过程中的任何变化。如果收到段的校验和有差别，TCP将丢弃这个报文段并且不确认这段报文。</li>
+<li>数据包顺序：通过IP数据报的方式传送，因为路由选择的不同可能在成数据包的失序。报文头中的Sequence Number就是接受端重新进行包排序的依据，也是删除重复包的依据</li>
+<li>流量控制：TCP接受端都有固定大小的缓冲空间，双方通过SYN中的MSS协商发送、接受数据的大小，从而防止缓冲区的溢出。</li>
+</ol>
+<h3 id="窗口确认"><a href="#窗口确认" class="headerlink" title="窗口确认"></a>窗口确认</h3><p>使用数据报头序列号及确认号来确认已收到包含在数据段的相关的数据字节。</p>
+<p>源主机在收到确认消息之前可以传输的数据的大小称为窗口大小</p>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><h3 id="MSS协商"><a href="#MSS协商" class="headerlink" title="MSS协商"></a>MSS协商</h3><p>在TCP建立连接的三次握手中，有一种很重要的工作那就是进行MSS协商。连接的双方都在SYN报文中增加MSS选项，其选项值表示本端最大能接收的段大小，即对端最大能发送的段大小。连接的双方取本端发送的MSS值和接收对端的MSS值的较小者作为本连接最大传输段大小。</p>
+<p>发送SYN报文时的MSS选项值的计算方法如下。</p>
+<p>l非直连网络中：mss &#x3D; 默认值536。</p>
+<p>l直连网络中：mss &#x3D; 对端ip地址对应的出口的MTU - 20字节ip头 - 20字节tcp头。</p>
+<p>若连接过程中发送端或者接受端协商的MSS超过路由器允许的最大值，路由器则会拒绝转发。怎么解决这个问题呢，在tcp连接的建立过程中进行syn协商时，路由器会进行解包，如果发现mss超过限制，则会对该值进行修改，再重新封装发送。</p>
+<h3 id="PMTU发现"><a href="#PMTU发现" class="headerlink" title="PMTU发现"></a>PMTU发现</h3><p>PMTU:路径最大传输单元。</p>
+<p>当设备发现当前的PMUT比双方协商的mss小时，则设备就会按一定的时间间隔去尝试发现更大的PMTU,指导PMTU达到最大值。</p>
+<h3 id="SYN攻击"><a href="#SYN攻击" class="headerlink" title="SYN攻击"></a>SYN攻击</h3><p>在三次握手的过程中，服务方在接受了请求方的SYN后发送SYN+ACK回报，同时进入SYN_RECV状态，若在设置的时间阈值之后仍然没有收到请求方的ACK包，则服务方将重发SYN+ACK包，知道达到设定的重发次数为止。SYN攻击则是利用这一过程，使用大量的虚假IP不断的发起SYN请求却不发送ACK回包，这样这些伪造的SYN包将占用未连接队列，使正常的SYN请求被丢弃，导致目标系统运行缓慢，甚至导致网络堵塞或系统瘫痪。</p>
+<h3 id="主动方最后发送ACK包后为什么需要进入TIME-WAIT状态？TIME-WAIT状态的持续时间为什么是2MSL"><a href="#主动方最后发送ACK包后为什么需要进入TIME-WAIT状态？TIME-WAIT状态的持续时间为什么是2MSL" class="headerlink" title="主动方最后发送ACK包后为什么需要进入TIME_WAIT状态？TIME_WAIT状态的持续时间为什么是2MSL"></a>主动方最后发送ACK包后为什么需要进入TIME_WAIT状态？TIME_WAIT状态的持续时间为什么是2MSL</h3><p>当主动方发送了最后的ACK包后，并不能完全确保被动方接收到了该包。如果该包在传输过程中发生了丢失，那么被动方在等待了设定的超时响应时间之后则会重传FIN包，此时主动方是处于TIME_WAIT状态的，在2msl时间内则是为了确保主动方能够接收到被动方重发的FIN包。这样可以确保TCP全双工连接的可靠终止，同时也能确保老的重复的分节在网络中消逝，主动方在等待2MSL之后就可以上使所有在连接过程中产生的报文段在网络中消失，因为处于TIME_WAIT状态的分节是不允许绑定的。</p>
+<h3 id="为什么需要进行三次握手，两次握手可以吗"><a href="#为什么需要进行三次握手，两次握手可以吗" class="headerlink" title="为什么需要进行三次握手，两次握手可以吗"></a>为什么需要进行三次握手，两次握手可以吗</h3><p>不可以，两次握手可能造成死锁。当请求方发送SYN后，服务方回ACK+SYN包，按照两次握手的情况，如果服务方的ACK包在发送过程中丢失，服务方自己却不知情，在发送了ACK包后，他就开始传送数据，请求方因为未收到来自服务提供方的ACK包，那么将一直处于SYN_SEND状态，服务方发过来的正常数据包将被请求方丢弃，而服务方则因为自己发送的数据包未收到来自请求方的确认包，分组超时后将重发相同的分组，从而造成死锁。</p>
+<h1 id="UDP协议"><a href="#UDP协议" class="headerlink" title="UDP协议"></a>UDP协议</h1><p>本部分笔记参考网址：</p>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://baike.baidu.com/item/UDP">UDP_百度百科</a></p>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://zhuanlan.zhihu.com/p/101552588">不为人知的UDP：深入地理解UDP协议并用好它</a></p>
+<h2 id="基本情况"><a href="#基本情况" class="headerlink" title="基本情况"></a>基本情况</h2><p>UDP:用户数据包协议。是一种面向事务的，连接不可靠的传输层协议。不能提供数据的分组、组装、排序，因为首部简短，所额外开销据较少，流量的开销较少，在传输过程中的延迟小，数据的传输效率高，适合对可靠性要求不高的程序。特别适用于发送那些简短的数据，同时UDP协议是一种一对多的协议，所以在直播领域、视频会议领域，多媒体数据的传输等方面多使用。其可靠性与分组都有应用层完成，如DNS、TFTP、SNMP等协议</p>
+<h2 id="UDP报头"><a href="#UDP报头" class="headerlink" title="UDP报头"></a>UDP报头</h2><p>总共8个字节，分为4个域，每个域2个字节。</p>
+<p>Source Port ———源端口，16bits,0-65535</p>
+<p>Destination Port———目的端口,16bits,0-65535</p>
+<p>数据长度———16bits,UDP报文段的长度，最短为8（仅首部）</p>
+<p>Checksum———16bits，整个数据段的校验和，接受端接受到该报文段后，计算校验和，若计算出的校验和与该值相等则保留该数据段，若不相等则丢弃该数据段。该值不是必须的。</p>
+<h3 id="UDP伪报头"><a href="#UDP伪报头" class="headerlink" title="UDP伪报头"></a>UDP伪报头</h3><p>Source IP——源IP地址，32bits</p>
+<p>Destination Ip ———目的IP地址，32bits</p>
+<p>填充位———8bits,均填充为0</p>
+<p>Protocol———协议位，使用协议的协议号，8bits，UDP为17</p>
+<p>Data Segment Length ———数据段长度，16bits</p>
+<p>首部并非TCP&amp;UDP数据报中实际的有效成分。伪首部是一个虚拟的 数据结构，其中的信息是从数据报所在IP分组头的分组头中提取的，既不向下传送也不向上递交，而仅仅是为计算 校验和。这样的 校验和，既校验了TCP&amp;UDP用户数据的源 端口号和目的端口号以及TCP&amp;UDP用户数据报的数据部分，又检验了IP数据报的源IP地址和目的地址。伪报头保证TCP&amp;UDP数据单元到达正确的目的地址。因此，伪报头中包含IP地址并且作为计算 校验和需要考虑的一部分。最终目的端根据伪报头和 数据单元计算 校验和以验证通信数据在传输过程中没有改变而且到达了正确的目的地址。</p>
+<h2 id="其他-1"><a href="#其他-1" class="headerlink" title="其他"></a>其他</h2><h3 id="UDP报文段数据部分长度"><a href="#UDP报文段数据部分长度" class="headerlink" title="UDP报文段数据部分长度"></a>UDP报文段数据部分长度</h3><ul>
+<li><p>UDP数据包数据段的理论最大长度：</p>
+<ol>
+<li>udp协议本身规定了其有16位的报文长度，则其报文长度不能超过2^16&#x3D;65536。</li>
+<li>报头占8字节</li>
+<li>IP报头占20字节</li>
+</ol>
+<p>  则其理论长度为：65536-1-8-20&#x3D;65507字节。
+  </p>
+</li>
+<li><p>实际最大长度：</p>
+<ol>
+<li>UDP发送缓存区大小限制</li>
+<li>以太网发送数据帧的长度限制</li>
+<li>数据链路层MTU限制</li>
+</ol>
+</li>
+<li><p>理想长度：</p>
+<p>  受以太网传输电气方面的限制，每个以太网帧最小字节为64，最大为1518字节，超过这个范围的帧均被视为错误真丢弃，在减掉以太网帧的帧头部分（DMAC目的 MAC 地址48bit&#x3D;6Bytes+SMAC源 MAC 地址48bit&#x3D;6Bytes+Type域（上层协议类型，用以接收端判断将数据部分上送到哪一种协议-icmp,ip,arp）2bytes）共14字节，和帧尾部分的CRC—-循环冗余校验部分，能够承载上层协议的数据域最大只能为1500字节，即为MTU。那么要想IP层不分包，那么UDP数据包的最大值为1500-20-8&#x3D;1472字节。鉴于Internet的标准MTU值为576字节，故建议UDP的数据长度控制在（576-8-20&#x3D;548字节）以内。</p>
+<p>  采用冗余传输方案：延时双发-将原本单发的前后连续的两个包合并成一个大包发送。</p>
+</li>
+</ul>
+<h3 id="如何获取完整的UDP包"><a href="#如何获取完整的UDP包" class="headerlink" title="如何获取完整的UDP包"></a>如何获取完整的UDP包</h3><p>采用冗余传输方案：延时双发-将原本单发的前后连续的两个包合并成一个大包发送。</p>
+<p><img src="/archives/eecf3b2/30193705-accbdcad601c4d45b96392feea1bb63a.png"></p>
+<h1 id="IPv4协议"><a href="#IPv4协议" class="headerlink" title="IPv4协议"></a>IPv4协议</h1><p>本部分笔记参考：</p>
+<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://www.cnblogs.com/red-code/p/7132023.html">Red_Code</a></p>
+<h2 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h2><p>IP:Internet Protocol，网际互连协议，其工作在OSI参考模型的网络层上，提供一种无连接的、不可靠的、尽力而为的数据包传输服务。</p>
+<h2 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h2><h3 id="IP分组转发规则"><a href="#IP分组转发规则" class="headerlink" title="IP分组转发规则"></a>IP分组转发规则</h3><ul>
+<li><p>直接交付：</p>
+<p>  当IP数据包经由路由器转发时，如果目标设备与本地路由器直接相连，则直接将数据包交付给目标主机</p>
+</li>
+<li><p>间接交付</p>
+<p>  若目标主机未与本地路由器直接相连，路由器通过查找路由表，并将数据包转交给路由表中指明的下一跳路由器。若路由表中有到达目标网络的路由，则吧数据包传送给指明的吓一跳路由器，如果没有路由，则将数据包传送给路由表中的默认路由。如果两者都没有则丢弃数据包并报告错误</p>
+</li>
+</ul>
+<h3 id="IP分片"><a href="#IP分片" class="headerlink" title="IP分片"></a>IP分片</h3><p>当路由器在转发IP数据包是，如果包的大小大于当前链路的MTU，路由器则会将该IP分组分节成满足MTU的数据包，进行传输，并在到达目标主机时才被进行重组。</p>
+<h3 id="IP分组结构"><a href="#IP分组结构" class="headerlink" title="IP分组结构"></a>IP分组结构</h3><p>由首部与数据量部分组成，首部包好20字节的固定部分以及可选部分</p>
+<h2 id="IP报文首部"><a href="#IP报文首部" class="headerlink" title="IP报文首部"></a>IP报文首部</h2><p>IP Version———IP版本号，4bits,ipv4-0100、ipv6-0110</p>
+<p>Hdr Len———头部长度，4bits。一个位表示4个字节，即最大可以表示60个字节长度，一般为0101&#x3D;0d5,即20个字节。</p>
+<p>Type of Service(QOS、TOS)——优先级及服务类型，8bits，前三位为优先级，中间3位为服务类型,D:低延时，T高吞吐量，R高稳定性，后两位为ECN。QOS:提供了8种服务优先级，优先级越高的报文将被优先处理。TOS:提供了三种不同的服务类型，分别为D-低时延，T-高吞吐量，R-高可靠性。ECN:当一个带有ECN标志的分组被发送后，如果接收端“”持续拥塞且具有“感知ECN”的能力，那么接收端会通知发送端降低发送速度。</p>
+<p>Total Length———总长度，16bits，单位：字节，首部与数据部分之和的长度，单位为字节，故数据报的最大长度为65535个字节，但受MTU的限制，此值只是理论上的值。</p>
+<p>Indentification(Fragment ID)-标示，16bits，为片分类，数据在数据链路层会进行分片操作，此标志表示该分片属于某一帧。</p>
+<p>R——1bit 保留</p>
+<p>DF——1bit，Do not Fragment ,是否分片,1表示未分片，0表示已分片</p>
+<p>MF——1bit，More Fragment，是否最后一片，0表示是最后一个分片，1表示不是</p>
+<p>Fragment Offset——，13bits，片偏移，后一个片从前一个片的哪个位置开始拼接，单位为：8Bytes</p>
+<p>Time To Live(TTl)——8bits，最大生存时间，数据帧每经过一个路由器该值就减1，当该值为零时，数据将被丢弃，丢弃的网络设备将给发送方回包。防止数据在网络上无限循环。linux一般小于100，windows一般大于128。</p>
+<p>Protocol———8bits，协议号：TCP-6，UDP-17,IP-0x0800,ARP-0x0860</p>
+<p>Header Checksum——-16bits，首部校验和</p>
+<p>Source IP Address——16bits，源IP地址</p>
+<p>Destination IP Address——-16bits，目的IP地址</p>
+<p>Options———40Bytes，可选项：一般一些特殊的要求会加在这个部分。例如：松散路由，严格路由，路由记录，时间戳。</p>
+<p>Data———数据部分</p>
+<p><img src="/archives/eecf3b2/20200807132831372.png"></p>
+<h3 id="IP报头举例："><a href="#IP报头举例：" class="headerlink" title="IP报头举例："></a>IP报头举例：</h3><p>0100 0101 00000000 0000000000101000 1100000101111010 010 0000000000000 01000000 00000110 0000001000000101 11000000 10101000 00000011 00000111 11001010 01011001 11101001 01000111</p>
+<ul>
+<li>1-4bit：0100——IPv4</li>
+<li>5-8bit：0101——首部长度为20字节</li>
+<li>9-16bit：00000000———服务类型与优先级</li>
+<li>17-32bit：0000000000101000 ——整个IP包的长度，40字节</li>
+<li>33-48bit：1100000101111010——-49530，片标识</li>
+<li>49-51bit：010 ———第一位保留，未分片，是最后一个分片</li>
+<li>52-64bit：0000000000000———未曾分片，故无偏移</li>
+<li>65-72bit：01000000———64，生存时间</li>
+<li>73-80bit ：00000110———6，TCP协议</li>
+<li>81-96bit ：0000001000000101 ———517，首部校验和</li>
+<li>97-128bit ：11000000 10101000 00000011 00000111——-192.168.3.7 源IP地址</li>
+<li>129-160bit ： 11001010 01011001 11101001 01000111———202.89.233.71 目标IP地址</li>
+</ul>
+<p><img src="/archives/eecf3b2/20200807134300500.png"></p>
+<h2 id="IPv4地址"><a href="#IPv4地址" class="headerlink" title="IPv4地址"></a>IPv4地址</h2><h3 id="IP地址构成"><a href="#IP地址构成" class="headerlink" title="IP地址构成"></a>IP地址构成</h3><p>IPv4地址由32位二进制组成，每8位划分为1组，转换为十进制表示为xxx.xxx.xxx.xxx，这种表示方法被称为点分十进制</p>
+<p>IPv6地址由128位二进制组成，每16位划分为一组，每一组内每4位有一个16进制数表示</p>
+<h3 id="IPv4地址分类："><a href="#IPv4地址分类：" class="headerlink" title="IPv4地址分类："></a>IPv4地址分类：</h3><p>A类：0~127，二进制第一位为0，即0xxxxxxxx</p>
+<p>B类：128~191，二进制第一位为1,第二位为0，即10xxxxxx</p>
+<p>C类：192~223，二进制第一位为1，第二位为1，第三位为0，即110xxxxx</p>
+<p>D类：224~239,二进制第一位为1，第二位为1，第三位为1，第四位为0，即1110xxxx，组播地址</p>
+<p>E类：240~255，二进制第一位为1，第二位为1，第三位为1，第四位为1，即1111xxxx</p>
+<p><em><strong>如何获取一个IP地址的子网标识？</strong></em></p>
+<p>将该IP地址与其子网掩码进行按位与运算即得到其子网地址</p>
+<p><em><strong>如何获取一个IP地址的广播地址？</strong></em></p>
+<p>将该IP地址的子网掩码按位取反之后再与该IP进行按位或操作即可。</p>
+<h3 id="特殊IPv4地址"><a href="#特殊IPv4地址" class="headerlink" title="特殊IPv4地址"></a>特殊IPv4地址</h3><ul>
+<li>127.0.0.0&#x2F;8：回环地址，表示该设备本身</li>
+<li>当主机号为0时表示该网络本身，即该网络里的第一个地址：如，192.168.2.0&#x2F;255.255.255.0</li>
+<li>当主机号为255时表示该网络的广播地址，即该网络的最后一个地址</li>
+<li>255.255.255.255 为整个互联网的广播地址</li>
+</ul>
+<h3 id="IPv4地址耗尽解决方案"><a href="#IPv4地址耗尽解决方案" class="headerlink" title="IPv4地址耗尽解决方案"></a>IPv4地址耗尽解决方案</h3><p>传统的IPv4地址被认为的划分为不容的种类，其网络号被限定在8、16、24位，新的解决方案突破了这个限制通过前缀来限定不同的网络，也就没有了地址分类这种说法，扩大了IP地址的可利用率。如：10.0.0.1&#x2F;18，其中的18表示该IP地址中前18位表示了网络号，后12位表示主机号。</p>
+
+    </div>
+
+    
+    
+    <div class="post-widgets">
+      <div id="needsharebutton-postbottom">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    </div>
+        <div class="reward-container">
+  <div>Buy me a coffee.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Arliya 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Arliya 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Arliya
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dayutech.github.io/archives/eecf3b2.html" title="TCP-UDP-IP学习">https://dayutech.github.io/archives/eecf3b2.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/TCP/" rel="tag"><i class="fa fa-tag"></i> TCP</a>
+              <a href="/tags/UDP/" rel="tag"><i class="fa fa-tag"></i> UDP</a>
+              <a href="/tags/IP/" rel="tag"><i class="fa fa-tag"></i> IP</a>
+          </div>
+		  
+          <script data-pjax>
+	var tagsall=document.getElementsByClassName("post-tags")
+	for (var i = tagsall.length - 1; i >= 0; i--){
+		var tags=tagsall[i].getElementsByTagName("a");
+		for (var j = tags.length - 1; j >= 0; j--) {
+			var golden_ratio = 0.618033988749895;
+			var s = 0.5;
+			var v = 0.999;
+			var h = golden_ratio + Math.random()*0.8 - 0.5;
+			var h_i = parseInt(h * 6);
+			var f = h * 6 - h_i;
+			var p = v * (1 - s);
+			var q = v * (1 - f * s);
+			var t = v * (1 - (1 - f) * s);
+			var r, g, b;
+			switch (h_i) {
+				case 0:
+					r = v;
+					g = t;
+					b = p;
+					break;
+				case 1:
+					r = q;
+					g = v;
+					b = p;
+					break;
+				case 2:
+					r = p;
+					g = v;
+					b = t;
+					break;
+				case 3 :
+					r = p;
+					g = q;
+					b = v;
+					break;
+				case 4:
+					r = t;
+					g = p;
+					b = v;
+					break;
+				case 5:
+					r = v;
+					g = p;
+					b = q;
+					break;
+				default:
+					r = 1;
+					g = 1;
+					b = 1;
+			  }
+			tags[j].style.background = "rgba("+parseInt(r*255)+","+parseInt(g*255)+","+parseInt(b*255)+","+0.5+")";
+		}
+	}          
+                         
+            </script>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/4e6e7714.html" rel="prev" title="XXE与SSRF">
+      <i class="fa fa-chevron-left"></i> XXE与SSRF
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/archives/e73517db.html" rel="next" title="SQL注入">
+      SQL注入 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#TCP%E5%8D%8F%E8%AE%AE"><span class="nav-number">1.</span> <span class="nav-text">TCP协议</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BF%A1%E6%81%AF"><span class="nav-number">1.1.</span> <span class="nav-text">基本信息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A6%96%E9%83%A8%E6%A0%BC%E5%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">首部格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%AA%E9%A6%96%E9%83%A8%E6%A0%BC%E5%BC%8F"><span class="nav-number">1.3.</span> <span class="nav-text">伪首部格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCP%E8%BF%9E%E6%8E%A5%E5%BB%BA%E7%AB%8B%E4%B8%8E%E7%BB%88%E6%AD%A2"><span class="nav-number">1.4.</span> <span class="nav-text">TCP连接建立与终止</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5-3%E6%AC%A1%E6%8F%A1%E6%89%8B"><span class="nav-number">1.4.1.</span> <span class="nav-text">建立连接-3次握手</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.5.</span> <span class="nav-text">可靠性实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E4%BC%A0%E7%AD%96%E7%95%A5"><span class="nav-number">1.5.1.</span> <span class="nav-text">重传策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7"><span class="nav-number">1.5.2.</span> <span class="nav-text">可靠性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AA%97%E5%8F%A3%E7%A1%AE%E8%AE%A4"><span class="nav-number">1.5.3.</span> <span class="nav-text">窗口确认</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96"><span class="nav-number">1.6.</span> <span class="nav-text">其他</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MSS%E5%8D%8F%E5%95%86"><span class="nav-number">1.6.1.</span> <span class="nav-text">MSS协商</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PMTU%E5%8F%91%E7%8E%B0"><span class="nav-number">1.6.2.</span> <span class="nav-text">PMTU发现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SYN%E6%94%BB%E5%87%BB"><span class="nav-number">1.6.3.</span> <span class="nav-text">SYN攻击</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E5%8A%A8%E6%96%B9%E6%9C%80%E5%90%8E%E5%8F%91%E9%80%81ACK%E5%8C%85%E5%90%8E%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E8%BF%9B%E5%85%A5TIME-WAIT%E7%8A%B6%E6%80%81%EF%BC%9FTIME-WAIT%E7%8A%B6%E6%80%81%E7%9A%84%E6%8C%81%E7%BB%AD%E6%97%B6%E9%97%B4%E4%B8%BA%E4%BB%80%E4%B9%88%E6%98%AF2MSL"><span class="nav-number">1.6.4.</span> <span class="nav-text">主动方最后发送ACK包后为什么需要进入TIME_WAIT状态？TIME_WAIT状态的持续时间为什么是2MSL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E8%BF%9B%E8%A1%8C%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%EF%BC%8C%E4%B8%A4%E6%AC%A1%E6%8F%A1%E6%89%8B%E5%8F%AF%E4%BB%A5%E5%90%97"><span class="nav-number">1.6.5.</span> <span class="nav-text">为什么需要进行三次握手，两次握手可以吗</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#UDP%E5%8D%8F%E8%AE%AE"><span class="nav-number">2.</span> <span class="nav-text">UDP协议</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%83%85%E5%86%B5"><span class="nav-number">2.1.</span> <span class="nav-text">基本情况</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UDP%E6%8A%A5%E5%A4%B4"><span class="nav-number">2.2.</span> <span class="nav-text">UDP报头</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UDP%E4%BC%AA%E6%8A%A5%E5%A4%B4"><span class="nav-number">2.2.1.</span> <span class="nav-text">UDP伪报头</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96-1"><span class="nav-number">2.3.</span> <span class="nav-text">其他</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UDP%E6%8A%A5%E6%96%87%E6%AE%B5%E6%95%B0%E6%8D%AE%E9%83%A8%E5%88%86%E9%95%BF%E5%BA%A6"><span class="nav-number">2.3.1.</span> <span class="nav-text">UDP报文段数据部分长度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E5%AE%8C%E6%95%B4%E7%9A%84UDP%E5%8C%85"><span class="nav-number">2.3.2.</span> <span class="nav-text">如何获取完整的UDP包</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#IPv4%E5%8D%8F%E8%AE%AE"><span class="nav-number">3.</span> <span class="nav-text">IPv4协议</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D"><span class="nav-number">3.1.</span> <span class="nav-text">基本介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E5%86%85%E5%AE%B9"><span class="nav-number">3.2.</span> <span class="nav-text">主要内容</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#IP%E5%88%86%E7%BB%84%E8%BD%AC%E5%8F%91%E8%A7%84%E5%88%99"><span class="nav-number">3.2.1.</span> <span class="nav-text">IP分组转发规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IP%E5%88%86%E7%89%87"><span class="nav-number">3.2.2.</span> <span class="nav-text">IP分片</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IP%E5%88%86%E7%BB%84%E7%BB%93%E6%9E%84"><span class="nav-number">3.2.3.</span> <span class="nav-text">IP分组结构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IP%E6%8A%A5%E6%96%87%E9%A6%96%E9%83%A8"><span class="nav-number">3.3.</span> <span class="nav-text">IP报文首部</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#IP%E6%8A%A5%E5%A4%B4%E4%B8%BE%E4%BE%8B%EF%BC%9A"><span class="nav-number">3.3.1.</span> <span class="nav-text">IP报头举例：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#IPv4%E5%9C%B0%E5%9D%80"><span class="nav-number">3.4.</span> <span class="nav-text">IPv4地址</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#IP%E5%9C%B0%E5%9D%80%E6%9E%84%E6%88%90"><span class="nav-number">3.4.1.</span> <span class="nav-text">IP地址构成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IPv4%E5%9C%B0%E5%9D%80%E5%88%86%E7%B1%BB%EF%BC%9A"><span class="nav-number">3.4.2.</span> <span class="nav-text">IPv4地址分类：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E6%AE%8AIPv4%E5%9C%B0%E5%9D%80"><span class="nav-number">3.4.3.</span> <span class="nav-text">特殊IPv4地址</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IPv4%E5%9C%B0%E5%9D%80%E8%80%97%E5%B0%BD%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">3.4.4.</span> <span class="nav-text">IPv4地址耗尽解决方案</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Arliya"
+      src="/images/dayu/avatar.png">
+  <p class="site-author-name" itemprop="name">Arliya</p>
+  <div class="site-description" itemprop="description">主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">101</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">27</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">190</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dayutech" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dayutech" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:test@qq.com" title="E-Mail → mailto:test@qq.com" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/yourname" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://youtube.com/yourname" title="YouTube → https:&#x2F;&#x2F;youtube.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener external nofollow noreferrer" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+	  
+		<div class="links-of-blogroll scroll" style="margin-top:20px; border-style:dotted none none none; padding-top:5px; text-align:left;padding-left: 20px; padding-right: 10px; padding-bottom: 5px;">
+		  <div class="links-of-blogroll-title" style="padding-bottom: 5px; padding-top: 5px; padding-left: 0px; padding-right: 20px; font-size: 1.6em; argin-right: 5px;">
+		<!-- 选择合适的icon --><i class="fab fa-markdown" aria-hidden="true"></i>
+			<b style="font-size: 0.65em; padding-left: 8px; position: relative; top: -2px;">文章列表</b>
+		  </div>
+		  <ul class="links-of-blogroll-list">
+		<!-- 文章排序规格,-updated 按照文章更新时间倒排 -->
+			
+		<!-- 显示10数目的文章 -->
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42eb2c82.html" title="动态代理在java反序列化中的应用" target="_blank">动态代理在java反序列化中的应用</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/b7f3ad9b.html" title="面试题整理" target="_blank">面试题整理</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/9c75190f.html" title="防火墙" target="_blank">防火墙</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42623881.html" title="通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入" target="_blank">通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/6eecc4bb.html" title="读书笔记-WEB前端黑客技术揭秘" target="_blank">读书笔记-WEB前端黑客技术揭秘</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/ef2b93c5.html" title="记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题" target="_blank">记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/53e2963.html" title="解决hexo图片访问遇到图床防盗链无法访问的问题" target="_blank">解决hexo图片访问遇到图床防盗链无法访问的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/7f771bb5.html" title="解决hexo内嵌js无法加载问题" target="_blank">解决hexo内嵌js无法加载问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/e9ccef3c.html" title="解决hexo-pdf无法使用的问题" target="_blank">解决hexo-pdf无法使用的问题</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/cf1ba47f.html" title="解决hexo-next主题上游仓库改变告警" target="_blank">解决hexo-next主题上游仓库改变告警</a>
+			  </li>
+			
+		  </ul>
+		</div>
+	  
+	 
+    </div>
+	
+  </aside>
+  <div id="sidebar-dimmer"></div>
+ 
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Arliya</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">202k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">12:14</span>
+</div>
+  <div class="powered-by">由 <a href="https://github.com/dayutech" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">DayuTech</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+<div id="needsharebutton-float">
+      <span class="btn">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </span>
+    </div>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.js"></script>
+  <script>
+      pbOptions = {};
+        pbOptions.iconStyle = "box";
+        pbOptions.boxForm = "horizontal";
+        pbOptions.position = "bottomCenter";
+        pbOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-postbottom', pbOptions);
+      flOptions = {};
+        flOptions.iconStyle = "box";
+        flOptions.boxForm = "horizontal";
+        flOptions.position = "middleRight";
+        flOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-float', flOptions);
+  </script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23li28mRRYx9D76aAJ',
+      clientSecret: '8f7211d1bd039050ed40345ddf60273d6626ad6f',
+      repo        : 'dayutech.github.io',
+      owner       : 'dayutech',
+      admin       : ['dayutech'],
+      id          : 'f771f1f5518ad8a9cf0c48c282fdd586',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
+</script>
+
+    </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

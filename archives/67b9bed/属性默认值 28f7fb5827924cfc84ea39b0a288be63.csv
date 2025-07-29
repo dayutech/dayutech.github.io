@@ -1,0 +1,5 @@
+﻿Name,Tags
+值,属性的默认值
+#REQUIRED,属性值是必需的
+#IMPLIED,属性不是必需的
+#FIXED value,属性值是固定的
