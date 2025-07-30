@@ -226,7 +226,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/f9db7072.html">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/a60aa68e.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/dayu/avatar.png">
@@ -240,7 +240,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/archives/f9db7072.html" class="post-title-link" itemprop="url">深入理解计算机系统读书笔记（三）</a>
+            <a href="/archives/a60aa68e.html" class="post-title-link" itemprop="url">深入剖析Log4j2调用流程</a>
         </h2>
 
         <div class="post-meta">
@@ -266,7 +266,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a>
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">漏洞原理</span></a>
                 </span>
             </span>
 
@@ -276,14 +276,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3k</span>
+              <span>2k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>11 分钟</span>
+              <span>7 分钟</span>
             </span>
 
         </div>
@@ -295,110 +295,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>本文介绍了 深入理解计算机系统</p>
+          <p>@<a href="%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Log4j2%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B">TOC</a></p>
+<blockquote>
+<p><b><font color="red">申明：</font></b>本文只做学习交流使用，严禁任何组织和个人通过转发、转载等方式进行传播，因此导致的法律后果与本文作者无关。</p>
+</blockquote>
+<p>小菜鸡昨晚正在积极进补雷神大大的课程的时候：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7a29e750df12950a939abb3ac4b60a21.png" alt="在这里插入图片描述"><br>老板的消息划破了寂静的夜空，也打断了我学习的脚步：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/512baf9e23209af67cd6f42175fa1b99.png" alt="在这里插入图片描述"><br>按照我的尿性，这种时候我肯定偷偷装死没跑了。<br>不过这个漏洞还是引起了我的兴趣，毕竟热度就那么多，蹭一蹭就没有了，我肯定也要蹭一蹭了。于是在昨晚瞎整了一晚上没结果后，今天上班的时候划水就把这整个利用过程给跑通了…..<br>果然上班划水才是生产力啊。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/archives/f9db7072.html">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  <!-- needsharebutton Javascript file -->
-<script src="js/needsharebutton.min.js"></script>
-<!-- needsharebutton CSS file -->
-<link href="css/needsharebutton.min.css" rel="stylesheet" />
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/84d33ff8.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/dayu/avatar.png">
-      <meta itemprop="name" content="Arliya">
-      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dayu Technology Co., LTD">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/archives/84d33ff8.html" class="post-title-link" itemprop="url">深入理解计算机系统读书笔记（一）</a>
-        </h2>
-
-        <div class="post-meta">
-		  
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-07-29 17:02:08" itemprop="dateModified" datetime="2025-07-29T17:02:08+08:00">2025-07-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>1k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>4 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>本文介绍了 深入理解计算机系统</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/archives/84d33ff8.html">
+              <a class="btn" href="/archives/a60aa68e.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -499,6 +403,106 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/archives/b4c5d320.html">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/f9db7072.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/archives/f9db7072.html" class="post-title-link" itemprop="url">深入理解计算机系统读书笔记（三）</a>
+        </h2>
+
+        <div class="post-meta">
+		  
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-29 17:02:08" itemprop="dateModified" datetime="2025-07-29T17:02:08+08:00">2025-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>11 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>本文介绍了 深入理解计算机系统</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/archives/f9db7072.html">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1346,43 +1350,43 @@
 		<!-- 显示10数目的文章 -->
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/42eb2c82.html" title="动态代理在java反序列化中的应用" target="_blank">动态代理在java反序列化中的应用</a>
+				<a href="/archives/e8630e46.html" title="7-zip权限提升漏洞【CVE-2022-29072】" target="_blank">7-zip权限提升漏洞【CVE-2022-29072】</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/b7f3ad9b.html" title="面试题整理" target="_blank">面试题整理</a>
+				<a href="/archives/3553c506.html" title="Apache RocketMQ 远程代码执行（CVE-2023-33246）" target="_blank">Apache RocketMQ 远程代码执行（CVE-2023-33246）</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/9c75190f.html" title="防火墙" target="_blank">防火墙</a>
+				<a href="/archives/968babfb.html" title="Apache RocketMQ 远程代码执行（CVE-2023-37582）" target="_blank">Apache RocketMQ 远程代码执行（CVE-2023-37582）</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/42623881.html" title="通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入" target="_blank">通过Tomcat BeanFactory 绕过高版本JDK CodeBase限制实现JNDI注入</a>
+				<a href="/archives/9f1a1388.html" title="Apache Shiro RegExPatternMatcher 认证绕过【CVE-2022-32532】" target="_blank">Apache Shiro RegExPatternMatcher 认证绕过【CVE-2022-32532】</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/6eecc4bb.html" title="读书笔记-WEB前端黑客技术揭秘" target="_blank">读书笔记-WEB前端黑客技术揭秘</a>
+				<a href="/archives/fe8a0a5d.html" title="Apache Struts2 S2-066 任意文件上传漏洞（CVE-2023-50164）" target="_blank">Apache Struts2 S2-066 任意文件上传漏洞（CVE-2023-50164）</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/ef2b93c5.html" title="记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题" target="_blank">记一次Pyppeteer调试解决--Browser closed unexpectedly--的问题</a>
+				<a href="/archives/60a726cc.html" title="Apache Struts2 S2-067 任意文件上传漏洞（CVE-2024-53677）" target="_blank">Apache Struts2 S2-067 任意文件上传漏洞（CVE-2024-53677）</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/53e2963.html" title="解决hexo图片访问遇到图床防盗链无法访问的问题" target="_blank">解决hexo图片访问遇到图床防盗链无法访问的问题</a>
+				<a href="/archives/66a16759.html" title="Apache Struts2 原理学习" target="_blank">Apache Struts2 原理学习</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/7f771bb5.html" title="解决hexo内嵌js无法加载问题" target="_blank">解决hexo内嵌js无法加载问题</a>
+				<a href="/archives/6f1feaf8.html" title="BinaryFormatter反序列化漏洞之ActivitySurrogateSelector利用链" target="_blank">BinaryFormatter反序列化漏洞之ActivitySurrogateSelector利用链</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/e9ccef3c.html" title="解决hexo-pdf无法使用的问题" target="_blank">解决hexo-pdf无法使用的问题</a>
+				<a href="/archives/5c78cf2.html" title="CVE-2023-28708 原理剖析" target="_blank">CVE-2023-28708 原理剖析</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/cf1ba47f.html" title="解决hexo-next主题上游仓库改变告警" target="_blank">解决hexo-next主题上游仓库改变告警</a>
+				<a href="/archives/f9ff5c36.html" title="CrushFTP 认证绕过（CVE-2025-2825）" target="_blank">CrushFTP 认证绕过（CVE-2025-2825）</a>
 			  </li>
 			
 		  </ul>

