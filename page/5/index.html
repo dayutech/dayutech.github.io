@@ -226,109 +226,6 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/e8476a7d.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/dayu/avatar.png">
-      <meta itemprop="name" content="Arliya">
-      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dayu Technology Co., LTD">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/archives/e8476a7d.html" class="post-title-link" itemprop="url">从Wireshark抓取HTTPS流量到HTTP2协议</a>
-        </h2>
-
-        <div class="post-meta">
-		  
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-07-29 17:02:08" itemprop="dateModified" datetime="2025-07-29T17:02:08+08:00">2025-07-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%8D%8F%E8%AE%AE%E8%A7%84%E8%8C%83/" itemprop="url" rel="index"><span itemprop="name">协议规范</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.1k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>7 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="吹水"><a href="#吹水" class="headerlink" title="吹水"></a>吹水</h1><p>打工人今天正无聊在小蓝鸟上看看国外的大哥们最近有没有又搞什么大动作，突然看到一条推文介绍使用wireshark抓取https报文的方法，正好前段时间也在公众号看到了一篇文章教这个，当时配置好了但没有去实际验证过好使不，于是趁着上班时间不验证白不验证，我这不是划水，我这是在打造生产工具，为下一步提升生产力打下良好的基础。<br>配置其实相对来说还是很简单的，首先是需要设置一下环境变量增加一项SSLKEYLOGFILE指向一个文本文件就好了，这样谷歌或者火狐浏览器在运行的时候就会将每次https会话的加密秘钥存储在这个文件里面，然后再wireshark中配置一下TLS协议的认证文件也指向这个文件就ok了，当然这个原理是我自己理解的，不过想来也就八九不离十了。想要知道详情的可以参看下面两篇文章咯</p>
-<blockquote>
-<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://mp.weixin.qq.com/s/jUFT1iA6Uy7EKJAFkebjDw">https://mp.weixin.qq.com/s/jUFT1iA6Uy7EKJAFkebjDw</a><br><a target="_blank" rel="noopener external nofollow noreferrer" href="https://twitter.com/binitamshah/status/1511254916484198402?s=20&t=qrF9mz6muHovokRB5nGPkg">https://twitter.com/binitamshah/status/1511254916484198402?s=20&amp;t=qrF9mz6muHovokRB5nGPkg</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/archives/e8476a7d.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  <!-- needsharebutton Javascript file -->
-<script src="js/needsharebutton.min.js"></script>
-<!-- needsharebutton CSS file -->
-<link href="css/needsharebutton.min.css" rel="stylesheet" />
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/ca82fc3b.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -614,6 +511,110 @@
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/archives/fa9410e3.html">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/b8d90c0d.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/archives/b8d90c0d.html" class="post-title-link" itemprop="url">一次失败的JAVA代码审计-SQL注入</a>
+        </h2>
+
+        <div class="post-meta">
+		  
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-29 17:02:08" itemprop="dateModified" datetime="2025-07-29T17:02:08+08:00">2025-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/" itemprop="url" rel="index"><span itemprop="name">代码审计</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>本文介绍了 一次失败的JAVA代码审计-SQL注入</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/archives/b8d90c0d.html">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1148,7 +1149,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/84d33ff8.html">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/a60aa68e.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/dayu/avatar.png">
@@ -1162,7 +1163,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/archives/84d33ff8.html" class="post-title-link" itemprop="url">深入理解计算机系统读书笔记（一）</a>
+            <a href="/archives/a60aa68e.html" class="post-title-link" itemprop="url">深入剖析Log4j2调用流程</a>
         </h2>
 
         <div class="post-meta">
@@ -1188,7 +1189,7 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">读书笔记</span></a>
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">漏洞原理</span></a>
                 </span>
             </span>
 
@@ -1198,14 +1199,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1k</span>
+              <span>2k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>4 分钟</span>
+              <span>7 分钟</span>
             </span>
 
         </div>
@@ -1217,10 +1218,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>本文介绍了 深入理解计算机系统</p>
+          <p>@<a href="%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Log4j2%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B">TOC</a></p>
+<blockquote>
+<p><b><font color="red">申明：</font></b>本文只做学习交流使用，严禁任何组织和个人通过转发、转载等方式进行传播，因此导致的法律后果与本文作者无关。</p>
+</blockquote>
+<p>小菜鸡昨晚正在积极进补雷神大大的课程的时候：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/7a29e750df12950a939abb3ac4b60a21.png" alt="在这里插入图片描述"><br>老板的消息划破了寂静的夜空，也打断了我学习的脚步：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/512baf9e23209af67cd6f42175fa1b99.png" alt="在这里插入图片描述"><br>按照我的尿性，这种时候我肯定偷偷装死没跑了。<br>不过这个漏洞还是引起了我的兴趣，毕竟热度就那么多，蹭一蹭就没有了，我肯定也要蹭一蹭了。于是在昨晚瞎整了一晚上没结果后，今天上班的时候划水就把这整个利用过程给跑通了…..<br>果然上班划水才是生产力啊。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/archives/84d33ff8.html">
+              <a class="btn" href="/archives/a60aa68e.html#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
