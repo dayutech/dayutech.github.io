@@ -52,7 +52,7 @@
 		  </div>
 		  <ul class="links-of-blogroll-list">
 		<!-- 文章排序规格,-updated 按照文章更新时间倒排 -->
-			{% set posts = site.posts.sort('-updated').toArray() %}
+			{% set posts = site.posts.sort('updated').toArray() %}
 		<!-- 显示10数目的文章 -->
 			{% for post in posts.slice('0','10') %}
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
