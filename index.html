@@ -360,7 +360,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-07-30 17:01:08" itemprop="dateModified" datetime="2025-07-30T17:01:08+08:00">2025-07-30</time>
+                <time title="修改时间：2025-09-05 10:46:22" itemprop="dateModified" datetime="2025-09-05T10:46:22+08:00">2025-09-05</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -397,7 +397,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h1 id="动态代理在Java反序列化中的应用"><a href="#动态代理在Java反序列化中的应用" class="headerlink" title="动态代理在Java反序列化中的应用"></a>动态代理在Java反序列化中的应用</h1><h2 id="动态代理简介"><a href="#动态代理简介" class="headerlink" title="动态代理简介"></a>动态代理简介</h2><p>何为代理？在日常生活中我们或多或少都接触过房产中介、4S店以及各种各样的代理商，他们在经济社会运行当中扮演着代理的角色，负责对接厂商与客户。<br>用户如果想要投诉产品、寻求赔偿等，可以统一找到代理商，由代理商向厂商提出，这样便极大的节约了用户的各方面成本。<br>在编程中所谓的代理模式也是同样的道理，当我们想要对某一个类进行功能扩展而又不想直接修改当前类的代码的时候，我们可以创建一个代理类来对目标类进行包装。<br>通过在当前类的运行前、运行后、运行异常时添加新的代码从而实现目标类功能的增强与拓展。这便是代理模式的运行。如下图，A表示被代理类，B表示代理类，当A没有被代理时，外界的其他方法可以直接调用A的方法，<br>当A被代理后，C的方法如果要想调用A的方法就需要先通过B类再由B类调用A类的方法，那么我们便可以在B类中增加一些其他的功能。B类此时就类似一个收保护费的，要想从此过，留下买路钱，正所谓漫天要价，坐地还钱。<br><img src="/archives/42eb2c82/003.png"><br>代理按照代理类创建的时间节点不同又可分为静态代理与动态代理，所谓静态代理即对每一个被代理类均创建一个对应的代理类以代理其功能并按照需要进行扩展，这样就面临一个困境，即如果有很多的需要被代理的类，<br> 那么就需要手动创建对应数量的代理类，这无疑增加了工作量与管理复杂度。<br>当目标类逐渐在增多时，对应的代理类数量随之扩张。<br><img src="/archives/42eb2c82/004.png"><br> 而动态代理则能很好地屏蔽这个缺陷，动态代理通过代理接口类实现了代理类的运行时动态生成，无论存在多少被代理类，<br>只要他们实现了相关的接口便可以动态地进行代理类的生成。<br>当使用动态代理时，无论由多少个目标类A B D … 只需保证他们都实现了统一接口SA，则只需代理SA接口一次即可对所有的目标类进行统一的管理。<br><img src="/archives/42eb2c82/005.png"><br>在 <code>JAVA</code> 中，动态代理的实现主要依赖于 <code>Proxy</code> 类以及相应的 <code>InvocationHandler</code> 实现，<code>Proxy</code> 类负责代理类的生成，<code>InvocationHandler</code> 接口负责目标方法的功能扩展。<br>动态代理实现目标类功能扩展的核心在于<code>InvocationHandler</code>，用户通过自定义<code>InvocationHandler</code>可以实现统一的日志管理，状态检查以及其他更高级的功能，如在本文中将会提及的修改方法返回对象、屏蔽方法调用异常、进行方法调用分流等。  </p>
+          <h1 id="动态代理在Java反序列化中的应用"><a href="#动态代理在Java反序列化中的应用" class="headerlink" title="动态代理在Java反序列化中的应用"></a>动态代理在Java反序列化中的应用</h1><h2 id="动态代理简介"><a href="#动态代理简介" class="headerlink" title="动态代理简介"></a>动态代理简介</h2><p>何为代理？在日常生活中我们或多或少都接触过房产中介、4S店以及各种各样的代理商，他们在经济社会运行当中扮演着代理的角色，负责对接厂商与客户。<br>用户如果想要投诉产品、寻求赔偿等，可以统一找到代理商，由代理商向厂商提出，这样便极大的节约了用户的各方面成本。<br>在编程中所谓的代理模式也是同样的道理，当我们想要对某一个类进行功能扩展而又不想直接修改当前类的代码的时候，我们可以创建一个代理类来对目标类进行包装。<br>通过在当前类的运行前、运行后、运行异常时添加新的代码从而实现目标类功能的增强与拓展。这便是代理模式的运行。如下图，A表示被代理类，B表示代理类，当A没有被代理时，外界的其他方法可以直接调用A的方法，<br>当A被代理后，C的方法如果要想调用A的方法就需要先通过B类再由B类调用A类的方法，那么我们便可以在B类中增加一些其他的功能。B类此时就类似一个收保护费的，要想从此过，留下买路钱，正所谓漫天要价，坐地还钱。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/archives/42eb2c82.html#more" rel="contents">
@@ -1417,31 +1417,11 @@
 		<!-- 显示10数目的文章 -->
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/e8630e46.html" title="7-zip权限提升漏洞【CVE-2022-29072】" target="_blank">7-zip权限提升漏洞【CVE-2022-29072】</a>
+				<a href="/archives/6e27d7b9.html" title=".Net Remoting 导致的反序列化漏洞" target="_blank">.Net Remoting 导致的反序列化漏洞</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/3553c506.html" title="Apache RocketMQ 远程代码执行（CVE-2023-33246）" target="_blank">Apache RocketMQ 远程代码执行（CVE-2023-33246）</a>
-			  </li>
-			
-			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/968babfb.html" title="Apache RocketMQ 远程代码执行（CVE-2023-37582）" target="_blank">Apache RocketMQ 远程代码执行（CVE-2023-37582）</a>
-			  </li>
-			
-			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/9f1a1388.html" title="Apache Shiro RegExPatternMatcher 认证绕过【CVE-2022-32532】" target="_blank">Apache Shiro RegExPatternMatcher 认证绕过【CVE-2022-32532】</a>
-			  </li>
-			
-			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/fe8a0a5d.html" title="Apache Struts2 S2-066 任意文件上传漏洞（CVE-2023-50164）" target="_blank">Apache Struts2 S2-066 任意文件上传漏洞（CVE-2023-50164）</a>
-			  </li>
-			
-			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/60a726cc.html" title="Apache Struts2 S2-067 任意文件上传漏洞（CVE-2024-53677）" target="_blank">Apache Struts2 S2-067 任意文件上传漏洞（CVE-2024-53677）</a>
-			  </li>
-			
-			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/66a16759.html" title="Apache Struts2 原理学习" target="_blank">Apache Struts2 原理学习</a>
+				<a href="/archives/42eb2c82.html" title="动态代理在java反序列化中的应用" target="_blank">动态代理在java反序列化中的应用</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
@@ -1449,11 +1429,51 @@
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/5c78cf2.html" title="CVE-2023-28708 原理剖析" target="_blank">CVE-2023-28708 原理剖析</a>
+				<a href="/archives/323962a4.html" title="从三味书屋到百草堂、从XmlSerializer到BinnaryFormatter之BinaryFormatter反序列化漏洞TextFormattingRunProperties利用链" target="_blank">从三味书屋到百草堂、从XmlSerializer到BinnaryFormatter之BinaryFormatter反序列化漏洞TextFormattingRunProperties利用链</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/ff457959.html" title="从三味书屋到百草堂，从XmlSerializer到BinnaryFormatter之XmlSerializer反序列化漏洞ObjectDataProvider利用链" target="_blank">从三味书屋到百草堂，从XmlSerializer到BinnaryFormatter之XmlSerializer反序列化漏洞ObjectDataProvider利用链</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/3792a892.html" title="Java动态代理在反序列化漏洞中的应用" target="_blank">Java动态代理在反序列化漏洞中的应用</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/31bfcb8f.html" title="Java HashMap 实现方法" target="_blank">Java HashMap 实现方法</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/b83d1f32.html" title="从头开始挖掘Java RMI漏洞" target="_blank">从头开始挖掘Java RMI漏洞</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/66a16759.html" title="Apache Struts2 原理学习" target="_blank">Apache Struts2 原理学习</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/60a726cc.html" title="Apache Struts2 S2-067 任意文件上传漏洞（CVE-2024-53677）" target="_blank">Apache Struts2 S2-067 任意文件上传漏洞（CVE-2024-53677）</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
 				<a href="/archives/f9ff5c36.html" title="CrushFTP 认证绕过（CVE-2025-2825）" target="_blank">CrushFTP 认证绕过（CVE-2025-2825）</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/fe8a0a5d.html" title="Apache Struts2 S2-066 任意文件上传漏洞（CVE-2023-50164）" target="_blank">Apache Struts2 S2-066 任意文件上传漏洞（CVE-2023-50164）</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/172295c.html" title="Tomcat 条件竞争导致远程代码执行（CVE-2024-50379/CVE-2024-56337）" target="_blank">Tomcat 条件竞争导致远程代码执行（CVE-2024-50379/CVE-2024-56337）</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/f65bb354.html" title="WebFlux集成Spring-Security受限静态资源访问授权绕过（CVE-2024-38821）" target="_blank">WebFlux集成Spring-Security受限静态资源访问授权绕过（CVE-2024-38821）</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/93b95985.html" title="Spring-Security-EnableMethodSecurity注解授权绕过（CVE-2025-22223）" target="_blank">Spring-Security-EnableMethodSecurity注解授权绕过（CVE-2025-22223）</a>
 			  </li>
 			
 		  </ul>
