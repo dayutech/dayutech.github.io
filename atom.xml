@@ -6,7 +6,7 @@
   <link href="https://dayutech.github.io/atom.xml" rel="self"/>
   
   <link href="https://dayutech.github.io/"/>
-  <updated>2025-09-11T08:34:52.874Z</updated>
+  <updated>2025-09-11T08:37:06.320Z</updated>
   <id>https://dayutech.github.io/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://dayutech.github.io/archives/324e0c68.html"/>
     <id>https://dayutech.github.io/archives/324e0c68.html</id>
     <published>2025-09-11T03:00:14.000Z</published>
-    <updated>2025-09-11T08:34:52.874Z</updated>
+    <updated>2025-09-11T08:37:06.320Z</updated>
     
     
     <summary type="html">本文收集C# 漏洞挖掘过程中使用的一些知识点</summary>
@@ -368,11 +368,11 @@
     
     <category term="Apache Struts2" scheme="https://dayutech.github.io/tags/Apache-Struts2/"/>
     
+    <category term="任意文件上传" scheme="https://dayutech.github.io/tags/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/"/>
+    
     <category term="s2-067" scheme="https://dayutech.github.io/tags/s2-067/"/>
     
     <category term="CVE-2024-53677" scheme="https://dayutech.github.io/tags/CVE-2024-53677/"/>
-    
-    <category term="任意文件上传" scheme="https://dayutech.github.io/tags/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/"/>
     
   </entry>
   
@@ -395,9 +395,9 @@
     
     <category term="Apache Struts2" scheme="https://dayutech.github.io/tags/Apache-Struts2/"/>
     
-    <category term="任意文件上传" scheme="https://dayutech.github.io/tags/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/"/>
-    
     <category term="S2-066" scheme="https://dayutech.github.io/tags/S2-066/"/>
+    
+    <category term="任意文件上传" scheme="https://dayutech.github.io/tags/%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/"/>
     
     <category term="CVE-2023-50164" scheme="https://dayutech.github.io/tags/CVE-2023-50164/"/>
     
@@ -596,6 +596,27 @@
   </entry>
   
   <entry>
+    <title>Fastjson反序列化漏洞原理分析及复现</title>
+    <link href="https://dayutech.github.io/archives/38dceb78.html"/>
+    <id>https://dayutech.github.io/archives/38dceb78.html</id>
+    <published>2025-04-14T02:33:52.000Z</published>
+    <updated>2025-07-29T09:02:06.730Z</updated>
+    
+    
+    <summary type="html">本文介绍了 Fastjson反序列化漏洞原理分析及复现</summary>
+    
+    
+    
+    <category term="漏洞分析" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    
+    
+    <category term="反序列化" scheme="https://dayutech.github.io/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"/>
+    
+    <category term="fastjson" scheme="https://dayutech.github.io/tags/fastjson/"/>
+    
+  </entry>
+  
+  <entry>
     <title>Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析</title>
     <link href="https://dayutech.github.io/archives/4187a059.html"/>
     <id>https://dayutech.github.io/archives/4187a059.html</id>
@@ -619,27 +640,6 @@
     <category term="gadgets" scheme="https://dayutech.github.io/tags/gadgets/"/>
     
     <category term="templateImpl" scheme="https://dayutech.github.io/tags/templateImpl/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Fastjson反序列化漏洞原理分析及复现</title>
-    <link href="https://dayutech.github.io/archives/38dceb78.html"/>
-    <id>https://dayutech.github.io/archives/38dceb78.html</id>
-    <published>2025-04-14T02:33:52.000Z</published>
-    <updated>2025-07-29T09:02:06.730Z</updated>
-    
-    
-    <summary type="html">本文介绍了 Fastjson反序列化漏洞原理分析及复现</summary>
-    
-    
-    
-    <category term="漏洞分析" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
-    
-    
-    <category term="反序列化" scheme="https://dayutech.github.io/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"/>
-    
-    <category term="fastjson" scheme="https://dayutech.github.io/tags/fastjson/"/>
     
   </entry>
   
@@ -695,31 +695,6 @@
   </entry>
   
   <entry>
-    <title>JAVA动态代理代码梳理</title>
-    <link href="https://dayutech.github.io/archives/d38cd4a6.html"/>
-    <id>https://dayutech.github.io/archives/d38cd4a6.html</id>
-    <published>2025-04-14T02:33:52.000Z</published>
-    <updated>2025-07-29T09:02:06.971Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;当我们要为我们的代码附加别的功能的时候，我们往往写一个代理类来实现对当前类的封装，该代理类不实现具体的代码逻辑，只是提供了额外的功能，但如果我有很多的类需要封装一样的功能，那么我就得写很多的代理类，这种方式耗时严重且不易维护，是极为不可取的。所以JAVA为我们提供了动态代理的方式来一劳永逸，貌似大名鼎鼎的AOP就是通过动态代理的方式实现的，那我们来写一个动态代理的例子。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="代码审计" scheme="https://dayutech.github.io/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"/>
-    
-    <category term="Java" scheme="https://dayutech.github.io/categories/Java/"/>
-    
-    
-    <category term="动态代理" scheme="https://dayutech.github.io/tags/%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/"/>
-    
-    <category term="Java" scheme="https://dayutech.github.io/tags/Java/"/>
-    
-    <category term="代码审计" scheme="https://dayutech.github.io/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"/>
-    
-  </entry>
-  
-  <entry>
     <title>Hadoop Yarn RPC 未授权远程代码执行漏洞复现</title>
     <link href="https://dayutech.github.io/archives/fe9d893.html"/>
     <id>https://dayutech.github.io/archives/fe9d893.html</id>
@@ -741,6 +716,31 @@
     <category term="Yarn" scheme="https://dayutech.github.io/tags/Yarn/"/>
     
     <category term="RPC" scheme="https://dayutech.github.io/tags/RPC/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>JAVA动态代理代码梳理</title>
+    <link href="https://dayutech.github.io/archives/d38cd4a6.html"/>
+    <id>https://dayutech.github.io/archives/d38cd4a6.html</id>
+    <published>2025-04-14T02:33:52.000Z</published>
+    <updated>2025-07-29T09:02:06.971Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;当我们要为我们的代码附加别的功能的时候，我们往往写一个代理类来实现对当前类的封装，该代理类不实现具体的代码逻辑，只是提供了额外的功能，但如果我有很多的类需要封装一样的功能，那么我就得写很多的代理类，这种方式耗时严重且不易维护，是极为不可取的。所以JAVA为我们提供了动态代理的方式来一劳永逸，貌似大名鼎鼎的AOP就是通过动态代理的方式实现的，那我们来写一个动态代理的例子。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="代码审计" scheme="https://dayutech.github.io/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"/>
+    
+    <category term="Java" scheme="https://dayutech.github.io/categories/Java/"/>
+    
+    
+    <category term="动态代理" scheme="https://dayutech.github.io/tags/%E5%8A%A8%E6%80%81%E4%BB%A3%E7%90%86/"/>
+    
+    <category term="Java" scheme="https://dayutech.github.io/tags/Java/"/>
+    
+    <category term="代码审计" scheme="https://dayutech.github.io/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"/>
     
   </entry>
   
@@ -809,27 +809,6 @@
   </entry>
   
   <entry>
-    <title>RMI原理浅析</title>
-    <link href="https://dayutech.github.io/archives/1298d583.html"/>
-    <id>https://dayutech.github.io/archives/1298d583.html</id>
-    <published>2025-04-14T02:33:52.000Z</published>
-    <updated>2025-07-29T09:02:07.115Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;@&lt;a href=&quot;RMI%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90&quot;&gt;TOC&lt;/a&gt;&lt;br&gt;前段时间不是爆了个log4j的远程代码执行漏洞吗！趁机我就了解了一下什么事jndi，然后就接触到了ldap与rmi，所有准备好好学习一番……&lt;/p&gt;
-&lt;p&gt;以上内容纯属瞎编，如有雷同，绝对是巧合。&lt;/p&gt;
-&lt;p&gt;其实很久以前就了解过jndi，但那时候感觉积累不够深，所有一直对他的原理没有搞清楚，看的各种文章也是云里雾里的，直到最近在反复研磨了网络上的文章之后，终于有了一点点心得，特此在这里记录一下。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="漏洞原理" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
-    
-    
-    <category term="RMI" scheme="https://dayutech.github.io/tags/RMI/"/>
-    
-  </entry>
-  
-  <entry>
     <title>PostgreSQL JDBC Driver RCE&amp;任意文件写入漏洞</title>
     <link href="https://dayutech.github.io/archives/dbd438c0.html"/>
     <id>https://dayutech.github.io/archives/dbd438c0.html</id>
@@ -875,14 +854,35 @@
   </entry>
   
   <entry>
-    <title>ThinkPHP5.0.24反序列化POC</title>
-    <link href="https://dayutech.github.io/archives/5ce634cf.html"/>
-    <id>https://dayutech.github.io/archives/5ce634cf.html</id>
+    <title>RMI原理浅析</title>
+    <link href="https://dayutech.github.io/archives/1298d583.html"/>
+    <id>https://dayutech.github.io/archives/1298d583.html</id>
     <published>2025-04-14T02:33:52.000Z</published>
-    <updated>2025-07-29T09:02:07.671Z</updated>
+    <updated>2025-07-29T09:02:07.115Z</updated>
     
     
-    <summary type="html">本文提供了ThinkPHP5.0.24反序列化POC</summary>
+    <summary type="html">&lt;p&gt;@&lt;a href=&quot;RMI%E5%8E%9F%E7%90%86%E6%B5%85%E6%9E%90&quot;&gt;TOC&lt;/a&gt;&lt;br&gt;前段时间不是爆了个log4j的远程代码执行漏洞吗！趁机我就了解了一下什么事jndi，然后就接触到了ldap与rmi，所有准备好好学习一番……&lt;/p&gt;
+&lt;p&gt;以上内容纯属瞎编，如有雷同，绝对是巧合。&lt;/p&gt;
+&lt;p&gt;其实很久以前就了解过jndi，但那时候感觉积累不够深，所有一直对他的原理没有搞清楚，看的各种文章也是云里雾里的，直到最近在反复研磨了网络上的文章之后，终于有了一点点心得，特此在这里记录一下。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="漏洞原理" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
+    
+    
+    <category term="RMI" scheme="https://dayutech.github.io/tags/RMI/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ThinkPHP6.x反序列化POC</title>
+    <link href="https://dayutech.github.io/archives/6bc452e1.html"/>
+    <id>https://dayutech.github.io/archives/6bc452e1.html</id>
+    <published>2025-04-14T02:33:52.000Z</published>
+    <updated>2025-07-29T09:02:07.675Z</updated>
+    
+    
+    <summary type="html">本文提供了ThinkPHP6.x反序列化POC</summary>
     
     
     
@@ -898,14 +898,14 @@
   </entry>
   
   <entry>
-    <title>ThinkPHP6.x反序列化POC</title>
-    <link href="https://dayutech.github.io/archives/6bc452e1.html"/>
-    <id>https://dayutech.github.io/archives/6bc452e1.html</id>
+    <title>ThinkPHP5.0.24反序列化POC</title>
+    <link href="https://dayutech.github.io/archives/5ce634cf.html"/>
+    <id>https://dayutech.github.io/archives/5ce634cf.html</id>
     <published>2025-04-14T02:33:52.000Z</published>
-    <updated>2025-07-29T09:02:07.675Z</updated>
+    <updated>2025-07-29T09:02:07.671Z</updated>
     
     
-    <summary type="html">本文提供了ThinkPHP6.x反序列化POC</summary>
+    <summary type="html">本文提供了ThinkPHP5.0.24反序列化POC</summary>
     
     
     
@@ -1015,29 +1015,6 @@
   </entry>
   
   <entry>
-    <title>从代码层面看RMI规范的实现与攻击原理（一）</title>
-    <link href="https://dayutech.github.io/archives/ca82fc3b.html"/>
-    <id>https://dayutech.github.io/archives/ca82fc3b.html</id>
-    <published>2025-04-14T02:33:52.000Z</published>
-    <updated>2025-07-29T09:02:08.054Z</updated>
-    
-    
-    <summary type="html">本文介绍了 从代码层面看RMI规范的实现与攻击原理</summary>
-    
-    
-    
-    <category term="漏洞分析" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
-    
-    <category term="代码审计" scheme="https://dayutech.github.io/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"/>
-    
-    
-    <category term="代码审计" scheme="https://dayutech.github.io/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"/>
-    
-    <category term="RMI" scheme="https://dayutech.github.io/tags/RMI/"/>
-    
-  </entry>
-  
-  <entry>
     <title>从代码层面看RMI规范的实现与攻击原理（三）</title>
     <link href="https://dayutech.github.io/archives/b78ab3b1.html"/>
     <id>https://dayutech.github.io/archives/b78ab3b1.html</id>
@@ -1061,11 +1038,11 @@
   </entry>
   
   <entry>
-    <title>从代码层面看RMI规范的实现与攻击原理（二）</title>
-    <link href="https://dayutech.github.io/archives/fa9410e3.html"/>
-    <id>https://dayutech.github.io/archives/fa9410e3.html</id>
+    <title>从代码层面看RMI规范的实现与攻击原理（一）</title>
+    <link href="https://dayutech.github.io/archives/ca82fc3b.html"/>
+    <id>https://dayutech.github.io/archives/ca82fc3b.html</id>
     <published>2025-04-14T02:33:52.000Z</published>
-    <updated>2025-07-29T09:02:08.059Z</updated>
+    <updated>2025-07-29T09:02:08.054Z</updated>
     
     
     <summary type="html">本文介绍了 从代码层面看RMI规范的实现与攻击原理</summary>
@@ -1105,6 +1082,29 @@
   </entry>
   
   <entry>
+    <title>从代码层面看RMI规范的实现与攻击原理（二）</title>
+    <link href="https://dayutech.github.io/archives/fa9410e3.html"/>
+    <id>https://dayutech.github.io/archives/fa9410e3.html</id>
+    <published>2025-04-14T02:33:52.000Z</published>
+    <updated>2025-07-29T09:02:08.059Z</updated>
+    
+    
+    <summary type="html">本文介绍了 从代码层面看RMI规范的实现与攻击原理</summary>
+    
+    
+    
+    <category term="漏洞分析" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    
+    <category term="代码审计" scheme="https://dayutech.github.io/categories/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"/>
+    
+    
+    <category term="代码审计" scheme="https://dayutech.github.io/tags/%E4%BB%A3%E7%A0%81%E5%AE%A1%E8%AE%A1/"/>
+    
+    <category term="RMI" scheme="https://dayutech.github.io/tags/RMI/"/>
+    
+  </entry>
+  
+  <entry>
     <title>安全研究员面试题拾遗（Web + 二进制方向）</title>
     <link href="https://dayutech.github.io/archives/e1ac77d.html"/>
     <id>https://dayutech.github.io/archives/e1ac77d.html</id>
@@ -1126,29 +1126,6 @@
     <category term="Web" scheme="https://dayutech.github.io/tags/Web/"/>
     
     <category term="二进制" scheme="https://dayutech.github.io/tags/%E4%BA%8C%E8%BF%9B%E5%88%B6/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>手写一个Tomcat Filter类型内存马</title>
-    <link href="https://dayutech.github.io/archives/f0f0aa4f.html"/>
-    <id>https://dayutech.github.io/archives/f0f0aa4f.html</id>
-    <published>2025-04-14T02:33:52.000Z</published>
-    <updated>2025-07-29T09:02:08.093Z</updated>
-    
-    
-    <summary type="html">本文编写了一个常见的Filter内存马</summary>
-    
-    
-    
-    <category term="漏洞利用" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/"/>
-    
-    
-    <category term="tomcat" scheme="https://dayutech.github.io/tags/tomcat/"/>
-    
-    <category term="内存马" scheme="https://dayutech.github.io/tags/%E5%86%85%E5%AD%98%E9%A9%AC/"/>
-    
-    <category term="filter" scheme="https://dayutech.github.io/tags/filter/"/>
     
   </entry>
   
@@ -1180,25 +1157,25 @@
   </entry>
   
   <entry>
-    <title>深入剖析Log4j2调用流程</title>
-    <link href="https://dayutech.github.io/archives/a60aa68e.html"/>
-    <id>https://dayutech.github.io/archives/a60aa68e.html</id>
+    <title>手写一个Tomcat Filter类型内存马</title>
+    <link href="https://dayutech.github.io/archives/f0f0aa4f.html"/>
+    <id>https://dayutech.github.io/archives/f0f0aa4f.html</id>
     <published>2025-04-14T02:33:52.000Z</published>
-    <updated>2025-07-29T09:02:08.248Z</updated>
+    <updated>2025-07-29T09:02:08.093Z</updated>
     
     
-    <summary type="html">&lt;p&gt;@&lt;a href=&quot;%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Log4j2%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B&quot;&gt;TOC&lt;/a&gt;&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;申明：&lt;/font&gt;&lt;/b&gt;本文只做学习交流使用，严禁任何组织和个人通过转发、转载等方式进行传播，因此导致的法律后果与本文作者无关。&lt;/p&gt;
-&lt;/blockquote&gt;
-&lt;p&gt;小菜鸡昨晚正在积极进补雷神大大的课程的时候：&lt;br&gt;&lt;img src=&quot;https://i-blog.csdnimg.cn/blog_migrate/7a29e750df12950a939abb3ac4b60a21.png&quot; alt=&quot;在这里插入图片描述&quot;&gt;&lt;br&gt;老板的消息划破了寂静的夜空，也打断了我学习的脚步：&lt;br&gt;&lt;img src=&quot;https://i-blog.csdnimg.cn/blog_migrate/512baf9e23209af67cd6f42175fa1b99.png&quot; alt=&quot;在这里插入图片描述&quot;&gt;&lt;br&gt;按照我的尿性，这种时候我肯定偷偷装死没跑了。&lt;br&gt;不过这个漏洞还是引起了我的兴趣，毕竟热度就那么多，蹭一蹭就没有了，我肯定也要蹭一蹭了。于是在昨晚瞎整了一晚上没结果后，今天上班的时候划水就把这整个利用过程给跑通了…..&lt;br&gt;果然上班划水才是生产力啊。&lt;/p&gt;</summary>
+    <summary type="html">本文编写了一个常见的Filter内存马</summary>
     
     
     
-    <category term="漏洞原理" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
+    <category term="漏洞利用" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%A9%E7%94%A8/"/>
     
     
-    <category term="log4j" scheme="https://dayutech.github.io/tags/log4j/"/>
+    <category term="tomcat" scheme="https://dayutech.github.io/tags/tomcat/"/>
+    
+    <category term="内存马" scheme="https://dayutech.github.io/tags/%E5%86%85%E5%AD%98%E9%A9%AC/"/>
+    
+    <category term="filter" scheme="https://dayutech.github.io/tags/filter/"/>
     
   </entry>
   
@@ -1231,6 +1208,48 @@
   </entry>
   
   <entry>
+    <title>深入剖析Log4j2调用流程</title>
+    <link href="https://dayutech.github.io/archives/a60aa68e.html"/>
+    <id>https://dayutech.github.io/archives/a60aa68e.html</id>
+    <published>2025-04-14T02:33:52.000Z</published>
+    <updated>2025-07-29T09:02:08.248Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;@&lt;a href=&quot;%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Log4j2%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B&quot;&gt;TOC&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;b&gt;&lt;font color=&quot;red&quot;&gt;申明：&lt;/font&gt;&lt;/b&gt;本文只做学习交流使用，严禁任何组织和个人通过转发、转载等方式进行传播，因此导致的法律后果与本文作者无关。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;小菜鸡昨晚正在积极进补雷神大大的课程的时候：&lt;br&gt;&lt;img src=&quot;https://i-blog.csdnimg.cn/blog_migrate/7a29e750df12950a939abb3ac4b60a21.png&quot; alt=&quot;在这里插入图片描述&quot;&gt;&lt;br&gt;老板的消息划破了寂静的夜空，也打断了我学习的脚步：&lt;br&gt;&lt;img src=&quot;https://i-blog.csdnimg.cn/blog_migrate/512baf9e23209af67cd6f42175fa1b99.png&quot; alt=&quot;在这里插入图片描述&quot;&gt;&lt;br&gt;按照我的尿性，这种时候我肯定偷偷装死没跑了。&lt;br&gt;不过这个漏洞还是引起了我的兴趣，毕竟热度就那么多，蹭一蹭就没有了，我肯定也要蹭一蹭了。于是在昨晚瞎整了一晚上没结果后，今天上班的时候划水就把这整个利用过程给跑通了…..&lt;br&gt;果然上班划水才是生产力啊。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="漏洞原理" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
+    
+    
+    <category term="log4j" scheme="https://dayutech.github.io/tags/log4j/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>深入理解计算机系统读书笔记（一）</title>
+    <link href="https://dayutech.github.io/archives/84d33ff8.html"/>
+    <id>https://dayutech.github.io/archives/84d33ff8.html</id>
+    <published>2025-04-14T02:33:52.000Z</published>
+    <updated>2025-07-29T09:02:08.253Z</updated>
+    
+    
+    <summary type="html">本文介绍了 深入理解计算机系统</summary>
+    
+    
+    
+    <category term="读书笔记" scheme="https://dayutech.github.io/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+    
+    
+    <category term="深入理解计算机系统" scheme="https://dayutech.github.io/tags/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F/"/>
+    
+  </entry>
+  
+  <entry>
     <title>深入理解计算机系统读书笔记（三）</title>
     <link href="https://dayutech.github.io/archives/f9db7072.html"/>
     <id>https://dayutech.github.io/archives/f9db7072.html</id>
@@ -1255,25 +1274,6 @@
     <id>https://dayutech.github.io/archives/b4c5d320.html</id>
     <published>2025-04-14T02:33:52.000Z</published>
     <updated>2025-07-29T09:02:08.262Z</updated>
-    
-    
-    <summary type="html">本文介绍了 深入理解计算机系统</summary>
-    
-    
-    
-    <category term="读书笔记" scheme="https://dayutech.github.io/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
-    
-    
-    <category term="深入理解计算机系统" scheme="https://dayutech.github.io/tags/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%B3%BB%E7%BB%9F/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>深入理解计算机系统读书笔记（一）</title>
-    <link href="https://dayutech.github.io/archives/84d33ff8.html"/>
-    <id>https://dayutech.github.io/archives/84d33ff8.html</id>
-    <published>2025-04-14T02:33:52.000Z</published>
-    <updated>2025-07-29T09:02:08.253Z</updated>
     
     
     <summary type="html">本文介绍了 深入理解计算机系统</summary>
@@ -1454,29 +1454,6 @@
   </entry>
   
   <entry>
-    <title>PHP代码执行</title>
-    <link href="https://dayutech.github.io/archives/d5b96b72.html"/>
-    <id>https://dayutech.github.io/archives/d5b96b72.html</id>
-    <published>2025-04-11T02:47:48.000Z</published>
-    <updated>2025-07-29T09:02:07.046Z</updated>
-    
-    
-    <summary type="html">本文列举了以下常见的PHP代码执行函数</summary>
-    
-    
-    
-    <category term="漏洞原理" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
-    
-    
-    <category term="漏洞原理" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
-    
-    <category term="PHP" scheme="https://dayutech.github.io/tags/PHP/"/>
-    
-    <category term="代码执行" scheme="https://dayutech.github.io/tags/%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/"/>
-    
-  </entry>
-  
-  <entry>
     <title>PHP命令执行</title>
     <link href="https://dayutech.github.io/archives/96914696.html"/>
     <id>https://dayutech.github.io/archives/96914696.html</id>
@@ -1496,6 +1473,29 @@
     <category term="PHP" scheme="https://dayutech.github.io/tags/PHP/"/>
     
     <category term="命令执行" scheme="https://dayutech.github.io/tags/%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>PHP代码执行</title>
+    <link href="https://dayutech.github.io/archives/d5b96b72.html"/>
+    <id>https://dayutech.github.io/archives/d5b96b72.html</id>
+    <published>2025-04-11T02:47:48.000Z</published>
+    <updated>2025-07-29T09:02:07.046Z</updated>
+    
+    
+    <summary type="html">本文列举了以下常见的PHP代码执行函数</summary>
+    
+    
+    
+    <category term="漏洞原理" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
+    
+    
+    <category term="漏洞原理" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
+    
+    <category term="PHP" scheme="https://dayutech.github.io/tags/PHP/"/>
+    
+    <category term="代码执行" scheme="https://dayutech.github.io/tags/%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/"/>
     
   </entry>
   
@@ -1690,29 +1690,6 @@
   </entry>
   
   <entry>
-    <title>HTTP-HTTPS协议</title>
-    <link href="https://dayutech.github.io/archives/ac8f02b1.html"/>
-    <id>https://dayutech.github.io/archives/ac8f02b1.html</id>
-    <published>2025-04-10T12:56:11.000Z</published>
-    <updated>2025-07-29T09:02:06.809Z</updated>
-    
-    
-    <summary type="html">本文介绍了HTTP/HTTPS的基本格式</summary>
-    
-    
-    
-    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="协议规范" scheme="https://dayutech.github.io/categories/%E5%8D%8F%E8%AE%AE%E8%A7%84%E8%8C%83/"/>
-    
-    
-    <category term="HTTP" scheme="https://dayutech.github.io/tags/HTTP/"/>
-    
-    <category term="HTTPS" scheme="https://dayutech.github.io/tags/HTTPS/"/>
-    
-  </entry>
-  
-  <entry>
     <title>HRSP-浮动路由-RIP-ACL-IPsec</title>
     <link href="https://dayutech.github.io/archives/db738475.html"/>
     <id>https://dayutech.github.io/archives/db738475.html</id>
@@ -1736,6 +1713,29 @@
     <category term="ACL" scheme="https://dayutech.github.io/tags/ACL/"/>
     
     <category term="IPSec" scheme="https://dayutech.github.io/tags/IPSec/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>HTTP-HTTPS协议</title>
+    <link href="https://dayutech.github.io/archives/ac8f02b1.html"/>
+    <id>https://dayutech.github.io/archives/ac8f02b1.html</id>
+    <published>2025-04-10T12:56:11.000Z</published>
+    <updated>2025-07-29T09:02:06.809Z</updated>
+    
+    
+    <summary type="html">本文介绍了HTTP/HTTPS的基本格式</summary>
+    
+    
+    
+    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="协议规范" scheme="https://dayutech.github.io/categories/%E5%8D%8F%E8%AE%AE%E8%A7%84%E8%8C%83/"/>
+    
+    
+    <category term="HTTP" scheme="https://dayutech.github.io/tags/HTTP/"/>
+    
+    <category term="HTTPS" scheme="https://dayutech.github.io/tags/HTTPS/"/>
     
   </entry>
   
@@ -1949,29 +1949,6 @@
   </entry>
   
   <entry>
-    <title>工厂模式</title>
-    <link href="https://dayutech.github.io/archives/54788f73.html"/>
-    <id>https://dayutech.github.io/archives/54788f73.html</id>
-    <published>2025-04-10T12:56:11.000Z</published>
-    <updated>2025-07-29T09:02:08.082Z</updated>
-    
-    
-    <summary type="html">本文介绍了 设计模式之工厂模式 的相关知识点</summary>
-    
-    
-    
-    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="设计模式" scheme="https://dayutech.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
-    
-    
-    <category term="工厂模式" scheme="https://dayutech.github.io/tags/%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
-    
-    <category term="设计模式" scheme="https://dayutech.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
-    
-  </entry>
-  
-  <entry>
     <title>同源策略———SOP</title>
     <link href="https://dayutech.github.io/archives/446c8683.html"/>
     <id>https://dayutech.github.io/archives/446c8683.html</id>
@@ -1997,6 +1974,54 @@
   </entry>
   
   <entry>
+    <title>变量覆盖</title>
+    <link href="https://dayutech.github.io/archives/c6852300.html"/>
+    <id>https://dayutech.github.io/archives/c6852300.html</id>
+    <published>2025-04-10T12:56:11.000Z</published>
+    <updated>2025-07-29T09:02:08.071Z</updated>
+    
+    
+    <summary type="html">本文介绍了变量覆盖漏洞的基本原理</summary>
+    
+    
+    
+    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="漏洞原理" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
+    
+    
+    <category term="漏洞原理" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
+    
+    <category term="PHP" scheme="https://dayutech.github.io/tags/PHP/"/>
+    
+    <category term="变量覆盖" scheme="https://dayutech.github.io/tags/%E5%8F%98%E9%87%8F%E8%A6%86%E7%9B%96/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>工厂模式</title>
+    <link href="https://dayutech.github.io/archives/54788f73.html"/>
+    <id>https://dayutech.github.io/archives/54788f73.html</id>
+    <published>2025-04-10T12:56:11.000Z</published>
+    <updated>2025-07-29T09:02:08.082Z</updated>
+    
+    
+    <summary type="html">本文介绍了 设计模式之工厂模式 的相关知识点</summary>
+    
+    
+    
+    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="设计模式" scheme="https://dayutech.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+    
+    <category term="工厂模式" scheme="https://dayutech.github.io/tags/%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F/"/>
+    
+    <category term="设计模式" scheme="https://dayutech.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/"/>
+    
+  </entry>
+  
+  <entry>
     <title>应急响应</title>
     <link href="https://dayutech.github.io/archives/587e8742.html"/>
     <id>https://dayutech.github.io/archives/587e8742.html</id>
@@ -2014,6 +2039,31 @@
     
     
     <category term="应急响应" scheme="https://dayutech.github.io/tags/%E5%BA%94%E6%80%A5%E5%93%8D%E5%BA%94/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>文件上传漏洞</title>
+    <link href="https://dayutech.github.io/archives/931c692.html"/>
+    <id>https://dayutech.github.io/archives/931c692.html</id>
+    <published>2025-04-10T12:56:11.000Z</published>
+    <updated>2025-07-29T09:02:08.136Z</updated>
+    
+    
+    <summary type="html">本文介绍了文件上传漏洞的基本原理</summary>
+    
+    
+    
+    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
+    
+    <category term="漏洞原理" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
+    
+    
+    <category term="漏洞原理" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
+    
+    <category term="PHP" scheme="https://dayutech.github.io/tags/PHP/"/>
+    
+    <category term="文件上传" scheme="https://dayutech.github.io/tags/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/"/>
     
   </entry>
   
@@ -2043,31 +2093,6 @@
     <category term="VLAN" scheme="https://dayutech.github.io/tags/VLAN/"/>
     
     <category term="ARP" scheme="https://dayutech.github.io/tags/ARP/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>文件上传漏洞</title>
-    <link href="https://dayutech.github.io/archives/931c692.html"/>
-    <id>https://dayutech.github.io/archives/931c692.html</id>
-    <published>2025-04-10T12:56:11.000Z</published>
-    <updated>2025-07-29T09:02:08.136Z</updated>
-    
-    
-    <summary type="html">本文介绍了文件上传漏洞的基本原理</summary>
-    
-    
-    
-    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="漏洞原理" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
-    
-    
-    <category term="漏洞原理" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
-    
-    <category term="PHP" scheme="https://dayutech.github.io/tags/PHP/"/>
-    
-    <category term="文件上传" scheme="https://dayutech.github.io/tags/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0/"/>
     
   </entry>
   
@@ -2143,27 +2168,25 @@
   </entry>
   
   <entry>
-    <title>变量覆盖</title>
-    <link href="https://dayutech.github.io/archives/c6852300.html"/>
-    <id>https://dayutech.github.io/archives/c6852300.html</id>
+    <title>浏览器编码与解码</title>
+    <link href="https://dayutech.github.io/archives/8891b17.html"/>
+    <id>https://dayutech.github.io/archives/8891b17.html</id>
     <published>2025-04-10T12:56:11.000Z</published>
-    <updated>2025-07-29T09:02:08.071Z</updated>
+    <updated>2025-07-29T09:02:08.240Z</updated>
     
     
-    <summary type="html">本文介绍了变量覆盖漏洞的基本原理</summary>
+    <summary type="html">本文介绍了 浏览器编码与解码 的相关知识点</summary>
     
     
     
     <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
     
-    <category term="漏洞原理" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
+    <category term="浏览器" scheme="https://dayutech.github.io/categories/%E6%B5%8F%E8%A7%88%E5%99%A8/"/>
     
     
-    <category term="漏洞原理" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/"/>
+    <category term="浏览器" scheme="https://dayutech.github.io/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/"/>
     
-    <category term="PHP" scheme="https://dayutech.github.io/tags/PHP/"/>
-    
-    <category term="变量覆盖" scheme="https://dayutech.github.io/tags/%E5%8F%98%E9%87%8F%E8%A6%86%E7%9B%96/"/>
+    <category term="编解码" scheme="https://dayutech.github.io/tags/%E7%BC%96%E8%A7%A3%E7%A0%81/"/>
     
   </entry>
   
@@ -2185,29 +2208,6 @@
     
     
     <category term="浏览器" scheme="https://dayutech.github.io/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>浏览器编码与解码</title>
-    <link href="https://dayutech.github.io/archives/8891b17.html"/>
-    <id>https://dayutech.github.io/archives/8891b17.html</id>
-    <published>2025-04-10T12:56:11.000Z</published>
-    <updated>2025-07-29T09:02:08.240Z</updated>
-    
-    
-    <summary type="html">本文介绍了 浏览器编码与解码 的相关知识点</summary>
-    
-    
-    
-    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
-    
-    <category term="浏览器" scheme="https://dayutech.github.io/categories/%E6%B5%8F%E8%A7%88%E5%99%A8/"/>
-    
-    
-    <category term="浏览器" scheme="https://dayutech.github.io/tags/%E6%B5%8F%E8%A7%88%E5%99%A8/"/>
-    
-    <category term="编解码" scheme="https://dayutech.github.io/tags/%E7%BC%96%E8%A7%A3%E7%A0%81/"/>
     
   </entry>
   
@@ -2300,42 +2300,6 @@
   </entry>
   
   <entry>
-    <title>Apache RocketMQ 远程代码执行（CVE-2023-37582）</title>
-    <link href="https://dayutech.github.io/archives/968babfb.html"/>
-    <id>https://dayutech.github.io/archives/968babfb.html</id>
-    <published>2025-04-10T09:56:11.000Z</published>
-    <updated>2025-07-29T09:02:06.463Z</updated>
-    
-    
-    <summary type="html">&lt;h1 id=&quot;CVE-2023-37582&quot;&gt;&lt;a href=&quot;#CVE-2023-37582&quot; class=&quot;headerlink&quot; title=&quot;CVE-2023-37582&quot;&gt;&lt;/a&gt;CVE-2023-37582&lt;/h1&gt;&lt;h2 id=&quot;产品介绍&quot;&gt;&lt;a href=&quot;#产品介绍&quot; class=&quot;headerlink&quot; title=&quot;产品介绍&quot;&gt;&lt;/a&gt;产品介绍&lt;/h2&gt;&lt;p&gt;RocketMQ是阿里巴巴在2012年开发的分布式消息中间件，后捐献给Apache软件基金会并成为Apache的顶级项目。RocketMQ专为万亿级超大规模的消息处理而设计，具有高吞吐量、低延迟、海量堆积、顺序收发等特点。&lt;/p&gt;
-&lt;h2 id=&quot;漏洞概述&quot;&gt;&lt;a href=&quot;#漏洞概述&quot; class=&quot;headerlink&quot; title=&quot;漏洞概述&quot;&gt;&lt;/a&gt;漏洞概述&lt;/h2&gt;&lt;p&gt;当RocketMQ的NameServer组件暴露在外网，并且缺乏有效的身份认证机制时，攻击者可以利用nameServer更新配置功能，以RocketMQ运行的系统用户身份进行任意文件上传，甚至实现远程代码执行。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="漏洞分析" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
-    
-    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
-    
-    
-    <category term="Apache RocketMQ" scheme="https://dayutech.github.io/tags/Apache-RocketMQ/"/>
-    
-    <category term="CVE-2023-37582" scheme="https://dayutech.github.io/tags/CVE-2023-37582/"/>
-    
-    <category term="RCE" scheme="https://dayutech.github.io/tags/RCE/"/>
-    
-    <category term="远程代码执行" scheme="https://dayutech.github.io/tags/%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/"/>
-    
-    <category term="反序列化" scheme="https://dayutech.github.io/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"/>
-    
-    <category term="网络安全" scheme="https://dayutech.github.io/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
-    
-    <category term="漏洞分析" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
-    
-    <category term="漏洞" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E/"/>
-    
-  </entry>
-  
-  <entry>
     <title>Apache RocketMQ 远程代码执行（CVE-2023-33246）</title>
     <link href="https://dayutech.github.io/archives/3553c506.html"/>
     <id>https://dayutech.github.io/archives/3553c506.html</id>
@@ -2355,6 +2319,8 @@
     
     <category term="Apache RocketMQ" scheme="https://dayutech.github.io/tags/Apache-RocketMQ/"/>
     
+    <category term="CVE-2023-33246" scheme="https://dayutech.github.io/tags/CVE-2023-33246/"/>
+    
     <category term="RCE" scheme="https://dayutech.github.io/tags/RCE/"/>
     
     <category term="远程代码执行" scheme="https://dayutech.github.io/tags/%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/"/>
@@ -2367,7 +2333,41 @@
     
     <category term="漏洞" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E/"/>
     
-    <category term="CVE-2023-33246" scheme="https://dayutech.github.io/tags/CVE-2023-33246/"/>
+  </entry>
+  
+  <entry>
+    <title>Apache RocketMQ 远程代码执行（CVE-2023-37582）</title>
+    <link href="https://dayutech.github.io/archives/968babfb.html"/>
+    <id>https://dayutech.github.io/archives/968babfb.html</id>
+    <published>2025-04-10T09:56:11.000Z</published>
+    <updated>2025-07-29T09:02:06.463Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;CVE-2023-37582&quot;&gt;&lt;a href=&quot;#CVE-2023-37582&quot; class=&quot;headerlink&quot; title=&quot;CVE-2023-37582&quot;&gt;&lt;/a&gt;CVE-2023-37582&lt;/h1&gt;&lt;h2 id=&quot;产品介绍&quot;&gt;&lt;a href=&quot;#产品介绍&quot; class=&quot;headerlink&quot; title=&quot;产品介绍&quot;&gt;&lt;/a&gt;产品介绍&lt;/h2&gt;&lt;p&gt;RocketMQ是阿里巴巴在2012年开发的分布式消息中间件，后捐献给Apache软件基金会并成为Apache的顶级项目。RocketMQ专为万亿级超大规模的消息处理而设计，具有高吞吐量、低延迟、海量堆积、顺序收发等特点。&lt;/p&gt;
+&lt;h2 id=&quot;漏洞概述&quot;&gt;&lt;a href=&quot;#漏洞概述&quot; class=&quot;headerlink&quot; title=&quot;漏洞概述&quot;&gt;&lt;/a&gt;漏洞概述&lt;/h2&gt;&lt;p&gt;当RocketMQ的NameServer组件暴露在外网，并且缺乏有效的身份认证机制时，攻击者可以利用nameServer更新配置功能，以RocketMQ运行的系统用户身份进行任意文件上传，甚至实现远程代码执行。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="漏洞分析" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    
+    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
+    
+    
+    <category term="Apache RocketMQ" scheme="https://dayutech.github.io/tags/Apache-RocketMQ/"/>
+    
+    <category term="RCE" scheme="https://dayutech.github.io/tags/RCE/"/>
+    
+    <category term="远程代码执行" scheme="https://dayutech.github.io/tags/%E8%BF%9C%E7%A8%8B%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C/"/>
+    
+    <category term="反序列化" scheme="https://dayutech.github.io/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"/>
+    
+    <category term="网络安全" scheme="https://dayutech.github.io/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
+    
+    <category term="漏洞分析" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    
+    <category term="漏洞" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E/"/>
+    
+    <category term="CVE-2023-37582" scheme="https://dayutech.github.io/tags/CVE-2023-37582/"/>
     
   </entry>
   
@@ -2436,40 +2436,6 @@
   </entry>
   
   <entry>
-    <title>Spring Kafka 消息头反序列化漏洞（CVE-2023-34040）</title>
-    <link href="https://dayutech.github.io/archives/6725ab5c.html"/>
-    <id>https://dayutech.github.io/archives/6725ab5c.html</id>
-    <published>2025-04-10T09:56:11.000Z</published>
-    <updated>2025-07-29T09:02:07.452Z</updated>
-    
-    
-    <summary type="html">&lt;h1 id=&quot;Spring-Kafka消息头反序列化漏洞（CVE-2023-34040）&quot;&gt;&lt;a href=&quot;#Spring-Kafka消息头反序列化漏洞（CVE-2023-34040）&quot; class=&quot;headerlink&quot; title=&quot;Spring Kafka消息头反序列化漏洞（CVE-2023-34040）&quot;&gt;&lt;/a&gt;Spring Kafka消息头反序列化漏洞（CVE-2023-34040）&lt;/h1&gt;&lt;h2 id=&quot;产品介绍&quot;&gt;&lt;a href=&quot;#产品介绍&quot; class=&quot;headerlink&quot; title=&quot;产品介绍&quot;&gt;&lt;/a&gt;产品介绍&lt;/h2&gt;&lt;p&gt;Spring for Apache Kafka (Spring - Kafka)项目将Spring的核心概念应用于基于Kafka的消息传递解决方案的开发。它提供了一个“template”作为发送消息的高级抽象。它还支持带有@KafkaListener注解和“listener container”的消息驱动POJOs 。这些库提倡使用依赖注入和声明式的使用方式。所有这些例子都与Spring框架的JMS支持和Spring AMQP对RabbitMQ的支持有相似之处。&lt;/p&gt;
-&lt;h2 id=&quot;漏洞概述&quot;&gt;&lt;a href=&quot;#漏洞概述&quot; class=&quot;headerlink&quot; title=&quot;漏洞概述&quot;&gt;&lt;/a&gt;漏洞概述&lt;/h2&gt;&lt;p&gt;当Kafka应用服务器允许一个不受信任的源的生产消息的时候，若其能够控制消息的headers，则可能导致一个反序列化漏洞的发生。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="漏洞分析" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
-    
-    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
-    
-    
-    <category term="RCE" scheme="https://dayutech.github.io/tags/RCE/"/>
-    
-    <category term="反序列化" scheme="https://dayutech.github.io/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"/>
-    
-    <category term="网络安全" scheme="https://dayutech.github.io/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
-    
-    <category term="漏洞分析" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
-    
-    <category term="漏洞" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E/"/>
-    
-    <category term="Spring Kafka" scheme="https://dayutech.github.io/tags/Spring-Kafka/"/>
-    
-    <category term="CVE-2023-34040" scheme="https://dayutech.github.io/tags/CVE-2023-34040/"/>
-    
-  </entry>
-  
-  <entry>
     <title>SnakeYaml反序列化过程与漏洞原理分析（CVE-2022-1471）</title>
     <link href="https://dayutech.github.io/archives/f98d45ce.html"/>
     <id>https://dayutech.github.io/archives/f98d45ce.html</id>
@@ -2503,6 +2469,40 @@
     <category term="SnakeYaml" scheme="https://dayutech.github.io/tags/SnakeYaml/"/>
     
     <category term="CVE-2022-1471" scheme="https://dayutech.github.io/tags/CVE-2022-1471/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Spring Kafka 消息头反序列化漏洞（CVE-2023-34040）</title>
+    <link href="https://dayutech.github.io/archives/6725ab5c.html"/>
+    <id>https://dayutech.github.io/archives/6725ab5c.html</id>
+    <published>2025-04-10T09:56:11.000Z</published>
+    <updated>2025-07-29T09:02:07.452Z</updated>
+    
+    
+    <summary type="html">&lt;h1 id=&quot;Spring-Kafka消息头反序列化漏洞（CVE-2023-34040）&quot;&gt;&lt;a href=&quot;#Spring-Kafka消息头反序列化漏洞（CVE-2023-34040）&quot; class=&quot;headerlink&quot; title=&quot;Spring Kafka消息头反序列化漏洞（CVE-2023-34040）&quot;&gt;&lt;/a&gt;Spring Kafka消息头反序列化漏洞（CVE-2023-34040）&lt;/h1&gt;&lt;h2 id=&quot;产品介绍&quot;&gt;&lt;a href=&quot;#产品介绍&quot; class=&quot;headerlink&quot; title=&quot;产品介绍&quot;&gt;&lt;/a&gt;产品介绍&lt;/h2&gt;&lt;p&gt;Spring for Apache Kafka (Spring - Kafka)项目将Spring的核心概念应用于基于Kafka的消息传递解决方案的开发。它提供了一个“template”作为发送消息的高级抽象。它还支持带有@KafkaListener注解和“listener container”的消息驱动POJOs 。这些库提倡使用依赖注入和声明式的使用方式。所有这些例子都与Spring框架的JMS支持和Spring AMQP对RabbitMQ的支持有相似之处。&lt;/p&gt;
+&lt;h2 id=&quot;漏洞概述&quot;&gt;&lt;a href=&quot;#漏洞概述&quot; class=&quot;headerlink&quot; title=&quot;漏洞概述&quot;&gt;&lt;/a&gt;漏洞概述&lt;/h2&gt;&lt;p&gt;当Kafka应用服务器允许一个不受信任的源的生产消息的时候，若其能够控制消息的headers，则可能导致一个反序列化漏洞的发生。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="漏洞分析" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    
+    <category term="安全技术" scheme="https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/"/>
+    
+    
+    <category term="RCE" scheme="https://dayutech.github.io/tags/RCE/"/>
+    
+    <category term="反序列化" scheme="https://dayutech.github.io/tags/%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/"/>
+    
+    <category term="网络安全" scheme="https://dayutech.github.io/tags/%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/"/>
+    
+    <category term="漏洞分析" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    
+    <category term="漏洞" scheme="https://dayutech.github.io/tags/%E6%BC%8F%E6%B4%9E/"/>
+    
+    <category term="Spring Kafka" scheme="https://dayutech.github.io/tags/Spring-Kafka/"/>
+    
+    <category term="CVE-2023-34040" scheme="https://dayutech.github.io/tags/CVE-2023-34040/"/>
     
   </entry>
   
