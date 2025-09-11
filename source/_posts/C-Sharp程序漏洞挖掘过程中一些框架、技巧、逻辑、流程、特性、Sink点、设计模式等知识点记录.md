@@ -80,4 +80,62 @@ object obj2 = methodInfo.Invoke(obj, paramValues);
 一种思路是使用代理类创建一个 MarshalByRefObjectBase 子类对象的代理对象，这个代理对象使用了一个特殊的 Interpretor
 这个 Interpretor 可以使用自己持有的对象调用特定的方法
 所以问题回到了是不是存在这样一个特殊的 Interpretor。
+# NTLM认证过程
+首先协商协议版本
+服务端选择对应的协议版本并生成一个chanllenge
+客户端收到challenge后 使用提供的用户密码生成NTLM HASH 然后对使用NTLM HASH 该challenge进行hash运算得到 Response 然后将用户名 Response等发送给服务端
+服务端通过用户名查找得到正确的NTLM HASH 然后 对自己持有的Challenge进行hash运算与客户端传入的进行比较，如果一致则认证成功。  
+
+在实践中，可能还会存在更多的步骤，这个步骤是开发这自定义的过程，可以加入一些自定义的流程。
+# Web程序调试
+使用dnspy调试  attach的进程名为w3wp.exe 这是一个32位的程序 ，所以需要使用32位的dnspy调试。
+# 反编译
+有些情况下ilspy要比dnspy反编译效果更好，如果遇到dnspy反编译不出来请尝试使用ilspy
+
+# 委托
+委托看着很糟心 不过将它理解为方法指针的话也就没那么糟心了
+定义委托
+```c#
+访问修饰符  声明这是一个委托     返回值类型   委托名 局部变量总得有个名字去标识对吧   形参
+public     delegate              int          Calculator                              (int x, int y);
+```
+一个方法要你能够被指定得委托引用  那么必须保证其 返回值以及形参个数与类型一致。
+创建委托
+```c#
+委托类型    变量名     new一个委托  方法名
+Calculator calc = new Calculator(Add); // 或直接 calc = Add;
+``` 
+委托的调用和方法的调用一样。
+c# 中不能直接将方法作为参数传入到函数中，需要借助委托进行  这就没有Python或者Java方便了。
+# 入口
+Web应用指定依赖就找 Program 或者StartUp啊 
+# Kestrel部署模式
+Kestrel 是 ASP.NET Core 的默认跨平台、高性能、轻量级 Web 服务器，用 C# 编写，基于 .NET 的底层 Socket 实现。
+在 ASP.NET Core 应用部署中，Kestrel 通常不直接面向公网，而是放在 IIS、Nginx 或 Apache 等“反向代理”服务器之后。这是微软官方推荐的生产部署架构：
+有些项目使用这种部署模式  在web.conf中可以见到这样的配置
+```c#
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <location path="." inheritInChildApplications="false">
+    <system.webServer>
+      <handlers>
+        <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Unspecified" />
+      </handlers>
+      <aspNetCore 
+          processPath="dotnet" 
+          arguments=".\YourApp.dll" 
+          stdoutLogEnabled="false" 
+          stdoutLogFile=".\logs\stdout" 
+          hostingModel="inprocess" />
+    </system.webServer>
+  </location>
+</configuration>
+```
+processPath 属性指定的就是启动程序 可以是默认的.net  也可以是用户自定义的一个程序  
+一般在生产模式 使用第二种方式，这个程序是系统自动生成的表示独立部署模式，在发布应用时可通过配置进行选择，所有的.net RUNTIME都被打包到应用中  不需要额外安装.net Runtime 
+这样部署生成的web代码位于另外的dll文件中 不在这个exe文件中一般通过存在的配置文件找到对应的主dll文件 如 配置文件名为 a.b.c.dll.config  那么就去找这个a.b.c.dll 反编译后直接找 Program 这个类
+
+hostingModel 标识驻守模式  inprocess 表示在w3wp.exe 内部运行 拥有更高的性能
+
+#
 
