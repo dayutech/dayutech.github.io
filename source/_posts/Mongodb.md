@@ -204,7 +204,7 @@ $ne
 
 $or
 
-db.collectionname.find({"name":"何纪雄","age":{$lt:30},$or:[{"gender":"man"},{"gender":""female}]}) [//and](//and) or
+`db.collectionname.find({"name":"何纪雄","age":{$lt:30},$or:[{"gender":"man"},{"gender":""female}]}) [//and](//and) or`
 
 通过类型查询
 
@@ -219,7 +219,7 @@ db.collectionname.find().sort({"key":1}) [//1](//1) 升序 -1 降序
 db.collectionname.createIndex({"keys":1}) [//1升序](//1升序) -1 降序
 
 **聚合**
-
+```shell
 db.collectionname.aggregate([{$group:{_id:"$name",别名:{$sum:"$字段"}}}])
 
 $sum
@@ -237,6 +237,7 @@ $addToSet //将结果文档插入到一个数组中，但不创建数组
 $first //获取结果文档按序排列的第一个文档
 
 $last //获取结构文档按序排列的最后一个文档
+```
 
 **管道**
 
