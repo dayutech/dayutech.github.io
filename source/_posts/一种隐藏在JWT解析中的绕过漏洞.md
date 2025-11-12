@@ -1,5 +1,5 @@
 ---
-title: '''一种隐藏在JWT解析中的绕过漏洞'''
+title: 一种隐藏在JWT解析中的绕过漏洞
 categories:
   - - 漏洞分析
 top: 999
