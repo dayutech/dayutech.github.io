@@ -22,6 +22,19 @@
       <categories>
         <category>机器学习</category>
       </categories>
+      <tags>
+        <tag>机器学习</tag>
+        <tag>线性回归</tag>
+        <tag>一元线性回归</tag>
+        <tag>多元线性回归</tag>
+        <tag>多项式回归</tag>
+        <tag>协方差</tag>
+        <tag>方差</tag>
+        <tag>f检验</tag>
+        <tag>t检验</tag>
+        <tag>损失函数</tag>
+        <tag>多重共线性</tag>
+      </tags>
   </entry>
   <entry>
     <title>&#39;一种隐藏在JWT解析中的绕过漏洞&#39;</title>
