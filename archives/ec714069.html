@@ -23,18 +23,20 @@
     var CONFIG = {"hostname":"dayutech.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C&#x2F;C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Dayu Technology Co., LTD">
-<meta property="og:url" content="https://dayutech.github.io/archives/page/10/index.html">
+  <meta name="description" content="本文展示了一种存在于JJWT中容易被忽视的绕过漏洞">
+<meta property="og:type" content="article">
+<meta property="og:title" content="&#39;一种隐藏在JWT解析中的绕过漏洞&#39;">
+<meta property="og:url" content="https://dayutech.github.io/archives/ec714069.html">
 <meta property="og:site_name" content="Dayu Technology Co., LTD">
-<meta property="og:description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C&#x2F;C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+<meta property="og:description" content="本文展示了一种存在于JJWT中容易被忽视的绕过漏洞">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-11-12T08:38:59.000Z">
+<meta property="article:modified_time" content="2025-11-12T08:44:34.045Z">
 <meta property="article:author" content="Arliya">
 <meta property="article:tag" content="Java, Scala, C&#x2F;C++, PHP, Python, C#, Golang, 漏洞挖掘，逆向破解，Windows, Linux, IoT, Web安全, 云安全, 主机安全">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://dayutech.github.io/archives/page/10/">
+<link rel="canonical" href="https://dayutech.github.io/archives/ec714069.html">
 
 
 <script id="page-configurations">
@@ -42,7 +44,7 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
@@ -73,7 +75,7 @@
   padding: 0 10px 0 14px;
 }
 </style>
-  <title>归档 | Dayu Technology Co., LTD</title>
+  <title>'一种隐藏在JWT解析中的绕过漏洞' | Dayu Technology Co., LTD</title>
   
 
 
@@ -224,240 +226,187 @@
         <div class="content-wrap">
           
 
-          <div class="content archive">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        
-        <span class="collection-header">很好! 目前共计 105 篇日志。 继续努力。</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/ec714069.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          '一种隐藏在JWT解析中的绕过漏洞'
+        </h1>
+
+        <div class="post-meta">
+		  
+            <i class="fa fa-thumb-tack"></i>
+            <font color=FF0000>置顶</font>
+            <span class="post-meta-divider"> | </span>
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2025-11-12 16:38:59 / 修改时间：16:44:34" itemprop="dateCreated datePublished" datetime="2025-11-12T16:38:59+08:00">2025-11-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>239</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+            <div class="post-description">本文展示了一种存在于JJWT中容易被忽视的绕过漏洞</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2025</span>
+        <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> io.jsonwebtoken.*;</span><br><span class="line"><span class="keyword">import</span> io.jsonwebtoken.security.SignatureException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">VulnerableJwtValidator</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="type">String</span> <span class="variable">secret</span> <span class="operator">=</span> <span class="string">&quot;mySecretKey&quot;</span>; <span class="comment">// 弱密钥 + 硬编码（额外风险）</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Claims <span class="title function_">parseToken</span><span class="params">(String token)</span> &#123;</span><br><span class="line">        <span class="comment">// 错误1：使用 parser.parse() 而不是 parseClaimsJws()</span></span><br><span class="line">        <span class="comment">// 错误2：没有检查是否为 Jws（已签名）</span></span><br><span class="line">        <span class="type">JwtParser</span> <span class="variable">parser</span> <span class="operator">=</span> Jwts.parser().setSigningKey(secret);</span><br><span class="line">        <span class="type">Jwt</span> <span class="variable">jwt</span> <span class="operator">=</span> parser.parse(token); <span class="comment">// ← 危险！接受 alg=none</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// 错误3：直接信任 getBody()，未验证是否为合法 JWS</span></span><br><span class="line">        <span class="keyword">return</span> (Claims) jwt.getBody(); <span class="comment">// 返回伪造的 claims！</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在上面的代码中如果在审计时不注意很容以漏掉，虽然<code>parser</code>已经设置了<code>secretkey</code>，貌似时没有什么问题，攻击这在不知道<code>key</code>的情况下时不可能伪造<code>token</code>的，<br>但危险往往就藏在这漫不经意间，如果攻击者构造的<code>token</code>设置了<code>alg</code>为<code>none</code>，那么<code>secretkey</code> 将完全失效<code>parse</code>方法调用将返回一个默认的<code>Jwt</code>对象，<br>为了避免这个问题，应该增加响应类型的检查确认其为<code>Jws</code>的子类方可有效避免绕过。  </p>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-04-10T20:56:11+08:00"
-              content="2025-04-10">
-          04-10
-        </time>
+    
+    
+    <div class="post-widgets">
+      <div id="needsharebutton-postbottom">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    </div>
+        <div class="reward-container">
+  <div>Buy me a coffee.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Arliya 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Arliya 支付宝">
+        <p>支付宝</p>
       </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/archives/41b7ef22.html" itemprop="url">
-            <span itemprop="name">浏览器访问网站过程</span>
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Arliya
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dayutech.github.io/archives/ec714069.html" title="&#39;一种隐藏在JWT解析中的绕过漏洞&#39;">https://dayutech.github.io/archives/ec714069.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
           </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-04-10T20:56:11+08:00"
-              content="2025-04-10">
-          04-10
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/archives/4e6e7714.html" itemprop="url">
-            <span itemprop="name">XXE与SSRF</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-04-10T20:56:11+08:00"
-              content="2025-04-10">
-          04-10
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/archives/4d872363.html" itemprop="url">
-            <span itemprop="name">网站架构发展</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-04-10T20:56:11+08:00"
-              content="2025-04-10">
-          04-10
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/archives/6eecc4bb.html" itemprop="url">
-            <span itemprop="name">读书笔记-WEB前端黑客技术揭秘</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-04-10T20:56:11+08:00"
-              content="2025-04-10">
-          04-10
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/archives/9c75190f.html" itemprop="url">
-            <span itemprop="name">防火墙</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-04-10T20:56:11+08:00"
-              content="2025-04-10">
-          04-10
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/archives/b7f3ad9b.html" itemprop="url">
-            <span itemprop="name">面试题整理</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-04-10T17:56:11+08:00"
-              content="2025-04-10">
-          04-10
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/archives/968babfb.html" itemprop="url">
-            <span itemprop="name">Apache RocketMQ 远程代码执行（CVE-2023-37582）</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-04-10T17:56:11+08:00"
-              content="2025-04-10">
-          04-10
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/archives/3553c506.html" itemprop="url">
-            <span itemprop="name">Apache RocketMQ 远程代码执行（CVE-2023-33246）</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-04-10T17:56:11+08:00"
-              content="2025-04-10">
-          04-10
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/archives/3f6576a1.html" itemprop="url">
-            <span itemprop="name">Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2025-04-10T17:56:11+08:00"
-              content="2025-04-10">
-          04-10
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/archives/b5364c9e.html" itemprop="url">
-            <span itemprop="name">JAVA生态常见架构介绍、配置与逻辑定位方法</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-
+        </div>
     </div>
   </div>
-  
-  
-  
 
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/19883263.html" rel="prev" title="机器学习-线性回归">
+      <i class="fa fa-chevron-left"></i> 机器学习-线性回归
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
   
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/archives/page/9/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/archives/">1</a><span class="space">&hellip;</span><a class="page-number" href="/archives/page/9/">9</a><span class="page-number current">10</span><a class="page-number" href="/archives/page/11/">11</a><a class="extend next" rel="next" href="/archives/page/11/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
-  </nav>
+  
+  
 
 
 
           </div>
           
+    <div class="comments" id="gitalk-container"></div>
 
 <script>
   window.addEventListener('tabs:register', () => {
@@ -832,6 +781,25 @@ window.addEventListener('pjax:success', () => {
         flOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
       new needShareButton('#needsharebutton-float', flOptions);
   </script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23li28mRRYx9D76aAJ',
+      clientSecret: '8f7211d1bd039050ed40345ddf60273d6626ad6f',
+      repo        : 'dayutech.github.io',
+      owner       : 'dayutech',
+      admin       : ['dayutech'],
+      id          : '9f85bb666b72fa7af9d23493c5f0f2d8',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
 <style>
 #custom_bar {
   float: right;

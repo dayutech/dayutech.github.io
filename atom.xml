@@ -6,7 +6,7 @@
   <link href="https://dayutech.github.io/atom.xml" rel="self"/>
   
   <link href="https://dayutech.github.io/"/>
-  <updated>2025-11-10T09:44:27.315Z</updated>
+  <updated>2025-11-12T08:44:34.045Z</updated>
   <id>https://dayutech.github.io/</id>
   
   <author>
@@ -17,18 +17,35 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>&#39;一种隐藏在JWT解析中的绕过漏洞&#39;</title>
+    <link href="https://dayutech.github.io/archives/ec714069.html"/>
+    <id>https://dayutech.github.io/archives/ec714069.html</id>
+    <published>2025-11-12T08:38:59.000Z</published>
+    <updated>2025-11-12T08:44:34.045Z</updated>
+    
+    
+    <summary type="html">本文展示了一种存在于JJWT中容易被忽视的绕过漏洞</summary>
+    
+    
+    
+    <category term="漏洞分析" scheme="https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/"/>
+    
+    
+  </entry>
+  
+  <entry>
     <title>机器学习-线性回归</title>
     <link href="https://dayutech.github.io/archives/19883263.html"/>
     <id>https://dayutech.github.io/archives/19883263.html</id>
     <published>2025-11-10T08:47:19.000Z</published>
-    <updated>2025-11-10T09:44:27.315Z</updated>
+    <updated>2025-11-12T01:22:04.281Z</updated>
     
     
       
       
         
         
-    <summary type="html">&lt;p&gt;线性方程&lt;br&gt;&lt;mjx-container class=&quot;MathJax&quot; jax=&quot;SVG&quot; display=&quot;true&quot; width=&quot;full&quot; style=&quot;min-width: 23.293ex;&quot;&gt;&lt;svg style=&quot;vertical-align:</summary>
+    <summary type="html">&lt;h1 id=&quot;什么是线性回归&quot;&gt;&lt;a href=&quot;#什么是线性回归&quot; class=&quot;headerlink&quot; title=&quot;什么是线性回归&quot;&gt;&lt;/a&gt;什么是线性回归&lt;/h1&gt;&lt;p&gt;线性方程&lt;br&gt;&lt;mjx-container class=&quot;MathJax&quot; jax=&quot;SVG&quot;</summary>
         
       
     
