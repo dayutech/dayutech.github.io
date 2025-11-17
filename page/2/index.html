@@ -230,6 +230,148 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/31bfcb8f.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/archives/31bfcb8f.html" class="post-title-link" itemprop="url">Java HashMap 实现方法</a>
+        </h2>
+
+        <div class="post-meta">
+		  
+            <i class="fa fa-thumb-tack"></i>
+            <font color=FF0000>置顶</font>
+            <span class="post-meta-divider"> | </span>
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-05-16 10:19:27" itemprop="dateCreated datePublished" datetime="2025-05-16T10:19:27+08:00">2025-05-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-29 17:02:06" itemprop="dateModified" datetime="2025-07-29T17:02:06+08:00">2025-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>12 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="成员变量含义"><a href="#成员变量含义" class="headerlink" title="成员变量含义"></a>成员变量含义</h1><table>
+<thead>
+<tr>
+<th>变量名</th>
+<th>默认值</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DEFAULT_INITIAL_CAPACITY</td>
+<td>16</td>
+<td>默认初始化容量</td>
+</tr>
+<tr>
+<td>MAXIMUM_CAPACITY</td>
+<td>1 &lt;&lt; 30</td>
+<td>最大容量</td>
+</tr>
+<tr>
+<td>DEFAULT_LOAD_FACTOR</td>
+<td>0.75</td>
+<td>默认加载因子，当数组中元素数量超过总长度的0.75的时候会进行自动扩容</td>
+</tr>
+<tr>
+<td>TREEIFY_THRESHOLD</td>
+<td>8</td>
+<td>当链表长度超过8的时候会将链表转换为红黑树</td>
+</tr>
+<tr>
+<td>UNTREEIFY_THRESHOLD</td>
+<td>6</td>
+<td>当链表元素少于6的时候会将红黑树转换为链表</td>
+</tr>
+<tr>
+<td>MIN_TREEIFY_CAPACITY</td>
+<td>64</td>
+<td>只有当数组长度大于64的时候才会执行链表的树化，因为链表树化会增加空间复杂度，如果只要某一个链表长度超过8就进行树化得到的查询时间优化与增加的空间消耗两相比较是得不偿失的</td>
+</tr>
+</tbody></table>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/archives/31bfcb8f.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/b83d1f32.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1170,111 +1312,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/a580d790.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/dayu/avatar.png">
-      <meta itemprop="name" content="Arliya">
-      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dayu Technology Co., LTD">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/archives/a580d790.html" class="post-title-link" itemprop="url">Java-Gadgets搜索工具是如何工作的-Gadget Inspector</a>
-        </h2>
-
-        <div class="post-meta">
-		  
-            <i class="fa fa-thumb-tack"></i>
-            <font color=FF0000>置顶</font>
-            <span class="post-meta-divider"> | </span>
-          
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-04-11 11:19:48" itemprop="dateCreated datePublished" datetime="2025-04-11T11:19:48+08:00">2025-04-11</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-07-29 17:02:06" itemprop="dateModified" datetime="2025-07-29T17:02:06+08:00">2025-07-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%BC%8F%E6%8C%96%E5%B7%A5%E5%85%B7/" itemprop="url" rel="index"><span itemprop="name">漏挖工具</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>9.8k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>36 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Java-Gadgets-搜索工具是如何工作的（Gadget-Inspector）"><a href="#Java-Gadgets-搜索工具是如何工作的（Gadget-Inspector）" class="headerlink" title="Java Gadgets 搜索工具是如何工作的（Gadget Inspector）"></a>Java Gadgets 搜索工具是如何工作的（Gadget Inspector）</h1><p>Gadget Inspector 由 Ian Haken 于 2018 年 8 月在  DEF CON 上发布，其发布开创了Gadget 自动化挖掘的先河。Gadget Inspector 依靠Java ASM<br>技术，通过静态模拟 Java 程序运行过程中操作数栈以及局部变量表的动态变化来进行数据流跟踪从而实现污点分析进而进行Gadgets探测。  </p>
-<h3 id="检测原理"><a href="#检测原理" class="headerlink" title="检测原理"></a>检测原理</h3><p>Gadget Inspector 的核心逻辑包含5个步骤，分别是类信息分析、数据传播分析、调用图构造、入口探测以及Gadgets串联。<br>在第一步中 Gadget Inspector 利用 MethodDiscovery 类对 当前环境中所有类的方法、成员、继承结构进行解析并集中存储在特定的数据结构中以便后续进行<br>数据传播分析以及调用图构造。<br>在第二步中 Gadget Inspector 利用 PassthroughDiscovery 类运用 深度优先算法、逆拓扑排序等方式进行数据流分析从而确认方法入参与返回值的关系，<br>即入参是否能够污染到返回值，其根本目的在于确认关键参数是否可以被攻击者控制。<br>在第三步中 Gadget Inspector 通过 Java ASM 技术构造方法调用图，其目的在于确认主调方法与被调用方法参数之间的关系。<br>第四步中 Gadget Inspector 通过 SourceDiscovery 针对不同的夫序列化类型进行分发，通过对比第一步中形成的methodMap中存储的方法信息与预定义<br>的反序列化 Gadget Source点进行比较，从而确定当前项目中可被使用的反序列化入口方法。<br>在第五步中 Gadget  Inspector 开始从Source点开始遍历调用图，直到找到一个方法与预定义的sink点相匹配则说明Gadget Inspector 找到了一条可以<br>使用的反序列化调用链。  </p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/archives/a580d790.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  <!-- needsharebutton Javascript file -->
-<script src="js/needsharebutton.min.js"></script>
-<!-- needsharebutton CSS file -->
-<link href="css/needsharebutton.min.css" rel="stylesheet" />
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1346,7 +1383,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">105</span>
+          <span class="site-state-item-count">106</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1359,7 +1396,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">205</span>
+        <span class="site-state-item-count">207</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1402,6 +1439,10 @@
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
 				<a href="/archives/ec714069.html" title="一种隐藏在JWT解析中的绕过漏洞" target="_blank">一种隐藏在JWT解析中的绕过漏洞</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/88c5bdc8.html" title="xerces XML解析特性使用不当导致XXE漏洞" target="_blank">xerces XML解析特性使用不当导致XXE漏洞</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
@@ -1450,10 +1491,6 @@
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
 				<a href="/archives/f9ff5c36.html" title="CrushFTP 认证绕过（CVE-2025-2825）" target="_blank">CrushFTP 认证绕过（CVE-2025-2825）</a>
-			  </li>
-			
-			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/fe8a0a5d.html" title="Apache Struts2 S2-066 任意文件上传漏洞（CVE-2023-50164）" target="_blank">Apache Struts2 S2-066 任意文件上传漏洞（CVE-2023-50164）</a>
 			  </li>
 			
 		  </ul>

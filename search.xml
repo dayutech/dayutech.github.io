@@ -57,6 +57,20 @@
       </categories>
   </entry>
   <entry>
+    <title>xerces XML解析特性使用不当导致XXE漏洞</title>
+    <url>/archives/88c5bdc8.html</url>
+    <content><![CDATA[<p>核心思想就是说在 在<code>xerces 2.2.1</code> 及以下版本时 若首先设置的<code>feature</code>为 禁用 <code>Doctype </code> 将会抛出异常 导致后续设置其他的安全特性失败，从而绕过防护产生漏洞。</p>
+<p><a href="https://www.modb.pro/db/220916">参考链接</a></p>
+]]></content>
+      <categories>
+        <category>漏洞分析</category>
+      </categories>
+      <tags>
+        <tag>xerces</tag>
+        <tag>xxe</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>C Sharp程序漏洞挖掘过程中一些框架、技巧、逻辑、流程、特性、Sink点、设计模式等知识点记录</title>
     <url>/archives/324e0c68.html</url>
     <content><![CDATA[<h1 id="C-顶级语句"><a href="#C-顶级语句" class="headerlink" title="C# 顶级语句"></a>C# 顶级语句</h1><h2 id="✅-基本用法"><a href="#✅-基本用法" class="headerlink" title="✅ 基本用法"></a>✅ 基本用法</h2><p><strong>传统写法（C# 8 及以前）：</strong></p>

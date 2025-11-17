@@ -230,6 +230,112 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/3f6576a1.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/archives/3f6576a1.html" class="post-title-link" itemprop="url">Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</a>
+        </h2>
+
+        <div class="post-meta">
+		  
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-10 17:56:11" itemprop="dateCreated datePublished" datetime="2025-04-10T17:56:11+08:00">2025-04-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-29 17:02:06" itemprop="dateModified" datetime="2025-07-29T17:02:06+08:00">2025-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/" itemprop="url" rel="index"><span itemprop="name">漏洞分析</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">安全技术</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Hutool-JSONUtil拒绝服务漏洞（CVE-2022-45690-CVE-2022-45689）"><a href="#Hutool-JSONUtil拒绝服务漏洞（CVE-2022-45690-CVE-2022-45689）" class="headerlink" title="Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）"></a>Hutool JSONUtil拒绝服务漏洞（CVE-2022-45690 CVE-2022-45689）</h1><h2 id="产品介绍"><a href="#产品介绍" class="headerlink" title="产品介绍"></a>产品介绍</h2><p><code>Hutool</code>是一个功能丰富且易用的<strong>Java工具库</strong>，通过诸多实用工具类的使用，旨在帮助开发者快速、便捷地完成各类开发任务。 这些封装的工具涵盖了字符串、数字、集合、编码、日期、文件、IO、加密、数据库JDBC、JSON、HTTP客户端等一系列操作， 可以满足各种不同的开发需求。</p>
+<h2 id="漏洞概述"><a href="#漏洞概述" class="headerlink" title="漏洞概述"></a>漏洞概述</h2><p>CVE-2022-45690： 该项目受影响版本存在拒绝服务漏洞，由于org.json.JSONTokener.nextValue::JSONTokener.java组件中并未检验json的嵌套深度。攻击者可以通过构造特制的JSON或XML数据在程序解析时导致JVM溢出从而实现拒绝服务(DoS)攻击。</p>
+<p>CVE-2022-45689：该项目受影响版本存在拒绝服务漏洞，由于JSONObject.java中JSONObject方法对于要解析的json并未检验是否合法，在后续解析JSON时就会因为内存不足而造成拒绝服务漏洞。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/archives/3f6576a1.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/b5364c9e.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -823,7 +929,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">105</span>
+          <span class="site-state-item-count">106</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -836,7 +942,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">205</span>
+        <span class="site-state-item-count">207</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -879,6 +985,10 @@
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
 				<a href="/archives/ec714069.html" title="一种隐藏在JWT解析中的绕过漏洞" target="_blank">一种隐藏在JWT解析中的绕过漏洞</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/88c5bdc8.html" title="xerces XML解析特性使用不当导致XXE漏洞" target="_blank">xerces XML解析特性使用不当导致XXE漏洞</a>
 			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
@@ -927,10 +1037,6 @@
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
 				<a href="/archives/f9ff5c36.html" title="CrushFTP 认证绕过（CVE-2025-2825）" target="_blank">CrushFTP 认证绕过（CVE-2025-2825）</a>
-			  </li>
-			
-			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/fe8a0a5d.html" title="Apache Struts2 S2-066 任意文件上传漏洞（CVE-2023-50164）" target="_blank">Apache Struts2 S2-066 任意文件上传漏洞（CVE-2023-50164）</a>
 			  </li>
 			
 		  </ul>
