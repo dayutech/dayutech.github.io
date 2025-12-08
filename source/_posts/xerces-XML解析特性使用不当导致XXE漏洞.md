@@ -3,7 +3,7 @@ title: xerces XML解析特性使用不当导致XXE漏洞
 tags:
   - xerces
   - xxe
-top: 998
+top: 997
 description: xerces 特定版本设置XML解析特性时报错导致特性设置失败
 categories:
   - - 漏洞分析
