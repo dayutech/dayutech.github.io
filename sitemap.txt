@@ -1,3 +1,4 @@
+https://dayutech.github.io/archives/aba9e754.html
 https://dayutech.github.io/archives/fae3020d.html
 https://dayutech.github.io/archives/88c5bdc8.html
 https://dayutech.github.io/archives/19883263.html
@@ -317,6 +318,7 @@ https://dayutech.github.io/tags/codebase/
 https://dayutech.github.io/tags/JDK/
 https://dayutech.github.io/tags/JNDI%E6%B3%A8%E5%85%A5/
 https://dayutech.github.io/tags/%E9%9D%A2%E8%AF%95/
+https://dayutech.github.io/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/
 https://dayutech.github.io/categories/%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90/
 https://dayutech.github.io/categories/%E5%AE%89%E5%85%A8%E6%8A%80%E6%9C%AF/
 https://dayutech.github.io/categories/%E6%A1%86%E6%9E%B6%E5%AD%A6%E4%B9%A0/

@@ -6,7 +6,7 @@
   <link href="https://dayutech.github.io/atom.xml" rel="self"/>
   
   <link href="https://dayutech.github.io/"/>
-  <updated>2025-12-01T08:13:52.662Z</updated>
+  <updated>2025-12-08T03:35:35.751Z</updated>
   <id>https://dayutech.github.io/</id>
   
   <author>
@@ -17,11 +17,32 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>机器学习-逻辑回归（Logistic-Regression）</title>
+    <link href="https://dayutech.github.io/archives/aba9e754.html"/>
+    <id>https://dayutech.github.io/archives/aba9e754.html</id>
+    <published>2025-12-08T02:53:40.000Z</published>
+    <updated>2025-12-08T03:35:35.751Z</updated>
+    
+    
+    <summary type="html">本文简单介绍了机器学回归算法中的逻辑回归算法</summary>
+    
+    
+    
+    <category term="机器学习" scheme="https://dayutech.github.io/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+    <category term="机器学习" scheme="https://dayutech.github.io/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="逻辑回归" scheme="https://dayutech.github.io/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/"/>
+    
+  </entry>
+  
+  <entry>
     <title>网络规划设计师备考记录</title>
     <link href="https://dayutech.github.io/archives/fae3020d.html"/>
     <id>https://dayutech.github.io/archives/fae3020d.html</id>
     <published>2025-12-01T07:24:22.000Z</published>
-    <updated>2025-12-01T08:13:52.662Z</updated>
+    <updated>2025-12-01T08:19:53.071Z</updated>
     
     
     <summary type="html">无</summary>
