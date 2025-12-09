@@ -137,5 +137,10 @@ processPath 属性指定的就是启动程序 可以是默认的.net  也可以�
 
 hostingModel 标识驻守模式  inprocess 表示在w3wp.exe 内部运行 拥有更高的性能
 
-#
+# .Net Core 启动
+发布一个 .NET Core / .NET 5+ 应用为 “独立部署”（self-contained）或 “框架依赖 + 可执行文件” 时，.NET SDK 会生成一个名为 YourApp.exe 的文件，这个 .exe 实际上是微软提供的 通用启动器（apphost），其作用是：
+- 初始化 .NET 运行时（CoreCLR）
+- 加载你的 YourApp.dll
+- 调用 Main 方法
+>  所有 .NET 应用的 .exe 启动器代码都几乎一样，因为它只是个“壳”。
 
