@@ -179,4 +179,288 @@ $$
 g_i=\frac{\partial J(w)}{\partial w_i} =(p(x_i)-y_i)x_i\space\space\space\text{这个式子怎么推出来的 这是个问题 需要研究}
 $$
 
-### 牛顿法
+### 牛顿法求极值
+#### 牛顿法
+牛顿法的思想是设法将一个非线性方程$f(x)=0$转化为线性方程进行求解，这里就需要用到泰勒展开式。
+泰勒公式
+$$
+\begin{align}
+&p(x)=\frac{f'(x)}{1!}(x-x_0)+\frac{f''(x)}{2!}(x-x)^2+...+\frac{f^{(n)}(x_0)}{n!}(x-x_0)^n+R_n\\\\
+&R_n(x)=O\[(x-x_0)^n]
+\end{align}
+$$
+若要求方程$f(x)=0$的根，我们可以令$f(x)$的一阶泰勒展开作为$f(x)$的近似值。取$f(x)$上的一点$x_k$，在该点附近进行一阶泰勒展开。
+$$
+p(x)=f(x_k)+{f}'(x_k)(x-x_k)\approx f(x)
+$$
+得到线性方程
+$$
+f(x_k)+{f}'(x_k)(x-x_k)=0
+$$
+对该方程进行求解得到$x$
+$$
+x=x_k-\frac{f(x_k)}{f'{x_k}}
+$$
+设解出来的$x$为$x_{k+1}$,即：
+$$
+x_{k+1}=x_k-\frac{f(x_k)}{f'{x_k}}
+$$
+此时得到的$x_{k+1}$是$f(x)=0$的根的一个近似值，其并不等于$f(x)=0$的根，为了得到更加接近的值，
+所以继续对$x_{k+1}$再做一阶泰勒展开直到得到的$x_{k+m}$与$k_{k+n}$的差的绝对值满足阈值要求或者达到指定的迭代次数，此时认为求得的$x_{k+n}$即为方程$f(x)=0$的近似根
+**从图形的角度理解牛顿法**
+
+<script>
+function func(x) {
+  return Math.exp(1/7*x) - 4;
+}
+function func2(x) {
+  const expVal = Math.exp(20 / 7);      // e^(20/7)
+  const slope = expVal / 7;             // (1/7) * e^(20/7)
+  return slope * (x - 20) + (expVal - 4);
+}
+function func3(x) {
+  const x0 = 14.609;
+  const expVal = Math.exp(x0 / 7);
+  const y0 = expVal - 4;
+  const slope = expVal / 7;
+  return slope * (x - x0) + y0;
+}
+function generateData2() {
+  let data = [];
+  for (let i = -200; i <= 200; i += 0.1) {
+    data.push([i, func2(i)]);
+  }
+  return data;
+}
+function generateData3() {
+  let data = [];
+  for (let i = -200; i <= 200; i += 0.1) {
+    data.push([i, func3(i)]);
+  }
+  return data;
+}
+function generateData() {
+  let data = [];
+  for (let i = -200; i <= 200; i += 0.1) {
+    data.push([i, func(i)]);
+  }
+  return data;
+}
+</script>
+{% echarts 600 '85%' %}
+{
+  
+  animation: false,
+  grid: {
+    top: 40,
+    left: 50,
+    right: 40,
+    bottom: 50
+  },
+  xAxis: {
+    name: 'x',
+    minorTick: {
+      show: true
+    },
+    minorSplitLine: {
+      show: true
+    }
+  },
+  yAxis: {
+    name: 'y',
+    min: -100,
+    max: 100,
+    minorTick: {
+      show: true
+    },
+    minorSplitLine: {
+      show: true
+    }
+  },
+  dataZoom: [
+    {
+      show: true,
+      type: 'inside',
+      filterMode: 'none',
+      xAxisIndex: [0],
+      startValue: 5,
+      endValue: 25
+    },
+    {
+      show: true,
+      type: 'inside',
+      filterMode: 'none',
+      yAxisIndex: [0],
+      startValue: -1,
+      endValue: 15
+    }
+  ],
+  series: [
+    {
+      type: 'line',
+      showSymbol: false,
+      clip: true,
+      data: generateData()
+    },
+    {
+      type: 'line',
+      showSymbol: false,
+      clip: true,
+      data: generateData2(),
+      markLine: {
+        z:100,
+        silent: true,
+        lineStyle: {
+          type: 'dashed',
+          width: 2,
+          color: '#ff0000'
+        },
+        data: [
+          { 
+            name: '', 
+            xAxis: 20
+          },
+          {
+            name: '',
+            yAxis: 13.41
+          }
+        ],
+        label: {
+          show: true,
+          position: 'end',
+          formatter: '',
+          color: '#ff0000'
+        }
+    }
+    },
+    {
+      type: 'line',
+      showSymbol: false,
+      clip: true,
+      data: generateData3(),
+      markLine: {
+        z:100,
+        silent: true,
+        lineStyle: {
+          type: 'dashed',
+          width: 2,
+          color: '#ffff00'
+        },
+        data: [
+          { 
+            name: '', 
+            xAxis: 14.609
+          }
+        ],
+        label: {
+          show: true,
+          position: 'end',
+          formatter: '',
+          color: '#ffff00'
+        }
+    }
+    },
+    {
+      type: 'scatter',
+      data: [[20, 13.41]],
+      symbolSize: 10, 
+      label: {
+        show: true,
+        position: 'top',
+        formatter: `切点 C`,
+        fontSize: 14,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        color: '#fff',
+        padding: [4, 8],
+        borderRadius: 4
+      },
+      itemStyle: {
+        color: 'red'
+      }
+      
+      
+    },
+    {
+      type: 'scatter',
+      data: [[20, 0]],
+      symbolSize: 10, 
+      label: {
+        show: true,
+        position: 'right',
+        formatter: `x_k`,
+        fontSize: 14,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        color: '#fff',
+        padding: [4, 8],
+        borderRadius: 4
+      },
+      itemStyle: {
+        color: 'red'
+      }
+    },
+    {
+      type: 'scatter',
+      data: [[14.609, 0]],
+      symbolSize: 10, 
+      label: {
+        show: true,
+        position: 'right',
+        formatter: `x_k+1`,
+        fontSize: 14,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        color: '#fff',
+        padding: [4, 8],
+        borderRadius: 4
+      },
+      itemStyle: {
+        color: 'red'
+      }
+    },
+    {
+      type: 'scatter',
+      data: [[14.609, 4.0617]],
+      symbolSize: 10, 
+      label: {
+        show: true,
+        position: 'top',
+        formatter: `切点`,
+        fontSize: 14,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        color: '#fff',
+        padding: [4, 8],
+        borderRadius: 4
+      },
+      itemStyle: {
+        color: 'red'
+      }
+    },
+    {
+      type: 'scatter',
+      data: [[11.058, 0]],
+      symbolSize: 10, 
+      label: {
+        show: true,
+        position: 'right',
+        formatter: `x_k+2`,
+        fontSize: 14,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        color: '#fff',
+        padding: [4, 8],
+        borderRadius: 4
+      },
+      itemStyle: {
+        color: 'red'
+      }
+    },
+    
+  ],
+
+};
+{% endecharts %}
+首先取一点$x_k$作为$f(x)=0$的根，然后求过$(x_k,f(x_k))$的切线，该切线与$x$轴存在交点$x_{k+1}$，此时求得$x_{k+1}$的值为：
+$$
+x_{k+1}=x_k-\frac{f(x_k)}{f'(x_k)}
+$$
+这个式子就与前面的一阶泰勒展开的结果一样了。
+然后再依次迭代直到满足要求即可求得$f(x)=0$的近似根。
+#### 求极值

@@ -144,3 +144,32 @@ hostingModel 标识驻守模式  inprocess 表示在w3wp.exe 内部运行 拥有
 - 调用 Main 方法
 >  所有 .NET 应用的 .exe 启动器代码都几乎一样，因为它只是个“壳”。
 
+# 扩展方法
+扩展方法在web应用启动的时候常可以看到，往往被用来做一些初始化的工作，
+```c#
+public static class MyExtensions
+{
+    public static 返回类型 extFunction(this 要扩展的类型 参数名, 其他参数...)
+    {
+        // 方法实现
+    }
+}
+```
+调用的时候编译器将自动将调用者作为第一个参数传入到目标方法中 如下面这样的代码：
+```c#
+public static class StringExtensions
+{
+    public static bool IsReallyEmpty(this string str)
+    {
+        return string.IsNullOrWhiteSpace(str);
+    }
+}
+
+// 使用
+string text = "   ";
+// text会被传入到  IsReallyEmpty 方法中
+if (text.IsReallyEmpty())
+{
+    Console.WriteLine("字符串为空或全是空白！");
+}
+```
