@@ -6,7 +6,7 @@
   <link href="https://dayutech.github.io/atom.xml" rel="self"/>
   
   <link href="https://dayutech.github.io/"/>
-  <updated>2025-12-10T06:06:30.809Z</updated>
+  <updated>2025-12-17T03:16:53.779Z</updated>
   <id>https://dayutech.github.io/</id>
   
   <author>
@@ -15,6 +15,29 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>机器学习-支持向量机（SVM）</title>
+    <link href="https://dayutech.github.io/archives/e2189dc7.html"/>
+    <id>https://dayutech.github.io/archives/e2189dc7.html</id>
+    <published>2025-12-17T01:11:20.000Z</published>
+    <updated>2025-12-17T03:16:53.779Z</updated>
+    
+    
+    <summary type="html">无</summary>
+    
+    
+    
+    <category term="机器学习" scheme="https://dayutech.github.io/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+    <category term="机器学习" scheme="https://dayutech.github.io/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="支持向量机" scheme="https://dayutech.github.io/tags/%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA/"/>
+    
+    <category term="SVM" scheme="https://dayutech.github.io/tags/SVM/"/>
+    
+  </entry>
   
   <entry>
     <title>机器学习-逻辑回归（Logistic-Regression）</title>
