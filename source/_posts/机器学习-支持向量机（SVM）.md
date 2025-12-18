@@ -263,7 +263,7 @@ $$
 倘若$d^\* = p^\*$时则被称为强对偶成立。
 强对偶成立是有一定条件限制的
 #### slater条件
-原始问题是凸优化问题，即f_0(x)以及f_i(x)都是凸函数，h_i(x)是仿射函数。
+原始问题是凸优化问题，即$f_0(x)$以及$f_i(x)$都是凸函数，$h_i(x)$是仿射函数。
 slater条件即：
 - $f_i(x)<0\space\space\space\space \forall i=1,2,3,...m$
 - $h_i(x)=0\space\space\space\space \forall i=1,2,3,...n$
