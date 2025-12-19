@@ -6,7 +6,7 @@
   <link href="https://dayutech.github.io/atom.xml" rel="self"/>
   
   <link href="https://dayutech.github.io/"/>
-  <updated>2025-12-19T01:17:34.794Z</updated>
+  <updated>2025-12-19T04:32:26.102Z</updated>
   <id>https://dayutech.github.io/</id>
   
   <author>
@@ -17,14 +17,33 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
+    <title>机器学习-学习器评估比较-二项检验</title>
+    <link href="https://dayutech.github.io/archives/d566d08d.html"/>
+    <id>https://dayutech.github.io/archives/d566d08d.html</id>
+    <published>2025-12-19T02:35:52.000Z</published>
+    <updated>2025-12-19T04:32:26.102Z</updated>
+    
+    
+    <summary type="html">无</summary>
+    
+    
+    
+    <category term="机器学习" scheme="https://dayutech.github.io/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+    <category term="二项检验" scheme="https://dayutech.github.io/tags/%E4%BA%8C%E9%A1%B9%E6%A3%80%E9%AA%8C/"/>
+    
+  </entry>
+  
+  <entry>
     <title>机器学习-没有免费的午餐（NFL）</title>
     <link href="https://dayutech.github.io/archives/10efd2fb.html"/>
     <id>https://dayutech.github.io/archives/10efd2fb.html</id>
     <published>2025-12-18T07:28:16.000Z</published>
-    <updated>2025-12-19T01:17:34.794Z</updated>
+    <updated>2025-12-19T01:19:39.224Z</updated>
     
     
-    <summary type="html">没有免费的午餐定理告诉我们，任何事都要放到具体的环境中取讨论，脱离了实际取讨论问题是没有意义的。实践是检验一切真理的标准。</summary>
+    <summary type="html">没有免费的午餐定理告诉我们，任何事都要放到具体的环境中取讨论，脱离了实际去讨论问题是没有意义的。实践是检验一切真理的标准。</summary>
     
     
     

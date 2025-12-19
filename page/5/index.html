@@ -230,6 +230,107 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/29b6e7bf.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/archives/29b6e7bf.html" class="post-title-link" itemprop="url">JNDI注入再理解</a>
+        </h2>
+
+        <div class="post-meta">
+		  
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-07-29 17:02:06" itemprop="dateModified" datetime="2025-07-29T17:02:06+08:00">2025-07-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%8E%9F%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">漏洞原理</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>7 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>嗯，感觉以前对这个概念的理解不是很清楚，今天抽了时间再学习了学习。</p>
+<p>JNDI提供了一个统一的接口屏蔽了一些协议负载的调用与使用过程，如RMI、LDAP、COBRA等，主要功能是实现了远程方法调用，针对JNID的攻击一般有以下两种，一种是注册在远程的对象由一些危险的方法，那么我们便可以直接使用注册中兴对外暴露的接口调用这些危险的方法来实现攻击，一类是我们可以直接在客户端向注册中心直接注册一个恶意对象，因为对象在传输过程中时序列化传输的，那么注册中心再加载该对象的时候会进行反序列化操作，那么如果我们的恶意对象的静态代码块中有一些危险操作那么便会直接被执行，因为静态代码块中的方法是在类加载过程中被调用的，且只会调用一次。<br>关于第一种情况，没什么好说的，只要我们能够远程调用接口便能完成攻击，当然是在你知道对方注册了什么危险对象的基础上。第二种情况也分多种情况，一是我们可以直接向远程注册恶意对象。二是我们可以利用JNDI的动态类加载机制完成攻击，一是利用CodeBase机制，如果客户端的lookup参数内容可控，那么我们便可以自行搭建一个注册中心，注册恶意类。那么客户端在调用的时候就会调用到我们的恶意对象，但是这有一个问题，如果是我们自行注册的恶意对象，那么客户端如果没有这个恶意类，客户端也是不会反序列化成功的，利用CodeBase机制我们可以在服务端指定恶意类的加载地址，当客户端请求该恶意对象的时候，客户端会一并将CodeBase指定的地址发送个客户端，如果客户端没有这个恶意类那么则会使用CodeBase指定的地址去加载恶意类，从而完成恶意类的自动调用。这里注意CodeBase是双向指定的，客户端可以指定，服务端也可以指定，当然优先使用的是服务端指定的地址。麻烦的是一些版本的JDK模式不允许CodeBase远程类加载，而且还涉及到java的安全管理器。另一种情况是利用JNDI Naming Reference，Reference类表示对存在于命名&#x2F;目录系统以外的对象的引用，如果注册在注册中心的对象为Reference类的子类，那么再客户端获取到远程对象的存根实例的时候将使用Reference对象指定的远程地址与类名去加载恶意类从而完成攻击，可以注意到，这个攻击发生在客户端。因为Reference没有继承UnicastRemoteObject，所以我们需要对Reference类使用ReferenceWrapper对其进行包装，然后绑定在注册中心中才能实现远程调用。两种情况重点都是需要lookup函数参数可控，也就是可以指定远程服务器的位置，当然你如果可以操控对方远程服务器又另说。<br>这里我们介绍一下通过Reference类来实现JNDI注入，首先我们写一个客户端。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/archives/29b6e7bf.html#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/dbd438c0.html">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1136,113 +1237,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/e8476a7d.html">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/dayu/avatar.png">
-      <meta itemprop="name" content="Arliya">
-      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Dayu Technology Co., LTD">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/archives/e8476a7d.html" class="post-title-link" itemprop="url">从Wireshark抓取HTTPS流量到HTTP2协议</a>
-        </h2>
-
-        <div class="post-meta">
-		  
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2025-04-14 10:33:52" itemprop="dateCreated datePublished" datetime="2025-04-14T10:33:52+08:00">2025-04-14</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-07-29 17:02:08" itemprop="dateModified" datetime="2025-07-29T17:02:08+08:00">2025-07-29</time>
-              </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%8D%8F%E8%AE%AE%E8%A7%84%E8%8C%83/" itemprop="url" rel="index"><span itemprop="name">协议规范</span></a>
-                </span>
-            </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.1k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>7 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="吹水"><a href="#吹水" class="headerlink" title="吹水"></a>吹水</h1><p>打工人今天正无聊在小蓝鸟上看看国外的大哥们最近有没有又搞什么大动作，突然看到一条推文介绍使用wireshark抓取https报文的方法，正好前段时间也在公众号看到了一篇文章教这个，当时配置好了但没有去实际验证过好使不，于是趁着上班时间不验证白不验证，我这不是划水，我这是在打造生产工具，为下一步提升生产力打下良好的基础。<br>配置其实相对来说还是很简单的，首先是需要设置一下环境变量增加一项SSLKEYLOGFILE指向一个文本文件就好了，这样谷歌或者火狐浏览器在运行的时候就会将每次https会话的加密秘钥存储在这个文件里面，然后再wireshark中配置一下TLS协议的认证文件也指向这个文件就ok了，当然这个原理是我自己理解的，不过想来也就八九不离十了。想要知道详情的可以参看下面两篇文章咯</p>
-<blockquote>
-<p><a target="_blank" rel="noopener external nofollow noreferrer" href="https://mp.weixin.qq.com/s/jUFT1iA6Uy7EKJAFkebjDw">https://mp.weixin.qq.com/s/jUFT1iA6Uy7EKJAFkebjDw</a><br><a target="_blank" rel="noopener external nofollow noreferrer" href="https://twitter.com/binitamshah/status/1511254916484198402?s=20&t=qrF9mz6muHovokRB5nGPkg">https://twitter.com/binitamshah/status/1511254916484198402?s=20&amp;t=qrF9mz6muHovokRB5nGPkg</a></p>
-</blockquote>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/archives/e8476a7d.html#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  <!-- needsharebutton Javascript file -->
-<script src="js/needsharebutton.min.js"></script>
-<!-- needsharebutton CSS file -->
-<link href="css/needsharebutton.min.css" rel="stylesheet" />
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
+    <a class="extend prev" rel="prev" href="/page/4/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><span class="page-number current">5</span><a class="page-number" href="/page/6/">6</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/6/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1310,7 +1308,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">110</span>
+          <span class="site-state-item-count">111</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1323,7 +1321,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">212</span>
+        <span class="site-state-item-count">213</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1359,6 +1357,10 @@
 		<!-- 文章排序规格,-updated 按照文章更新时间倒排 -->
 			
 		<!-- 显示10数目的文章 -->
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/d566d08d.html" title="机器学习-学习器评估比较-二项检验" target="_blank">机器学习-学习器评估比较-二项检验</a>
+			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
 				<a href="/archives/10efd2fb.html" title="机器学习-没有免费的午餐（NFL）" target="_blank">机器学习-没有免费的午餐（NFL）</a>
@@ -1416,10 +1418,6 @@
 				<a href="/archives/3792a892.html" title="Java动态代理在反序列化漏洞中的应用" target="_blank">Java动态代理在反序列化漏洞中的应用</a>
 			  </li>
 			
-			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/31bfcb8f.html" title="Java HashMap 实现方法" target="_blank">Java HashMap 实现方法</a>
-			  </li>
-			
 		  </ul>
 		</div>
 	  
@@ -1453,13 +1451,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">218k</span>
+    <span title="站点总字数">219k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">13:14</span>
+    <span title="站点阅读时长">13:17</span>
 </div>
   <div class="powered-by">由 <a href="https://github.com/dayutech" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">DayuTech</a> 强力驱动
   </div>
