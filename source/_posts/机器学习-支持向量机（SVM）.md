@@ -277,4 +277,73 @@ $$
 &\nabla f_0(x^\*) + \sum_{i=1}^{m} \lambda_i^\* \nabla f_i(x^\*) + \sum_{i=1}^{q} \nu_i^\* \nabla h_i(x^\*) = 0 \space\space\space\space(梯度平稳性)
 &\end{align}
 $$
+# 支持向量机
+对一个训练集进行分类学习，其基本思想就是通过一个分类超平面将训练集分开。能将训练姐分开的超平面有很多，学习算法的逻辑就是找到最优的超平面对训练数据及性能划分，  
+一般来讲要将两个训练集的中间分开最好，分类超平面导两侧训练集的距离越大越好，距离越大越有利于容忍更多的样本噪声，所以我们的任务就是找到一个距离最大的分类超平面。
+我们用线性方程来对这个超平面进行描述
+$$
+\mathbf{w}^Tx+\mathbf{b}=0
+$$
+其中$\mathbb{w}$是超平面的法向量$b$是位移。那么两个被分开的训练样本集就可以通过下面的方程组进行描述
+$$
+\begin{cases}
+\mathbf{w}^Tx+\mathbf{b} \ge +1 \space\space\space\space\space y_i=1 \\\\
+\mathbf{w}^Tx+\mathbf{b}  \le -1 \space\space\space\space\space y_i=-1
+\end{cases}
+$$
+当$\mathbf{w}^Tx+b \ge +1$ 时认为是某一类样本（正例），当$\mathbf{w}^Tx+b \le -1$ 认为是另一类样本（反例）。  这里的$+1 -1$表示的就是支持向量距离分类超平面的距离又被称为函数间隔，  
+这个距离是未被归一化的距离，其是认为定义的，你也可以定义其为$2,3,4,$，但是为了方便计算这里就定义为$1$
+那么我们要求最大距离，首先要定义距离，在多维空间中某一点导一个超平面的距离用下面的公式进行计算，这个距离被称为几何距离，是归一化的距离，其与法向量的长度是无关的。
+$$
+r=\frac{\left \| \mathbf{w}^Tx+\mathbf{b} \right \| }{\left \|\| \mathbf{w} \right \|\| }
+$$
+**推导**
+... 待定
+
+距离超平面最近的几个训练样本集被称为**支持向量**，两个异类支持向量导分类超平面的距离之和为
+$$
+\gamma = 2 \times \frac{\left \| \mathbf{w}^Tx+\mathbf{b} \right \| }{\left \|\| \mathbf{w} \right \|\| }
+$$
+根据上面的定义支持向量到分类超平面的未归一化距离被定义为$1$可以将这个式子进行转化
+$$
+\gamma = \frac{2}{\left \|\| \mathbf{w} \right \|\| }
+$$
+所以我们的目标是找到$\gamma$的最大值，即：
+$$
+\begin{align}
+&\underset{w,b}{max}  \frac{2}{\left \|\| \mathbf{w} \right \|\| } \\\\
+&s.t. \space\space\space\space\space\space y_i(\mathbf{w}^Tx+\mathbf{b}) \ge 1, \space\space\space i=1,2,3,4....n
+\end{align}
+$$
+为了使得间隔最大，只需要使$\left \|\| \mathbf{w} \right \|\|$最小，为了便于计算将$\left \|\| \mathbf{w} \right \|\|$等价为$\frac{1}{2}\left \|\| \mathbf{w} \right \|\|^2$，所以将上式重写为
+$$
+\begin{align}
+&\underset{w,b}{min}  \frac{1}{2}\left \|\| \mathbf{w} \right \|\|^2 \\\\
+&s.t. \space\space\space\space\space\space y_i(\mathbf{w}^Tx+\mathbf{b}) \ge 1, \space\space\space i=1,2,3,4....n
+\end{align}
+$$
+这就是支持向量机的基本型。  
+这是一个二次凸优化问题，可以用拉格朗日乘子法进行求解。
+首相将其转化为拉格朗日函数
+$$
+L(\mathbf{w},\mathbf{b},\mathbf{\lambda})=\frac{1}{2}\left \|\| \mathbf{w} \right \|\|^2+ \sum_{i=1}^{n}(\lambda_i (1-y_i(\mathbf{w}^Tx_i+\mathbf{b}))) \tag{6}
+$$
+对$\mathbf{w},\mathbf{b}$来说这是一个凸函数，所以直接对齐求偏导就可以求导最小值。  
+首先对$\mathbf{w}$求偏导。  
+$$
+\frac{\partial L(\mathbf{w},\mathbf{b},\mathbf{\lambda}) }{\partial \mathbf{w}}=\mathbf{w} - \sum_{i=1}^{n} \lambda_i y_i x_i =0
+$$
+所以
+$$
+\mathbf{w}=\sum_{i=1}^{n} \lambda_i y_i x_i \tag{4}
+$$
+对$\mathbf{b}$求偏导
+$$
+\frac{\partial L(\mathbf{w},\mathbf{b},\mathbf{\lambda}) }{\partial \mathbf{b}}= \sum_{i=1}^{n} \lambda_i y_i = 0
+$$
+得到
+$$
+\sum_{i=1}^{n} \lambda_i y_i = 0 \tag{5}
+$$
+
 
