@@ -282,27 +282,27 @@ $$
 一般来讲要将两个训练集的中间分开最好，分类超平面导两侧训练集的距离越大越好，距离越大越有利于容忍更多的样本噪声，所以我们的任务就是找到一个距离最大的分类超平面。
 我们用线性方程来对这个超平面进行描述
 $$
-\mathbf{w}^Tx+\mathbf{b}=0
+\mathbf{w}^T\mathbf{x}+\mathbf{b}=0
 $$
 其中$\mathbb{w}$是超平面的法向量$b$是位移。那么两个被分开的训练样本集就可以通过下面的方程组进行描述
 $$
 \begin{cases}
-\mathbf{w}^Tx+\mathbf{b} \ge +1 \space\space\space\space\space y_i=1 \\\\
-\mathbf{w}^Tx+\mathbf{b}  \le -1 \space\space\space\space\space y_i=-1
+\mathbf{w}^T\mathbf{x}+\mathbf{b} \ge +1 \space\space\space\space\space y_i=1 \\\\
+\mathbf{w}^T\mathbf{x}+\mathbf{b}  \le -1 \space\space\space\space\space y_i=-1
 \end{cases}
 $$
 当$\mathbf{w}^Tx+b \ge +1$ 时认为是某一类样本（正例），当$\mathbf{w}^Tx+b \le -1$ 认为是另一类样本（反例）。  这里的$+1 -1$表示的就是支持向量距离分类超平面的距离又被称为函数间隔，  
 这个距离是未被归一化的距离，其是认为定义的，你也可以定义其为$2,3,4,$，但是为了方便计算这里就定义为$1$
 那么我们要求最大距离，首先要定义距离，在多维空间中某一点导一个超平面的距离用下面的公式进行计算，这个距离被称为几何距离，是归一化的距离，其与法向量的长度是无关的。
 $$
-r=\frac{\left \| \mathbf{w}^Tx+\mathbf{b} \right \| }{\left \|\| \mathbf{w} \right \|\| }
+r=\frac{\left \| \mathbf{w}^T\mathbf{x}+\mathbf{b} \right \| }{\left \|\| \mathbf{w} \right \|\| }
 $$
 **推导**
 ... 待定
 
 距离超平面最近的几个训练样本集被称为**支持向量**，两个异类支持向量导分类超平面的距离之和为
 $$
-\gamma = 2 \times \frac{\left \| \mathbf{w}^Tx+\mathbf{b} \right \| }{\left \|\| \mathbf{w} \right \|\| }
+\gamma = 2 \times \frac{\left \| \mathbf{w}^T\mathbf{x}+\mathbf{b} \right \| }{\left \|\| \mathbf{w} \right \|\| }
 $$
 根据上面的定义支持向量到分类超平面的未归一化距离被定义为$1$可以将这个式子进行转化
 $$
@@ -312,30 +312,39 @@ $$
 $$
 \begin{align}
 &\underset{w,b}{max}  \frac{2}{\left \|\| \mathbf{w} \right \|\| } \\\\
-&s.t. \space\space\space\space\space\space y_i(\mathbf{w}^Tx+\mathbf{b}) \ge 1, \space\space\space i=1,2,3,4....n
+&s.t. \space\space\space\space\space\space y_i(\mathbf{w}^T\mathbf{x}+\mathbf{b}) \ge 1, \space\space\space i=1,2,3,4....n
 \end{align}
 $$
 为了使得间隔最大，只需要使$\left \|\| \mathbf{w} \right \|\|$最小，为了便于计算将$\left \|\| \mathbf{w} \right \|\|$等价为$\frac{1}{2}\left \|\| \mathbf{w} \right \|\|^2$，所以将上式重写为
 $$
 \begin{align}
 &\underset{w,b}{min}  \frac{1}{2}\left \|\| \mathbf{w} \right \|\|^2 \\\\
-&s.t. \space\space\space\space\space\space y_i(\mathbf{w}^Tx+\mathbf{b}) \ge 1, \space\space\space i=1,2,3,4....n
+&s.t. \space\space\space\space\space\space y_i(\mathbf{w}^T\mathbf{x}+\mathbf{b}) \ge 1, \space\space\space i=1,2,3,4....n
 \end{align}
 $$
 这就是支持向量机的基本型。  
 这是一个二次凸优化问题，可以用拉格朗日乘子法进行求解。
-首相将其转化为拉格朗日函数
+首先将其转化为拉格朗日函数
 $$
-L(\mathbf{w},\mathbf{b},\mathbf{\lambda})=\frac{1}{2}\left \|\| \mathbf{w} \right \|\|^2+ \sum_{i=1}^{n}(\lambda_i (1-y_i(\mathbf{w}^Tx_i+\mathbf{b}))) \tag{6}
+L(\mathbf{w},\mathbf{b},\mathbf{\lambda})=\frac{1}{2}\left \|\| \mathbf{w} \right \|\|^2+ \sum_{i=1}^{n}(\lambda_i (1-y_i(\mathbf{w}^T \mathbf{x_i}+\mathbf{b}))) \tag{6}
 $$
-对$\mathbf{w},\mathbf{b}$来说这是一个凸函数，所以直接对齐求偏导就可以求导最小值。  
+其原始代价函数
+$$
+\underset{\left \|\| \mathbf{w} \right \|\|}{min} \space \underset{\mathbf{\lambda}}{max} L(\mathbf{w},\mathbf{b},\mathbf{\lambda})=\frac{1}{2}\left \|\| \mathbf{w} \right \|\|^2+ \sum_{i=1}^{n}(\lambda_i (1-y_i(\mathbf{w}^T\mathbf{x_i}+\mathbf{b}))) \tag{6}
+$$
+将原始问题转为对偶问题
+$$
+\underset{\mathbf{\lambda}}{max} \space \underset{\left \|\| \mathbf{w} \right \|\|}{min} L(\mathbf{w},\mathbf{b},\mathbf{\lambda})
+$$
+
+对$\mathbf{w},\mathbf{b}$来说这是一个凸函数，所以直接对其求偏导就可以求到最小值。  
 首先对$\mathbf{w}$求偏导。  
 $$
-\frac{\partial L(\mathbf{w},\mathbf{b},\mathbf{\lambda}) }{\partial \mathbf{w}}=\mathbf{w} - \sum_{i=1}^{n} \lambda_i y_i x_i =0
+\frac{\partial L(\mathbf{w},\mathbf{b},\mathbf{\lambda}) }{\partial \mathbf{w}}=\mathbf{w} - \sum_{i=1}^{n} \lambda_i y_i \mathbf{x_i} =0
 $$
 所以
 $$
-\mathbf{w}=\sum_{i=1}^{n} \lambda_i y_i x_i \tag{4}
+\mathbf{w}=\sum_{i=1}^{n} \lambda_i y_i \mathbf{x_i} \tag{4}
 $$
 对$\mathbf{b}$求偏导
 $$
@@ -345,5 +354,43 @@ $$
 $$
 \sum_{i=1}^{n} \lambda_i y_i = 0 \tag{5}
 $$
+将（5）与（4）带入到（6）可以得到
+$$
+\begin{align}
+L(\mathbf{w},\mathbf{b},\mathbf{\lambda})&=\frac{1}{2}\left \|\| \mathbf{w} \right \|\|^2+ \sum_{i=1}^{n}(\lambda_i (1-y_i(\mathbf{w}^T \mathbf{x_i}+\mathbf{b}))) \\\\
+&=\frac{1}{2}\left \|\left\| \sum_{i=1}^{n} \lambda_i y_i \mathbf{x_i} \right \|\right\|^2+ \sum_{i=1}^{n}(\lambda_i (1-y_i((\sum_{i=1}^{n} \lambda_i y_i \mathbf{x_i})^T \mathbf{x_i}+\mathbf{b}))) \\\\
+&=\frac{1}{2}(\sum_{i=1}^{n} \lambda_i y_i \mathbf{x_i})^T\sum_{i=1}^{n} \lambda_i y_i \mathbf{x_i}+\sum_{i=1}^{n}\lambda_i - \sum_{i=1}^{n}(\lambda_i y_i x_i)  \\\\
+&=\sum_{i=1}^{n}(\lambda_i)-\frac{1}{2}(\sum_{i=1}^{n} \lambda_i y_i \mathbf{x_i})^T\sum_{i=1}^{n} \lambda_i y_i \mathbf{x_i} \\\\
+&=\sum_{i=1}^{n}\lambda_i-\frac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n} \lambda_i \lambda_j y_i y_j \mathbf{x_i}^T\mathbf{x_j}
+\end{align}
+$$
+考虑（5）的约束得到对偶问题。
+$$
+\begin{align}
+&\underset{\lambda}{max} \space \sum_{i=1}^{n}\lambda_i-\frac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n} \lambda_i \lambda_j y_i y_j \mathbf{x_i}^T\mathbf{x_j}\\\\
+&s.t. \space\space\space\space\space\space \sum_{i=1}^{n} \lambda_i y_i = 0 \\\\
+& \lambda_i \ge 0 \tag{8}
+\end{align}
+$$
+同时需要满足KKT条件
+- 不等式约束
+- 非负性
+- 互补松驰性
+$$
+\begin{cases}
+1-y_i(\mathbf{w}^T\mathbf{x_i}+\mathbf{b}) \le 0\\\\
+\lambda_i \ge 0\\\\
+\lambda_i (1-y_i(\mathbf{w}^T\mathbf{x_i}+\mathbf{b})) = 0 \tag{9}
+\end{cases}
+$$
+将（4）带入到分类超平面方程中
+$$
+f(x)=\mathbf{w}^T\mathbf{x_i}+\mathbf{b}=\sum_{i=1}^{n} \lambda_i y_i (\mathbf{x_i})^T + b \tag{7}
+$$
+对应任意一个样本$(x_i, y_i)$，当$\lambda_i = 0$时，样本的位置对结果没有影响，所以$\lambda_i$ 不能取$0$，  
+当$\lambda_i \> 0$时有$1-y_i(\mathbf{w}^T\mathbf{x_i}+\mathbf{b})=0 \Rightarrow y_i(\mathbf{w}^T\mathbf{x_i}+\mathbf{b}) = 1$即对应的样本点位于最大间隔边界上，即一个支持向量。  
+这表明了支持向量机训练结束后大部分样本都不需要保留，最终模型只与支持向量有关。
+根据（7）需要求得$\mathbf{\lambda}$，通过（8）与（9）求得，使用SMO算法进行求解。
+
 
 
