@@ -524,3 +524,5 @@ $$
 k(x_i,x_j)= tanh(\beta x_i^T x_j+\theta )
 $$
 
+## 支持向量回归
+...
