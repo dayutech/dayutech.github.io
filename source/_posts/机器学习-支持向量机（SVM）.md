@@ -385,12 +385,142 @@ $$
 $$
 将（4）带入到分类超平面方程中
 $$
-f(x)=\mathbf{w}^T\mathbf{x_i}+\mathbf{b}=\sum_{i=1}^{n} \lambda_i y_i (\mathbf{x_i})^T + b \tag{7}
+f(x)=\mathbf{w}^T\mathbf{x_i}+\mathbf{b}=\sum_{i=1}^{n} \lambda_i y_i (\mathbf{x_i})^T\mathbf{x_i} + b \tag{7}
 $$
 对应任意一个样本$(x_i, y_i)$，当$\lambda_i = 0$时，样本的位置对结果没有影响，所以$\lambda_i$ 不能取$0$，  
 当$\lambda_i \> 0$时有$1-y_i(\mathbf{w}^T\mathbf{x_i}+\mathbf{b})=0 \Rightarrow y_i(\mathbf{w}^T\mathbf{x_i}+\mathbf{b}) = 1$即对应的样本点位于最大间隔边界上，即一个支持向量。  
 这表明了支持向量机训练结束后大部分样本都不需要保留，最终模型只与支持向量有关。
 根据（7）需要求得$\mathbf{\lambda}$，通过（8）与（9）求得，使用SMO算法进行求解。
-
-
+## 线性不可分样本的支持向量机
+### 样本噪声导致的线性不可分
+当两类样本搅合在一起不能明显地通过一条直线或者超平面分开的时候就就需要用到“软间隔支持向量机”，这种线性不可分又不是完全分不开而是因为数据采样误差等因素导致的样本失真。
+所谓“软间隔”集让我们的模型能够一定程度上容忍样本的噪声。通俗的讲就是样本能够落到分类超平面与过支持向量的超平面之间的区域。  
+当然这个容忍是有限度的，如果不设限那么所有的样本就都可以落在这个区间，这样也就意味着分类间隔可以任意大，于是分类就没了意义，所以我们引入了惩罚项，  
+当分类间隔越大惩罚越重，这样就避免了其无限的扩大。所以优化目标可以写作
+$$
+\underset{\mathbf{w},b}{min} \frac{1}{2} \left \| \left \| \mathbf{w} \right\|\right\|^2 + C\sum_{i=i}^{n} \ell_{0/1}(y_i(\mathbf{w}^T\mathbf{x}+b)-1)
+$$
+其中$C \> 0$ ,$\ell_{0/1}$称为$0,1$损失函数，其取值只有两个
+$$
+\ell_{0/1}(z)=
+\begin{cases}
+1 \space\space\space\space\space\space if \space z < 0\\\\
+0  otherwise
+\end{cases}
+$$
+当$\ell_{0/1}(z)$取大于1的时候$C$越大对目标函数的影响也就越大，当C趋于无穷大的时候迫使目标函数极大，这样就会使得所有样本都满足要求，当C取有限值的时候将会对结果产生有限的影响，  
+所以通过调节C的大小可以控制软间隔宽度。这个0/1损失函数虽然功能上满足需求但是在数学上却不是一个好的选择，其是一个阶跃函数非凸非凹不宜求解，所以往往使用其他的函数来对该函数进行替代
+常见的替代函数有
+hinge损失函数：
+$$
+\ell_{hinge}(z)=max(0,1-z)
+$$
+指数损失：
+$$
+\ell_{exp}(z)=e^{(-z)}
+$$
+对率损失：
+$$
+\ell_{log}(z)=log(1+e^{(-z)})
+$$
+这里以`hinge`损失函数为例带入目标函数
+$$
+\underset{\mathbf{w},b}{min} \frac{1}{2} \left \| \left \| \mathbf{w} \right\|\right\|^2 + C\sum_{i=i}^{n} max(0,1-y_i(\mathbf{w}^T\mathbf{x}+b))
+$$
+引入**松弛变量**$\xi_i$原始问题改写为
+$$
+\begin{align}
+&\underset{\mathbf{w},b}{min} \frac{1}{2} \left \| \left \| \mathbf{w} \right\|\right\|^2 + C\sum_{i=i}^{n} \xi_i\\\\
+&s.t. \space\space\space\space\space\space y_i(\mathbf{w}^T\mathbf{x}+b) \ge 1-\xi_i\\\\
+\space\space\space\space\space\space \space\space\space\space&\xi_i \ge 0
+\end{align}
+$$
+上面就是软间隔支持向量机  含有两个不等式 引入拉格朗日乘子转换为
+$$
+L(\mathbf{w},b,\mathbf{\lambda},\mathbf{\xi},\mathbf{\mu }) = \frac{1}{2} \left \| \left \| \mathbf{w} \right\|\right\|^2 + C\sum_{i=i}^{n} \xi_i+\sum_{i=i}^{n}\lambda_i(1-\xi_i-y_i(\mathbf{w}^T\mathbf{x_i}+b))-\sum_{i=i}^{n}\mu_i\xi_i
+$$
+对$\mathbf{w}$求偏导
+$$
+\mathbf{w} - \sum_{i=1}^{n}\lambda_i y_i \mathbf{x_i} = 0 \Rightarrow \mathbf{w}=\sum_{i=1}^{n}\lambda_i y_i \mathbf{x_i}
+$$
+对$\xi_i$求偏导
+$$
+n\times C - n \times \lambda_i - n \times \xi_i \Rightarrow C=\lambda_i + \mu_i
+$$
+对$b$求偏导
+$$
+\sum_{i=1}^{n} \lambda_i y_i = 0
+$$
+带入原问题后得到表达式 然后将原问题转为对偶问题如下 （和之前的操作一样）
+$$
+\begin{align}
+&\underset{\lambda}{max} \space \sum_{i=1}^{n}\lambda_i-\frac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n} \lambda_i \lambda_j y_i y_j \mathbf{x_i}^T\mathbf{x_j}\\\\
+&s.t. \space\space\space\space\space\space \sum_{i=1}^{n} \lambda_i y_i = 0 \\\\
+& 0 \le \lambda_i \le C
+\end{align}
+$$
+满足KKT条件
+$$
+\begin{cases}
+1-y_i(\mathbf{w}^T\mathbf{x_i}+\mathbf{b}) -\xi_i \le 0\\\\
+\lambda_i \ge 0\\\\
+\lambda_i (1-y_i(\mathbf{w}^T\mathbf{x_i}+\mathbf{b}) + \xi_i) = 0 \\\\
+\xi_i \ge 0\\\\
+\mu_i\xi_i = 0
+\end{cases}
+$$
+经过变换处理的原始问题可以写为更一般的形式
+$$
+\underset{f}{min}\Omega (f) + C\sum_{i=1}^{n}\ell(f(x_i),y_i)
+$$
+其中$\Omega (f)$ 被称为结构化风险 $\sum_{i=1}^{n}\ell(f(x_i),y_i)$ 被称为经验风险
+### 完全不可分的支持向量机
+将不可分的低维数据通过函数变换升维到更高维从而变为线性可分的问题。如果升为无限维的话那么结果必然是线性可分的，但是无限维带来的问题是计算量巨大无比。  
+有一种方法可以使得我们不需要结算所有维度的数据，只需要找到一个替代函数其结果与升维后的结果抑制就行，这个函数就是核函数
+设将样本从低维映射到高维的函数为$\varphi (x)$ 
+则分类超平面的方程变为
+$$
+f(x)=\mathbf{w}^T\varphi(x)+\mathbf{b}
+$$
+最大化分类间隔的原始问题变为
+$$
+\begin{align}
+&\underset{w,b}{min}  \frac{1}{2}\left \|\| \mathbf{w} \right \|\|^2 \\\\
+&s.t. \space\space\space\space\space\space y_i(\mathbf{w}^T\varphi(x_i)+\mathbf{b}) \ge 1, \space\space\space i=1,2,3,4....n
+\end{align}
+$$
+对偶问题变为
+$$
+\begin{align}
+&\underset{\lambda}{max} \space \sum_{i=1}^{n}\lambda_i-\frac{1}{2}\sum_{i=1}^{n}\sum_{j=1}^{n} \lambda_i \lambda_j y_i y_j \varphi(x_i)^T\varphi(x_j)\\\\
+&s.t. \space\space\space\space\space\space \sum_{i=1}^{n} \lambda_i y_i = 0 \\\\
+& \lambda_i \ge 0
+\end{align}
+$$
+核函数就是找到一个函数使得$k(x_i,x_j)$使得
+$$
+k(x_i,x_j)=\varphi(x_i)^T\varphi(x_j)
+$$
+这样就使得无限维的向量内积计算变成了在原样本空间中的$k(x_i,x_j)$函数的计算结果，$k(x_i,x_j)$就是核函数。
+常见的核函数
+线性核
+$$
+k(x_i,x_j)=x_{i}^Tx_j
+$$
+多项式核
+$$
+k(x_i,x_j)=(x_{i}^Tx_j)^d \space\space\space\space\space d \ge 1
+$$
+高斯核
+$$
+k(x_i,x_j)= e^{(-\frac{\left \|\left\| x_i-x_j \right \|\right\|^2}{2\sigma^2})} \space\space\space\space\space \sigma > 0
+$$
+拉普拉斯核
+$$
+k(x_i,x_j)= e^{(-\frac{\left \|\left\| x_i-x_j \right \|\right\|}{\sigma})} \space\space\space\space\space \sigma > 0
+$$
+sigmod核
+$$
+k(x_i,x_j)= tanh(\beta x_i^T x_j+\theta )
+$$
 
