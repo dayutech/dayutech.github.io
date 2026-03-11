@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/dayu/dayu-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dayu/dayu-web-app-manifest-512x512.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/dayu/dayu-web-app-manifest-192x192.png">
+  <link rel="mask-icon" href="/images/dayu/dayu-favicon.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dayutech.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文记载了一些docker容器文件系统的操作方法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Docker 容器操作 Tips">
+<meta property="og:url" content="https://dayutech.github.io/archives/3031c334.html">
+<meta property="og:site_name" content="Dayu Technology Co., LTD">
+<meta property="og:description" content="本文记载了一些docker容器文件系统的操作方法">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-03-10T06:39:11.000Z">
+<meta property="article:modified_time" content="2026-03-11T03:34:11.656Z">
+<meta property="article:author" content="Arliya">
+<meta property="article:tag" content="Docker">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dayutech.github.io/archives/3031c334.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.css"><style>
+#needsharebutton-postbottom {
+  cursor: pointer;
+  height: 26px;
+  margin-top: 10px;
+  position: relative;
+}
+#needsharebutton-postbottom .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 3px;
+  display: initial;
+  padding: 1px 4px;
+}
+</style><style>
+#needsharebutton-float {
+  bottom: 88px;
+  cursor: pointer;
+  left: -8px;
+  position: fixed;
+  z-index: 9999;
+}
+#needsharebutton-float .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 4px;
+  padding: 0 10px 0 14px;
+}
+</style>
+  <title>Docker 容器操作 Tips | Dayu Technology Co., LTD</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="Dayu Technology Co., LTD" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dayu Technology Co., LTD</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">大禹科技股份有限公司</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-rss">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/dayutech/dayutech.github.io" class="github-corner" title="Dayu GitHub" aria-label="Dayu GitHub" rel="noopener external nofollow noreferrer" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://dayutech.github.io/archives/3031c334.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/dayu/avatar.png">
+      <meta itemprop="name" content="Arliya">
+      <meta itemprop="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Dayu Technology Co., LTD">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Docker 容器操作 Tips
+        </h1>
+
+        <div class="post-meta">
+		  
+            <i class="fa fa-thumb-tack"></i>
+            <font color=FF0000>置顶</font>
+            <span class="post-meta-divider"> | </span>
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2026-03-10 14:39:11" itemprop="dateCreated datePublished" datetime="2026-03-10T14:39:11+08:00">2026-03-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2026-03-11 11:34:11" itemprop="dateModified" datetime="2026-03-11T11:34:11+08:00">2026-03-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Tips/" itemprop="url" rel="index"><span itemprop="name">Tips</span></a>
+                </span>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>7 分钟</span>
+            </span>
+            <div class="post-description">本文记载了一些docker容器文件系统的操作方法</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="逻辑卷挂载技巧-LVM-格式分区"><a href="#逻辑卷挂载技巧-LVM-格式分区" class="headerlink" title="逻辑卷挂载技巧 LVM 格式分区"></a>逻辑卷挂载技巧 LVM 格式分区</h1><h1 id="提取镜像分层系统文件"><a href="#提取镜像分层系统文件" class="headerlink" title="提取镜像分层系统文件"></a>提取镜像分层系统文件</h1><h2 id="手动操作流程"><a href="#手动操作流程" class="headerlink" title="手动操作流程"></a>手动操作流程</h2><ol>
+<li>查看镜像元数据获取镜像id与镜像名的对应关系</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cat docker/image/overlay2/repositories.json</span><br></pre></td></tr></table></figure>
+<p>结果如下  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;Repositories&quot;: &#123;</span><br><span class="line">    &quot;test.com/test&quot;: &#123;</span><br><span class="line">        # 仓库名@标签: 镜像ID</span><br><span class="line">        # 这两行只是不同的引用方式的区别，实际的镜像id为后面一部分</span><br><span class="line">      &quot;test.com/test:20250603.0820-e4ea12569e37&quot;: &quot;sha256:a908d64f22d5a56e50e39cfeee54b5154d96cba95019033112f9f6c698d2bed2&quot;,</span><br><span class="line">      &quot;test.com/test@sha256:d9b50f02d83446fbd536a7e085b31fd4c0e56b61cc1533d2a1dae4ca0fd31818&quot;: &quot;sha256:a908d64f22d5a56e50e39cfeee54b5154d96cba95019033112f9f6c698d2bed2&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;test.com/test1&quot;: &#123;</span><br><span class="line">      &quot;test.com/test1:20250512.1141-35963b76c12d&quot;: &quot;sha256:3c552a4cabeacb758ddece2ce8390a36f7c8f1091f3dd2f1cc31ff0a0c4aa4cf&quot;,</span><br><span class="line">      &quot;test.com/test1@sha256:ed3186c81fa8a647257a32f4e6d4491317d0134d1901c531de7e851860bd87dd&quot;: &quot;sha256:3c552a4cabeacb758ddece2ce8390a36f7c8f1091f3dd2f1cc31ff0a0c4aa4cf&quot;</span><br><span class="line">    &#125;,</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2.通过镜像id获取diff_ids 列表  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cat docker/image/overlay2/imagedb/content/sha256/1c2f8b354b734f4f5aa240ac269ab10222dfbf5c9244c1590fcbd251e44f297e | jq &#x27;.rootfs.diff_ids&#x27;</span><br></pre></td></tr></table></figure>
+<p>得到最终结果如下  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">[</span><br><span class="line">  &quot;sha256:f7080c1639e2a2b89e699aed4361e1aae141930f1ad1e96fa77a12073af2160b&quot;,</span><br><span class="line">  &quot;sha256:b37962d933d891f690d67696cd91b5d39499b969d95eaa95e059baec0ef3b0c8&quot;,</span><br><span class="line">  &quot;sha256:e2e94e3c8a616f9cd91a223f8909b63bdd5bb2b7d8059f3c4e81b5b43fb5e1b4&quot;,</span><br><span class="line">  &quot;sha256:c69cd6d9a1a0dfaccd6ca123adf5b871a4c00d854d5f7ef65fe6989df20f0b63&quot;,</span><br><span class="line">  &quot;sha256:46d6ca2266f3071ed95ee2b92492c7792d21a16430cdeeb0f44ae370b53d35a3&quot;,</span><br><span class="line">  &quot;sha256:d0470f9fb91deb565285e71d8bc2ac3f6290af1419bdf11846a6360b4b4bc071&quot;,</span><br><span class="line">  &quot;sha256:49f0cdd03432487835b5827eb2070b2fed6e32e1b4a0dc12dd8fa52a5b7db7b5&quot;,</span><br><span class="line">  &quot;sha256:466fffced12bcd9abfbc69ac54f8f53ca3bf45dd4dc4ba8efb66b954682b24e1&quot;,</span><br><span class="line">  &quot;sha256:e1bafc0932ba978b1d0e5751c58e56fc264e562b04531874ce18a5ee1f4550c7&quot;,</span><br><span class="line">  &quot;sha256:90fb7a283b908896f2d7c78adb7d1c96b8733dd846e090fe80fde9242a0f22a1&quot;,</span><br><span class="line">  &quot;sha256:e43ee2de9390a537224597fc3136746236be755de0398aca8df58b6302be0784&quot;,</span><br><span class="line">  &quot;sha256:3ae7fab6ebf7f7d333d8db18586dfbbdc94f483a32a66f656eb480a4ecf0c376&quot;,</span><br><span class="line">  &quot;sha256:533f88c659b0142a101c2078912544a06becd11619ffc57576341a5bd1aa0a35&quot;,</span><br><span class="line">  &quot;sha256:522caf17e56d46f57481dc3e15a25a2a588bbeed53a6e62cdf0350d0087654d4&quot;,</span><br><span class="line">  &quot;sha256:57b42b9dbfc36838124f9da0b44dbd5f0516279f8be6cc560af86c4683a5eac6&quot;,</span><br><span class="line">  &quot;sha256:c763d284294e6b14ee92585582fe5ba74d8a13566d23efc0ba5a7357ea3a5862&quot;,</span><br><span class="line">  &quot;sha256:ecfc9be0a95d47874565b731eb0de068bf4ae07ffbc4ea447cdb7c07491c14bd&quot;,</span><br><span class="line">  &quot;sha256:85edb0d86a314aedd2d56688c50d30fb8d2ab11d59a8c0b2fd376b8d361405bd&quot;,</span><br><span class="line">  &quot;sha256:fb99c184e6c078a1a44593af58cadb4a3b80e56f0498f4faf2b16d7e8a790df2&quot;,</span><br><span class="line">  &quot;sha256:944c9ad54bd63d5c217cadd7c7f9b0082766164e7d10ab13d3e39df0e11d34bc&quot;,</span><br><span class="line">  &quot;sha256:521c567b6b456081ba926616754266b7c0c9549ae878ac730a94971a2463c068&quot;, # nginx配置</span><br><span class="line">  &quot;sha256:377959c06747903f5574f27c21454beebc8a3acb3473336fcf2e3a868df58a4d&quot;, # nginx配置</span><br><span class="line">  &quot;sha256:78b4ea1c0c8689ed0e384decd127438f6327e05f1256fb126d336166fb24bd60&quot;,</span><br><span class="line">  &quot;sha256:399314c879ceacea922699dbfad874b181633167614db704dd9f68c3fc7c3653&quot;,</span><br><span class="line">  &quot;sha256:afca8ae24c9c666ed76bbd20f14002c87d2f7fcbdcc578bbe16ed0f5560b1643&quot;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p>这就是diff_ids列表。<br>同样我们可以稍微修改这条命令便可以得到镜像的构建历史  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cat docker/image/overlay2/imagedb/content/sha256/1c2f8b354b734f4f5aa240ac269ab10222dfbf5c9244c1590fcbd251e44f297e | jq &#x27;.history&#x27;</span><br></pre></td></tr></table></figure>
+<p>得到如下结果</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">......</span><br><span class="line">  <span class="punctuation">&#123;</span></span><br><span class="line">  # 复制nginix配置文件</span><br><span class="line">    <span class="attr">&quot;created&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2025-06-23T13:29:20.562655432Z&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;created_by&quot;</span><span class="punctuation">:</span> <span class="string">&quot;COPY nginx/conf.d/test.conf /etc/nginx/conf.d/test.conf # buildkit&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;comment&quot;</span><span class="punctuation">:</span> <span class="string">&quot;buildkit.dockerfile.v0&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  # 复制nginix配置文件</span><br><span class="line">  <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;created&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2025-06-23T13:29:20.584421536Z&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;created_by&quot;</span><span class="punctuation">:</span> <span class="string">&quot;COPY nginx/site.conf.d/*.conf /etc/nginx/test/site.conf.d/ # buildkit&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;comment&quot;</span><span class="punctuation">:</span> <span class="string">&quot;buildkit.dockerfile.v0&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  # 复制自动执行的启动命令</span><br><span class="line">  <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;created&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2025-06-23T13:29:20.596360759Z&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;created_by&quot;</span><span class="punctuation">:</span> <span class="string">&quot;COPY ./init.d/test.sh /opt/base/init.d/test.sh # buildkit&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;comment&quot;</span><span class="punctuation">:</span> <span class="string">&quot;buildkit.dockerfile.v0&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  # 复制入口点文件</span><br><span class="line">  <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;created&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2025-06-23T13:29:20.607926741Z&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;created_by&quot;</span><span class="punctuation">:</span> <span class="string">&quot;COPY ./init.d/start.sh /opt/init.d/start.sh # buildkit&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;comment&quot;</span><span class="punctuation">:</span> <span class="string">&quot;buildkit.dockerfile.v0&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  # 设置入口点</span><br><span class="line">  <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;created&quot;</span><span class="punctuation">:</span> <span class="string">&quot;2025-06-23T13:29:20.607926741Z&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;created_by&quot;</span><span class="punctuation">:</span> <span class="string">&quot;ENTRYPOINT [\&quot;/opt/init.d/start.sh\&quot;]&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;comment&quot;</span><span class="punctuation">:</span> <span class="string">&quot;buildkit.dockerfile.v0&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;empty_layer&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>可以通过构建历史的顺序找到我们需要的文件的对应diff_id，比如我需要nginx的配置文件，那么我就需要倒数第4第5层的内容。  </p>
+<ol start="3">
+<li>通过diff_id 查找 chain_id<br>diff_id 是被存在文件中的，所以此时用<code>grep</code>进行文件内容搜索</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo grep -R &quot;377959c06747903f5574f27c21454beebc8a3acb3473336fcf2e3a868df58a4d&quot; docker/image/overlay2/layerdb/sha256</span><br></pre></td></tr></table></figure>
+<p>得到结果</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker/image/overlay2/layerdb/sha256/84ef1c1817d7edfd09dc525f0e058895b999dd893492c3524913b1fd1589ba9e/diff:sha256:377959c06747903f5574f27c21454beebc8a3acb3473336fcf2e3a868df58a4d</span><br></pre></td></tr></table></figure>
+<p><code>84ef1c1817d7edfd09dc525f0e058895b999dd893492c3524913b1fd1589ba9e</code> 即为chain_id  </p>
+<ol start="4">
+<li>通过chain_id 找到cache_id</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cat docker/image/overlay2/layerdb/sha256/84ef1c1817d7edfd09dc525f0e058895b999dd893492c3524913b1fd1589ba9e/cache-id</span><br></pre></td></tr></table></figure>
+<p>得到结果<br><code>cfe2eda799a0e99bc48d8387645a1c2b3f563be7508788058bb3851096f22e53</code>  </p>
+<ol start="5">
+<li>通过cache_id 找到分层文件<br>分层文件目录名使用的是cache_id</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ls docker/overlay2/cfe2eda799a0e99bc48d8387645a1c2b3f563be7508788058bb3851096f22e53</span><br></pre></td></tr></table></figure>
+<p>diff 目录下就是复制的文件  </p>
+<h2 id="自动化脚本"><a href="#自动化脚本" class="headerlink" title="自动化脚本"></a>自动化脚本</h2><p>执行前检查是否有 <code>jq awk sed</code> 命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br><span class="line">442</span><br><span class="line">443</span><br><span class="line">444</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">!/bin/sh</span></span><br><span class="line">set -u</span><br><span class="line"></span><br><span class="line">DOCKER_ROOT=&quot;$&#123;DOCKER_ROOT:-/var/lib/docker&#125;&quot;</span><br><span class="line">OUTPUT_BASE=&quot;$&#123;1:-/tmp&#125;&quot;</span><br><span class="line"></span><br><span class="line">REPO_JSON=&quot;$DOCKER_ROOT/image/overlay2/repositories.json&quot;</span><br><span class="line">IMAGE_DB_DIR=&quot;$DOCKER_ROOT/image/overlay2/imagedb/content/sha256&quot;</span><br><span class="line">LAYERDB_DIR=&quot;$DOCKER_ROOT/image/overlay2/layerdb/sha256&quot;</span><br><span class="line">OVERLAY2_DIR=&quot;$DOCKER_ROOT/overlay2&quot;</span><br><span class="line"></span><br><span class="line">TMP_FILES=&quot;&quot;</span><br><span class="line">MAP_FILE=&quot;&quot;</span><br><span class="line">DIFF_FILE=&quot;&quot;</span><br><span class="line">HIST_FILE=&quot;&quot;</span><br><span class="line">MERGED_FILE=&quot;&quot;</span><br><span class="line">TOTAL_IMAGES=0</span><br><span class="line">HIST_COUNT=0</span><br><span class="line">CHOSEN=&quot;&quot;</span><br><span class="line">RESOLVED_CHAIN_ID=&quot;&quot;</span><br><span class="line">RESOLVED_CACHE_ID=&quot;&quot;</span><br><span class="line"></span><br><span class="line">info() &#123; printf &#x27;[INFO] %s\n&#x27; &quot;$*&quot;; &#125;</span><br><span class="line">warn() &#123; printf &#x27;[WARN] %s\n&#x27; &quot;$*&quot; &gt;&amp;2; &#125;</span><br><span class="line">err() &#123; printf &#x27;[ERROR] %s\n&#x27; &quot;$*&quot; &gt;&amp;2; &#125;</span><br><span class="line"></span><br><span class="line">cleanup() &#123;</span><br><span class="line">  for f in $TMP_FILES; do</span><br><span class="line">    [ -n &quot;$f&quot; ] &amp;&amp; [ -e &quot;$f&quot; ] &amp;&amp; rm -f &quot;$f&quot;</span><br><span class="line">  done</span><br><span class="line">&#125;</span><br><span class="line">trap &#x27;cleanup&#x27; EXIT HUP INT TERM</span><br><span class="line"></span><br><span class="line">require_cmd() &#123;</span><br><span class="line">  if ! command -v &quot;$1&quot; &gt;/dev/null 2&gt;&amp;1; then</span><br><span class="line">    err &quot;未检测到命令: $1&quot;</span><br><span class="line">    return 1</span><br><span class="line">  fi</span><br><span class="line">  return 0</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">is_number() &#123;</span><br><span class="line">  case &quot;$1&quot; in</span><br><span class="line">    &#x27;&#x27;|*[!0-9]*) return 1 ;;</span><br><span class="line">    *) return 0 ;;</span><br><span class="line">  esac</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">sanitize_name() &#123;</span><br><span class="line">  printf &#x27;%s&#x27; &quot;$1&quot; | sed &#x27;s/[^A-Za-z0-9._-]/_/g&#x27;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">init_tmp_files() &#123;</span><br><span class="line">  MAP_FILE=&quot;$(mktemp /tmp/image_map.XXXXXX)&quot; || return 1</span><br><span class="line">  DIFF_FILE=&quot;$(mktemp /tmp/image_diff.XXXXXX)&quot; || return 1</span><br><span class="line">  HIST_FILE=&quot;$(mktemp /tmp/image_hist.XXXXXX)&quot; || return 1</span><br><span class="line">  MERGED_FILE=&quot;$(mktemp /tmp/image_merged.XXXXXX)&quot; || return 1</span><br><span class="line">  TMP_FILES=&quot;$MAP_FILE $DIFF_FILE $HIST_FILE $MERGED_FILE&quot;</span><br><span class="line">  return 0</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">load_image_mappings() &#123;</span><br><span class="line">  if [ ! -f &quot;$REPO_JSON&quot; ]; then</span><br><span class="line">    err &quot;未找到 repositories.json: $REPO_JSON&quot;</span><br><span class="line">    return 1</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  if ! jq -r &#x27;.Repositories | to_entries[] as $repo | $repo.value | to_entries[] | [.key, .value] | @tsv&#x27; &quot;$REPO_JSON&quot; | awk -F &#x27;\t&#x27; &#x27;!seen[$2]++&#x27; &gt; &quot;$MAP_FILE&quot;; then</span><br><span class="line">    err &quot;解析 repositories.json 失败&quot;</span><br><span class="line">    return 1</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  TOTAL_IMAGES=&quot;$(awk &#x27;END&#123;print NR+0&#125;&#x27; &quot;$MAP_FILE&quot;)&quot;</span><br><span class="line">  if [ &quot;$TOTAL_IMAGES&quot; -le 0 ]; then</span><br><span class="line">    err &quot;repositories.json 中未解析到镜像映射&quot;</span><br><span class="line">    return 1</span><br><span class="line">  fi</span><br><span class="line">  return 0</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">show_image_mappings() &#123;</span><br><span class="line">  printf &#x27;\n==== 镜像列表 ====\n&#x27;</span><br><span class="line">  awk -F &#x27;\t&#x27; &#x27;&#123;printf &quot;%3d) %s =&gt; %s\n&quot;, NR, $1, $2&#125;&#x27; &quot;$MAP_FILE&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">load_image_metadata() &#123;</span><br><span class="line">  image_id=&quot;$1&quot;</span><br><span class="line">  image_hash=&quot;$(printf &#x27;%s&#x27; &quot;$image_id&quot; | sed &#x27;s/^sha256://&#x27;)&quot;</span><br><span class="line">  image_cfg=&quot;$IMAGE_DB_DIR/$image_hash&quot;</span><br><span class="line"></span><br><span class="line">  if [ ! -f &quot;$image_cfg&quot; ]; then</span><br><span class="line">    err &quot;未找到镜像配置文件: $image_cfg&quot;</span><br><span class="line">    return 1</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  if ! jq -r &#x27;.rootfs.diff_ids[]?&#x27; &quot;$image_cfg&quot; &gt; &quot;$DIFF_FILE&quot;; then</span><br><span class="line">    err &quot;读取 diff_ids 失败&quot;</span><br><span class="line">    return 1</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  if ! jq -r &#x27;.history[] | [(.created // &quot;&quot;), (.created_by // &quot;&quot;), ((.empty_layer // false)|tostring)] | @tsv&#x27; &quot;$image_cfg&quot; &gt; &quot;$HIST_FILE&quot;; then</span><br><span class="line">    err &quot;读取 history 失败&quot;</span><br><span class="line">    return 1</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  awk -F &#x27;\t&#x27; &#x27;</span><br><span class="line">    NR==FNR &#123; d[++n]=$0; next &#125;</span><br><span class="line">    &#123;</span><br><span class="line">      created=$1; cmd=$2; empty=$3;</span><br><span class="line">      if (empty==&quot;true&quot;) &#123; diff=&quot;&quot;; type=&quot;empty&quot; &#125;</span><br><span class="line">      else &#123; i++; diff=d[i]; type=&quot;layer&quot; &#125;</span><br><span class="line">      printf &quot;%d\t%s\t%s\t%s\t%s\t%s\n&quot;, FNR, type, diff, created, cmd, empty</span><br><span class="line">    &#125;</span><br><span class="line">  &#x27; &quot;$DIFF_FILE&quot; &quot;$HIST_FILE&quot; &gt; &quot;$MERGED_FILE&quot;</span><br><span class="line"></span><br><span class="line">  HIST_COUNT=&quot;$(awk &#x27;END&#123;print NR+0&#125;&#x27; &quot;$MERGED_FILE&quot;)&quot;</span><br><span class="line">  if [ &quot;$HIST_COUNT&quot; -le 0 ]; then</span><br><span class="line">    err &quot;该镜像没有可用 history&quot;</span><br><span class="line">    return 1</span><br><span class="line">  fi</span><br><span class="line">  return 0</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">show_history_layers() &#123;</span><br><span class="line">  printf &#x27;\n==== 历史构建命令 ====\n&#x27;</span><br><span class="line">  awk -F &#x27;\t&#x27; &#x27;</span><br><span class="line">    &#123;</span><br><span class="line">      idx=$1; type=$2; diff=$3; created=$4; cmd=$5;</span><br><span class="line">      if (type==&quot;empty&quot;) diff=&quot;N/A&quot;;</span><br><span class="line">      printf &quot;%3s) [%s] diff_id=%s\n&quot;, idx, type, diff;</span><br><span class="line">      printf &quot;     created=%s\n&quot;, created;</span><br><span class="line">      printf &quot;     cmd=%s\n\n&quot;, cmd;</span><br><span class="line">    &#125;</span><br><span class="line">  &#x27; &quot;$MERGED_FILE&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">add_choice() &#123;</span><br><span class="line">  idx=&quot;$1&quot;</span><br><span class="line">  max=&quot;$2&quot;</span><br><span class="line"></span><br><span class="line">  if ! is_number &quot;$idx&quot;; then</span><br><span class="line">    return 1</span><br><span class="line">  fi</span><br><span class="line">  if [ &quot;$idx&quot; -lt 1 ] || [ &quot;$idx&quot; -gt &quot;$max&quot; ]; then</span><br><span class="line">    return 1</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  case &quot; $CHOSEN &quot; in</span><br><span class="line">    *&quot; $idx &quot;*) ;;</span><br><span class="line">    *) CHOSEN=&quot;$CHOSEN $idx&quot; ;;</span><br><span class="line">  esac</span><br><span class="line">  return 0</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">parse_selection() &#123;</span><br><span class="line">  selection=&quot;$1&quot;</span><br><span class="line">  max=&quot;$2&quot;</span><br><span class="line">  CHOSEN=&quot;&quot;</span><br><span class="line"></span><br><span class="line">  selection=&quot;$(printf &#x27;%s&#x27; &quot;$selection&quot; \</span><br><span class="line">    | tr -d &#x27;\r&#x27; \</span><br><span class="line">    | tr &#x27;，&#x27; &#x27;,&#x27; \</span><br><span class="line">    | sed &#x27;s/[[:space:]]*-[[:space:]]*/-/g; s/^[[:space:]]*//; s/[[:space:]]*$//&#x27;)&quot;</span><br><span class="line"></span><br><span class="line">  for token in $(printf &#x27;%s&#x27; &quot;$selection&quot; | tr &#x27;,&#x27; &#x27; &#x27;); do</span><br><span class="line">    token=&quot;$(printf &#x27;%s&#x27; &quot;$token&quot; | sed &#x27;s/^[[:space:]]*//; s/[[:space:]]*$//&#x27;)&quot;</span><br><span class="line">    [ -z &quot;$token&quot; ] &amp;&amp; continue</span><br><span class="line"></span><br><span class="line">    case &quot;$token&quot; in</span><br><span class="line">      *-*)</span><br><span class="line">        start=&quot;$&#123;token%-*&#125;&quot;</span><br><span class="line">        end=&quot;$&#123;token#*-&#125;&quot;</span><br><span class="line">        if ! is_number &quot;$start&quot; || ! is_number &quot;$end&quot;; then</span><br><span class="line">          return 1</span><br><span class="line">        fi</span><br><span class="line">        if [ &quot;$start&quot; -gt &quot;$end&quot; ]; then</span><br><span class="line">          return 1</span><br><span class="line">        fi</span><br><span class="line">        i=&quot;$start&quot;</span><br><span class="line">        while [ &quot;$i&quot; -le &quot;$end&quot; ]; do</span><br><span class="line">          add_choice &quot;$i&quot; &quot;$max&quot; || return 1</span><br><span class="line">          i=$((i + 1))</span><br><span class="line">        done</span><br><span class="line">        ;;</span><br><span class="line">      *)</span><br><span class="line">        add_choice &quot;$token&quot; &quot;$max&quot; || return 1</span><br><span class="line">        ;;</span><br><span class="line">    esac</span><br><span class="line">  done</span><br><span class="line"></span><br><span class="line">  [ -n &quot;$CHOSEN&quot; ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">resolve_layer_ids() &#123;</span><br><span class="line">  diff_id=&quot;$1&quot;</span><br><span class="line">  RESOLVED_CHAIN_ID=&quot;&quot;</span><br><span class="line">  RESOLVED_CACHE_ID=&quot;&quot;</span><br><span class="line"></span><br><span class="line">  [ -n &quot;$diff_id&quot; ] || return 1</span><br><span class="line"></span><br><span class="line">  diff_path=&quot;$(grep -Rsl --fixed-strings -- &quot;$diff_id&quot; &quot;$LAYERDB_DIR&quot; 2&gt;/dev/null | grep &#x27;/diff$&#x27; | head -n 1)&quot;</span><br><span class="line">  [ -n &quot;$diff_path&quot; ] || return 1</span><br><span class="line"></span><br><span class="line">  RESOLVED_CHAIN_ID=&quot;$(basename &quot;$(dirname &quot;$diff_path&quot;)&quot;)&quot;</span><br><span class="line">  cache_file=&quot;$LAYERDB_DIR/$RESOLVED_CHAIN_ID/cache-id&quot;</span><br><span class="line">  [ -f &quot;$cache_file&quot; ] || return 1</span><br><span class="line"></span><br><span class="line">  RESOLVED_CACHE_ID=&quot;$(cat &quot;$cache_file&quot; 2&gt;/dev/null)&quot;</span><br><span class="line">  [ -n &quot;$RESOLVED_CACHE_ID&quot; ] || return 1</span><br><span class="line">  return 0</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">extract_copy_destination() &#123;</span><br><span class="line">  cmd=&quot;$1&quot;</span><br><span class="line">  dest=&quot;&quot;</span><br><span class="line"></span><br><span class="line">  case &quot;$cmd&quot; in</span><br><span class="line">    *&quot;#(nop) COPY &quot;*&quot; in &quot;*)</span><br><span class="line">      dest=&quot;$&#123;cmd##* in &#125;&quot;</span><br><span class="line">      ;;</span><br><span class="line">    *COPY*)</span><br><span class="line">      body=&quot;$(printf &#x27;%s\n&#x27; &quot;$cmd&quot; | sed &#x27;s/^.*COPY[[:space:]][[:space:]]*//; s/[[:space:]]# buildkit.*$//&#x27;)&quot;</span><br><span class="line">      # shellcheck disable=SC2086</span><br><span class="line">      set -- $body</span><br><span class="line">      while [ &quot;$#&quot; -gt 0 ]; do</span><br><span class="line">        case &quot;$1&quot; in</span><br><span class="line">          --*) shift ;;</span><br><span class="line">          *) break ;;</span><br><span class="line">        esac</span><br><span class="line">      done</span><br><span class="line"></span><br><span class="line">      if [ &quot;$#&quot; -gt 0 ]; then</span><br><span class="line">        last=&quot;&quot;</span><br><span class="line">        for arg in &quot;$@&quot;; do</span><br><span class="line">          last=&quot;$arg&quot;</span><br><span class="line">        done</span><br><span class="line">        dest=&quot;$last&quot;</span><br><span class="line">      fi</span><br><span class="line">      ;;</span><br><span class="line">  esac</span><br><span class="line"></span><br><span class="line">  dest=&quot;$(printf &#x27;%s&#x27; &quot;$dest&quot; | sed &quot;s/,$//; s/^[&#x27;\&quot;]//; s/[&#x27;\&quot;]$//&quot;)&quot;</span><br><span class="line">  printf &#x27;%s&#x27; &quot;$dest&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">extract_from_diff() &#123;</span><br><span class="line">  diff_id=&quot;$1&quot;</span><br><span class="line">  created_by=&quot;$2&quot;</span><br><span class="line">  target_dir=&quot;$3&quot;</span><br><span class="line"></span><br><span class="line">  case &quot;$created_by&quot; in</span><br><span class="line">    *COPY*) ;;</span><br><span class="line">    *) return 2 ;;</span><br><span class="line">  esac</span><br><span class="line"></span><br><span class="line">  dest_path=&quot;$(extract_copy_destination &quot;$created_by&quot;)&quot;</span><br><span class="line">  if [ -z &quot;$dest_path&quot; ]; then</span><br><span class="line">    warn &quot;COPY 命令解析失败，跳过: $created_by&quot;</span><br><span class="line">    return 1</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  case &quot;$dest_path&quot; in</span><br><span class="line">    /*) ;;</span><br><span class="line">    *)</span><br><span class="line">      warn &quot;COPY 目标路径不是绝对路径，跳过: $dest_path&quot;</span><br><span class="line">      return 1</span><br><span class="line">      ;;</span><br><span class="line">  esac</span><br><span class="line"></span><br><span class="line">  if ! resolve_layer_ids &quot;$diff_id&quot;; then</span><br><span class="line">    warn &quot;无法通过 diff_id 找到 cache-id: $diff_id&quot;</span><br><span class="line">    return 1</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  diff_dir=&quot;$OVERLAY2_DIR/$RESOLVED_CACHE_ID/diff&quot;</span><br><span class="line">  if [ ! -d &quot;$diff_dir&quot; ]; then</span><br><span class="line">    warn &quot;diff 目录不存在: $diff_dir&quot;</span><br><span class="line">    return 1</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  rel=&quot;$(printf &#x27;%s&#x27; &quot;$dest_path&quot; | sed &#x27;s#^/##; s#/$##&#x27;)&quot;</span><br><span class="line">  if [ -z &quot;$rel&quot; ]; then</span><br><span class="line">    warn &quot;目标路径为空，跳过: $dest_path&quot;</span><br><span class="line">    return 1</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  src=&quot;$diff_dir/$rel&quot;</span><br><span class="line">  if [ -d &quot;$src&quot; ]; then</span><br><span class="line">    mkdir -p &quot;$target_dir/$rel&quot; || return 1</span><br><span class="line">    cp -a &quot;$src&quot;/. &quot;$target_dir/$rel&quot;/ || return 1</span><br><span class="line">    info &quot;已提取目录: $dest_path&quot;</span><br><span class="line">    return 0</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  if [ -e &quot;$src&quot; ]; then</span><br><span class="line">    parent=&quot;$(dirname &quot;$rel&quot;)&quot;</span><br><span class="line">    mkdir -p &quot;$target_dir/$parent&quot; || return 1</span><br><span class="line">    cp -a &quot;$src&quot; &quot;$target_dir/$rel&quot; || return 1</span><br><span class="line">    info &quot;已提取文件: $dest_path&quot;</span><br><span class="line">    return 0</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  warn &quot;在 diff 中未找到目标路径，跳过: $dest_path&quot;</span><br><span class="line">  return 1</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">main() &#123;</span><br><span class="line">  require_cmd jq || &#123;</span><br><span class="line">    err &quot;请先安装 jq，例如: sudo apt-get install -y jq&quot;</span><br><span class="line">    exit 1</span><br><span class="line">  &#125;</span><br><span class="line">  require_cmd awk || exit 1</span><br><span class="line">  require_cmd grep || exit 1</span><br><span class="line">  require_cmd sed || exit 1</span><br><span class="line">  require_cmd cp || exit 1</span><br><span class="line">  require_cmd mktemp || exit 1</span><br><span class="line"></span><br><span class="line">  if [ ! -d &quot;$DOCKER_ROOT&quot; ]; then</span><br><span class="line">    err &quot;DOCKER_ROOT 不存在: $DOCKER_ROOT&quot;</span><br><span class="line">    exit 1</span><br><span class="line">  fi</span><br><span class="line"></span><br><span class="line">  mkdir -p &quot;$OUTPUT_BASE&quot; || &#123;</span><br><span class="line">    err &quot;无法创建输出目录: $OUTPUT_BASE&quot;</span><br><span class="line">    exit 1</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  init_tmp_files || &#123;</span><br><span class="line">    err &quot;初始化临时文件失败&quot;</span><br><span class="line">    exit 1</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  info &quot;DOCKER_ROOT=$DOCKER_ROOT&quot;</span><br><span class="line">  info &quot;OUTPUT_BASE=$OUTPUT_BASE&quot;</span><br><span class="line"></span><br><span class="line">  while :; do</span><br><span class="line">    load_image_mappings || exit 1</span><br><span class="line">    show_image_mappings</span><br><span class="line"></span><br><span class="line">    printf &#x27;\n输入镜像编号继续；输入 q 退出。\n&#x27;</span><br><span class="line">    printf &#x27;请选择镜像编号: &#x27;</span><br><span class="line">    IFS= read -r image_choice || break</span><br><span class="line"></span><br><span class="line">    case &quot;$image_choice&quot; in</span><br><span class="line">      q|Q) info &quot;退出。&quot;; break ;;</span><br><span class="line">    esac</span><br><span class="line"></span><br><span class="line">    if ! is_number &quot;$image_choice&quot; || [ &quot;$image_choice&quot; -lt 1 ] || [ &quot;$image_choice&quot; -gt &quot;$TOTAL_IMAGES&quot; ]; then</span><br><span class="line">      warn &quot;镜像编号无效，请重试。&quot;</span><br><span class="line">      continue</span><br><span class="line">    fi</span><br><span class="line"></span><br><span class="line">    image_ref=&quot;$(awk -F &#x27;\t&#x27; -v n=&quot;$image_choice&quot; &#x27;NR==n&#123;print $1; exit&#125;&#x27; &quot;$MAP_FILE&quot;)&quot;</span><br><span class="line">    image_id=&quot;$(awk -F &#x27;\t&#x27; -v n=&quot;$image_choice&quot; &#x27;NR==n&#123;print $2; exit&#125;&#x27; &quot;$MAP_FILE&quot;)&quot;</span><br><span class="line">    image_safe=&quot;$(sanitize_name &quot;$image_ref&quot;)&quot;</span><br><span class="line"></span><br><span class="line">    load_image_metadata &quot;$image_id&quot; || continue</span><br><span class="line">    show_history_layers</span><br><span class="line"></span><br><span class="line">    printf &#x27;\n输入层编号（支持 3,5-7），仅非 empty 层可选；输入 b 返回镜像列表。\n&#x27;</span><br><span class="line">    printf &#x27;请选择层编号: &#x27;</span><br><span class="line">    IFS= read -r layer_selection || break</span><br><span class="line"></span><br><span class="line">    case &quot;$layer_selection&quot; in</span><br><span class="line">      b|B) continue ;;</span><br><span class="line">    esac</span><br><span class="line"></span><br><span class="line">    if ! parse_selection &quot;$layer_selection&quot; &quot;$HIST_COUNT&quot;; then</span><br><span class="line">      warn &quot;层编号无效，请输入 1-$HIST_COUNT 范围内，例如: 3,5-7&quot;</span><br><span class="line">      continue</span><br><span class="line">    fi</span><br><span class="line"></span><br><span class="line">    invalid=0</span><br><span class="line">    for idx in $CHOSEN; do</span><br><span class="line">      type=&quot;$(awk -F &#x27;\t&#x27; -v n=&quot;$idx&quot; &#x27;NR==n&#123;print $2; exit&#125;&#x27; &quot;$MERGED_FILE&quot;)&quot;</span><br><span class="line">      if [ &quot;$type&quot; = &quot;empty&quot; ]; then</span><br><span class="line">        warn &quot;第 $idx 层是 empty_layer，不能提取。&quot;</span><br><span class="line">        invalid=1</span><br><span class="line">      fi</span><br><span class="line">    done</span><br><span class="line">    [ &quot;$invalid&quot; -eq 1 ] &amp;&amp; continue</span><br><span class="line"></span><br><span class="line">    final_target=&quot;$OUTPUT_BASE/$image_safe&quot;</span><br><span class="line">    mkdir -p &quot;$final_target&quot; || &#123;</span><br><span class="line">      warn &quot;无法创建目录: $final_target&quot;</span><br><span class="line">      continue</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    printf &#x27;\n==== 选择结果 ====\n&#x27;</span><br><span class="line">    printf &#x27;镜像: %s\n&#x27; &quot;$image_ref&quot;</span><br><span class="line">    printf &#x27;镜像ID: %s\n&#x27; &quot;$image_id&quot;</span><br><span class="line">    printf &#x27;输出目录: %s\n&#x27; &quot;$final_target&quot;</span><br><span class="line">    printf &#x27;层详情:\n&#x27;</span><br><span class="line"></span><br><span class="line">    for idx in $CHOSEN; do</span><br><span class="line">      diff_id=&quot;$(awk -F &#x27;\t&#x27; -v n=&quot;$idx&quot; &#x27;NR==n&#123;print $3; exit&#125;&#x27; &quot;$MERGED_FILE&quot;)&quot;</span><br><span class="line">      cmd_text=&quot;$(awk -F &#x27;\t&#x27; -v n=&quot;$idx&quot; &#x27;NR==n&#123;print $5; exit&#125;&#x27; &quot;$MERGED_FILE&quot;)&quot;</span><br><span class="line"></span><br><span class="line">      chain_id=&quot;not-found&quot;</span><br><span class="line">      cache_id=&quot;not-found&quot;</span><br><span class="line">      if resolve_layer_ids &quot;$diff_id&quot;; then</span><br><span class="line">        chain_id=&quot;$RESOLVED_CHAIN_ID&quot;</span><br><span class="line">        cache_id=&quot;$RESOLVED_CACHE_ID&quot;</span><br><span class="line">      fi</span><br><span class="line"></span><br><span class="line">      printf &#x27;  - 层编号=%s\n&#x27; &quot;$idx&quot;</span><br><span class="line">      printf &#x27;    diff_id=%s\n&#x27; &quot;$diff_id&quot;</span><br><span class="line">      printf &#x27;    chain_id=%s\n&#x27; &quot;$chain_id&quot;</span><br><span class="line">      printf &#x27;    cache_id(layer id)=%s\n&#x27; &quot;$cache_id&quot;</span><br><span class="line">      printf &#x27;    history_cmd=%s\n&#x27; &quot;$cmd_text&quot;</span><br><span class="line">    done</span><br><span class="line"></span><br><span class="line">    extracted_ok=0</span><br><span class="line">    extracted_fail=0</span><br><span class="line">    for idx in $CHOSEN; do</span><br><span class="line">      diff_id=&quot;$(awk -F &#x27;\t&#x27; -v n=&quot;$idx&quot; &#x27;NR==n&#123;print $3; exit&#125;&#x27; &quot;$MERGED_FILE&quot;)&quot;</span><br><span class="line">      cmd_text=&quot;$(awk -F &#x27;\t&#x27; -v n=&quot;$idx&quot; &#x27;NR==n&#123;print $5; exit&#125;&#x27; &quot;$MERGED_FILE&quot;)&quot;</span><br><span class="line"></span><br><span class="line">      case &quot;$cmd_text&quot; in</span><br><span class="line">        *COPY*)</span><br><span class="line">          if extract_from_diff &quot;$diff_id&quot; &quot;$cmd_text&quot; &quot;$final_target&quot;; then</span><br><span class="line">            extracted_ok=$((extracted_ok + 1))</span><br><span class="line">          else</span><br><span class="line">            extracted_fail=$((extracted_fail + 1))</span><br><span class="line">          fi</span><br><span class="line">          ;;</span><br><span class="line">        *)</span><br><span class="line">          info &quot;第 $idx 层不是 COPY 命令，跳过提取。&quot;</span><br><span class="line">          ;;</span><br><span class="line">      esac</span><br><span class="line">    done</span><br><span class="line"></span><br><span class="line">    printf &#x27;\n==== 执行完成 ====\n&#x27;</span><br><span class="line">    printf &#x27;镜像: %s\n&#x27; &quot;$image_ref&quot;</span><br><span class="line">    printf &#x27;选中层数: %s\n&#x27; &quot;$(printf &#x27;%s\n&#x27; &quot;$CHOSEN&quot; | awk &#x27;&#123;print NF&#125;&#x27;)&quot;</span><br><span class="line">    printf &#x27;COPY 提取成功: %s\n&#x27; &quot;$extracted_ok&quot;</span><br><span class="line">    printf &#x27;COPY 提取失败: %s\n&#x27; &quot;$extracted_fail&quot;</span><br><span class="line">    printf &#x27;提取目录: %s\n&#x27; &quot;$final_target&quot;</span><br><span class="line">    printf &#x27;%s\n&#x27; &#x27;-----------------------------&#x27;</span><br><span class="line">  done</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">main &quot;$@&quot;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    <div class="post-widgets">
+      <div id="needsharebutton-postbottom">
+        <span class="btn">
+          <i class="fa fa-share-alt" aria-hidden="true"></i>
+        </span>
+      </div>
+    </div>
+        <div class="reward-container">
+  <div>Buy me a coffee.</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    打赏
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Arliya 微信支付">
+        <p>微信支付</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpg" alt="Arliya 支付宝">
+        <p>支付宝</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>Arliya
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://dayutech.github.io/archives/3031c334.html" title="Docker 容器操作 Tips">https://dayutech.github.io/archives/3031c334.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>欢迎关注我的其它发布渠道</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"><i class="fa fa-tag"></i> Docker</a>
+          </div>
+		  
+          <script data-pjax>
+	var tagsall=document.getElementsByClassName("post-tags")
+	for (var i = tagsall.length - 1; i >= 0; i--){
+		var tags=tagsall[i].getElementsByTagName("a");
+		for (var j = tags.length - 1; j >= 0; j--) {
+			var golden_ratio = 0.618033988749895;
+			var s = 0.5;
+			var v = 0.999;
+			var h = golden_ratio + Math.random()*0.8 - 0.5;
+			var h_i = parseInt(h * 6);
+			var f = h * 6 - h_i;
+			var p = v * (1 - s);
+			var q = v * (1 - f * s);
+			var t = v * (1 - (1 - f) * s);
+			var r, g, b;
+			switch (h_i) {
+				case 0:
+					r = v;
+					g = t;
+					b = p;
+					break;
+				case 1:
+					r = q;
+					g = v;
+					b = p;
+					break;
+				case 2:
+					r = p;
+					g = v;
+					b = t;
+					break;
+				case 3 :
+					r = p;
+					g = q;
+					b = v;
+					break;
+				case 4:
+					r = t;
+					g = p;
+					b = v;
+					break;
+				case 5:
+					r = v;
+					g = p;
+					b = q;
+					break;
+				default:
+					r = 1;
+					g = 1;
+					b = 1;
+			  }
+			tags[j].style.background = "rgba("+parseInt(r*255)+","+parseInt(g*255)+","+parseInt(b*255)+","+0.5+")";
+		}
+	}          
+                         
+            </script>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/archives/8850ca58.html" rel="prev" title="机器学习-贝叶斯分类器">
+      <i class="fa fa-chevron-left"></i> 机器学习-贝叶斯分类器
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  <!-- needsharebutton Javascript file -->
+<script src="js/needsharebutton.min.js"></script>
+<!-- needsharebutton CSS file -->
+<link href="css/needsharebutton.min.css" rel="stylesheet" />
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="gitalk-container"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%BB%E8%BE%91%E5%8D%B7%E6%8C%82%E8%BD%BD%E6%8A%80%E5%B7%A7-LVM-%E6%A0%BC%E5%BC%8F%E5%88%86%E5%8C%BA"><span class="nav-number">1.</span> <span class="nav-text">逻辑卷挂载技巧 LVM 格式分区</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%90%E5%8F%96%E9%95%9C%E5%83%8F%E5%88%86%E5%B1%82%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">提取镜像分层系统文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%8B%E5%8A%A8%E6%93%8D%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.1.</span> <span class="nav-text">手动操作流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E5%8C%96%E8%84%9A%E6%9C%AC"><span class="nav-number">2.2.</span> <span class="nav-text">自动化脚本</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Arliya"
+      src="/images/dayu/avatar.png">
+  <p class="site-author-name" itemprop="name">Arliya</p>
+  <div class="site-description" itemprop="description">主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">114</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">31</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">215</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dayutech" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dayutech" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:test@qq.com" title="E-Mail → mailto:test@qq.com" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/yourname" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://youtube.com/yourname" title="YouTube → https:&#x2F;&#x2F;youtube.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener external nofollow noreferrer" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+	  
+		<div class="links-of-blogroll scroll" style="margin-top:20px; border-style:dotted none none none; padding-top:5px; text-align:left;padding-left: 20px; padding-right: 10px; padding-bottom: 5px;">
+		  <div class="links-of-blogroll-title" style="padding-bottom: 5px; padding-top: 5px; padding-left: 0px; padding-right: 20px; font-size: 1.6em; argin-right: 5px;">
+		<!-- 选择合适的icon --><i class="fab fa-markdown" aria-hidden="true"></i>
+			<b style="font-size: 0.65em; padding-left: 8px; position: relative; top: -2px;">文章列表</b>
+		  </div>
+		  <ul class="links-of-blogroll-list">
+		<!-- 文章排序规格,-updated 按照文章更新时间倒排 -->
+			
+		<!-- 显示10数目的文章 -->
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/8850ca58.html" title="机器学习-贝叶斯分类器" target="_blank">机器学习-贝叶斯分类器</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/ae9520f1.html" title="机器学习-决策树" target="_blank">机器学习-决策树</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/d566d08d.html" title="机器学习-学习器评估比较-二项检验" target="_blank">机器学习-学习器评估比较-二项检验</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/10efd2fb.html" title="机器学习-没有免费的午餐（NFL）" target="_blank">机器学习-没有免费的午餐（NFL）</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/e2189dc7.html" title="机器学习-支持向量机（SVM）" target="_blank">机器学习-支持向量机（SVM）</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/aba9e754.html" title="机器学习-逻辑回归（Logistic-Regression）" target="_blank">机器学习-逻辑回归（Logistic-Regression）</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/3031c334.html" title="Docker 容器操作 Tips" target="_blank">Docker 容器操作 Tips</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/19883263.html" title="机器学习-线性回归" target="_blank">机器学习-线性回归</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/fae3020d.html" title="网络规划设计师备考记录" target="_blank">网络规划设计师备考记录</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/ec714069.html" title="一种隐藏在JWT解析中的绕过漏洞" target="_blank">一种隐藏在JWT解析中的绕过漏洞</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/88c5bdc8.html" title="xerces XML解析特性使用不当导致XXE漏洞" target="_blank">xerces XML解析特性使用不当导致XXE漏洞</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/324e0c68.html" title="C Sharp程序漏洞挖掘过程中一些框架、技巧、逻辑、流程、特性、Sink点、设计模式等知识点记录" target="_blank">C Sharp程序漏洞挖掘过程中一些框架、技巧、逻辑、流程、特性、Sink点、设计模式等知识点记录</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/6e27d7b9.html" title=".Net Remoting 导致的反序列化漏洞" target="_blank">.Net Remoting 导致的反序列化漏洞</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42eb2c82.html" title="动态代理在java反序列化中的应用" target="_blank">动态代理在java反序列化中的应用</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/6f1feaf8.html" title="BinaryFormatter反序列化漏洞之ActivitySurrogateSelector利用链" target="_blank">BinaryFormatter反序列化漏洞之ActivitySurrogateSelector利用链</a>
+			  </li>
+			
+		  </ul>
+		</div>
+	  
+	 
+    </div>
+	
+  </aside>
+  <div id="sidebar-dimmer"></div>
+ 
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Arliya</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">228k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">13:50</span>
+</div>
+  <div class="powered-by">由 <a href="https://github.com/dayutech" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">DayuTech</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+  
+<div id="needsharebutton-float">
+      <span class="btn">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </span>
+    </div>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.js"></script>
+  <script>
+      pbOptions = {};
+        pbOptions.iconStyle = "box";
+        pbOptions.boxForm = "horizontal";
+        pbOptions.position = "bottomCenter";
+        pbOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-postbottom', pbOptions);
+      flOptions = {};
+        flOptions.iconStyle = "box";
+        flOptions.boxForm = "horizontal";
+        flOptions.position = "middleRight";
+        flOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-float', flOptions);
+  </script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.css">
+
+<script>
+NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js', () => {
+    var gitalk = new Gitalk({
+      clientID    : 'Ov23li28mRRYx9D76aAJ',
+      clientSecret: '8f7211d1bd039050ed40345ddf60273d6626ad6f',
+      repo        : 'dayutech.github.io',
+      owner       : 'dayutech',
+      admin       : ['dayutech'],
+      id          : 'b0ff89d4b647781f3902f57e9b39c152',
+        language: 'zh-CN',
+      distractionFreeMode: true
+    });
+    gitalk.render('gitalk-container');
+  }, window.Gitalk);
+});
+</script>
+<style>
+#custom_bar {
+  float: right;
+  font-style: italic;
+  background-color: lightgray;
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  box-shadow: 15px 10px 10px gray;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  min-height: 160px;
+  min-width: 210px;
+  background-size: cover;
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+</style>
+<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today" style="text-align: right;"></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
+<script data-pjax>
+    function newYear() {
+    if (!document.querySelector('#newYear')) return;
+    // 新年时间戳 and 星期对象
+    let SpringFestival = new Date('2026-02-17 00:00:00')
+    let newYear = SpringFestival.getTime() / 1000,
+        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
+    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
+    time();
+
+    function time() {
+        // 现在 时间对象
+        let now = new Date();
+
+        // 右下角 今天
+        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
+
+        // 现在与新年相差秒数
+        let second = newYear - Math.round(now.getTime() / 1000);
+
+        // 小于0则表示已经过年
+        if (second < 0) {
+        window.newYearTimer = null
+        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
+        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
+        } else {
+        // 大于0则还未过年
+        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
+        // 大于一天则直接渲染天数
+        if (second > 86400) {
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
+        } else {
+            // 小于一天则使用时分秒计时。
+            let h = nol(parseInt(second / 3600));
+            second %= 3600;
+            let m = nol(parseInt(second / 60));
+            second %= 60;
+            let s = nol(second);
+            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
+            // 计时
+            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
+        }
+        }
+    }
+    }
+
+    function newYearSwiper() {
+    var swiper = new Swiper('.newYear-slider', {
+        passiveListeners: true,
+        loop: true,
+        // autoplay: false,
+        autoplay: {
+        disableOnInteraction: true,
+        delay: 5000
+        },
+        effect: 'fade',
+        mousewheel: true,
+        autoHeight: true
+    });
+
+    var comtainer = document.querySelector('.newYear-slider');
+    if (comtainer !== null) {
+        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
+        comtainer.onmouseleave = () => { swiper.autoplay.start() };
+    }
+    }
+
+    // 适配了pjax
+    function whenDOMReady() {
+    // pjax加载完成（切换页面）后需要执行的函数和代码
+    newYear()
+    newYearSwiper()
+    }
+
+    whenDOMReady() // 打开网站先执行一次
+    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
+</script>
+
+    </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>
