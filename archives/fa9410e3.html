@@ -581,20 +581,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">114</span>
+          <span class="site-state-item-count">115</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">31</span>
+        <span class="site-state-item-count">33</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">215</span>
+        <span class="site-state-item-count">218</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -630,6 +630,10 @@
 		<!-- 文章排序规格,-updated 按照文章更新时间倒排 -->
 			
 		<!-- 显示10数目的文章 -->
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/a78e85b3.html" title="基于字节码的 Java 依赖项扫描器" target="_blank">基于字节码的 Java 依赖项扫描器</a>
+			  </li>
 			
 			  <li class="postsSidebarNumb" style="text-indent: -1em;">
 				<a href="/archives/8850ca58.html" title="机器学习-贝叶斯分类器" target="_blank">机器学习-贝叶斯分类器</a>
@@ -687,10 +691,6 @@
 				<a href="/archives/42eb2c82.html" title="动态代理在java反序列化中的应用" target="_blank">动态代理在java反序列化中的应用</a>
 			  </li>
 			
-			  <li class="postsSidebarNumb" style="text-indent: -1em;">
-				<a href="/archives/6f1feaf8.html" title="BinaryFormatter反序列化漏洞之ActivitySurrogateSelector利用链" target="_blank">BinaryFormatter反序列化漏洞之ActivitySurrogateSelector利用链</a>
-			  </li>
-			
 		  </ul>
 		</div>
 	  
@@ -724,13 +724,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">站点总字数：</span>
-    <span title="站点总字数">228k</span>
+    <span title="站点总字数">236k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
-    <span title="站点阅读时长">13:50</span>
+    <span title="站点阅读时长">14:17</span>
 </div>
   <div class="powered-by">由 <a href="https://github.com/dayutech" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">DayuTech</a> 强力驱动
   </div>
@@ -866,6 +866,19 @@ window.addEventListener('pjax:success', () => {
 
 
 
+<script data-pjax>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
 
 
     <div id="pjax">
@@ -915,13 +928,17 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
 </script>
 <style>
 #custom_bar {
-  float: right;
   font-style: italic;
-  background-color: lightgray;
   position: fixed;
   top: 20%;
-  right: 50px;
-  box-shadow: 15px 10px 10px gray;
+  right: 16px;
+  left: auto;
+  width: 240px;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 20;
 }
 /* 新年侧边栏 */
 #newYear {
@@ -942,27 +959,36 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
 
 .newYear-slider {
   position: absolute;
-  left: 0;
-  top: 0;
+  inset: 0;
   height: 100%;
   width: 100%;
+  overflow: hidden;
+}
+
+.newYear-slider .swiper-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .newYear-slider .swiper-slide {
-  min-height: 160px;
-  min-width: 210px;
-  background-size: cover;
   position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 100%;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.newYear-slider .swiper-slide.is-active {
+  opacity: 1;
 }
 
 #newYear-main {
   width: 100%;
   pointer-events: none;
   padding: 1rem;
+  box-sizing: border-box;
   position: relative;
   left: 0;
   top: 0;
@@ -984,6 +1010,24 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
 #newYear-main .newYear-time {
   font-weight: bold;
   text-align: center;
+}
+
+#newYear-main .today {
+  width: 100%;
+  text-align: right;
+  margin-top: 4px;
+  padding-right: 3px;
+  box-sizing: border-box;
+}
+
+#newYear-main .today .today-text {
+  display: inline-block;
+  max-width: 100%;
+  text-align: right;
+  font-size: 0.84rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: visible;
 }
 
 #newYear-main .day {
@@ -1008,8 +1052,31 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
 [data-theme=dark] #newYear-main .mask {
   background-color: rgba(0, 0, 0, .3);
 }
+
+.post-body pre.mermaid {
+  background: #fff !important;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.post-body pre.mermaid svg {
+  background: transparent !important;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+@media (max-width: 767px), (hover: none), (pointer: coarse) {
+  #custom_bar {
+    display: none !important;
+  }
+}
 </style>
-<link data-pjax rel="stylesheet" href="https://lf9-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.css">
 <aside id="custom_bar">
     <div id="newYear">
         <div class="newYear-slider">
@@ -1024,87 +1091,258 @@ NexT.utils.loadComments(document.querySelector('#gitalk-container'), () => {
             <div class="mask"></div>
             <p class="title"></p>
             <div class="newYear-time"></div>
-            <p class="today" style="text-align: right;"></p>
+            <p class="today"><span class="today-text"></span></p>
         </div>
     </div>
 </aside>
-<script data-pjax src="https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/Swiper/8.0.6/swiper-bundle.min.js"></script>
 <script data-pjax>
-    function newYear() {
-    if (!document.querySelector('#newYear')) return;
-    // 新年时间戳 and 星期对象
-    let SpringFestival = new Date('2026-02-17 00:00:00')
-    let newYear = SpringFestival.getTime() / 1000,
-        week = { 0: '周日', 1: '周一', 2: '周二', 3: '周三', 4: '周四', 5: '周五', 6: '周六' }
-    function nol(h) { h = Number(h); return h > 9 ? h : '0' + h; }
-    time();
-
-    function time() {
-        // 现在 时间对象
-        let now = new Date();
-
-        // 右下角 今天
-        document.querySelector('#newYear .today').innerHTML = now.getFullYear() + '-' + (now.getMonth() + 1) + '-' + now.getDate() + ' ' + week[now.getDay()]
-
-        // 现在与新年相差秒数
-        let second = newYear - Math.round(now.getTime() / 1000);
-
-        // 小于0则表示已经过年
-        if (second < 0) {
-        window.newYearTimer = null
-        document.querySelector('#newYear .title').innerHTML = 'Happy New Year!';
-        document.querySelector('#newYear .newYear-time').innerHTML = '<span class="happyNewYear">新年快乐</span>';
-        } else {
-        // 大于0则还未过年
-        document.querySelector('#newYear .title').innerHTML = '距离' + SpringFestival.getFullYear() + '年春节：'
-        // 大于一天则直接渲染天数
-        if (second > 86400) {
-            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="day">${Math.ceil(second / 86400)}</span><span class="unit">天</span>`
-        } else {
-            // 小于一天则使用时分秒计时。
-            let h = nol(parseInt(second / 3600));
-            second %= 3600;
-            let m = nol(parseInt(second / 60));
-            second %= 60;
-            let s = nol(second);
-            document.querySelector('#newYear .newYear-time').innerHTML = `<span class="time">${h}:${m}:${s}</span></span>`;
-            // 计时
-            if (!window.newYearTimer) window.newYearTimer = setInterval(time, 1000);
-        }
-        }
-    }
-    }
-
-    function newYearSwiper() {
-    var swiper = new Swiper('.newYear-slider', {
-        passiveListeners: true,
-        loop: true,
-        // autoplay: false,
-        autoplay: {
-        disableOnInteraction: true,
-        delay: 5000
-        },
-        effect: 'fade',
-        mousewheel: true,
-        autoHeight: true
+  (function() {
+    const WEEK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    const DAY_SECONDS = 86400;
+    const DAY_MS = DAY_SECONDS * 1000;
+    const BG_INTERVAL_MS = 10000;
+    const state = window.__newYearCardState || (window.__newYearCardState = {
+      timer: null,
+      bgTimer: null,
+      bgIndex: 0,
+      pjaxBound: false,
+      resizeBound: false,
+      viewportBound: false,
+      resizeTimer: null
+    });
+    const HOLIDAY_LABELS = [
+      '正月初一',
+      '正月初二',
+      '正月初三',
+      '正月初四',
+      '正月初五',
+      '正月初六',
+      '正月初七',
+      '正月初八',
+      '正月初九',
+      '正月初十',
+      '正月十一',
+      '正月十二',
+      '正月十三',
+      '正月十四',
+      '正月十五'
+    ];
+    const SPECIAL_BLESSINGS = {
+      0: '新春大吉',
+      4: '迎财接福',
+      14: '元宵喜乐'
+    };
+    const festivalCache = state.festivalCache || (state.festivalCache = {});
+    const lunarFormatter = new Intl.DateTimeFormat('en-US-u-ca-chinese', {
+      month: 'numeric',
+      day: 'numeric'
     });
 
-    var comtainer = document.querySelector('.newYear-slider');
-    if (comtainer !== null) {
-        comtainer.onmouseenter = () => { swiper.autoplay.stop() };
-        comtainer.onmouseleave = () => { swiper.autoplay.start() };
-    }
+    function isDesktopView() {
+      return window.matchMedia('(min-width: 992px) and (hover: hover) and (pointer: fine)').matches;
     }
 
-    // 适配了pjax
-    function whenDOMReady() {
-    // pjax加载完成（切换页面）后需要执行的函数和代码
-    newYear()
-    newYearSwiper()
+    function placeCard(card) {
+      const viewportPadding = 16;
+      const preferredWidth = 240;
+      const minWidth = 170;
+      const minGapToContent = 8;
+      const mainInner = document.querySelector('.main-inner');
+
+      if (!mainInner) {
+        card.style.width = preferredWidth + 'px';
+        card.style.right = viewportPadding + 'px';
+        card.style.left = 'auto';
+        return true;
+      }
+
+      const rect = mainInner.getBoundingClientRect();
+      const rightSpace = Math.floor(window.innerWidth - rect.right - viewportPadding);
+      const maxWidthBySpace = rightSpace - minGapToContent;
+      if (maxWidthBySpace < minWidth) return false;
+
+      const nextWidth = Math.min(preferredWidth, maxWidthBySpace);
+      card.style.width = nextWidth + 'px';
+      card.style.right = viewportPadding + 'px';
+      card.style.left = 'auto';
+      return true;
     }
 
-    whenDOMReady() // 打开网站先执行一次
-    document.addEventListener("pjax:complete", whenDOMReady) // pjax加载完成（切换页面）后再执行一次
+    function pad2(num) {
+      return num > 9 ? String(num) : '0' + num;
+    }
+
+    function getDaysInMonth(year, month) {
+      return new Date(year, month, 0).getDate();
+    }
+
+    function getSpringFestivalDate(year) {
+      if (festivalCache[year]) return new Date(festivalCache[year].getTime());
+      for (let month = 1; month <= 3; month += 1) {
+        const days = getDaysInMonth(year, month);
+        for (let day = 1; day <= days; day += 1) {
+          const date = new Date(year, month - 1, day, 0, 0, 0);
+          const parts = lunarFormatter.formatToParts(date);
+          const lunarMonth = Number(parts.find(part => part.type === 'month')?.value);
+          const lunarDay = Number(parts.find(part => part.type === 'day')?.value);
+          if (lunarMonth === 1 && lunarDay === 1) {
+            festivalCache[year] = date;
+            return new Date(date.getTime());
+          }
+        }
+      }
+      const fallback = new Date(year, 1, 1, 0, 0, 0);
+      festivalCache[year] = fallback;
+      return new Date(fallback.getTime());
+    }
+
+    function setTodayText(now) {
+      const todayNode = document.querySelector('#newYear .today-text') || document.querySelector('#newYear .today');
+      if (!todayNode) return;
+      todayNode.textContent = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate()) + ' ' + WEEK[now.getDay()];
+    }
+
+    function renderHolidayText(dayIndex, titleNode, timeNode) {
+      const label = HOLIDAY_LABELS[dayIndex] || '春节';
+      const blessing = SPECIAL_BLESSINGS[dayIndex] || '新年快乐';
+      titleNode.textContent = label + ' · 新年快乐';
+      timeNode.innerHTML = '<span class="happyNewYear">' + blessing + '</span>';
+    }
+
+    function renderNewYear() {
+      const titleNode = document.querySelector('#newYear .title');
+      const timeNode = document.querySelector('#newYear .newYear-time');
+      if (!titleNode || !timeNode) return;
+
+      const now = new Date();
+      const nowMs = now.getTime();
+      setTodayText(now);
+
+      const currentYear = now.getFullYear();
+      const currentYearFestival = getSpringFestivalDate(currentYear);
+      const daysFromFestival = Math.floor((nowMs - currentYearFestival.getTime()) / DAY_MS);
+
+      if (daysFromFestival >= 0 && daysFromFestival <= 14) {
+        renderHolidayText(daysFromFestival, titleNode, timeNode);
+        return;
+      }
+
+      const targetYear = nowMs < currentYearFestival.getTime() ? currentYear : currentYear + 1;
+      const targetFestival = targetYear === currentYear ? currentYearFestival : getSpringFestivalDate(targetYear);
+      let second = Math.floor((targetFestival.getTime() - nowMs) / 1000);
+      if (second < 0) second = 0;
+
+      titleNode.textContent = '距离' + targetYear + '年春节：';
+      if (second > DAY_SECONDS) {
+        timeNode.innerHTML = '<span class="day">' + Math.ceil(second / DAY_SECONDS) + '</span><span class="unit">天</span>';
+        return;
+      }
+
+      const h = pad2(parseInt(second / 3600, 10));
+      second %= 3600;
+      const m = pad2(parseInt(second / 60, 10));
+      second %= 60;
+      const s = pad2(second);
+      timeNode.innerHTML = '<span class="time">' + h + ':' + m + ':' + s + '</span>';
+    }
+
+    function clearNewYearTimer() {
+      if (!state.timer) return;
+      window.clearInterval(state.timer);
+      state.timer = null;
+    }
+
+    function initNewYearTimer() {
+      clearNewYearTimer();
+      renderNewYear();
+      state.timer = window.setInterval(renderNewYear, 1000);
+    }
+
+    function setActiveSlide(slides, nextIndex) {
+      slides.forEach((slide, index) => {
+        slide.classList.toggle('is-active', index === nextIndex);
+      });
+    }
+
+    function stopBackgroundSlider() {
+      if (!state.bgTimer) return;
+      window.clearInterval(state.bgTimer);
+      state.bgTimer = null;
+    }
+
+    function destroyBackgroundSlider() {
+      stopBackgroundSlider();
+      const slider = document.querySelector('.newYear-slider');
+      if (slider) {
+        slider.onmouseenter = null;
+        slider.onmouseleave = null;
+      }
+    }
+
+    function initBackgroundSlider() {
+      destroyBackgroundSlider();
+      const slider = document.querySelector('.newYear-slider');
+      if (!slider) return;
+      const slides = Array.from(slider.querySelectorAll('.swiper-slide'));
+      if (slides.length === 0) return;
+
+      state.bgIndex = 0;
+      setActiveSlide(slides, state.bgIndex);
+
+      if (slides.length === 1) return;
+
+      const start = function() {
+        if (state.bgTimer) return;
+        state.bgTimer = window.setInterval(() => {
+          state.bgIndex = (state.bgIndex + 1) % slides.length;
+          setActiveSlide(slides, state.bgIndex);
+        }, BG_INTERVAL_MS);
+      };
+      slider.onmouseenter = stopBackgroundSlider;
+      slider.onmouseleave = start;
+      start();
+    }
+
+    function initNewYearCard() {
+      const card = document.querySelector('#custom_bar');
+      if (!card) return;
+      if (!isDesktopView()) {
+        card.style.display = 'none';
+        clearNewYearTimer();
+        destroyBackgroundSlider();
+        return;
+      }
+      if (!placeCard(card)) {
+        card.style.display = 'none';
+        clearNewYearTimer();
+        destroyBackgroundSlider();
+        return;
+      }
+      card.style.display = '';
+      initBackgroundSlider();
+      initNewYearTimer();
+    }
+
+    function onResize() {
+      if (state.resizeTimer) window.clearTimeout(state.resizeTimer);
+      state.resizeTimer = window.setTimeout(initNewYearCard, 160);
+    }
+
+    if (!state.pjaxBound) {
+      document.addEventListener('pjax:complete', initNewYearCard);
+      state.pjaxBound = true;
+    }
+    if (!state.resizeBound) {
+      window.addEventListener('resize', onResize);
+      state.resizeBound = true;
+    }
+    if (!state.viewportBound && window.visualViewport) {
+      window.visualViewport.addEventListener('resize', onResize);
+      state.viewportBound = true;
+    }
+
+    initNewYearCard();
+  })();
 </script>
 
     </div>

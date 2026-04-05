@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/dayu/dayu-apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dayu/dayu-web-app-manifest-512x512.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/dayu/dayu-web-app-manifest-192x192.png">
+  <link rel="mask-icon" href="/images/dayu/dayu-favicon.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"dayutech.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"gitalk","storage":true,"lazyload":false,"nav":null,"activeClass":"gitalk"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":5,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C&#x2F;C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Dayu Technology Co., LTD">
+<meta property="og:url" content="https://dayutech.github.io/tags/%E4%BE%9D%E8%B5%96%E6%89%AB%E6%8F%8F/index.html">
+<meta property="og:site_name" content="Dayu Technology Co., LTD">
+<meta property="og:description" content="主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C&#x2F;C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="Arliya">
+<meta property="article:tag" content="Java, Scala, C&#x2F;C++, PHP, Python, C#, Golang, 漏洞挖掘，逆向破解，Windows, Linux, IoT, Web安全, 云安全, 主机安全">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://dayutech.github.io/tags/%E4%BE%9D%E8%B5%96%E6%89%AB%E6%8F%8F/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : false,
+    lang   : 'zh-CN'
+  };
+</script>
+<link rel="stylesheet" href="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.css"><style>
+#needsharebutton-postbottom {
+  cursor: pointer;
+  height: 26px;
+  margin-top: 10px;
+  position: relative;
+}
+#needsharebutton-postbottom .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 3px;
+  display: initial;
+  padding: 1px 4px;
+}
+</style><style>
+#needsharebutton-float {
+  bottom: 88px;
+  cursor: pointer;
+  left: -8px;
+  position: fixed;
+  z-index: 9999;
+}
+#needsharebutton-float .btn {
+  border: 1px solid $btn-default-border-color;
+  border-radius: 4px;
+  padding: 0 10px 0 14px;
+}
+</style>
+  <title>标签: 依赖扫描 | Dayu Technology Co., LTD</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><link rel="alternate" href="/atom.xml" title="Dayu Technology Co., LTD" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Dayu Technology Co., LTD</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">大禹科技股份有限公司</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-rss">
+
+    <a href="/atom.xml" rel="section"><i class="fa fa-rss fa-fw"></i>RSS</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+  <a href="https://github.com/dayutech/dayutech.github.io" class="github-corner" title="Dayu GitHub" aria-label="Dayu GitHub" rel="noopener external nofollow noreferrer" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content tag">
+            
+
+  
+  
+  
+  <div class="post-block">
+    <div class="posts-collapse">
+      <div class="collection-title">
+        <h2 class="collection-header">依赖扫描
+          <small>标签</small>
+        </h2>
+      </div>
+
+      
+    <div class="collection-year">
+      <span class="collection-header">2026</span>
+    </div>
+
+  <article itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      <div class="post-meta">
+        <time itemprop="dateCreated"
+              datetime="2026-04-05T10:30:00+08:00"
+              content="2026-04-05">
+          04-05
+        </time>
+      </div>
+
+      <div class="post-title">
+          <a class="post-title-link" href="/archives/a78e85b3.html" itemprop="url">
+            <span itemprop="name">基于字节码的 Java 依赖项扫描器</span>
+          </a>
+      </div>
+
+    </header>
+  </article>
+
+    </div>
+  </div>
+  
+  
+  
+
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Arliya"
+      src="/images/dayu/avatar.png">
+  <p class="site-author-name" itemprop="name">Arliya</p>
+  <div class="site-description" itemprop="description">主要从事Web漏洞挖掘工作，涉猎编程语言包括Java、Scala、C/C++、PHP、Python、C#、Golang，涉及领域包括Web以及二进制漏洞挖掘，二进制比较菜，平时喜欢在金融市场消费</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">115</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">33</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">218</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/dayutech" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;dayutech" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:test@qq.com" title="E-Mail → mailto:test@qq.com" rel="noopener external nofollow noreferrer" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://twitter.com/yourname" title="Twitter → https:&#x2F;&#x2F;twitter.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-twitter fa-fw"></i>Twitter</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://youtube.com/yourname" title="YouTube → https:&#x2F;&#x2F;youtube.com&#x2F;yourname" rel="noopener external nofollow noreferrer" target="_blank"><i class="fab fa-youtube fa-fw"></i>YouTube</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener external nofollow noreferrer" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+	  
+		<div class="links-of-blogroll scroll" style="margin-top:20px; border-style:dotted none none none; padding-top:5px; text-align:left;padding-left: 20px; padding-right: 10px; padding-bottom: 5px;">
+		  <div class="links-of-blogroll-title" style="padding-bottom: 5px; padding-top: 5px; padding-left: 0px; padding-right: 20px; font-size: 1.6em; argin-right: 5px;">
+		<!-- 选择合适的icon --><i class="fab fa-markdown" aria-hidden="true"></i>
+			<b style="font-size: 0.65em; padding-left: 8px; position: relative; top: -2px;">文章列表</b>
+		  </div>
+		  <ul class="links-of-blogroll-list">
+		<!-- 文章排序规格,-updated 按照文章更新时间倒排 -->
+			
+		<!-- 显示10数目的文章 -->
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/a78e85b3.html" title="基于字节码的 Java 依赖项扫描器" target="_blank">基于字节码的 Java 依赖项扫描器</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/8850ca58.html" title="机器学习-贝叶斯分类器" target="_blank">机器学习-贝叶斯分类器</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/ae9520f1.html" title="机器学习-决策树" target="_blank">机器学习-决策树</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/d566d08d.html" title="机器学习-学习器评估比较-二项检验" target="_blank">机器学习-学习器评估比较-二项检验</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/10efd2fb.html" title="机器学习-没有免费的午餐（NFL）" target="_blank">机器学习-没有免费的午餐（NFL）</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/e2189dc7.html" title="机器学习-支持向量机（SVM）" target="_blank">机器学习-支持向量机（SVM）</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/aba9e754.html" title="机器学习-逻辑回归（Logistic-Regression）" target="_blank">机器学习-逻辑回归（Logistic-Regression）</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/3031c334.html" title="Docker 容器操作 Tips" target="_blank">Docker 容器操作 Tips</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/19883263.html" title="机器学习-线性回归" target="_blank">机器学习-线性回归</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/fae3020d.html" title="网络规划设计师备考记录" target="_blank">网络规划设计师备考记录</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/ec714069.html" title="一种隐藏在JWT解析中的绕过漏洞" target="_blank">一种隐藏在JWT解析中的绕过漏洞</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/88c5bdc8.html" title="xerces XML解析特性使用不当导致XXE漏洞" target="_blank">xerces XML解析特性使用不当导致XXE漏洞</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/324e0c68.html" title="C Sharp程序漏洞挖掘过程中一些框架、技巧、逻辑、流程、特性、Sink点、设计模式等知识点记录" target="_blank">C Sharp程序漏洞挖掘过程中一些框架、技巧、逻辑、流程、特性、Sink点、设计模式等知识点记录</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/6e27d7b9.html" title=".Net Remoting 导致的反序列化漏洞" target="_blank">.Net Remoting 导致的反序列化漏洞</a>
+			  </li>
+			
+			  <li class="postsSidebarNumb" style="text-indent: -1em;">
+				<a href="/archives/42eb2c82.html" title="动态代理在java反序列化中的应用" target="_blank">动态代理在java反序列化中的应用</a>
+			  </li>
+			
+		  </ul>
+		</div>
+	  
+	 
+    </div>
+	
+  </aside>
+  <div id="sidebar-dimmer"></div>
+ 
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Arliya</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+      <span class="post-meta-item-text">站点总字数：</span>
+    <span title="站点总字数">236k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span class="post-meta-item-text">站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">14:17</span>
+</div>
+  <div class="powered-by">由 <a href="https://github.com/dayutech" class="theme-link" rel="noopener external nofollow noreferrer" target="_blank">DayuTech</a> 强力驱动
+  </div>
+
+        
+<div class="busuanzi-count">
+  <script data-pjax async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+<script data-pjax>
+if (document.querySelectorAll('pre.mermaid').length) {
+  NexT.utils.getScript('//cdn.jsdelivr.net/npm/mermaid@8/dist/mermaid.min.js', () => {
+    mermaid.initialize({
+      theme    : 'default',
+      logLevel : 3,
+      flowchart: { curve     : 'linear' },
+      gantt    : { axisFormat: '%m/%d/%Y' },
+      sequence : { actorMargin: 50 }
+    });
+  }, window.mermaid);
+}
+</script>
+
+
+    <div id="pjax">
+  
+
+  
+
+  
+<div id="needsharebutton-float">
+      <span class="btn">
+        <i class="fa fa-share-alt" aria-hidden="true"></i>
+      </span>
+    </div>
+  <script src="//cdn.jsdelivr.net/gh/theme-next/theme-next-needmoreshare2@1/needsharebutton.min.js"></script>
+  <script>
+      pbOptions = {};
+        pbOptions.iconStyle = "box";
+        pbOptions.boxForm = "horizontal";
+        pbOptions.position = "bottomCenter";
+        pbOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-postbottom', pbOptions);
+      flOptions = {};
+        flOptions.iconStyle = "box";
+        flOptions.boxForm = "horizontal";
+        flOptions.position = "middleRight";
+        flOptions.networks = "Wechat,QQZone,Weibo,Douban,Twitter,Facebook";
+      new needShareButton('#needsharebutton-float', flOptions);
+  </script>
+<style>
+#custom_bar {
+  font-style: italic;
+  position: fixed;
+  top: 20%;
+  right: 16px;
+  left: auto;
+  width: 240px;
+  max-width: calc(100vw - 32px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 20;
+}
+/* 新年侧边栏 */
+#newYear {
+  color: white;
+  padding: 0 !important;
+}
+
+#newYear p,
+#newYear h3 {
+  font-weight: normal;
+  color: inherit;
+  margin: 0;
+}
+
+#newYear .item-headline {
+  display: none;
+}
+
+.newYear-slider {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.newYear-slider .swiper-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.newYear-slider .swiper-slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+.newYear-slider .swiper-slide.is-active {
+  opacity: 1;
+}
+
+#newYear-main {
+  width: 100%;
+  pointer-events: none;
+  padding: 1rem;
+  box-sizing: border-box;
+  position: relative;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#newYear-main * {
+  position: relative;
+  line-height: 1.3;
+}
+
+#newYear-main .time,
+#newYear-main .happyNewYear {
+  font-size: 3rem;
+  margin: 8px 0;
+  display: block;
+}
+
+#newYear-main .newYear-time {
+  font-weight: bold;
+  text-align: center;
+}
+
+#newYear-main .today {
+  width: 100%;
+  text-align: right;
+  margin-top: 4px;
+  padding-right: 3px;
+  box-sizing: border-box;
+}
+
+#newYear-main .today .today-text {
+  display: inline-block;
+  max-width: 100%;
+  text-align: right;
+  font-size: 0.84rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+#newYear-main .day {
+  font-size: 4rem;
+  letter-spacing: 6px;
+  margin-right: -6px;
+}
+
+#newYear-main .unit {
+  font-size: 1rem;
+}
+
+#newYear-main .mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, .2);
+}
+
+[data-theme=dark] #newYear-main .mask {
+  background-color: rgba(0, 0, 0, .3);
+}
+
+.post-body pre.mermaid {
+  background: #fff !important;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow-x: auto;
+}
+
+.post-body pre.mermaid svg {
+  background: transparent !important;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+@media (max-width: 767px), (hover: none), (pointer: coarse) {
+  #custom_bar {
+    display: none !important;
+  }
+}
+</style>
+<aside id="custom_bar">
+    <div id="newYear">
+        <div class="newYear-slider">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide" style="background-image:url(/images/ma1.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma2.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma3.jpg)"></div>
+                <div class="swiper-slide" style="background-image:url(/images/ma4.jpg)"></div>
+            </div>
+        </div>
+        <div id="newYear-main">
+            <div class="mask"></div>
+            <p class="title"></p>
+            <div class="newYear-time"></div>
+            <p class="today"><span class="today-text"></span></p>
+        </div>
+    </div>
+</aside>
+<script data-pjax>
+  (function() {
+    const WEEK = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    const DAY_SECONDS = 86400;
+    const DAY_MS = DAY_SECONDS * 1000;
+    const BG_INTERVAL_MS = 10000;
+    const state = window.__newYearCardState || (window.__newYearCardState = {
+      timer: null,
+      bgTimer: null,
+      bgIndex: 0,
+      pjaxBound: false,
+      resizeBound: false,
+      viewportBound: false,
+      resizeTimer: null
+    });
+    const HOLIDAY_LABELS = [
+      '正月初一',
+      '正月初二',
+      '正月初三',
+      '正月初四',
+      '正月初五',
+      '正月初六',
+      '正月初七',
+      '正月初八',
+      '正月初九',
+      '正月初十',
+      '正月十一',
+      '正月十二',
+      '正月十三',
+      '正月十四',
+      '正月十五'
+    ];
+    const SPECIAL_BLESSINGS = {
+      0: '新春大吉',
+      4: '迎财接福',
+      14: '元宵喜乐'
+    };
+    const festivalCache = state.festivalCache || (state.festivalCache = {});
+    const lunarFormatter = new Intl.DateTimeFormat('en-US-u-ca-chinese', {
+      month: 'numeric',
+      day: 'numeric'
+    });
+
+    function isDesktopView() {
+      return window.matchMedia('(min-width: 992px) and (hover: hover) and (pointer: fine)').matches;
+    }
+
+    function placeCard(card) {
+      const viewportPadding = 16;
+      const preferredWidth = 240;
+      const minWidth = 170;
+      const minGapToContent = 8;
+      const mainInner = document.querySelector('.main-inner');
+
+      if (!mainInner) {
+        card.style.width = preferredWidth + 'px';
+        card.style.right = viewportPadding + 'px';
+        card.style.left = 'auto';
+        return true;
+      }
+
+      const rect = mainInner.getBoundingClientRect();
+      const rightSpace = Math.floor(window.innerWidth - rect.right - viewportPadding);
+      const maxWidthBySpace = rightSpace - minGapToContent;
+      if (maxWidthBySpace < minWidth) return false;
+
+      const nextWidth = Math.min(preferredWidth, maxWidthBySpace);
+      card.style.width = nextWidth + 'px';
+      card.style.right = viewportPadding + 'px';
+      card.style.left = 'auto';
+      return true;
+    }
+
+    function pad2(num) {
+      return num > 9 ? String(num) : '0' + num;
+    }
+
+    function getDaysInMonth(year, month) {
+      return new Date(year, month, 0).getDate();
+    }
+
+    function getSpringFestivalDate(year) {
+      if (festivalCache[year]) return new Date(festivalCache[year].getTime());
+      for (let month = 1; month <= 3; month += 1) {
+        const days = getDaysInMonth(year, month);
+        for (let day = 1; day <= days; day += 1) {
+          const date = new Date(year, month - 1, day, 0, 0, 0);
+          const parts = lunarFormatter.formatToParts(date);
+          const lunarMonth = Number(parts.find(part => part.type === 'month')?.value);
+          const lunarDay = Number(parts.find(part => part.type === 'day')?.value);
+          if (lunarMonth === 1 && lunarDay === 1) {
+            festivalCache[year] = date;
+            return new Date(date.getTime());
+          }
+        }
+      }
+      const fallback = new Date(year, 1, 1, 0, 0, 0);
+      festivalCache[year] = fallback;
+      return new Date(fallback.getTime());
+    }
+
+    function setTodayText(now) {
+      const todayNode = document.querySelector('#newYear .today-text') || document.querySelector('#newYear .today');
+      if (!todayNode) return;
+      todayNode.textContent = now.getFullYear() + '-' + pad2(now.getMonth() + 1) + '-' + pad2(now.getDate()) + ' ' + WEEK[now.getDay()];
+    }
+
+    function renderHolidayText(dayIndex, titleNode, timeNode) {
+      const label = HOLIDAY_LABELS[dayIndex] || '春节';
+      const blessing = SPECIAL_BLESSINGS[dayIndex] || '新年快乐';
+      titleNode.textContent = label + ' · 新年快乐';
+      timeNode.innerHTML = '<span class="happyNewYear">' + blessing + '</span>';
+    }
+
+    function renderNewYear() {
+      const titleNode = document.querySelector('#newYear .title');
+      const timeNode = document.querySelector('#newYear .newYear-time');
+      if (!titleNode || !timeNode) return;
+
+      const now = new Date();
+      const nowMs = now.getTime();
+      setTodayText(now);
+
+      const currentYear = now.getFullYear();
+      const currentYearFestival = getSpringFestivalDate(currentYear);
+      const daysFromFestival = Math.floor((nowMs - currentYearFestival.getTime()) / DAY_MS);
+
+      if (daysFromFestival >= 0 && daysFromFestival <= 14) {
+        renderHolidayText(daysFromFestival, titleNode, timeNode);
+        return;
+      }
+
+      const targetYear = nowMs < currentYearFestival.getTime() ? currentYear : currentYear + 1;
+      const targetFestival = targetYear === currentYear ? currentYearFestival : getSpringFestivalDate(targetYear);
+      let second = Math.floor((targetFestival.getTime() - nowMs) / 1000);
+      if (second < 0) second = 0;
+
+      titleNode.textContent = '距离' + targetYear + '年春节：';
+      if (second > DAY_SECONDS) {
+        timeNode.innerHTML = '<span class="day">' + Math.ceil(second / DAY_SECONDS) + '</span><span class="unit">天</span>';
+        return;
+      }
+
+      const h = pad2(parseInt(second / 3600, 10));
+      second %= 3600;
+      const m = pad2(parseInt(second / 60, 10));
+      second %= 60;
+      const s = pad2(second);
+      timeNode.innerHTML = '<span class="time">' + h + ':' + m + ':' + s + '</span>';
+    }
+
+    function clearNewYearTimer() {
+      if (!state.timer) return;
+      window.clearInterval(state.timer);
+      state.timer = null;
+    }
+
+    function initNewYearTimer() {
+      clearNewYearTimer();
+      renderNewYear();
+      state.timer = window.setInterval(renderNewYear, 1000);
+    }
+
+    function setActiveSlide(slides, nextIndex) {
+      slides.forEach((slide, index) => {
+        slide.classList.toggle('is-active', index === nextIndex);
+      });
+    }
+
+    function stopBackgroundSlider() {
+      if (!state.bgTimer) return;
+      window.clearInterval(state.bgTimer);
+      state.bgTimer = null;
+    }
+
+    function destroyBackgroundSlider() {
+      stopBackgroundSlider();
+      const slider = document.querySelector('.newYear-slider');
+      if (slider) {
+        slider.onmouseenter = null;
+        slider.onmouseleave = null;
+      }
+    }
+
+    function initBackgroundSlider() {
+      destroyBackgroundSlider();
+      const slider = document.querySelector('.newYear-slider');
+      if (!slider) return;
+      const slides = Array.from(slider.querySelectorAll('.swiper-slide'));
+      if (slides.length === 0) return;
+
+      state.bgIndex = 0;
+      setActiveSlide(slides, state.bgIndex);
+
+      if (slides.length === 1) return;
+
+      const start = function() {
+        if (state.bgTimer) return;
+        state.bgTimer = window.setInterval(() => {
+          state.bgIndex = (state.bgIndex + 1) % slides.length;
+          setActiveSlide(slides, state.bgIndex);
+        }, BG_INTERVAL_MS);
+      };
+      slider.onmouseenter = stopBackgroundSlider;
+      slider.onmouseleave = start;
+      start();
+    }
+
+    function initNewYearCard() {
+      const card = document.querySelector('#custom_bar');
+      if (!card) return;
+      if (!isDesktopView()) {
+        card.style.display = 'none';
+        clearNewYearTimer();
+        destroyBackgroundSlider();
+        return;
+      }
+      if (!placeCard(card)) {
+        card.style.display = 'none';
+        clearNewYearTimer();
+        destroyBackgroundSlider();
+        return;
+      }
+      card.style.display = '';
+      initBackgroundSlider();
+      initNewYearTimer();
+    }
+
+    function onResize() {
+      if (state.resizeTimer) window.clearTimeout(state.resizeTimer);
+      state.resizeTimer = window.setTimeout(initNewYearCard, 160);
+    }
+
+    if (!state.pjaxBound) {
+      document.addEventListener('pjax:complete', initNewYearCard);
+      state.pjaxBound = true;
+    }
+    if (!state.resizeBound) {
+      window.addEventListener('resize', onResize);
+      state.resizeBound = true;
+    }
+    if (!state.viewportBound && window.visualViewport) {
+      window.visualViewport.addEventListener('resize', onResize);
+      state.viewportBound = true;
+    }
+
+    initNewYearCard();
+  })();
+</script>
+
+    </div>
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"debug":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"react":{"opacity":0.7},"log":false});</script></body>
+</html>

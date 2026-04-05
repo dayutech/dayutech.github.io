@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="1500" viewBox="0 0 3000 1500">
+<rect x="0" y="0" width="100%" height="100%" fill="#f8fafc"/>
+
+<style>
+.title { font: 700 52px 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif; fill:#0f172a; }
+.label { font: 700 34px 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif; fill:#0f172a; }
+.body { font: 30px 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif; fill:#111827; }
+.code { font: 40px 'Consolas', 'Cascadia Mono', monospace; fill:#111827; }
+.note { font: 700 31px 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif; fill:#065f46; }
+.warn { font: 700 30px 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif; fill:#9a3412; }
+</style>
+
+<text x="80" y="90" class="title">重打包并去除元数据（Re-bundling + Metadata Strip）</text>
+<rect x="80" y="160" width="1180" height="1120" rx="14" ry="14" fill="#eef2ff" stroke="#334155" stroke-width="2"/>
+<text x="120" y="220" class="label">改造前：uber-jar 保留可追溯元数据</text>
+<rect x="110" y="240" width="1120" height="980" rx="10" ry="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="140" y="320" class="code">app-all.jar</text>
+<text x="140" y="370" class="code">├─ BOOT-INF/classes/...</text>
+<text x="140" y="420" class="code">├─ BOOT-INF/lib/...</text>
+<text x="140" y="470" class="code">├─ META-INF/MANIFEST.MF</text>
+<text x="140" y="520" class="code">├─ META-INF/maven/com.demo/app/pom.xml</text>
+<text x="140" y="570" class="code">├─ META-INF/maven/com.demo/app/pom.properties</text>
+<text x="140" y="620" class="code">└─ build-info.properties</text>
+<text x="140" y="670" class="code"></text>
+<text x="140" y="720" class="code">可见线索：组件坐标、版本、构建时间、来源</text>
+<rect x="1330" y="300" width="340" height="820" rx="14" ry="14" fill="#ecfeff" stroke="#334155" stroke-width="2"/>
+<text x="1382" y="370" class="label">清理动作</text>
+<text x="1350" y="470" class="body">- 删除 pom.xml / pom.p</text>
+<text x="1350" y="540" class="body">roperties</text>
+<text x="1350" y="610" class="body">- 清理 META-INF/maven </text>
+<text x="1350" y="680" class="body">目录</text>
+<text x="1350" y="750" class="body">- 去除时间戳和构建痕迹</text>
+<text x="1350" y="820" class="body">- 仅保留运行所需内容</text>
+<line x1="1260" y1="720" x2="1330" y2="720" stroke="#0f172a" stroke-width="5"/>
+<polygon points="1330,720 1306,707 1306,733" fill="#0f172a"/>
+<line x1="1670" y1="720" x2="1740" y2="720" stroke="#0f172a" stroke-width="5"/>
+<polygon points="1740,720 1716,707 1716,733" fill="#0f172a"/>
+<rect x="1740" y="160" width="1180" height="1120" rx="14" ry="14" fill="#f0fdf4" stroke="#334155" stroke-width="2"/>
+<text x="1780" y="220" class="label">改造后：元数据被剥离</text>
+<rect x="1770" y="240" width="1120" height="980" rx="10" ry="10" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="1800" y="320" class="code">app-all.jar</text>
+<text x="1800" y="370" class="code">├─ BOOT-INF/classes/...</text>
+<text x="1800" y="420" class="code">├─ BOOT-INF/lib/...</text>
+<text x="1800" y="470" class="code">└─ META-INF/MANIFEST.MF（最小化）</text>
+<text x="1800" y="520" class="code"></text>
+<text x="1800" y="570" class="code">缺失：pom 坐标、模块来源、构建版本线索</text>
+<text x="1800" y="620" class="code">身份判定需更多依赖字节码特征与结构证据</text>
+<text x="80" y="1430" class="warn">结论：SBOM/GAV 直连能力下降，扫描需要从二进制本体恢复组件身份。</text>
+</svg>
