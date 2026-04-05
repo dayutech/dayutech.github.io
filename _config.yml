@@ -163,3 +163,6 @@ nofollow:
   enable: true
   field: site
   exclude:
+
+mermaid:
+  enable: true
