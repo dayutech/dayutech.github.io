@@ -854,15 +854,20 @@ if (document.querySelectorAll('pre.mermaid').length) {
   left: auto;
   width: 240px;
   max-width: calc(100vw - 32px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.24);
-  border-radius: 8px;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: visible;
   z-index: 20;
 }
 /* 新年侧边栏 */
 #newYear {
+  position: relative;
   color: white;
   padding: 0 !important;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.22);
 }
 
 #newYear p,
@@ -972,6 +977,59 @@ if (document.querySelectorAll('pre.mermaid').length) {
   background-color: rgba(0, 0, 0, .3);
 }
 
+#festivalNext {
+  color: #fff;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: linear-gradient(145deg, #b91c1c, #dc2626 55%, #f97316);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+}
+
+#festivalNext p,
+#festivalNext h4 {
+  margin: 0;
+  color: inherit;
+  font-weight: normal;
+}
+
+#festivalNext .festival-next-title {
+  font-size: 0.94rem;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+#festivalNext .festival-next-time {
+  text-align: center;
+  font-weight: bold;
+  margin: 4px 0 6px;
+}
+
+#festivalNext .festival-next-time .festival-day {
+  font-size: 2.05rem;
+  letter-spacing: 1px;
+}
+
+#festivalNext .festival-next-time .festival-unit {
+  font-size: 0.88rem;
+  margin-left: 2px;
+}
+
+#festivalNext .festival-next-time .festival-now {
+  font-size: 1.3rem;
+}
+
+#festivalNext .festival-next-desc {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  margin-bottom: 6px;
+}
+
+#festivalNext .festival-next-list {
+  font-size: 0.7rem;
+  line-height: 1.35;
+  opacity: 0.95;
+}
+
 .post-body pre.mermaid {
   background: #fff !important;
   border: 1px solid #e5e7eb;
@@ -1013,6 +1071,12 @@ if (document.querySelectorAll('pre.mermaid').length) {
             <p class="today"><span class="today-text"></span></p>
         </div>
     </div>
+    <div id="festivalNext">
+        <p class="festival-next-title"></p>
+        <div class="festival-next-time"></div>
+        <p class="festival-next-desc"></p>
+        <p class="festival-next-list"></p>
+    </div>
 </aside>
 <script data-pjax>
   (function() {
@@ -1027,7 +1091,9 @@ if (document.querySelectorAll('pre.mermaid').length) {
       pjaxBound: false,
       resizeBound: false,
       viewportBound: false,
-      resizeTimer: null
+      resizeTimer: null,
+      nextFestivalCacheKey: '',
+      nextFestivalCache: null
     });
     const HOLIDAY_LABELS = [
       '正月初一',
@@ -1051,6 +1117,24 @@ if (document.querySelectorAll('pre.mermaid').length) {
       4: '迎财接福',
       14: '元宵喜乐'
     };
+    const TRADITIONAL_FESTIVALS = [
+      { id: 'chuxi', name: '除夕', type: 'special', description: '除夕是农历岁末最后一天，家人团圆守岁，辞旧迎新。' },
+      { id: 'spring', name: '春节', type: 'lunar', month: 1, day: 1, description: '春节是中华民族最重要的传统节日，象征新年新气象。' },
+      { id: 'yuanxiao', name: '元宵节', type: 'lunar', month: 1, day: 15, description: '元宵节在正月十五，赏花灯、吃元宵，寓意团圆美满。' },
+      { id: 'longtaitou', name: '龙抬头', type: 'lunar', month: 2, day: 2, description: '二月二龙抬头，寓意万物生发、风调雨顺。' },
+      { id: 'shangsi', name: '上巳节', type: 'lunar', month: 3, day: 3, description: '上巳节是春季祓禊传统节日，寓意祈福纳祥、清洁身心。' },
+      { id: 'qingming', name: '清明节', type: 'solar', month: 4, description: '清明节兼具节气与节日属性，人们祭祖追思、踏青亲近自然。' },
+      { id: 'duanwu', name: '端午节', type: 'lunar', month: 5, day: 5, description: '端午节在五月初五，赛龙舟、食粽子，传承家国文化记忆。' },
+      { id: 'qixi', name: '七夕节', type: 'lunar', month: 7, day: 7, description: '七夕节是传统乞巧与爱情文化节日，寄托对美好生活的向往。' },
+      { id: 'zhongyuan', name: '中元节', type: 'lunar', month: 7, day: 15, description: '中元节在七月十五，慎终追远、敬祖感恩。' },
+      { id: 'zhongqiu', name: '中秋节', type: 'lunar', month: 8, day: 15, description: '中秋节在八月十五，赏月团聚，寓意阖家团圆。' },
+      { id: 'chongyang', name: '重阳节', type: 'lunar', month: 9, day: 9, description: '重阳节在九月初九，登高望远、敬老祈安。' },
+      { id: 'hanyi', name: '寒衣节', type: 'lunar', month: 10, day: 1, description: '寒衣节在十月初一，表达慎终追远与关怀故人的情感。' },
+      { id: 'xiayuan', name: '下元节', type: 'lunar', month: 10, day: 15, description: '下元节在十月十五，传统上有祈福消灾、感恩天地之意。' },
+      { id: 'laba', name: '腊八节', type: 'lunar', month: 12, day: 8, description: '腊八节在腊月初八，喝腊八粥，寓意丰收与吉祥。' },
+      { id: 'xiaonian', name: '小年', type: 'lunar', month: 12, day: 23, description: '小年是春节前的重要节俗节点，家家扫尘祭灶，准备迎新。' }
+    ];
+    const FESTIVAL_NAME_LIST = TRADITIONAL_FESTIVALS.map(item => item.name).join('、');
     const festivalCache = state.festivalCache || (state.festivalCache = {});
     const lunarFormatter = new Intl.DateTimeFormat('en-US-u-ca-chinese', {
       month: 'numeric',
@@ -1095,22 +1179,85 @@ if (document.querySelectorAll('pre.mermaid').length) {
       return new Date(year, month, 0).getDate();
     }
 
+    function parsePartNumber(value) {
+      const matched = String(value || '').match(/\d+/);
+      return matched ? Number(matched[0]) : NaN;
+    }
+
+    function getLunarMonthDay(date) {
+      const parts = lunarFormatter.formatToParts(date);
+      const lunarMonth = parsePartNumber(parts.find(part => part.type === 'month')?.value);
+      const lunarDay = parsePartNumber(parts.find(part => part.type === 'day')?.value);
+      if (!Number.isFinite(lunarMonth) || !Number.isFinite(lunarDay)) return null;
+      return { month: lunarMonth, day: lunarDay };
+    }
+
+    function getQingmingDay(year) {
+      const y = year % 100;
+      let day = Math.floor(y * 0.2422 + 4.81) - Math.floor((y - 1) / 4);
+      const specialYears = {
+        2008: 4,
+        2016: 4
+      };
+      if (specialYears[year]) day = specialYears[year];
+      return day;
+    }
+
+    function isChineseNewYearEve(date) {
+      const tomorrow = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, 12, 0, 0, 0);
+      const lunarTomorrow = getLunarMonthDay(tomorrow);
+      return !!lunarTomorrow && lunarTomorrow.month === 1 && lunarTomorrow.day === 1;
+    }
+
+    function getFestivalsOnDate(date) {
+      const solarMonth = date.getMonth() + 1;
+      const solarDay = date.getDate();
+      const lunar = getLunarMonthDay(date);
+      const matched = [];
+
+      TRADITIONAL_FESTIVALS.forEach(item => {
+        if (item.type === 'lunar') {
+          if (lunar && lunar.month === item.month && lunar.day === item.day) matched.push(item);
+          return;
+        }
+        if (item.type === 'solar') {
+          const day = item.name === '清明节' ? getQingmingDay(date.getFullYear()) : item.day;
+          if (solarMonth === item.month && solarDay === day) matched.push(item);
+          return;
+        }
+        if (item.type === 'special' && item.name === '除夕' && isChineseNewYearEve(date)) {
+          matched.push(item);
+        }
+      });
+
+      return matched;
+    }
+
+    function getUpcomingTraditionalFestival(todayNoon) {
+      for (let offset = 0; offset <= 420; offset += 1) {
+        const date = new Date(todayNoon.getFullYear(), todayNoon.getMonth(), todayNoon.getDate() + offset, 12, 0, 0, 0);
+        const festivals = getFestivalsOnDate(date);
+        if (festivals.length > 0) {
+          return { date, festivals, days: offset };
+        }
+      }
+      return null;
+    }
+
     function getSpringFestivalDate(year) {
       if (festivalCache[year]) return new Date(festivalCache[year].getTime());
       for (let month = 1; month <= 3; month += 1) {
         const days = getDaysInMonth(year, month);
         for (let day = 1; day <= days; day += 1) {
-          const date = new Date(year, month - 1, day, 0, 0, 0);
-          const parts = lunarFormatter.formatToParts(date);
-          const lunarMonth = Number(parts.find(part => part.type === 'month')?.value);
-          const lunarDay = Number(parts.find(part => part.type === 'day')?.value);
-          if (lunarMonth === 1 && lunarDay === 1) {
+          const date = new Date(year, month - 1, day, 12, 0, 0, 0);
+          const lunar = getLunarMonthDay(date);
+          if (lunar && lunar.month === 1 && lunar.day === 1) {
             festivalCache[year] = date;
             return new Date(date.getTime());
           }
         }
       }
-      const fallback = new Date(year, 1, 1, 0, 0, 0);
+      const fallback = new Date(year, 1, 1, 12, 0, 0, 0);
       festivalCache[year] = fallback;
       return new Date(fallback.getTime());
     }
@@ -1128,6 +1275,49 @@ if (document.querySelectorAll('pre.mermaid').length) {
       timeNode.innerHTML = '<span class="happyNewYear">' + blessing + '</span>';
     }
 
+    function getDateKey(date) {
+      return date.getFullYear() + '-' + pad2(date.getMonth() + 1) + '-' + pad2(date.getDate());
+    }
+
+    function renderNextFestivalCard(now) {
+      const box = document.querySelector('#festivalNext');
+      if (!box) return;
+      const titleNode = box.querySelector('.festival-next-title');
+      const timeNode = box.querySelector('.festival-next-time');
+      const descNode = box.querySelector('.festival-next-desc');
+      const listNode = box.querySelector('.festival-next-list');
+      if (!titleNode || !timeNode || !descNode || !listNode) return;
+
+      const todayNoon = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0, 0);
+      const key = getDateKey(todayNoon);
+      if (state.nextFestivalCacheKey !== key) {
+        state.nextFestivalCache = getUpcomingTraditionalFestival(todayNoon);
+        state.nextFestivalCacheKey = key;
+      }
+
+      const nextFestival = state.nextFestivalCache;
+      listNode.textContent = '传统节日：' + FESTIVAL_NAME_LIST;
+      if (!nextFestival) {
+        titleNode.textContent = '未找到节日数据';
+        timeNode.textContent = '--';
+        descNode.textContent = '';
+        return;
+      }
+
+      const names = nextFestival.festivals.map(item => item.name).join('、');
+      const descriptions = nextFestival.festivals.map(item => item.description).join(' ');
+      if (nextFestival.days === 0) {
+        titleNode.textContent = '今天是' + names;
+        timeNode.innerHTML = '<span class="festival-now">节日快乐</span>';
+        descNode.textContent = descriptions;
+        return;
+      }
+
+      titleNode.textContent = '距离下一个传统节日：' + names;
+      timeNode.innerHTML = '<span class="festival-day">' + nextFestival.days + '</span><span class="festival-unit">天</span>';
+      descNode.textContent = nextFestival.festivals[0].description;
+    }
+
     function renderNewYear() {
       const titleNode = document.querySelector('#newYear .title');
       const timeNode = document.querySelector('#newYear .newYear-time');
@@ -1136,6 +1326,7 @@ if (document.querySelectorAll('pre.mermaid').length) {
       const now = new Date();
       const nowMs = now.getTime();
       setTodayText(now);
+      renderNextFestivalCard(now);
 
       const currentYear = now.getFullYear();
       const currentYearFestival = getSpringFestivalDate(currentYear);
